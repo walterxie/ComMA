@@ -1,13 +1,15 @@
 Package: ComMA
 Type: Package
 Title: Community Matrix Analysis for eDNA data
-Version: 0.1.1
 Date: 2016-02-29
-Author: Walter Xie, Andrew Dopheide, Alexei Drummond
-Maintainer: Walter Xie <walter@cs.auckland.ac.nz>
+Version: 0.0.0.9000
+Authors@R: c(person("Walter", "Xie", email = "walter@cs.auckland.ac.nz", role = c("aut", "cre")),
+			person("Andrew", "Dopheide", role = c("aut")),
+			person("Alexei", "Drummond", role = c("aut", "cph")))
 Description: Community Matrix Analysis
+Depends: R (>= 3.2.3)
 License: GNU3
 LazyData: TRUE
 Imports:
-    tools
+    tools, vegan
 RoxygenNote: 5.0.1.9000

@@ -3,7 +3,7 @@
 # Accessed on 10 Nov 2015
 
 
-#library(ggplot2)
+library(ggplot2)
 
 # http://stackoverflow.com/questions/22295253/force-bars-to-start-from-a-lower-value-than-0-in-ggplot-geom-bar-in-r
 # defining the scale change
