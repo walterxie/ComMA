@@ -11,5 +11,5 @@ Depends: R (>= 3.2.3)
 License: GNU3
 LazyData: TRUE
 Imports:
-    tools, vegan
+    tools, vegan, picante
 RoxygenNote: 5.0.1.9000
