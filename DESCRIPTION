@@ -3,8 +3,11 @@ Type: Package
 Title: Community Matrix Analysis for eDNA data
 Version: 0.1.1
 Date: 2016-02-29
-Author: Walter Xie, Andrew Dopheide, Alexei Drummond 
+Author: Walter Xie, Andrew Dopheide, Alexei Drummond
 Maintainer: Walter Xie <walter@cs.auckland.ac.nz>
 Description: Community Matrix Analysis
 License: GNU3
 LazyData: TRUE
+Imports:
+    tools
+RoxygenNote: 5.0.1.9000

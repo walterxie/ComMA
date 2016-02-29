@@ -16,17 +16,17 @@ library(plyr)
 library(cluster)
 library(ape)
 
-if(!exists("sourcePath")) stop("source path to initiate modules is missing !")
-if(!exists("workingPath")) stop("working path containing data is missing !")
+#if(!exists("sourcePath")) stop("source path to initiate modules is missing !")
+#if(!exists("workingPath")) stop("working path containing data is missing !")
 
-if(!exists("verbose")) verbose <- TRUE
+#if(!exists("verbose")) verbose <- TRUE
 
 # utils, run them before analysis
-source("Modules/IO.R")
-source("Modules/Utils.R")
-source("Modules/UtilsCM.R")
+source("utils/IO.R")
+source("utils/Utils.R")
+source("utils/UtilsCM.R")
 # fundmental functions
-source("Modules/Diversities.R")
+source("analyses/Diversities.R")
 
 # most abundant 150 OTUs
 threshold = 150
@@ -72,11 +72,7 @@ getCommunityMatrix <- function(expId, isPlot, min2) {
     cat("\nUpload community matrix : ", ncol(communityMatrix), "columns,", nrow(communityMatrix), "rows, from", inputCM, "\n") 
   
   if (min2) {
-    singletons <- which(rowSums(communityMatrix)==1)
-    if(verbose) 
-      cat("Remove", length(singletons) ,"singletons from ", matrixName, " !\n")
-    communityMatrix <- communityMatrix[-singletons,]
-    rm(singletons)		
+    rmMinAbundance(communityMatrix, minAbund=1)
   }
   
   return(communityMatrix)

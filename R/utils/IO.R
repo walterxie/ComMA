@@ -11,7 +11,7 @@ mkdir <- function(subDir.path) {
 }
 
 
-write.cm <- function(df, file){
+writeTable <- function(df, file){
   if (tolower(file_ext(file))=="csv") {
     write.csv(df, file, quote=FALSE)
   } else { # .tsv .txt

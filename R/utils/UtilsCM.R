@@ -2,25 +2,32 @@
 # Accessed on 19 Nov 2015
 
 
-# remove singletons from rows/cols
-rmSingletons <- function(communityMatrix, MARGIN=1, verbose=TRUE) {
+#' Remove minimum abundance from rows or colums
+#' For exampe, if minAbund=1, then remove all singletons appeared in only one sample
+#' 
+#' @param communityMatrix Community Matrix (OTU table)
+#' @param minAbund Default to 1 (singletons).
+#' @param MARGIN 1 indicates rows, 2 indicates columns. Default to 1.
+#' @param verbose More details. Default to TRUE.
+#' @examples remove singletons rmMinAbundance(communityMatrix, minAbund=1)
+rmMinAbundance <- function(communityMatrix, minAbund=1, MARGIN=1, verbose=TRUE) {
   if (is.element(1, MARGIN)) {
-    singletons <- which(rowSums(communityMatrix)==1)
+    singletons <- which(rowSums(communityMatrix)<=minAbund)
     communityMatrix <- communityMatrix[-singletons,]
     msg <- "from rows"
   } else if (is.element(2, MARGIN)) {
-    singletons <- which(colSums(communityMatrix)==1)
+    singletons <- which(colSums(communityMatrix)<=minAbund)
     communityMatrix <- communityMatrix[,-singletons]
     msg <- "from columns"
   }
   
   if(verbose) 
-    cat("Remove", length(singletons) ,"singletons", msg, "!\n")
+    cat("Remove", length(singletons), msg, "having minimum abundance <=", minAbund, "!\n")
   
   communityMatrix
 }
 
-# communityMatrix: data frame
+#' Transpose community matrix, mostly used for \pkg{vegan} package
 transposeCM <- function(communityMatrix=communityMatrix) {
   if (!all(sapply(communityMatrix, is.numeric))) 
     stop("All community matrix elements have to be numeric type") 
