@@ -9,7 +9,8 @@
 #' @param minAbund Default to 1 (singletons).
 #' @param MARGIN 1 indicates rows, 2 indicates columns. Default to 1.
 #' @param verbose More details. Default to TRUE.
-#' @keywords ComMA
+#' @return the procceded community matrix
+#' @keywords community matrix
 #' @export
 #' @examples remove singletons rmMinAbundance(communityMatrix, minAbund=1)
 rmMinAbundance <- function(communityMatrix, minAbund=1, MARGIN=1, verbose=TRUE) {

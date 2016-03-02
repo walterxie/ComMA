@@ -22,10 +22,10 @@ library(ape)
 #if(!exists("verbose")) verbose <- TRUE
 
 # utils and fundmental functions, run them before analysis
-source("IO.R")
-source("Utils.R")
-source("UtilsCM.R")
-source("Diversities.R")
+source("R/IO.R")
+source("R/Utils.R")
+source("R/UtilsCM.R")
+source("R/Diversities.R")
 
 # most abundant 150 OTUs
 threshold = 150

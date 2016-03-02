@@ -3,13 +3,16 @@
 library(picante)
 library(cluster)
 
-# Community phylogenetic structure
-# communityMatrix: rows are simples
-# phyloTree: rooted tree of phylo object
-# cm.env: rows are simples, and must be same as rownames(communityMatrix) inlcuding order
-# treepathFileStem: tree file name but not include .tre
-# tableFile: latex file
-# verbose default TRUE
+#' Community phylogenetic structure
+#' @param communityMatrix: rows are simples
+#' @param phyloTree: rooted tree of phylo object
+#' @param cm.env: rows are simples, and must be same as rownames(communityMatrix) inlcuding order
+#' @param treepathFileStem: tree file name but not include .tre
+#' @param tableFile: latex file
+#' @param verbose default TRUE
+#' @export
+#' @examples 
+#' pd.alpha <- phylo.alpha(communityMatrix, phyloTree)
 phylo.alpha <- function(communityMatrix, phyloTree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
   if ( ! all( sort(colnames(communityMatrix)) == sort(phyloTree$tip.label) ) ) 
     stop( paste("Community OTU names do not match tree tip labels") )

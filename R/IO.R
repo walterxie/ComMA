@@ -28,7 +28,7 @@ writeTable <- function(df, file){
 # and another 1-column data frame for the last column (groups). 
 # return a list, where data frame communityMatrix, cols are samples, rows are OTUs/taxa, no preprocessing
 # data frame groups may be NULL depending on hasGroup
-readCommunityMatrixFile <- function(file=file, hasGroup) { 
+readCommunityMatrixFile <- function(file, hasGroup) { 
   if(missing(hasGroup)) hasGroup=FALSE
 
   communityMatrix <- readFile(file)
@@ -52,19 +52,19 @@ readCommunityMatrixFile <- function(file=file, hasGroup) {
   )
 }
 
-readTaxaFile <- function(file=file) { 
+readTaxaFile <- function(file) { 
   taxa <- readFile(file)
   cat("\nUpload taxa file : ", ncol(taxa), "columns,", nrow(taxa), "rows, from", file, "\n") 
   return(taxa)
 }
 
-readEnvDataFile <- function(file=file) { 
+readEnvDataFile <- function(file) { 
   envData <- readFile(file)
   cat("\nUpload environmental data file : ", ncol(envData), "columns,", nrow(envData), "rows, from", file, "\n") 
   return(envData)
 }
 
-readFile <- function(file=file, sep) { 
+readFile <- function(file, sep) { 
   if(missing(sep)) sep="\t" # only work for non csv file
   
   if (tolower(file_ext(file))=="csv") {

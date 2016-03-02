@@ -15,7 +15,7 @@ total_string = "Total"
 # named by melt function
 y_string="value"
 
-tax_ref <- getTaxaRef()
+#tax_ref <- getTaxaRef()
 
 # plot OTUs and reads in one graph, use column "var" to store flag
 # rankLevel: the rank chosen to melt down community matrix
