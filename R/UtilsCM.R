@@ -15,23 +15,29 @@
 #' @examples remove singletons rmMinAbundance(communityMatrix, minAbund=1)
 rmMinAbundance <- function(communityMatrix, minAbund=1, MARGIN=1, verbose=TRUE) {
   if (is.element(1, MARGIN)) {
-    singletons <- which(rowSums(communityMatrix)<=minAbund)
-    communityMatrix <- communityMatrix[-singletons,]
+    rm <- which(rowSums(communityMatrix)<=minAbund)
+    communityMatrix <- communityMatrix[-rm,]
     msg <- "from rows"
   } else if (is.element(2, MARGIN)) {
-    singletons <- which(colSums(communityMatrix)<=minAbund)
-    communityMatrix <- communityMatrix[,-singletons]
+    rm <- which(colSums(communityMatrix)<=minAbund)
+    communityMatrix <- communityMatrix[,-rm]
     msg <- "from columns"
   }
   
   if(verbose) 
-    cat("Remove", length(singletons), msg, "having minimum abundance <=", minAbund, "!\n")
+    cat("Remove", length(rm), msg, "having minimum abundance <=", minAbund, "!\n")
   
   communityMatrix
 }
 
-#' Transpose community matrix, mostly used for \pkg{vegan} package
-transposeCM <- function(communityMatrix=communityMatrix) {
+#' Transpose community matrix, used to provide data matrix for \pkg{vegan} package
+#' 
+#' @param communityMatrix Community Matrix (OTU table)
+#' @return the rotated community matrix
+#' @keywords community matrix
+#' @export
+#' @examples communityMatrixT <- transposeCM(communityMatrix)
+transposeCM <- function(communityMatrix) {
   if (!all(sapply(communityMatrix, is.numeric))) 
     stop("All community matrix elements have to be numeric type") 
   
@@ -41,7 +47,7 @@ transposeCM <- function(communityMatrix=communityMatrix) {
 
 
 ### Combine columns by sample name
-mergeCMSample <- function(communityMatrix=communityMatrix, sep) {
+mergeCMSample <- function(communityMatrix, sep) {
   if(missing(sep)) sep="-"
   
   colnames(communityMatrix) <- sapply(strsplit(colnames(communityMatrix), sep), "[[", 1) # Strip subplot letter by sep

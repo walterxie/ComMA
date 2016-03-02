@@ -1,10 +1,12 @@
+# utils, run them before analysis
+source("R/config.R")
 
 # add postfix for figure name or table label
-postfix <- function(name, isPlot, min2, sep) {
+postfix <- function(name, isPlot, minAbund=1, sep) {
   if (isPlot) 
     name <- paste(name, "byplot", sep = sep) 
-  if (min2) 
-    name <- paste(name, "min2", sep = sep)
+  if (minAbund > 0) 
+    name <- paste(name, "min", minAbund+1, sep = sep)
   
   return(name)
 }
@@ -19,29 +21,19 @@ getPlot <- function(subplots, sep="-") {
 # isPlot determines to use which matrix file, by subplot or plot 
 # min2 = rmSingleton, whether remove all singletons
 # may contain empty rows cols
-getCommunityMatrix <- function(expId, isPlot, min2) {
-  n <- length(matrixNames)
-  matrixName <- matrixNames[expId]
-  
-  # hard code to get Vegetation
-  if (expId==n) {
-    if (!isPlot)
-      stop("Vegetation only has plot based community matrix !")
-    inputCM <- file.path(workingPath, "data", "LBI_Trees_Saplings_SBA.csv")
-  } else if (isPlot) {
-    inputCM <- file.path(workingPath, "data", paste(matrixName, "by_plot.txt", sep="_"))
+getCommunityMatrix <- function(gene, isPlot, minAbund=1) {
+  if (isPlot) {
+    inputCM <- file.path("data", paste(gene, "by_plot.txt", sep="_"))
   } else {
     # e.g. data/16S.txt
-    inputCM <- file.path(workingPath, "data", paste(matrixName, ".txt", sep=""))
+    inputCM <- file.path("data", paste(gene, ".txt", sep=""))
   }
   
   communityMatrix <- readFile(inputCM)
   if(verbose) 
     cat("\nUpload community matrix : ", ncol(communityMatrix), "columns,", nrow(communityMatrix), "rows, from", inputCM, "\n") 
   
-  if (min2) {
-    rmMinAbundance(communityMatrix, minAbund=1)
-  }
+  rmMinAbundance(communityMatrix, minAbund)
   
   return(communityMatrix)
 }
@@ -63,13 +55,13 @@ prepCommunityMatrix <- function(communityMatrix) {
 
 # transposed CM for vegan, and remove empty rows cols 
 # return(NULL) if nrow(taxaPaths) < minRow, default minRow=0
-getCommunityMatrixT <- function(expId, isPlot, min2, taxa.group="all", minRow=0) {
-  communityMatrix <- getCommunityMatrix(expId, isPlot, min2)
+#' @export
+getCommunityMatrixT <- function(gene, isPlot, minAbund=1, taxa.group="all", minRow=0) {
+  communityMatrix <- getCommunityMatrix(gene, isPlot, minAbund)
   
-  n <- length(matrixNames)
-  if (expId < n && taxa.group != "all") {
+  if (taxa.group != "all") {
     ##### load data #####
-    taxaPaths <- getTaxaPaths(expId, taxa.group)
+    taxaPaths <- getTaxaPaths(gene, taxa.group)
     
     if (nrow(taxaPaths) < minRow) {
       cat("Warning: return NULL, because", nrow(taxaPaths), "row(s) classified as", taxa.group, "<", minRow, "threshold.\n")
@@ -109,8 +101,8 @@ getCommunityMatrixT <- function(expId, isPlot, min2, taxa.group="all", minRow=0)
 # PROKARYOTA: all prokaryotes (Bacteria + Archaea)
 # EUKARYOTA: all eukaryotes
 # PROTISTS: "CHROMISTA|PROTOZOA" all micro-eukaryotes
-getTaxaPaths <- function(expId, taxa.group="all", rank="kingdom") {
-  inputTaxa <- file.path(workingPath, "taxonomy_tables", paste(matrixNames[expId], "taxonomy_table.txt", sep="_"))
+getTaxaPaths <- function(gene, taxa.group="all", rank="kingdom") {
+  inputTaxa <- file.path("data", "taxonomy_tables", paste(gene, "taxonomy_table.txt", sep="_"))
   taxaPaths <- readTaxaFile(inputTaxa)	
   taxaPaths <- taxaPaths[order(rownames(taxaPaths)),]
   # make lower case to match ranks
@@ -122,7 +114,7 @@ getTaxaPaths <- function(expId, taxa.group="all", rank="kingdom") {
     # Exclude unassigned etc
     taxaPaths <- subset(taxaPaths, !(grepl("root|cellular organisms|No hits|Not assigned", taxaPaths[,"kingdom"])))  
     # (Only retain prokaryotes for 16S, eukaryotes for the other amplicons)  
-    if (expId==1) {
+    if (toupper(gene)=="16S") {
       taxaPaths <- subset(taxaPaths, (grepl("BACTERIA|ARCHAEA", taxaPaths[,"kingdom"])))  
     } else {
       taxaPaths <- subset(taxaPaths, !(grepl("BACTERIA|ARCHAEA", taxaPaths[,"kingdom"])))
@@ -157,23 +149,23 @@ grepl("Nudibranchia|Crocodylia|Serpentes|Testudines|Carnivora|Gymnophiona|Lagomo
 # groupLevel: used to assign colour for each group, and must higher than rankLevel
 # taxa.group: keep OTU rows contain given taxa group, if "all", keep all
 # return taxaAssgReads = CM + rankLevel + groupLevel
-getTaxaAssgReads <- function(expId, isPlot, min2, rankLevel, groupLevel, taxa.group="all") {
-  cat("Create taxonomy assignment for", matrixNames[expId], ".\n")
+getTaxaAssgReads <- function(gene, isPlot, minAbund=1, rankLevel, groupLevel, taxa.group="all") {
+  cat("Create taxonomy assignment for", gene, ".\n")
   
   ##### load data #####
-  communityMatrix <- getCommunityMatrix(expId, isPlot, min2)
+  communityMatrix <- getCommunityMatrix(gene, isPlot, minAbund)
   communityMatrix <- prepCommunityMatrix(communityMatrix)
   
   communityMatrix <- communityMatrix[order(rownames(communityMatrix)),]
   communityMatrix <- communityMatrix[,order(colnames(communityMatrix))]
   
-  taxaPaths <- getTaxaPaths(expId, taxa.group)
+  taxaPaths <- getTaxaPaths(gene, taxa.group)
   
   ###### taxa assignment by reads #####
   if ( ! tolower(rankLevel) %in% tolower(colnames(taxaPaths)) ) 
-    stop( paste("Column name", rankLevel, "not exist in taxa path file for ", matrixNames[expId]) )
+    stop( paste("Column name", rankLevel, "not exist in taxa path file for ", gene) )
   if (! tolower(groupLevel) %in% tolower(colnames(taxaPaths)) ) 
-    stop( paste("Column name", groupLevel, "not exist in taxa path file for ", matrixNames[expId]) )
+    stop( paste("Column name", groupLevel, "not exist in taxa path file for ", gene) )
   
   colRankLevel <- which(tolower(colnames(taxaPaths))==tolower(rankLevel))
   colGroupLevel <- which(tolower(colnames(taxaPaths))==tolower(groupLevel))
@@ -190,7 +182,7 @@ getTaxaAssgReads <- function(expId, isPlot, min2, rankLevel, groupLevel, taxa.gr
 }
 
 getTaxaRef <- function() {
-  tax_ref <- read.table(file.path(workingPath, "data", "New_taxonomy_from_PLOSONE_2015_fixed.txt"), 
+  tax_ref <- read.table(file.path("data", "New_taxonomy_from_PLOSONE_2015_fixed.txt"), 
                         header = TRUE, sep = "\t", quote = "", comment.char = "")
   # make lower case to match ranks
   colnames(tax_ref) <- tolower(colnames(tax_ref))
@@ -201,7 +193,7 @@ getTaxaRef <- function() {
 
 ###### Trees #####
 getPhyloTree <- function(fNameStem) {
-  inputT <- file.path(workingPath, "trees", paste(fNameStem, "tre", sep = "."))
+  inputT <- file.path("data", "trees", paste(fNameStem, "tre", sep = "."))
   if (file.exists(inputT)) {
     cat("Load tree from", inputT, "\n") 
     tree <- read.tree(inputT)
@@ -223,7 +215,7 @@ getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned") {
     mid.name <- postfix(taxa.group, isPlot, min2, sep="-") 
   }
   
-  inputT <- file.path(workingPath, "data", "pdrf", paste(matrixNames[expId], mid.name, "phylorare", "table.csv", sep="-"))
+  inputT <- file.path("data", "pdrf", paste(matrixNames[expId], mid.name, "phylorare", "table.csv", sep="-"))
   if (file.exists(inputT)) {
     phylo.rare.df <- read.csv(file=inputT, head=TRUE, sep=",", row.names=1, check.names=FALSE)
     if(verbose) 
@@ -237,7 +229,7 @@ getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned") {
 
 ###### table to plot Rarefaction ##### 
 getRarefactionTableTaxa <- function(expId, isPlot, min2, taxa.group, div="alpha1") {
-  pathFileStem <- file.path(workingPath, "data", "rf", paste(matrixNames[expId], 
+  pathFileStem <- file.path("data", "rf", paste(matrixNames[expId], 
                     postfix(taxa.group, isPlot, rmSingleton, sep="-"), sep = "-"))
   inputT <- paste(pathFileStem, "rare", div, "table.csv", sep = "-")
   if (file.exists(inputT)) {
@@ -261,7 +253,7 @@ getRarefactionTable <- function(expId, isPlot, min2) {
     matrixName <- postfix(matrixName, isPlot, min2, sep="-") 
   }
   
-  inputRDT <- file.path(workingPath, "data", paste(matrixName, "rarefaction-table.csv", sep="-"))
+  inputRDT <- file.path("data", paste(matrixName, "rarefaction-table.csv", sep="-"))
   if(verbose) 
     cat("\nUpload rarefaction table : from", inputRDT, "\n") 
   
@@ -280,7 +272,7 @@ getDissimilarityMatrix <- function(expId, isPlot, min2, diss.fun="beta1-1", taxa
     fname <- paste(matrixNames[expId], postfix(taxa.group, isPlot, min2, sep="-"), diss.fun, sep = "-") 
   }
   
-  inputB <- file.path(workingPath, "data", "dist", paste(fname, "csv", sep = "."))
+  inputB <- file.path("data", "dist", paste(fname, "csv", sep = "."))
   if(verbose) 
     cat("\nUpload", diss.fun, "matrix of", taxa.group, "taxa group(s) from", inputB, "\n") 
   
@@ -291,7 +283,7 @@ getDissimilarityMatrix <- function(expId, isPlot, min2, diss.fun="beta1-1", taxa
 
 ###### table to max remained diversity ##### 
 getMaxRemainedDiversity <- function(lev.q, taxa.group="assigned") {
-  inputT <- file.path(workingPath, "data", "maxrd", paste("max-div", lev.q, taxa.group,"table.csv", sep = "-"))
+  inputT <- file.path("data", "maxrd", paste("max-div", lev.q, taxa.group,"table.csv", sep = "-"))
   if (file.exists(inputT)) {
     max.rd <- read.csv(file=inputT, head=TRUE, sep=",", row.names=1, check.names=FALSE)
     if(verbose) 
@@ -304,7 +296,7 @@ getMaxRemainedDiversity <- function(lev.q, taxa.group="assigned") {
 }
 
 getMaxRemainedDiversityRank <- function(lev.q, taxa.group="assigned") {
-  inputT <- file.path(workingPath, "data", "maxrd", paste("max-div-rank", lev.q, taxa.group,"table.csv", sep = "-"))
+  inputT <- file.path("data", "maxrd", paste("max-div-rank", lev.q, taxa.group,"table.csv", sep = "-"))
   if (file.exists(inputT)) {
     max.rd <- read.csv(file=inputT, head=TRUE, sep=",", row.names=1, check.names=FALSE)
     if(verbose) 
@@ -319,10 +311,10 @@ getMaxRemainedDiversityRank <- function(lev.q, taxa.group="assigned") {
 ######## meta data of samples #######
 getSampleMetaData <- function(isPlot) {
   if (isPlot) {
-    inputCM <- file.path(workingPath, "Env_data", "LBI_all_env_data_by_plot.txt")
+    inputCM <- file.path("data", "env", "LBI_all_env_data_by_plot.txt")
   } else {
     # e.g. data/16S.txt
-    inputCM <- file.path(workingPath, "Env_data", "LBI_all_env_data_by_subplot.txt")
+    inputCM <- file.path("data", "env", "LBI_all_env_data_by_subplot.txt")
   }
   if(verbose) 
     cat("\nUpload enviornmental data from", inputCM, "\n") 
