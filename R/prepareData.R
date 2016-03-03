@@ -1,19 +1,49 @@
-# utils, run them before analysis
-source("R/config.R")
 
-# add postfix for figure name or table label
-postfix <- function(name, isPlot, minAbund=1, sep) {
-  if (isPlot) 
-    name <- paste(name, "byplot", sep = sep) 
-  if (minAbund > 0) 
-    name <- paste(name, "min", minAbund+1, sep = sep)
+#' @name getData
+#' @title Get example data for \pkg{ComMA} package
+#'
+#' @description Data \strong{communityMatrix} \strong{t.communityMatrix} is 
+#' a transposed matrix from community matrix we defined here.
+#' \strong{phyloTree} is a rooted tree of phylo object, 
+#' which can get from \pkg{ape} \code{\link{read.tree}}.
+#' 
+# Add postfix for figure name or table label
+#' @param ... A list of names to be concatenated
+#' @param isPlot A rooted tree of phylo object
+#' @param minAbund The minimum abundance threshold to determine which 
+#' row/column to be removed. For exampe, if minAbund=1, then remove 
+#' all singletons appeared in only one sample. Default to 1 (singletons).
+#' But \code{\link{postfix}} is only used for naming, no data processed.
+#' @param sep Default to dash "-"
+#' @export
+#' @examples 
+#' postfix("16S", "assigned")
+#'[1] "16S-assigned-byplot-min2"
+#'
+#' @rdname getData
+postfix <- function(..., isPlot=TRUE, minAbund=1, sep="-") {
+  full.name <- paste(list(...), collapse = sep)
   
-  return(name)
+  if (isPlot) 
+    full.name <- paste(full.name, "byplot", sep = sep) 
+  if (minAbund > 0) 
+    full.name <- paste(full.name, paste0("min", minAbund+1), sep = sep)
+  
+  return(full.name)
 }
 
-# get plot names from subplots vector separated by sep
-getPlot <- function(subplots, sep="-") {
-  sapply(strsplit(as.character(subplots), sep), "[[", 1)
+#' Extract plot names from full names (plot + subplot) separated by \code{sep}.
+#' 
+#' @param full.name The full name has plot and subplot together, but separated by \code{sep}.
+#' @return Plot names.
+#' @export
+#' @examples 
+#' getPlot(c("Plot1-A", "CM30c39-L"))
+#' [1] "Plot1" "CM30c39"
+#' 
+#' @rdname getData
+getPlot <- function(full.name, sep="-") {
+  sapply(strsplit(as.character(full.name), sep), "[[", 1)
 }
 
 ######## load community matrix #######
@@ -21,7 +51,7 @@ getPlot <- function(subplots, sep="-") {
 # isPlot determines to use which matrix file, by subplot or plot 
 # min2 = rmSingleton, whether remove all singletons
 # may contain empty rows cols
-getCommunityMatrix <- function(gene, isPlot, minAbund=1) {
+getCommunityMatrix <- function(gene, isPlot, minAbund=1, verbose=TRUE) {
   if (isPlot) {
     inputCM <- file.path("data", paste(gene, "by_plot.txt", sep="_"))
   } else {
@@ -56,7 +86,7 @@ prepCommunityMatrix <- function(communityMatrix) {
 # transposed CM for vegan, and remove empty rows cols 
 # return(NULL) if nrow(taxaPaths) < minRow, default minRow=0
 #' @export
-getCommunityMatrixT <- function(gene, isPlot, minAbund=1, taxa.group="all", minRow=0) {
+getCommunityMatrixT <- function(gene, isPlot, minAbund=1, taxa.group="all", minRow=0, verbose=TRUE) {
   communityMatrix <- getCommunityMatrix(gene, isPlot, minAbund)
   
   if (taxa.group != "all") {
@@ -101,7 +131,7 @@ getCommunityMatrixT <- function(gene, isPlot, minAbund=1, taxa.group="all", minR
 # PROKARYOTA: all prokaryotes (Bacteria + Archaea)
 # EUKARYOTA: all eukaryotes
 # PROTISTS: "CHROMISTA|PROTOZOA" all micro-eukaryotes
-getTaxaPaths <- function(gene, taxa.group="all", rank="kingdom") {
+getTaxaPaths <- function(gene, taxa.group="all", rank="kingdom", verbose=TRUE) {
   inputTaxa <- file.path("data", "taxonomy_tables", paste(gene, "taxonomy_table.txt", sep="_"))
   taxaPaths <- readTaxaFile(inputTaxa)	
   taxaPaths <- taxaPaths[order(rownames(taxaPaths)),]
@@ -192,7 +222,7 @@ getTaxaRef <- function() {
 }
 
 ###### Trees #####
-getPhyloTree <- function(fNameStem) {
+getPhyloTree <- function(fNameStem, verbose=TRUE) {
   inputT <- file.path("data", "trees", paste(fNameStem, "tre", sep = "."))
   if (file.exists(inputT)) {
     cat("Load tree from", inputT, "\n") 
@@ -206,7 +236,7 @@ getPhyloTree <- function(fNameStem) {
 }
 
 ###### table to plot Phylo Rarefaction ##### 
-getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned") {
+getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned", verbose=TRUE) {
   n <- length(matrixNames) 
   # hard code for Vegetation that only has plot and always keep singletons
   if (expId == n) {
@@ -228,7 +258,7 @@ getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned") {
 }
 
 ###### table to plot Rarefaction ##### 
-getRarefactionTableTaxa <- function(expId, isPlot, min2, taxa.group, div="alpha1") {
+getRarefactionTableTaxa <- function(expId, isPlot, min2, taxa.group, div="alpha1", verbose=TRUE) {
   pathFileStem <- file.path("data", "rf", paste(matrixNames[expId], 
                     postfix(taxa.group, isPlot, rmSingleton, sep="-"), sep = "-"))
   inputT <- paste(pathFileStem, "rare", div, "table.csv", sep = "-")
@@ -243,7 +273,7 @@ getRarefactionTableTaxa <- function(expId, isPlot, min2, taxa.group, div="alpha1
   rare.df
 }
 
-getRarefactionTable <- function(expId, isPlot, min2) {
+getRarefactionTable <- function(expId, isPlot, min2, verbose=TRUE) {
   n <- length(matrixNames) 
   matrixName <- matrixNames[expId]
   # hard code for Vegetation that only has plot and always keep singletons
@@ -263,7 +293,7 @@ getRarefactionTable <- function(expId, isPlot, min2) {
 ###### dissimilarity matrix #####
 # Dissimilarity matrix of paired samples
 # diss.fun = "beta1-1", "jaccard", "horn.morisita"
-getDissimilarityMatrix <- function(expId, isPlot, min2, diss.fun="beta1-1", taxa.group="all") {
+getDissimilarityMatrix <- function(expId, isPlot, min2, diss.fun="beta1-1", taxa.group="all", verbose=TRUE) {
   n <- length(matrixNames) 
   # hard code for Vegetation that only has plot and always keep singletons
   if (expId == n) {
@@ -282,7 +312,7 @@ getDissimilarityMatrix <- function(expId, isPlot, min2, diss.fun="beta1-1", taxa
 }
 
 ###### table to max remained diversity ##### 
-getMaxRemainedDiversity <- function(lev.q, taxa.group="assigned") {
+getMaxRemainedDiversity <- function(lev.q, taxa.group="assigned", verbose=TRUE) {
   inputT <- file.path("data", "maxrd", paste("max-div", lev.q, taxa.group,"table.csv", sep = "-"))
   if (file.exists(inputT)) {
     max.rd <- read.csv(file=inputT, head=TRUE, sep=",", row.names=1, check.names=FALSE)
@@ -295,7 +325,7 @@ getMaxRemainedDiversity <- function(lev.q, taxa.group="assigned") {
   max.rd
 }
 
-getMaxRemainedDiversityRank <- function(lev.q, taxa.group="assigned") {
+getMaxRemainedDiversityRank <- function(lev.q, taxa.group="assigned", verbose=TRUE) {
   inputT <- file.path("data", "maxrd", paste("max-div-rank", lev.q, taxa.group,"table.csv", sep = "-"))
   if (file.exists(inputT)) {
     max.rd <- read.csv(file=inputT, head=TRUE, sep=",", row.names=1, check.names=FALSE)
@@ -308,8 +338,8 @@ getMaxRemainedDiversityRank <- function(lev.q, taxa.group="assigned") {
   max.rd
 }
 
-######## meta data of samples #######
-getSampleMetaData <- function(isPlot) {
+#' meta data of samples
+getSampleMetaData <- function(isPlot, verbose=TRUE) {
   if (isPlot) {
     inputCM <- file.path("data", "env", "LBI_all_env_data_by_plot.txt")
   } else {
@@ -319,6 +349,9 @@ getSampleMetaData <- function(isPlot) {
   if(verbose) 
     cat("\nUpload enviornmental data from", inputCM, "\n") 
   env <- readFile(inputCM)
+  
+  env[,"ForestType"] <- gsub(":.*", "", env[,"ForestType"], ignore.case = T)
+  env[,"ForestType"] <- gsub("x", "unknown", env[,"ForestType"], ignore.case = T)
 }
 
 

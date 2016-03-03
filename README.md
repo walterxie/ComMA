@@ -1,9 +1,9 @@
-# ComMA package
-Community Matrix Analysis for eDNA
+# ComMA R Package
+## Community Matrix Analysis for eDNA
 
 In development
 
-You can use the **devtools** __install_github()__ function to install the lastest development version directly from the GitHub.
+You can use the **devtools** *install\_github()* function to install the lastest development version directly from the GitHub.
 
 ```
 library("devtools")

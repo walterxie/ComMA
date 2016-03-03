@@ -9,8 +9,8 @@ library(vegetarian)
 
 #' Community data from file as a matrix where rows are OTUs or individual species and columns are sites or samples. 
 #' Matrix elements are abundance data (e.g. counts, percent cover estimates).
-#' @param t.communityMatrix is abundances augment in d{vegetarian}, which is a transposed community matrix from file
-diversity.df <- function(t.communityMatrix) { 
+#' @param t.communityMatrix is abundances argument in d{vegetarian}, which is a transposed community matrix from file
+diversityTable <- function(t.communityMatrix) { 
   diversity.df <- data.frame(row.names=c("gamma", "alpha", "beta"))
   
   diversity.df$'q=0' <- c(

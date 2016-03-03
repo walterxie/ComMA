@@ -1,3 +1,17 @@
+#' ComMA R documentation
+#'
+#' \pkg{ComMA} is a collection of tools to analyse community matrix for eDNA.
+#'
+#' \strong{Community matrix} in \pkg{ComMA} is a community data from file as a matrix,
+#' where rows are OTUs or individual species and columns are sites or samples. 
+#' Matrix elements are abundance data (e.g. counts, percent cover estimates).
+#' 
+#' Variable \strong{t.communityMatrix} is abundances argument in \pkg{vegetarian} and \pkg{vegan}, 
+#' which is a transposed matrix from community matrix we defined here.
+#'
+"_PACKAGE"
+#> [1] "_PACKAGE"
+
 library(vegan)
 library(vegetarian)
 library(grid)
@@ -29,3 +43,4 @@ source("R/Diversities.R")
 
 # most abundant 150 OTUs
 threshold = 150
+

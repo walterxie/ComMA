@@ -1,8 +1,16 @@
 # Author: Walter Xie
-# Accessed on 21 Aug 2015
+# Accessed on 3 Mar 2016
 
 library(tools)
-# create folder in path if not exist, such as setup.dir(path, "figures")
+library(xtable)
+
+#' create folder in path if not exist
+#' @param file The file to write, if file extension is \emph{csv}, 
+#' then use \code{write.csv}, otherwise use \code{write.table}.
+#' @export
+#' @examples 
+#' figDir <- file.path(workingPath, "figures")
+#' mkdir(figDir) 
 mkdir <- function(subDir.path) {
   if (!file.exists(subDir.path)) {    
     dir.create(subDir.path)    
@@ -10,8 +18,12 @@ mkdir <- function(subDir.path) {
   cat("\nConfig : setup", subDir.path, "\n")
 }
 
-# write datafram to file
+#' write the data fram (table) to a file
+#' @param df A data frame. 
+#' @param file If file extension is \emph{csv}, then use \code{write.csv}, otherwise use \code{write.table}.
 #' @export
+#' @examples 
+#' writeTable(data.frame, file.path)
 writeTable <- function(df, file){
   if (tolower(file_ext(file))=="csv") {
     write.csv(df, file, quote=FALSE)
@@ -22,6 +34,31 @@ writeTable <- function(df, file){
     write.table(df, file, sep ="\t", quote=FALSE, col.names=FALSE, append=TRUE)
   }
 }
+
+#' print data fram (table) as Latex format to either file or console.
+#' @param df A data frame.
+#' @param caption Latex table caption.
+#' @param label Latex table label.
+#' @param file If NULL, then print the results to console, otherwise print them to the file. Default to NULL. 
+#' @param align Refer to \code{\link{xtable}}.
+#' @param digits Refer to \code{\link{xtable}}. 
+#' @export
+#' @examples 
+#' tableFile <- file.path(workingPath, "report.tex")
+#' printXTable(data.frame, caption = "Phylogenetic beta diversity", 
+#'             label = "tab:pd:beta", file=tableFile)
+printXTable <- function(df, caption, label, file=NULL, align = NULL, digits = NULL) {
+  if (is.null(file)) {
+    print(xtable(df, caption = caption, label = label, caption.placement = "top", 
+                 align = align, digits = digits),
+          sanitize.text.function = function(x){x})
+  } else {
+    print(xtable(df, caption = caption, label = label, caption.placement = "top", 
+                 align = align, digits = digits),
+          sanitize.text.function = function(x){x}, file=file, append=TRUE)
+  }
+}
+
 
 # hasGroup, specify if values in the last column are groups, it affects how to process matrix
 # hasGroup=TRUE, return a data frame by removing last column (groups), 
@@ -74,18 +111,6 @@ readFile <- function(file, sep) {
     df <- read.table(file, sep=sep, header=T, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)  
   }	
   return(df)
-}
-
-printXTable <- function(df, caption, label, file=NULL, align = NULL, digits = NULL) {
-  if (is.null(file)) {
-    print(xtable(df, caption = caption, label = label, caption.placement = "top", 
-          align = align, digits = digits),
-          sanitize.text.function = function(x){x})
-  } else {
-    print(xtable(df, caption = caption, label = label, caption.placement = "top", 
-          align = align, digits = digits),
-          sanitize.text.function = function(x){x}, file=file, append=TRUE)
-  }
 }
 
 

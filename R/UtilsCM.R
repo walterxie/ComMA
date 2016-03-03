@@ -2,17 +2,21 @@
 # Accessed on 19 Nov 2015
 
 
-#' Remove minimum abundance from rows or colums
-#' For exampe, if minAbund=1, then remove all singletons appeared in only one sample
+#' Remove rows or colums in the matrix, whose sum of abundance is 
+#' less and equal to the minimum abundance threshold. 
 #' 
 #' @param communityMatrix Community Matrix (OTU table)
-#' @param minAbund Default to 1 (singletons).
+#' @param minAbund The minimum abundance threshold to determine which 
+#' row/column to be removed. For exampe, if minAbund=1, then remove 
+#' all singletons appeared in only one sample. Default to 1 (singletons).
 #' @param MARGIN 1 indicates rows, 2 indicates columns. Default to 1.
 #' @param verbose More details. Default to TRUE.
 #' @return the procceded community matrix
 #' @keywords community matrix
 #' @export
-#' @examples remove singletons rmMinAbundance(communityMatrix, minAbund=1)
+#' @examples 
+#' remove singletons 
+#' rmMinAbundance(communityMatrix, minAbund=1)
 rmMinAbundance <- function(communityMatrix, minAbund=1, MARGIN=1, verbose=TRUE) {
   if (is.element(1, MARGIN)) {
     rm <- which(rowSums(communityMatrix)<=minAbund)
