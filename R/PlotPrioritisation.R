@@ -3,6 +3,7 @@
 # Accessed on 3 Mar 2016
 
 library(vegetarian)
+library(reshape2)
 
 #' @title Plot prioritisation by Jost diversity
 #'
@@ -81,28 +82,36 @@ getPlotPriorByJostDiversity <- function(t.communityMatrix, lev, q){
 #' The plot prioritisation by Jost diversity can be 
 #' calculated by \code{\link{getPlotPriorByJostDiversity}}. 
 #' 
-#' @param rank.elv
-#' @param fname
-#' @param title
+#' @param ranks.by.gourp A data frame contains ranks by groups for multi-dataset. 
+#' Each column is the ranks of one dataset calculated by \code{\link{getPlotPriorByJostDiversity}}.
+#' Each dataset can be grouped by genes, such as 16S, or by taxonomic groups, such as FUNGI.
+#' @param fname The full path of image file.
+#' @param title Graph title
+#' @param y.lab The label of y-axis, such as plot names
+#' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
+#' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
 #' @keywords plot prioritisation
 #' @export
 #' @examples 
-#' priorPlots <- getPlotPriorByJostDiversity(t.communityMatrix, lev="gamma", q=1)
-#' heatmapPlotPrior(priorPlots, fname="plot-prior-gamma-1-heatmap.pdf", title="gamma-1")
-heatmapPlotPrior <- function(rank.elv, fname, title) {
-  breaks.rank <- round(seq(1, nrow(rank.elv), length.out = 5), digits = 0)
+#' fname.path <- file.path(workingPath, figDir, "plot-prior-gamma-1-heatmap.pdf")
+#' heatmapPlotPrior(ranks.by.gourp, fname.path)
+heatmapPlotPrior <- function(ranks.by.gourp, fname.path, title="Plot Prioritisation Heatmap", y.lab="Plot", 
+                             low="white", high="steelblue", width=6, height=6) {
+  if (!is.element("plot", tolower(colnames(ranks.by.gourp))))
+    stop("Data frame should have \"plot\" column !")
   
-  rank.melt <- melt(rank.elv, id=c("Samples","Elevation","ForestType"))
-  rank.melt$Samples <- factor(rank.melt$Samples, levels=unique(rank.melt$Samples))
-  
-  p <- ggplot(rank.melt, aes(x=variable, y=Samples)) + 
-    geom_tile(aes(fill=value)) + 
-    scale_fill_gradient(na.value="transparent", low="white", high="steelblue", name="rank", breaks=breaks.rank) +
-    ylab("Plot (sorted by elevation)") + ggtitle(title) +
+  breaks.rank <- round(seq(1, nrow(ranks.by.gourp), length.out = 5), digits = 0)
+  ranks.melt <- melt(ranks.by.gourp, id=c("plot"))
+  ranks.melt$plot <- factor(ranks.melt$plot, levels=unique(ranks.melt$plot))
+  # variable is all group names, such as "16S" or "FUNGI"
+  # value is ranks for each group
+  p <- ggplot(ranks.melt, aes(x=variable, y=plot)) + geom_tile(aes(fill=value)) + 
+    scale_fill_gradient(na.value="transparent", low=low, high=high, name="rank", breaks=breaks.rank) +
+    ylab(y.lab) + ggtitle(title) +
     theme(axis.title.x=element_blank(), axis.text.x=element_text(angle=45, hjust=1), 
           panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank())
   
-  pdf(file.path(workingPath, figDir, fname), width=6, height=6)	
+  pdf(fname.path, width=width, height=height)	
   print(p)
   invisible(dev.off()) 
 }
