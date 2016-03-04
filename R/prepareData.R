@@ -47,10 +47,6 @@ getPlot <- function(full.name, sep="-") {
 }
 
 ######## load community matrix #######
-# expId = 1:6
-# isPlot determines to use which matrix file, by subplot or plot 
-# min2 = rmSingleton, whether remove all singletons
-# may contain empty rows cols
 #' @param matrix.name The string to locate the matrix from its file name.
 #' @param isPlot Boolean value to determine the matrix file sampled by subplot or plot
 #' @param minAbund The minimum abundance threshold to determine which 
