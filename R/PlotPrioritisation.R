@@ -4,10 +4,12 @@
 
 library(vegetarian)
 library(reshape2)
+library(ggplot2)
 
 #' @title Plot prioritisation by Jost diversity
 #'
-#' @description Plot prioritisation by Jost diversity calculated from \pkg{vegetarian} \code{\link{d}}.
+#' @description Plot prioritisation by Jost diversity calculated from 
+#' \pkg{vegetarian} \code{\link{d}}.
 #' It uses a greedy algorithm to remove plots sequentially 
 #' so as to minimize the loss of diversity among the remaining plots,
 #' which always chooses the 1st plot if there are multi-results 
@@ -84,8 +86,15 @@ getPlotPriorByJostDiversity <- function(t.communityMatrix, lev, q){
 #' 
 #' @param ranks.by.gourp A data frame contains ranks by groups for multi-dataset. 
 #' Each column is the ranks of one dataset calculated by \code{\link{getPlotPriorByJostDiversity}}.
-#' Each dataset can be grouped by genes, such as 16S, or by taxonomic groups, such as FUNGI.
-#' @param fname The full path of image file.
+#' Each dataset can be grouped by genes, such as 16S, or by taxonomic groups, such as FUNGI. 
+#' For example,
+#' \tabular{rrrr}{
+#'   plot \tab 16s \tab 18s \tab ITS\cr
+#'   CM30c39 \tab 2 \tab 1 \tab 3\cr
+#'   CM30c44 \tab 10 \tab 26 \tab 15\cr
+#'   Plot01 \tab 6 \tab 5 \tab 6 
+#' } 
+#' @param fname.path The full path of image file.
 #' @param title Graph title
 #' @param y.lab The label of y-axis, such as plot names
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
@@ -93,8 +102,9 @@ getPlotPriorByJostDiversity <- function(t.communityMatrix, lev, q){
 #' @keywords plot prioritisation
 #' @export
 #' @examples 
-#' fname.path <- file.path(workingPath, figDir, "plot-prior-gamma-1-heatmap.pdf")
-#' heatmapPlotPrior(ranks.by.gourp, fname.path)
+#' ranks.by.gourp <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
+#' ranks.by.gourp
+#' heatmapPlotPrior(ranks.by.gourp, fname.path="plot-prior-example-heatmap.pdf")
 heatmapPlotPrior <- function(ranks.by.gourp, fname.path, title="Plot Prioritisation Heatmap", y.lab="Plot", 
                              low="white", high="steelblue", width=6, height=6) {
   if (!is.element("plot", tolower(colnames(ranks.by.gourp))))

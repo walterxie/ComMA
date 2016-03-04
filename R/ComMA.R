@@ -6,9 +6,10 @@
 #' where rows are OTUs or individual species and columns are sites or samples. 
 #' Matrix elements are abundance data (e.g. counts, percent cover estimates).
 #' 
-#' Variable \strong{t.communityMatrix} is abundances argument in \pkg{vegetarian} and \pkg{vegan}, 
-#' which is a transposed matrix from community matrix we defined here.
-#'
+#' Variable \strong{t.communityMatrix} is a transposed matrix from community matrix 
+#' we defined here, where columns are OTUs or individual species and rows are sites or samples. 
+#' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
+#' 
 "_PACKAGE"
 #> [1] "_PACKAGE"
 

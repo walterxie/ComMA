@@ -5,7 +5,8 @@
 #' Remove rows or colums in the matrix, whose sum of abundance is 
 #' less and equal to the minimum abundance threshold. 
 #' 
-#' @param communityMatrix Community Matrix (OTU table)
+#' @param communityMatrix Community Matrix (OTU table), where rows are 
+#' OTUs or individual species and columns are sites or samples. 
 #' @param minAbund The minimum abundance threshold to determine which 
 #' row/column to be removed. For exampe, if minAbund=1, then remove 
 #' all singletons appeared in only one sample. Default to 1 (singletons).
@@ -34,7 +35,7 @@ rmMinAbundance <- function(communityMatrix, minAbund=1, MARGIN=1, verbose=TRUE) 
   communityMatrix
 }
 
-#' Transpose community matrix, used to provide data matrix for \pkg{vegan} package
+#' Transposed community matrix for \pkg{vegan} package
 #' 
 #' @param communityMatrix Community Matrix (OTU table)
 #' @return the rotated community matrix

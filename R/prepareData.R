@@ -9,25 +9,25 @@
 #' 
 # Add postfix for figure name or table label
 #' @param ... A list of names to be concatenated
-#' @param isPlot A rooted tree of phylo object
-#' @param minAbund The minimum abundance threshold to determine which 
-#' row/column to be removed. For exampe, if minAbund=1, then remove 
-#' all singletons appeared in only one sample. Default to 1 (singletons).
-#' But \code{\link{postfix}} is only used for naming, no data processed.
 #' @param sep Default to dash "-"
+#' @return \code{postfix} returns a name concatenated by substrings and separated by \code{sep}.
 #' @export
 #' @examples 
 #' postfix("16S", "assigned")
 #'[1] "16S-assigned-byplot-min2"
 #'
 #' @rdname getData
-postfix <- function(..., isPlot=TRUE, minAbund=1, sep="-") {
+postfix <- function(..., isPlot=TRUE, taxa.group="all", minAbund=1, minRich=0, sep="-") {
   full.name <- paste(list(...), collapse = sep)
   
+  if (taxa.group!="all") 
+    full.name <- paste(full.name, "taxa.group", sep = sep) 
   if (isPlot) 
     full.name <- paste(full.name, "byplot", sep = sep) 
   if (minAbund > 0) 
     full.name <- paste(full.name, paste0("min", minAbund+1), sep = sep)
+  if (minRich > 0) 
+    full.name <- paste(full.name, minRich+1, sep = sep)
   
   return(full.name)
 }
@@ -35,7 +35,7 @@ postfix <- function(..., isPlot=TRUE, minAbund=1, sep="-") {
 #' Extract plot names from full names (plot + subplot) separated by \code{sep}.
 #' 
 #' @param full.name The full name has plot and subplot together, but separated by \code{sep}.
-#' @return Plot names.
+#' @return \code{getPlot} returns plot names.
 #' @export
 #' @examples 
 #' getPlot(c("Plot1-A", "CM30c39-L"))
@@ -51,12 +51,28 @@ getPlot <- function(full.name, sep="-") {
 # isPlot determines to use which matrix file, by subplot or plot 
 # min2 = rmSingleton, whether remove all singletons
 # may contain empty rows cols
-getCommunityMatrix <- function(gene, isPlot, minAbund=1, verbose=TRUE) {
+#' @param matrix.name The string to locate the matrix from its file name.
+#' @param isPlot Boolean value to determine the matrix file sampled by subplot or plot
+#' @param minAbund The minimum abundance threshold to determine which 
+#' row/column to be removed. For exampe, if minAbund=1, then remove 
+#' all singletons appeared in only one sample. Default to 1 (singletons).
+#' But \code{postfix} is only used for naming, no data processed.
+#' @param verbose More details. Default to TRUE.
+#' @return \code{getCommunityMatrix} returns a community matrix, 
+#' where rows are OTUs or individual species and columns are sites or samples. 
+#' It may contain empty rows or columns. \code{prepCommunityMatrix} can be used 
+#' to remove them.
+#' @export
+#' @examples 
+#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=0)
+#' 
+#' @rdname getData
+getCommunityMatrix <- function(matrix.name, isPlot, minAbund=1, verbose=TRUE) {
   if (isPlot) {
-    inputCM <- file.path("data", paste(gene, "by_plot.txt", sep="_"))
+    inputCM <- file.path("data", paste(matrix.name, "by_plot.txt", sep="_"))
   } else {
     # e.g. data/16S.txt
-    inputCM <- file.path("data", paste(gene, ".txt", sep=""))
+    inputCM <- file.path("data", paste(matrix.name, ".txt", sep=""))
   }
   
   communityMatrix <- readFile(inputCM)
@@ -68,7 +84,13 @@ getCommunityMatrix <- function(gene, isPlot, minAbund=1, verbose=TRUE) {
   return(communityMatrix)
 }
 
-# remove empty rows cols
+#' remove empty rows or columns after \code{getCommunityMatrix}.
+#' @return \code{prepCommunityMatrix} returns a community matrix no empty rows or columns.
+#' @export
+#' @examples 
+#' communityMatrix <- prepCommunityMatrix(communityMatrix)
+#' 
+#' @rdname getData
 prepCommunityMatrix <- function(communityMatrix) {
   # filter column first to avoid empty rows after columns remvoed if vectorThr>0
   if(any(colSums(communityMatrix)== 0)) {
@@ -83,25 +105,35 @@ prepCommunityMatrix <- function(communityMatrix) {
   return(communityMatrix)
 }
 
-# transposed CM for vegan, and remove empty rows cols 
-# return(NULL) if nrow(taxaPaths) < minRow, default minRow=0
+#' Get a transposed matrix of community matrix, given more filters, such as \code{taxa.group}, \code{minRich}.
+#' 
+#' @param minRich The minimum richness to keep matrix. For example, 
+#' drop the matrix (return NULL) if OTUs less than this threshold. Default to 0.
+#' @return \code{getCommunityMatrixT} returns a transposed matrix of community matrix, 
+#' where columns are OTUs or individual species and rows are sites or samples. 
+#' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
+#' return \emph{NULL}, if no OTUs or OTUs less than \code{minRich} threshold.
 #' @export
-getCommunityMatrixT <- function(gene, isPlot, minAbund=1, taxa.group="all", minRow=0, verbose=TRUE) {
-  communityMatrix <- getCommunityMatrix(gene, isPlot, minAbund)
+#' @examples 
+#' t.communityMatrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=1, taxa.group="BACTERIA")
+#' 
+#' @rdname getData
+getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=1, minRich=0, verbose=TRUE) {
+  communityMatrix <- getCommunityMatrix(matrix.name, isPlot, minAbund)
   
   if (taxa.group != "all") {
     ##### load data #####
-    taxaPaths <- getTaxaPaths(gene, taxa.group)
+    taxaPaths <- getTaxaPaths(matrix.name, taxa.group)
     
-    if (nrow(taxaPaths) < minRow) {
-      cat("Warning: return NULL, because", nrow(taxaPaths), "row(s) classified as", taxa.group, "<", minRow, "threshold.\n")
+    if (nrow(taxaPaths) < minRich) {
+      cat("Warning: return NULL, because", nrow(taxaPaths), "row(s) classified as", taxa.group, "<", minRich, "threshold.\n")
       return(NULL)
     } else {
       # merge needs at least 2 cols 
       taxaAssgReads <- merge(communityMatrix, taxaPaths, by = "row.names")
       
-      if (nrow(taxaAssgReads) < minRow) {
-        cat("Warning: return NULL, because", nrow(taxaAssgReads), "row(s) in cm match", taxa.group, "<", minRow, "threshold.\n")
+      if (nrow(taxaAssgReads) < minRich) {
+        cat("Warning: return NULL, because", nrow(taxaAssgReads), "row(s) in cm match", taxa.group, "<", minRich, "threshold.\n")
         return(NULL)
       }
       
@@ -131,8 +163,23 @@ getCommunityMatrixT <- function(gene, isPlot, minAbund=1, taxa.group="all", minR
 # PROKARYOTA: all prokaryotes (Bacteria + Archaea)
 # EUKARYOTA: all eukaryotes
 # PROTISTS: "CHROMISTA|PROTOZOA" all micro-eukaryotes
-getTaxaPaths <- function(gene, taxa.group="all", rank="kingdom", verbose=TRUE) {
-  inputTaxa <- file.path("data", "taxonomy_tables", paste(gene, "taxonomy_table.txt", sep="_"))
+#' @param taxa.group The taxonomic group, the values can be 'all', 'assigned', or 
+#' Group 'all' includes everything.
+#' Group 'assigned' removes all uncertain classifications including 
+#' 'root', 'cellular organisms', 'No hits', 'Not assigned'. 
+#' Alternatively, any high-ranking taxonomy in your taxonomy file 
+#' can be used as a group, such as 'BACTERIA', 'Proteobacteria', etc.
+#' @return \code{getCommunityMatrixT} returns a transposed matrix of community matrix, 
+#' where columns are OTUs or individual species and rows are sites or samples. 
+#' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
+#' return \emph{NULL}, if no OTUs or OTUs less than \code{minRich} threshold.
+#' @export
+#' @examples 
+#' taxaPaths <- getTaxaPaths(matrix.name="18S", taxa.group="assigned")
+#' 
+#' @rdname getData
+getTaxaPaths <- function(matrix.name, taxa.group="all", rank="kingdom", verbose=TRUE) {
+  inputTaxa <- file.path("data", "taxonomy_tables", paste(matrix.name, "taxonomy_table.txt", sep="_"))
   taxaPaths <- readTaxaFile(inputTaxa)	
   taxaPaths <- taxaPaths[order(rownames(taxaPaths)),]
   # make lower case to match ranks
@@ -144,7 +191,7 @@ getTaxaPaths <- function(gene, taxa.group="all", rank="kingdom", verbose=TRUE) {
     # Exclude unassigned etc
     taxaPaths <- subset(taxaPaths, !(grepl("root|cellular organisms|No hits|Not assigned", taxaPaths[,"kingdom"])))  
     # (Only retain prokaryotes for 16S, eukaryotes for the other amplicons)  
-    if (toupper(gene)=="16S") {
+    if (toupper(matrix.name)=="16S") {
       taxaPaths <- subset(taxaPaths, (grepl("BACTERIA|ARCHAEA", taxaPaths[,"kingdom"])))  
     } else {
       taxaPaths <- subset(taxaPaths, !(grepl("BACTERIA|ARCHAEA", taxaPaths[,"kingdom"])))
@@ -179,23 +226,23 @@ grepl("Nudibranchia|Crocodylia|Serpentes|Testudines|Carnivora|Gymnophiona|Lagomo
 # groupLevel: used to assign colour for each group, and must higher than rankLevel
 # taxa.group: keep OTU rows contain given taxa group, if "all", keep all
 # return taxaAssgReads = CM + rankLevel + groupLevel
-getTaxaAssgReads <- function(gene, isPlot, minAbund=1, rankLevel, groupLevel, taxa.group="all") {
-  cat("Create taxonomy assignment for", gene, ".\n")
+getTaxaAssgReads <- function(matrix.name, isPlot, minAbund=1, rankLevel, groupLevel, taxa.group="all") {
+  cat("Create taxonomy assignment for", matrix.name, ".\n")
   
   ##### load data #####
-  communityMatrix <- getCommunityMatrix(gene, isPlot, minAbund)
+  communityMatrix <- getCommunityMatrix(matrix.name, isPlot, minAbund)
   communityMatrix <- prepCommunityMatrix(communityMatrix)
   
   communityMatrix <- communityMatrix[order(rownames(communityMatrix)),]
   communityMatrix <- communityMatrix[,order(colnames(communityMatrix))]
   
-  taxaPaths <- getTaxaPaths(gene, taxa.group)
+  taxaPaths <- getTaxaPaths(matrix.name, taxa.group)
   
   ###### taxa assignment by reads #####
   if ( ! tolower(rankLevel) %in% tolower(colnames(taxaPaths)) ) 
-    stop( paste("Column name", rankLevel, "not exist in taxa path file for ", gene) )
+    stop( paste("Column name", rankLevel, "not exist in taxa path file for ", matrix.name) )
   if (! tolower(groupLevel) %in% tolower(colnames(taxaPaths)) ) 
-    stop( paste("Column name", groupLevel, "not exist in taxa path file for ", gene) )
+    stop( paste("Column name", groupLevel, "not exist in taxa path file for ", matrix.name) )
   
   colRankLevel <- which(tolower(colnames(taxaPaths))==tolower(rankLevel))
   colGroupLevel <- which(tolower(colnames(taxaPaths))==tolower(groupLevel))
@@ -339,6 +386,13 @@ getMaxRemainedDiversityRank <- function(lev.q, taxa.group="assigned", verbose=TR
 }
 
 #' meta data of samples
+#' 
+#' @return \code{getSampleMetaData} returns a data frame
+#' @export
+#' @examples 
+#' env <- getSampleMetaData(isPlot=TRUE)
+#' 
+#' @rdname getData
 getSampleMetaData <- function(isPlot, verbose=TRUE) {
   if (isPlot) {
     inputCM <- file.path("data", "env", "LBI_all_env_data_by_plot.txt")
