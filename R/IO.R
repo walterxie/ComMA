@@ -1,30 +1,62 @@
 # Author: Walter Xie
 # Accessed on 3 Mar 2016
 
-library(tools)
-library(xtable)
-
-#' create folder in path if not exist
-#' @param file The file to write, if file extension is \emph{csv}, 
-#' then use \code{write.csv}, otherwise use \code{write.table}.
+#' Create folder from \code{\link{file.path}} if not exist.
+#' 
+#' @param dir.path The folder path constructed by \code{\link{file.path}}.
 #' @export
 #' @examples 
 #' figDir <- file.path(workingPath, "figures")
 #' mkdir(figDir) 
-mkdir <- function(subDir.path) {
-  if (!file.exists(subDir.path)) {    
-    dir.create(subDir.path)    
+mkdir <- function(dir.path) {
+  require(tools)
+  if (!file.exists(dir.path)) {    
+    dir.create(dir.path)    
   }
-  cat("\nConfig : setup", subDir.path, "\n")
+  cat("\nConfig : setup", dir.path, "\n")
 }
 
-#' write the data fram (table) to a file
-#' @param df A data frame. 
-#' @param file If file extension is \emph{csv}, then use \code{write.csv}, otherwise use \code{write.table}.
+#' Read a file to return a data frame. 
+#' 
+#' If the file extension is \emph{csv}, 
+#' then use \code{\link{read.csv}}, otherwise use \code{\link{read.table}}.
+#' 
+#' @param file The 1st row is column names, the 1st column is row names.
+#' @param sep Only used for non \emph{csv} file. Default to tab "\\t". 
+#' @return 
+#' A data frame from the file, such as
+#' \tabular{rrrr}{
+#'   OTU_id \tab plot01 \tab plot02\tab ...\cr
+#'   OTU_1 \tab 1 \tab 0 \tab ...\cr
+#'   OTU_2 \tab 100 \tab 200 \tab ...\cr
+#'   OTU_3 \tab 56 \tab 3 \tab ...
+#' }
 #' @export
 #' @examples 
-#' writeTable(data.frame, file.path)
+#' communityMatrix <- readFile("16S.txt")
+readFile <- function(file, sep="\t") { 
+  require(tools)
+  # sep="\t" only work for non csv file
+  if (tolower(file_ext(file))=="csv") {
+    df <- read.csv(file, head=TRUE, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)
+  } else {
+    # be careful read.table bug   
+    df <- read.table(file, sep=sep, header=T, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)  
+  }	
+  return(df)
+}
+
+#' Write the data fram (table) to a file.
+#' 
+#' @param df A data frame. 
+#' @param file If the file extension is \emph{csv}, 
+#' then use \code{\link{write.csv}}, 
+#' otherwise use \code{\link{write.table}}.
+#' @export
+#' @examples 
+#' writeTable(df, file.path)
 writeTable <- function(df, file){
+  require(tools)
   if (tolower(file_ext(file))=="csv") {
     write.csv(df, file, quote=FALSE)
   } else { # .tsv .txt
@@ -35,7 +67,8 @@ writeTable <- function(df, file){
   }
 }
 
-#' print data fram (table) as Latex format to either file or console.
+#' Print data fram (table) as Latex format to either file or console.
+#' 
 #' @param df A data frame.
 #' @param caption Latex table caption.
 #' @param label Latex table label.
@@ -48,6 +81,7 @@ writeTable <- function(df, file){
 #' printXTable(data.frame, caption = "Phylogenetic beta diversity", 
 #'             label = "tab:pd:beta", file=tableFile)
 printXTable <- function(df, caption, label, file=NULL, align = NULL, digits = NULL) {
+  require(xtable)
   if (is.null(file)) {
     print(xtable(df, caption = caption, label = label, caption.placement = "top", 
                  align = align, digits = digits),
@@ -58,7 +92,6 @@ printXTable <- function(df, caption, label, file=NULL, align = NULL, digits = NU
           sanitize.text.function = function(x){x}, file=file, append=TRUE)
   }
 }
-
 
 # hasGroup, specify if values in the last column are groups, it affects how to process matrix
 # hasGroup=TRUE, return a data frame by removing last column (groups), 
@@ -101,16 +134,5 @@ readEnvDataFile <- function(file) {
   return(envData)
 }
 
-readFile <- function(file, sep) { 
-  if(missing(sep)) sep="\t" # only work for non csv file
-  
-  if (tolower(file_ext(file))=="csv") {
-    df <- read.csv(file, head=TRUE, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)
-  } else {
-    # be careful read.table bug   
-    df <- read.table(file, sep=sep, header=T, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)  
-  }	
-  return(df)
-}
 
 

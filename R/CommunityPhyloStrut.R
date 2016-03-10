@@ -1,13 +1,10 @@
 # Picante: R tools for integrating phylogenies and ecology
 
-library(picante)
-library(cluster)
-
 #' @name CommunityPhyloStru
 #' @title Community Phylogenetic Structure from \pkg{picante} Package
 #'
 #' @description Data input \strong{t.communityMatrix} is 
-#' a transposed matrix from community matrix we defined here.
+#' a transposed matrix from community matrix we defined in \pkg{ComMA}.
 #' \strong{phyloTree} is a rooted tree of phylo object, 
 #' which can get from \pkg{ape} \code{\link{read.tree}}.
 #' 
@@ -17,6 +14,8 @@ library(cluster)
 #' @param phyloTree A rooted tree of phylo object
 #' @param ORD.RES The function how to order the sample names in the result
 #' @param verbose default TRUE
+#' @return 
+#' \code{phylo.alpha} returns a data frame  of results from \code{\link{pd}}. 
 #' @export
 #' @examples 
 #' pd.alpha <- phylo.alpha(t.communityMatrix, phyloTree)
@@ -32,6 +31,8 @@ phylo.alpha <- function(t.communityMatrix, phyloTree, ORD.RES=function(res) {res
     cat("Analysis: Faith's phylogenetic alpha diversity.\n") 
   }
   
+  require(picante)
+  
   # phylogenetic alpha diversity (PD) index proposed by Faith (1992)
   pd.result <- pd(t.communityMatrix, phyloTree, include.root = TRUE)
   
@@ -42,6 +43,8 @@ phylo.alpha <- function(t.communityMatrix, phyloTree, ORD.RES=function(res) {res
 #' \code{phylo.mpd} returns \pkg{picante} \code{\link{ses.mpd}}, 
 #' which is MPD standardized effect size of mean pairwise distances in communities.
 #' When used with a phylogenetic distance matrix, equivalent to -1 times the Nearest Taxon Index (NTI).
+#' @return 
+#' \code{phylo.mpd} returns a data frame of results from \code{\link{ses.mpd}}. 
 #' @export
 #' @examples 
 #' pd.mpd <- phylo.mpd(t.communityMatrix, phyloTree)
@@ -50,6 +53,8 @@ phylo.alpha <- function(t.communityMatrix, phyloTree, ORD.RES=function(res) {res
 phylo.mpd <- function(t.communityMatrix, phyloTree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
   if(verbose) 
     cat("Analysis: mean pairwise distance (MPD).\n")
+  
+  require(picante)
   
   # cophenetic distances for a hierarchical clustering
   phydist <- cophenetic(phyloTree)
@@ -63,6 +68,8 @@ phylo.mpd <- function(t.communityMatrix, phyloTree, ORD.RES=function(res) {res[o
 
 #' \code{phylo.mntd} returns \pkg{picante} \code{\link{ses.mntd}}, 
 #' which is MNTD standardized effect size of mean nearest taxon distances in communities
+#' @return 
+#' \code{phylo.mntd} returns a data frame of results from \code{\link{ses.mntd}}. 
 #' @export
 #' @examples 
 #' pd.mntd <- phylo.mntd(t.communityMatrix, phyloTree)
@@ -71,6 +78,8 @@ phylo.mntd <- function(t.communityMatrix, phyloTree, ORD.RES=function(res) {res[
   if(verbose) 
     cat("Analysis: mean nearest taxon distance (MNTD).\n")
 
+  require(picante)
+  
   # cophenetic distances for a hierarchical clustering
   phydist <- cophenetic(phyloTree)
   # MNTD: standardized effect size of mean nearest taxon distances in communities
@@ -81,6 +90,8 @@ phylo.mntd <- function(t.communityMatrix, phyloTree, ORD.RES=function(res) {res[
 
 #' \code{phylo.beta.dist} returns dist object from \pkg{picante} \code{\link{comdist}}, 
 #' which is phylogenetic beta diversity (Steven Kembel).
+#' @return 
+#' \code{phylo.beta.dist} returns a \code{\link{dist}} of results from \code{\link{comdist}}. 
 #' @export
 #' @examples 
 #' pd.beta.dist <- phylo.beta.dist(t.communityMatrix, phyloTree)
@@ -90,6 +101,8 @@ phylo.beta.dist <- function(t.communityMatrix, phyloTree, verbose=TRUE) {
   if(verbose) 
     cat("Analysis: MPD phylogenetic beta diversity.\n")
   
+  require(picante)
+
   # cophenetic distances for a hierarchical clustering
   phydist <- cophenetic(phyloTree)
   # MPD (mean pairwise distance) separating taxa in two communities, phylogenetic beta diversity (Steven Kembel)

@@ -2,15 +2,38 @@
 # Author: Walter Xie, Alexei Drummond
 # Accessed on 9 Sep 2015
 
-library(vegetarian)
-
 ######## Jost diversity section #######
 # t.communityMatrix = t(communityMatrix), row is sample
 
-#' Community data from file as a matrix where rows are OTUs or individual species and columns are sites or samples. 
+#' @name JostDiversity
+#' @title Jost diversity from \pkg{vegetarian} Package
+#'
+#' @description Data input \strong{t.communityMatrix} is 
+#' a transposed matrix of community matrix we defined in \pkg{ComMA}.
+#' Community matrix from file is a matrix where rows are OTUs or individual species 
+#' and columns are sites or samples. 
 #' Matrix elements are abundance data (e.g. counts, percent cover estimates).
-#' @param t.communityMatrix is abundances argument in d{vegetarian}, which is a transposed community matrix from file
+#' 
+#' @param t.communityMatrix is abundances argument in \pkg{vegetarian} \code{\link{d}}, 
+#' which is a transposed matrix of community matrix, 
+#' where rows are plots (Use plots instead of subplots.), columns are OTUs.
+#' @return 
+#' \code{diversityTable} returns a 3x3 data frame: columns are levels of diversity c("gamma", "alpha", "beta"), 
+#' rows are orders of the diversity measure c(0, 1, 2). For example,
+#' \tabular{rrrr}{
+#'    \tab $q=0$ \tab $q=1$ \tab $q=1$\cr
+#'   $D_\\gamma(q)$ \tab 13922.000000 \tab 2501.693162 \tab 601.509610\cr
+#'   $D_\\alpha(q)$ \tab 2238.392857 \tab 880.944977 \tab 251.127187\cr
+#'   $D_\\beta(q)$ \tab 6.219641 \tab 2.839784 \tab 2.395239 
+#' }
+#' @export
+#' @keywords diversity
+#' @examples 
+#' diversity.table <- diversityTable(t.communityMatrix)
+#' 
+#' @rdname JostDiversity
 diversityTable <- function(t.communityMatrix) { 
+  require(vegetarian)
   diversity.df <- data.frame(row.names=c("gamma", "alpha", "beta"))
   
   diversity.df$'q=0' <- c(
@@ -36,9 +59,7 @@ diversityTable <- function(t.communityMatrix) {
 
 #' abundance (reads, gamme0) per sample
 #' return 1-column data frame
-abundancePerSample <- function(t.communityMatrix, hasTotal) {
-  if(missing(hasTotal)) hasTotal=TRUE
-  
+abundancePerSample <- function(t.communityMatrix, hasTotal=TRUE) {
   # gamme0
   perSample <- data.frame(abundance=rowSums(t.communityMatrix), stringsAsFactors=FALSE)
   rownames(perSample) <- rownames(t.communityMatrix)
@@ -53,9 +74,7 @@ abundancePerSample <- function(t.communityMatrix, hasTotal) {
 
 #' richness (OTUs/species) per sample
 #' return 1-column data frame
-richnessPerSample <- function(t.communityMatrix, hasTotal) {
-  if(missing(hasTotal)) hasTotal=TRUE
-  
+richnessPerSample <- function(t.communityMatrix, hasTotal=TRUE) {
   # richness
   perSample <- data.frame(richness=rowSums(t.communityMatrix > 0), stringsAsFactors=FALSE)
   rownames(perSample) <- rownames(t.communityMatrix)
@@ -99,10 +118,19 @@ alpha1 <- function(t.communityMatrix) {
 
 ######## Pair-wise turnovers #######
 
-#' return a matrix cols and rows are sample names 
-#' @param t.communityMatrix a transposed community matrix for \pkg{vegetarian} 
-#' @param diss.fun similarity/dissimilarity index, values are jaccard, horn.morisita, bray.curtis, and beta1-1. 
-#' @param printProgressBar TRUE/FALSE, if missing, it will be nrow(row.pairs)>100
+#' 
+#' @param diss.fun Similarity/dissimilarity index, values are jaccard, horn.morisita, 
+#' bray.curtis, and beta1-1. Default to beta1-1, but it is slower than other indices.
+#' @param printProgressBar Whether to print progress bar, if missing, it will be nrow(row.pairs)>100
+#' @return 
+#' \code{calculateDissimilarityMatrix} returns a \code{\link{matrix}} of similarity/dissimilarity, 
+#' whose rows and columns are sample names
+#' @export
+#' @keywords diversity
+#' @examples 
+#' diss.matrix <- calculateDissimilarityMatrix(t.communityMatrix, diss.fun="jaccard")
+#' 
+#' @rdname JostDiversity
 calculateDissimilarityMatrix <- function(t.communityMatrix, diss.fun="beta1-1", printProgressBar) {    
   # including diagonal
   diss.matrix <- matrix(0,nrow=nrow(t.communityMatrix),ncol=nrow(t.communityMatrix))
@@ -140,10 +168,17 @@ calculateDissimilarityMatrix <- function(t.communityMatrix, diss.fun="beta1-1", 
   return (diss.matrix)
 }
 
-#' Returns a distance matrix composed of pair-wise turnovers
-#' Depends on: vegetarian library 
-#' @param t.communityMatrix a transposed community matrix for \pkg{vegetarian} 
-TurnoverDist<-function(t.communityMatrix){   
+#' 
+#' @return 
+#' \code{TurnoverDist} returns a \code{\link{dist}} composed of pair-wise turnovers.
+#' @export
+#' @keywords diversity
+#' @examples 
+#' turnover.dist <- TurnoverDist(t.communityMatrix)
+#' 
+#' @rdname JostDiversity
+TurnoverDist<-function(t.communityMatrix){ 
+  require(vegetarian)
   to.table<-matrix(0,nrow=nrow(t.communityMatrix),ncol=nrow(t.communityMatrix))
   for(i in 1:nrow(t.communityMatrix)){
     for(j in 1:nrow(t.communityMatrix)){

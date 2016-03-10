@@ -1,15 +1,17 @@
 # Author: Walter Xie, Andrew Dopheide
 # Accessed on 19 Nov 2015
 
-
+#' Remove rows or colums from community matrix
+#' 
 #' Remove rows or colums in the matrix, whose sum of abundance is 
 #' less and equal to the minimum abundance threshold. 
 #' 
 #' @param communityMatrix Community Matrix (OTU table), where rows are 
 #' OTUs or individual species and columns are sites or samples. 
-#' @param minAbund The minimum abundance threshold to determine which 
-#' row/column to be removed. For exampe, if minAbund=1, then remove 
-#' all singletons appeared in only one sample. Default to 1 (singletons).
+#' @param minAbund The minimum abundance threshold to remove rows/columns 
+#' by row/column sum of abundance. For exampe, if minAbund=1, then remove 
+#' all singletons appeared in only one sample. If minAbund=0, 
+#' then remove all empty rows/columns. Default to 1 (singletons).
 #' @param MARGIN 1 indicates rows, 2 indicates columns. Default to 1.
 #' @param verbose More details. Default to TRUE.
 #' @return the procceded community matrix
@@ -21,11 +23,13 @@
 rmMinAbundance <- function(communityMatrix, minAbund=1, MARGIN=1, verbose=TRUE) {
   if (is.element(1, MARGIN)) {
     rm <- which(rowSums(communityMatrix)<=minAbund)
-    communityMatrix <- communityMatrix[-rm,]
+    if (length(rm)>0) 
+      communityMatrix <- communityMatrix[-rm,]
     msg <- "from rows"
   } else if (is.element(2, MARGIN)) {
     rm <- which(colSums(communityMatrix)<=minAbund)
-    communityMatrix <- communityMatrix[,-rm]
+    if (length(rm)>0) 
+      communityMatrix <- communityMatrix[,-rm]
     msg <- "from columns"
   }
   
@@ -96,9 +100,9 @@ preprocessCM <- function(communityMatrix, keepSingleton, rowThr, colThr, mostAbu
     communityMatrix <- keepMostAbundantRows(communityMatrix, mostAbundThr=mostAbundThr)
   }  
   
-  communityMatrix <- rmVectorFromCM(communityMatrix, vectorThr=colThr, MARGIN=2)
+  communityMatrix <- rmMinAbundance(communityMatrix, minAbund=0, MARGIN=2)
   # filter column first to avoid empty rows after columns remvoed
-  communityMatrix <- rmVectorFromCM(communityMatrix, vectorThr=rowThr, MARGIN=1)
+  communityMatrix <- rmMinAbundance(communityMatrix, minAbund=0, MARGIN=1)
   
   # summary
   cat("Processed community matrix : samples = ", ncol(communityMatrix), ", OTUs/taxa = ", nrow(communityMatrix), ".\n") 
@@ -106,33 +110,5 @@ preprocessCM <- function(communityMatrix, keepSingleton, rowThr, colThr, mostAbu
   return(communityMatrix)
 }
 
-
-# MARGIN: 1 indicates rows, 2 indicates columns, c(1, 2) indicates rows and columns.
-# remove row or/and column sum <= vectorThr in communityMatrix
-rmVectorFromCM <- function(communityMatrix, vectorThr, MARGIN) {
-  if(missing(vectorThr)) vectorThr=0
-  if(missing(MARGIN)) MARGIN=c(1,2)
-  
-  row.count <- nrow(communityMatrix)	
-  column.count <- ncol(communityMatrix)
-  
-  # 1 row/col issue
-  if (row.count > 2 && column.count > 2) {
-    if (is.element(1, MARGIN)) {
-      communityMatrix <- communityMatrix[rowSums(communityMatrix) > vectorThr,]
-    } else if (is.element(2, MARGIN)) {
-      communityMatrix <- communityMatrix[,colSums(communityMatrix) > vectorThr]
-    }
-    
-    if (row.count != nrow(communityMatrix)) 
-      cat("Warning : remove", row.count-nrow(communityMatrix), "row(s) whose row sum <=", vectorThr, "!\n")
-    if (column.count != ncol(communityMatrix)) 
-      cat("Warning : remove", column.count-ncol(communityMatrix), "column(s) whose column sum <=", vectorThr, "!\n")
-  } else {
-    cat("Warning : skip filtering for 1 row/column data frame !\n")
-  }
-  
-  return(communityMatrix)
-}
 
 

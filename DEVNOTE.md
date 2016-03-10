@@ -18,4 +18,5 @@ setwd("???/ComMA")
 
 library("devtools")
 install("../ComMA")
+library("ComMA")
 ```

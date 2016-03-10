@@ -10,6 +10,8 @@
 #' we defined here, where columns are OTUs or individual species and rows are sites or samples. 
 #' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
 #' 
+#' @source \url{https://github.com/walterxie/ComMA}
+#' 
 "_PACKAGE"
 #> [1] "_PACKAGE"
 
@@ -30,6 +32,7 @@ library(ggdendro)
 library(plyr)
 library(cluster)
 library(ape)
+library(picante)
 
 #if(!exists("sourcePath")) stop("source path to initiate modules is missing !")
 #if(!exists("workingPath")) stop("working path containing data is missing !")

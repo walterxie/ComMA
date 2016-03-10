@@ -2,9 +2,6 @@
 # Author: Walter Xie
 # Accessed on 3 Mar 2016
 
-library(vegetarian)
-library(reshape2)
-library(ggplot2)
 
 #' @title Plot prioritisation by Jost diversity
 #'
@@ -39,6 +36,8 @@ getPlotPriorByJostDiversity <- function(t.communityMatrix, lev, q){
 	tmpCM <- t.communityMatrix
 	removedSites <- c()
 
+	require(vegetarian)
+	
 	jostDiversity <- d(t.communityMatrix, lev, q)
 	print(paste("Original community Jost diversity ", lev, "(", q, ") = ", jostDiversity, " for ", nrow(t.communityMatrix), "sites", sep=""))
 	# add orignal diversity
@@ -80,52 +79,6 @@ getPlotPriorByJostDiversity <- function(t.communityMatrix, lev, q){
 	return(maxDiv)
 }
 
-#' Create a heat map for plot prioritisation result.
-#' The plot prioritisation by Jost diversity can be 
-#' calculated by \code{\link{getPlotPriorByJostDiversity}}. 
-#' 
-#' @param ranks.by.gourp A data frame contains ranks by groups for multi-dataset. 
-#' Each column is the ranks of one dataset calculated by \code{\link{getPlotPriorByJostDiversity}}.
-#' Each dataset can be grouped by genes, such as 16S, or by taxonomic groups, such as FUNGI. 
-#' For example,
-#' \tabular{rrrr}{
-#'   plot \tab 16s \tab 18s \tab ITS\cr
-#'   CM30c39 \tab 2 \tab 1 \tab 3\cr
-#'   CM30c44 \tab 10 \tab 26 \tab 15\cr
-#'   Plot01 \tab 6 \tab 5 \tab 6 
-#' } 
-#' @param fname.path The full path of image file.
-#' @param title Graph title
-#' @param y.lab The label of y-axis, such as plot names
-#' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
-#' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
-#' @keywords plot prioritisation
-#' @export
-#' @examples 
-#' ranks.by.gourp <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
-#' ranks.by.gourp
-#' heatmapPlotPrior(ranks.by.gourp, fname.path="plot-prior-example-heatmap.pdf")
-heatmapPlotPrior <- function(ranks.by.gourp, fname.path, title="Plot Prioritisation Heatmap", y.lab="Plot", 
-                             low="white", high="steelblue", width=6, height=6) {
-  if (!is.element("plot", tolower(colnames(ranks.by.gourp))))
-    stop("Data frame should have \"plot\" column !")
-  
-  breaks.rank <- round(seq(1, nrow(ranks.by.gourp), length.out = 5), digits = 0)
-  ranks.melt <- melt(ranks.by.gourp, id=c("plot"))
-  ranks.melt$plot <- factor(ranks.melt$plot, levels=unique(ranks.melt$plot))
-  # variable is all group names, such as "16S" or "FUNGI"
-  # value is ranks for each group
-  p <- ggplot(ranks.melt, aes(x=variable, y=plot)) + geom_tile(aes(fill=value)) + 
-    scale_fill_gradient(na.value="transparent", low=low, high=high, name="rank", breaks=breaks.rank) +
-    ylab(y.lab) + ggtitle(title) +
-    theme(axis.title.x=element_blank(), axis.text.x=element_text(angle=45, hjust=1), 
-          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank())
-  
-  pdf(fname.path, width=width, height=height)	
-  print(p)
-  invisible(dev.off()) 
-}
-
 
 # maximum and minimum Jost diversity of all possible combinations of m_comb plots
 # TODO old code, need to re-write 
@@ -143,10 +96,10 @@ getCombPlotPriorByJostDiversity <- function(t.communityMatrix, m_comb) {
         if (length(plotId) != m_comb) 
 			stop(paste("Cannot find plot index from community matrix", plots))
     
-		diversity_table <- diversityTable(t.communityMatrix[plotId,])
+		diversity.table <- diversityTable(t.communityMatrix[plotId,])
 
 		for (j in  1:9) {
-		   d.comb[j,i] <- unlist(diversity_table)[j]
+		   d.comb[j,i] <- unlist(diversity.table)[j]
 		}
 	}
 	
