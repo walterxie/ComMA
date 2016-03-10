@@ -31,8 +31,12 @@ library(reshape2)
 library(ggdendro)
 library(plyr)
 library(cluster)
+###CommunityPhyloStru
 library(ape)
 library(picante)
+###RDA
+library(VIF)
+library(scales)
 
 #if(!exists("sourcePath")) stop("source path to initiate modules is missing !")
 #if(!exists("workingPath")) stop("working path containing data is missing !")

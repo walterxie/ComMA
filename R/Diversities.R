@@ -1,4 +1,3 @@
-
 # Author: Walter Xie, Alexei Drummond
 # Accessed on 9 Sep 2015
 
@@ -118,6 +117,7 @@ alpha1 <- function(t.communityMatrix) {
 
 ######## Pair-wise turnovers #######
 
+#' Calculate similarity/dissimilarity distance matrix between samples.
 #' 
 #' @param diss.fun Similarity/dissimilarity index, values are jaccard, horn.morisita, 
 #' bray.curtis, and beta1-1. Default to beta1-1, but it is slower than other indices.
@@ -168,6 +168,7 @@ calculateDissimilarityMatrix <- function(t.communityMatrix, diss.fun="beta1-1", 
   return (diss.matrix)
 }
 
+#' Calculate pair-wise turnovers between samples.
 #' 
 #' @return 
 #' \code{TurnoverDist} returns a \code{\link{dist}} composed of pair-wise turnovers.

@@ -1,23 +1,31 @@
 # A Caution Regarding Rules of Thumb for Variance Inflation Factors
 # http://link.springer.com/article/10.1007/s11135-006-9018-6
 
-library(vegan)
-library(ggplot2)
-library(grid)
-library(VIF)
-library(xtable)
-library(scales)
-
-#source("Modules/init.R", local=TRUE)
-#source("Modules/vif_function.R", local=TRUE)
-
-# cm.or.dist: rows are simples
-# env: rows are simples, and must be same as rownames(cm.or.dist) inlcuding order
-# tableFile: latex file
-# verbose default TRUE
-proceedRDA <- function(cm.or.dist, env, tableFile=NULL, verbose=TRUE) {
+#' Redundancy Analysis using \pkg{vegan} \code{\link{capscale}}
+#' 
+#' Constrained Analysis of Principal Coordinates for eDNA data set 
+#' given environmental variables.
+#' 
+#' @param cm.or.dist A data frame or dist. Rows are samples.
+#' @param env rows are samples, and must be same as rownames(cm.or.dist) inlcuding order.
+#' @param matrix.name The string to locate the matrix from its file name. 
+#' Only used for table name and label here.
+#' @param taxa.group The taxonomic group. Only used for table name and label here. 
+#' @param table.file If NULL, then print the results to console, 
+#' otherwise print them to the file. Default to NULL.
+#' @param verbose More details. Default to TRUE.
+#' @return 
+#' A list of results from RDA including 3 data frames. 
+#' @export
+#' @examples 
+#' rda.list <- proceedRDA(cm.or.dist, env, matrix.name="16S", taxa.group="BACTERIA")
+proceedRDA <- function(cm.or.dist, env, matrix.name="", taxa.group="", table.file=NULL, verbose=TRUE) {
   if ( all( tolower(rownames(env)) != tolower(rownames(as.matrix(cm.or.dist))) ) ) 
     stop("Site names in community matrix and environmental data file not matched !")
+  
+  require(vegan)
+  #require(VIF)
+  source("R/vif_function.R", local=TRUE)
   
   # Constrained ordination ------------------------------------------------------
   rda_table <- data.frame(row.names=c("Constrained","Unconstrained"))
@@ -116,8 +124,8 @@ proceedRDA <- function(cm.or.dist, env, tableFile=NULL, verbose=TRUE) {
   anova_table$Proportion <- gsub("%", "\\\\%", anova_table$Proportion)
   
   printXTable(anova_table, caption = paste("Distance-based redundancy analysis and their ANOVA tests 
-          in each step for the eDNA biodiversity data sets", matrixNames[expId], taxa.group), 
-          label = paste("tab:rdaAnova", matrixNames[expId], taxa.group, sep = ":"), file=tableFile)
+          in each step for the eDNA biodiversity data sets", matrix.name, taxa.group), 
+          label = paste("tab:rdaAnova", matrix.name, taxa.group, sep = ":"), file=table.file)
   
   rda_table$Proportion <- gsub("%", "\\\\%", rda_table$Proportion)
   rda_table$Proportion.R <- gsub("%", "\\\\%", rda_table$Proportion.R)
@@ -125,8 +133,8 @@ proceedRDA <- function(cm.or.dist, env, tableFile=NULL, verbose=TRUE) {
   rda_table$Proportion.B <- gsub("%", "\\\\%", rda_table$Proportion.B)
   
   printXTable(rda_table, caption = paste("The constrained and unconstrained inertia changes during 
-          distance-based redundancy analysis for the eDNA biodiversity data sets", matrixNames[expId], taxa.group), 
-          label = paste("tab:rda", matrixNames[expId], taxa.group, sep = ":"), file=tableFile)
+          distance-based redundancy analysis for the eDNA biodiversity data sets", matrix.name, taxa.group), 
+          label = paste("tab:rda", matrix.name, taxa.group, sep = ":"), file=table.file)
   
   # Return a list 
   list(
