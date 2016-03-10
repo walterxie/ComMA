@@ -1,11 +1,21 @@
-
+# Utils
 # Author: Walter Xie
 # Accessed on 11 Mar 2016
 
 
-# http://stackoverflow.com/questions/22295253/force-bars-to-start-from-a-lower-value-than-0-in-ggplot-geom-bar-in-r
-# defining the scale change
-# scale_y_continuous(trans = mylog_trans(base=10, from=-2)) # starts from 1e-2
+#' Defining the scale change.
+#' It is mostly used to force bars to start from a lower value than 0 in \pkg{ggplot2} \code{\link{geom_bar}} in R
+#' @source \url{http://stackoverflow.com/questions/22295253/force-bars-to-start-from-a-lower-value-than-0-in-ggplot-geom-bar-in-r}
+#' 
+#' @param base The base of logarithm to use. Default to exp(1).
+#' @param from The value to start from. Default to 0.
+#' @return
+#' The scale.
+#' @keywords utils
+#' @export
+#' @examples 
+#' # starts from 1e-2
+#' scale_y_continuous(trans = mylog_trans(base=10, from=-2))
 mylog_trans <- function(base=exp(1), from=0) {
   require(scales)
   trans <- function(x) log(x, base)-from
@@ -13,27 +23,36 @@ mylog_trans <- function(base=exp(1), from=0) {
   trans_new("mylog", trans, inv, log_breaks(base=base), domain = c(base^from, Inf))
 }
 
-#extract legend
-#https://github.com/hadley/ggplot2/wiki/Share-a-legend-between-two-ggplot2-graphs
-g_legend<-function(a.gplot){
-  tmp <- ggplot_gtable(ggplot_build(a.gplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)
-}
-
-# Fix x-axis number format
+#' Scientific notation
+#' 
+#' @param x The number (not string type).
+#' @return
+#' The mathematical \code{\link{expression}} in scientific notation of a given number.
+#' @keywords utils
+#' @export
+#' @examples 
+#' scientific_10(10000)
+#' expression(10^04)
 scientific_10 <- function(x) {
+  require(scales)
   text=gsub("1e\\+00", "1", scientific_format()(x))
   text=gsub("1e\\+01", "10", text)
   text=gsub("1e\\+", "10^", text)
   parse(text=text)
 }
 
-######## get table in the format of "corr (sign)" #######
-# Input: corr.sign.matrix is a matrix having same row and col names, 
-# lower triangle is correlations (or equivalent), upper triangle is significance
-# Output corr.sign.table is in the format of "corr (sign)"
+#' Get a table in the format of 'corr (sign)'
+#' 
+#' @param corr.sign.matrix The \code{\link{matrix}} of pairwised correlations and significance, 
+#' where the upper triangle is significance and the lower triangle is correlation (or equivalent).
+#' @param digits The number of digits to keep.  
+#' @return
+#' The matrix of strings in the format of 'corr (sign)' for report.
+#' @keywords utils
+#' @export
+#' @examples 
+#' 
+#' getCorrSignTable(corr.sign.matrix, digits=2)
 getCorrSignTable <- function(corr.sign.matrix, digits=3) {
 	m.corr <- corr.sign.matrix
 	m.corr[upper.tri(m.corr)] <- 0
@@ -105,7 +124,6 @@ getPlural <- function (singular) {
 
 #' Generate coordinates for 2 clusters. 
 #' 
-#' Generate coordinates for 2 clusters.
 #' @source \url{http://stackoverflow.com/questions/2397097/how-can-a-data-ellipse-be-superimposed-on-a-ggplot2-scatterplot}.
 #' 
 #' @param n The number of points. Default to 100.

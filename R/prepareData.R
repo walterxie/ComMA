@@ -145,7 +145,6 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
   }
   
   communityMatrix <- prepCommunityMatrix(communityMatrix)
-  
   communityMatrixT <- transposeCM(communityMatrix)
   
   return(communityMatrixT)
@@ -252,6 +251,7 @@ getTaxaAssgReads <- function(matrix.name, isPlot, minAbund=1, rankLevel, groupLe
   return(taxaAssgReads)
 }
 
+
 getTaxaRef <- function() {
   tax_ref <- read.table(file.path("data", "New_taxonomy_from_PLOSONE_2015_fixed.txt"), 
                         header = TRUE, sep = "\t", quote = "", comment.char = "")
@@ -262,7 +262,28 @@ getTaxaRef <- function() {
   tax_ref <- apply(tax_ref, 2, function(col) gsub("(\\s\\[=.*\\])", "", col))
 }
 
-###### Trees #####
+#' meta data of samples
+#' 
+#' @return \code{getSampleMetaData} returns a data frame
+#' @export
+#' @examples 
+#' env <- getSampleMetaData(isPlot=TRUE)
+#' 
+#' @rdname getData
+getSampleMetaData <- function(isPlot, verbose=TRUE) {
+  if (isPlot) {
+    inputCM <- file.path("data", "env", "LBI_all_env_data_by_plot.txt")
+  } else {
+    # e.g. data/16S.txt
+    inputCM <- file.path("data", "env", "LBI_all_env_data_by_subplot.txt")
+  }
+  env <- readFile(inputCM, verbose=verbose, msg.file="enviornmental data", msg.row="samples")
+  
+  env[,"ForestType"] <- gsub(":.*", "", env[,"ForestType"], ignore.case = T)
+  env[,"ForestType"] <- gsub("x", "unknown", env[,"ForestType"], ignore.case = T)
+}
+
+#' Trees
 getPhyloTree <- function(fNameStem, verbose=TRUE) {
   inputT <- file.path("data", "trees", paste(fNameStem, "tre", sep = "."))
   if (file.exists(inputT)) {
@@ -277,7 +298,9 @@ getPhyloTree <- function(fNameStem, verbose=TRUE) {
   tree
 }
 
-###### table to plot Phylo Rarefaction ##### 
+###### Intermediate Data ##### 
+
+#' table to plot Phylo Rarefaction
 getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned", verbose=TRUE) {
   n <- length(matrixNames) 
   # hard code for Vegetation that only has plot and always keep singletons
@@ -299,7 +322,7 @@ getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned", verbos
   phylo.rare.df
 }
 
-###### table to plot Rarefaction ##### 
+#' table to plot Rarefaction
 getRarefactionTableTaxa <- function(expId, isPlot, min2, taxa.group, div="alpha1", verbose=TRUE) {
   pathFileStem <- file.path("data", "rf", paste(matrixNames[expId], 
                     postfix(taxa.group, isPlot, rmSingleton, sep="-"), sep = "-"))
@@ -332,9 +355,9 @@ getRarefactionTable <- function(expId, isPlot, min2, verbose=TRUE) {
   rarefactionTable <- read.csv(file=inputRDT, head=TRUE, sep=",", row.names=paste(levels, qs, sep=""), check.names=FALSE)
 }
 
-###### dissimilarity matrix #####
-# Dissimilarity matrix of paired samples
-# diss.fun = "beta1-1", "jaccard", "horn.morisita"
+#' dissimilarity matrix
+#' Dissimilarity matrix of paired samples
+#' diss.fun = "beta1-1", "jaccard", "horn.morisita"
 getDissimilarityMatrix <- function(expId, isPlot, min2, diss.fun="beta1-1", taxa.group="all", verbose=TRUE) {
   n <- length(matrixNames) 
   # hard code for Vegetation that only has plot and always keep singletons
@@ -353,7 +376,7 @@ getDissimilarityMatrix <- function(expId, isPlot, min2, diss.fun="beta1-1", taxa
   return(diss.matrix)
 }
 
-###### table to max remained diversity ##### 
+#' table to max remained diversity
 getMaxRemainedDiversity <- function(lev.q, taxa.group="assigned", verbose=TRUE) {
   inputT <- file.path("data", "maxrd", paste("max-div", lev.q, taxa.group,"table.csv", sep = "-"))
   if (file.exists(inputT)) {
@@ -380,29 +403,7 @@ getMaxRemainedDiversityRank <- function(lev.q, taxa.group="assigned", verbose=TR
   max.rd
 }
 
-#' meta data of samples
-#' 
-#' @return \code{getSampleMetaData} returns a data frame
-#' @export
-#' @examples 
-#' env <- getSampleMetaData(isPlot=TRUE)
-#' 
-#' @rdname getData
-getSampleMetaData <- function(isPlot, verbose=TRUE) {
-  if (isPlot) {
-    inputCM <- file.path("data", "env", "LBI_all_env_data_by_plot.txt")
-  } else {
-    # e.g. data/16S.txt
-    inputCM <- file.path("data", "env", "LBI_all_env_data_by_subplot.txt")
-  }
-  env <- readFile(inputCM, verbose=verbose, msg.file="enviornmental data", msg.row="samples")
-  
-  env[,"ForestType"] <- gsub(":.*", "", env[,"ForestType"], ignore.case = T)
-  env[,"ForestType"] <- gsub("x", "unknown", env[,"ForestType"], ignore.case = T)
-}
-
-
-######## elevations #######
+#' elevations
 getElevPlotDist <- function(plot.names, env.byplot) { 
   colElev = 1
   # case insensitive
