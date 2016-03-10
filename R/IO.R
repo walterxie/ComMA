@@ -1,5 +1,5 @@
 # Author: Walter Xie
-# Accessed on 3 Mar 2016
+# Accessed on 10 Mar 2016
 
 #' Create folder from \code{\link{file.path}} if not exist.
 #' 

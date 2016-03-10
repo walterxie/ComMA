@@ -1,15 +1,13 @@
 
 # Author: Walter Xie
-# Accessed on 10 Nov 2015
+# Accessed on 10 Mar 2016
 
-
-library(ggplot2)
 
 # http://stackoverflow.com/questions/22295253/force-bars-to-start-from-a-lower-value-than-0-in-ggplot-geom-bar-in-r
 # defining the scale change
 # scale_y_continuous(trans = mylog_trans(base=10, from=-2)) # starts from 1e-2
-library(scales)
 mylog_trans <- function(base=exp(1), from=0) {
+  require(scales)
   trans <- function(x) log(x, base)-from
   inv <- function(x) base^(x+from)
   trans_new("mylog", trans, inv, log_breaks(base=base), domain = c(base^from, Inf))
@@ -75,4 +73,24 @@ split_path <- function(path) {
   rev(setdiff(strsplit(path,"/|\\\\")[[1]], ""))
 }
 
-
+#' Generate coordinates for 2 clusters. 
+#' 
+#' Generate coordinates for 2 clusters.
+#' @source \url{http://stackoverflow.com/questions/2397097/how-can-a-data-ellipse-be-superimposed-on-a-ggplot2-scatterplot}.
+#' 
+#' @param n The number of points. Default to 100.
+#' @param seed An integer seed for \code{\link{set.seed}}. Default to 101.
+#' @keywords utils
+#' @export
+#' @examples 
+#' df.clusters <- random2Clusters()
+random2Clusters <- function(n=100, seed=101) {
+  #bootstrap
+  set.seed(seed)
+  x <- rnorm(n, mean=2)
+  y <- 1.5 + 0.4*x + rnorm(n)
+  df <- data.frame(x=x, y=y, group="A")
+  x <- rnorm(n, mean=2)
+  y <- 1.5*x + 0.4 + rnorm(n)
+  df <- rbind(df, data.frame(x=x, y=y, group="B"))
+}
