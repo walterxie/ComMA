@@ -71,10 +71,8 @@ getCommunityMatrix <- function(matrix.name, isPlot, minAbund=1, verbose=TRUE) {
     inputCM <- file.path("data", paste(matrix.name, ".txt", sep=""))
   }
   
-  communityMatrix <- readFile(inputCM)
-  if(verbose) 
-    cat("\nUpload community matrix : ", ncol(communityMatrix), "columns,", nrow(communityMatrix), "rows, from", inputCM, "\n") 
-  
+  communityMatrix <- readFile(inputCM, verbose=verbose, msg.file=paste(matrix.name, "community matrix"), 
+                              msg.col="samples", msg.row="OTUs")
   rmMinAbundance(communityMatrix, minAbund)
   
   return(communityMatrix)
@@ -176,7 +174,7 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
 #' @rdname getData
 getTaxaPaths <- function(matrix.name, taxa.group="all", rank="kingdom", verbose=TRUE) {
   inputTaxa <- file.path("data", "taxonomy_tables", paste(matrix.name, "taxonomy_table.txt", sep="_"))
-  taxaPaths <- readTaxaFile(inputTaxa)	
+  taxaPaths <- readFile(inputTaxa, verbose=verbose,  msg.file=paste(matrix.name, "taxonomy table"), msg.row="OTUs")
   taxaPaths <- taxaPaths[order(rownames(taxaPaths)),]
   # make lower case to match ranks
   colnames(taxaPaths) <- tolower(colnames(taxaPaths))
@@ -268,6 +266,7 @@ getTaxaRef <- function() {
 getPhyloTree <- function(fNameStem, verbose=TRUE) {
   inputT <- file.path("data", "trees", paste(fNameStem, "tre", sep = "."))
   if (file.exists(inputT)) {
+    require(ape)
     cat("Load tree from", inputT, "\n") 
     tree <- read.tree(inputT)
     if(verbose) print(tree)
@@ -396,9 +395,7 @@ getSampleMetaData <- function(isPlot, verbose=TRUE) {
     # e.g. data/16S.txt
     inputCM <- file.path("data", "env", "LBI_all_env_data_by_subplot.txt")
   }
-  if(verbose) 
-    cat("\nUpload enviornmental data from", inputCM, "\n") 
-  env <- readFile(inputCM)
+  env <- readFile(inputCM, verbose=verbose, msg.file="enviornmental data", msg.row="samples")
   
   env[,"ForestType"] <- gsub(":.*", "", env[,"ForestType"], ignore.case = T)
   env[,"ForestType"] <- gsub("x", "unknown", env[,"ForestType"], ignore.case = T)

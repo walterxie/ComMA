@@ -1,6 +1,6 @@
 
 # Author: Walter Xie
-# Accessed on 10 Mar 2016
+# Accessed on 11 Mar 2016
 
 
 # http://stackoverflow.com/questions/22295253/force-bars-to-start-from-a-lower-value-than-0-in-ggplot-geom-bar-in-r
@@ -48,29 +48,59 @@ getCorrSignTable <- function(corr.sign.matrix, digits=3) {
 	corr.sign.table <- corr.sign.table[-1,-ncol(corr.sign.table)]
 }
 
-# http://stackoverflow.com/questions/2261079/how-to-trim-leading-and-trailing-whitespace-in-r 
-# returns string w/o leading or trailing whitespace
-trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+#' Trim leading and trailing whitespace in a string.
+#' 
+#' @param x The string.
+#' @source \url{http://stackoverflow.com/questions/2261079/how-to-trim-leading-and-trailing-whitespace-in-r} 
+#' @return
+#' The string to remove leading or trailing whitespace.
+#' @keywords utils
+#' @export
+#' @examples 
+#' text = "   foo bar  baz 3 "
+#' trimStartEnd(text)
+#' [1] "foo bar  baz 3"
+trimStartEnd <- function (x) gsub("^\\s+|\\s+$", "", x)
 
-#http://stackoverflow.com/questions/7963898/extracting-the-last-n-characters-from-a-string-in-r
-#Extracting the last n characters from a string x
+#' Extracting the last n characters from a string x
+#' 
+#' @param x The string.
+#' @param n The last n characters
+#' @source \url{http://stackoverflow.com/questions/7963898/extracting-the-last-n-characters-from-a-string-in-r}
+#' @return
+#' 
+#' @keywords utils
+#' @export
+#' @examples 
+#' x <- "some text in a string"
+#' substrRight(x, 6)
+#' [1] "string"
+#' substrRight(x, 8)
+#' [1] "a string"
 substrRight <- function(x, n) {substr(x, nchar(x)-n+1, nchar(x))}
 
-# get plural for report
+#' Get plural by adding 's' except special plural.
+#' 
+#' @param singular The singular of a word in string.
+#' @return 
+#' The plural of given singular. 
+#' But it needs to add special plural manully in the code.
+#' @keywords utils
+#' @export
+#' @examples 
+#' getPlural("species")
+#' [1] "species"
+#' getPlural("phylumn")
+#' [1] "phyla"
 getPlural <- function (singular) {
   if (tolower(singular)=="species") {
     plural = singular
-  } else if (tolower(singular)!="phylumn") {
+  } else if (tolower(singular)=="phylumn") {
     plural = "phyla"
   } else {
     plural = paste(singular,"s",sep="")
   }
   return(plural) 
-}
-
-# http://stackoverflow.com/questions/29214932/split-a-file-path-into-folder-names-vector
-split_path <- function(path) {
-  rev(setdiff(strsplit(path,"/|\\\\")[[1]], ""))
 }
 
 #' Generate coordinates for 2 clusters. 

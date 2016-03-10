@@ -16,6 +16,23 @@ mkdir <- function(dir.path) {
   cat("\nConfig : setup", dir.path, "\n")
 }
 
+#' Split a file path into folder names vector
+#' 
+#' @param path The file path to be split.
+#' @source \url{http://stackoverflow.com/questions/29214932/split-a-file-path-into-folder-names-vector}
+#' @return 
+#' A the reversed vector of folder names.
+#' @keywords utils
+#' @export
+#' @examples 
+#' split_path("/home/foo/stats/index.html")
+#' [1] "index.html" "stats"      "foo"        "home"      
+#' split_path("C:\\Windows\\System32")
+#' [1] "System32" "Windows"  "C:"      
+split_path <- function(path) {
+  rev(setdiff(strsplit(path,"/|\\\\")[[1]], ""))
+}
+
 #' Read a file to return a data frame. 
 #' 
 #' If the file extension is \emph{csv}, 
@@ -33,8 +50,10 @@ mkdir <- function(dir.path) {
 #' }
 #' @export
 #' @examples 
-#' communityMatrix <- readFile("16S.txt")
-readFile <- function(file, sep="\t") { 
+#' communityMatrix <- readFile("16S.txt", msg.file="16S OTU table", msg.col="samples", msg.row="OTUs")
+#' taxaPaths <- readFile("16S_taxonomy_table.txt", msg.file="16S taxonomy table", msg.row="OTUs")
+#' env <- readFile("env_data.txt", msg.file="enviornmental data", msg.row="samples")
+readFile <- function(file, sep="\t", verbose=TRUE, msg.file="file", msg.col="columns", msg.row="rows") { 
   require(tools)
   # sep="\t" only work for non csv file
   if (tolower(file_ext(file))=="csv") {
@@ -43,6 +62,10 @@ readFile <- function(file, sep="\t") {
     # be careful read.table bug   
     df <- read.table(file, sep=sep, header=T, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)  
   }	
+  
+  if (verbose) 
+    cat("\nUpload", msg.file, ":", ncol(df), msg.col, ",", nrow(df), msg.row, ", from", file, "\n") 
+  
   return(df)
 }
 
@@ -120,18 +143,6 @@ readCommunityMatrixFile <- function(file, hasGroup) {
     communityMatrix = communityMatrix,
     groups = groups
   )
-}
-
-readTaxaFile <- function(file) { 
-  taxa <- readFile(file)
-  cat("\nUpload taxa file : ", ncol(taxa), "columns,", nrow(taxa), "rows, from", file, "\n") 
-  return(taxa)
-}
-
-readEnvDataFile <- function(file) { 
-  envData <- readFile(file)
-  cat("\nUpload environmental data file : ", ncol(envData), "columns,", nrow(envData), "rows, from", file, "\n") 
-  return(envData)
 }
 
 
