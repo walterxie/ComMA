@@ -17,17 +17,17 @@
 #'[1] "16S-assigned-byplot-min2"
 #'
 #' @rdname getData
-postfix <- function(..., isPlot=TRUE, taxa.group="all", minAbund=1, minRich=0, sep="-") {
+postfix <- function(..., isPlot=TRUE, taxa.group="all", minAbund=2, minRich=1, sep="-") {
   full.name <- paste(list(...), collapse = sep)
   
   if (taxa.group!="all") 
     full.name <- paste(full.name, "taxa.group", sep = sep) 
   if (isPlot) 
     full.name <- paste(full.name, "byplot", sep = sep) 
-  if (minAbund > 0) 
-    full.name <- paste(full.name, paste0("min", minAbund+1), sep = sep)
-  if (minRich > 0) 
-    full.name <- paste(full.name, minRich+1, sep = sep)
+  if (minAbund > 1) 
+    full.name <- paste(full.name, paste0("min", minAbund), sep = sep)
+  if (minRich > 1) 
+    full.name <- paste(full.name, minRich, sep = sep)
   
   return(full.name)
 }
@@ -49,9 +49,10 @@ getPlot <- function(full.name, sep="-") {
 ######## load community matrix #######
 #' @param matrix.name The string to locate the matrix from its file name.
 #' @param isPlot Boolean value to determine the matrix file sampled by subplot or plot
-#' @param minAbund The minimum abundance threshold to determine which 
-#' row/column to be removed. For exampe, if minAbund=1, then remove 
-#' all singletons appeared in only one sample. Default to 1 (singletons).
+#' @param minAbund The minimum abundance threshold to remove rows/columns 
+#' by row/column sum of abundance. For exampe, if minAbund=2, then remove 
+#' all singletons appeared in only one sample. If minAbund=1, 
+#' then remove all empty rows/columns. Default to 2 (singletons).
 #' But \code{postfix} is only used for naming, no data processed.
 #' @param verbose More details. Default to TRUE.
 #' @return \code{getCommunityMatrix} returns a community matrix, 
@@ -60,10 +61,11 @@ getPlot <- function(full.name, sep="-") {
 #' to remove them.
 #' @export
 #' @examples 
-#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=0)
+#' # keep singletons
+#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 #' 
 #' @rdname getData
-getCommunityMatrix <- function(matrix.name, isPlot, minAbund=1, verbose=TRUE) {
+getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
   if (isPlot) {
     inputCM <- file.path("data", paste(matrix.name, "by_plot.txt", sep="_"))
   } else {
@@ -102,17 +104,18 @@ prepCommunityMatrix <- function(communityMatrix) {
 #' Get a transposed matrix of community matrix, given more filters, such as \code{taxa.group}, \code{minRich}.
 #' 
 #' @param minRich The minimum richness to keep matrix. For example, 
-#' drop the matrix (return NULL) if OTUs less than this threshold. Default to 0.
+#' drop the matrix (return NULL) if OTUs less than this threshold. Default to 1.
 #' @return \code{getCommunityMatrixT} returns a transposed matrix of community matrix, 
 #' where columns are OTUs or individual species and rows are sites or samples. 
 #' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
 #' return \emph{NULL}, if no OTUs or OTUs less than \code{minRich} threshold.
 #' @export
 #' @examples 
-#' t.communityMatrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=1, taxa.group="BACTERIA")
+#' # by plot, remove singletons, BACTERIA only
+#' t.communityMatrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=2, taxa.group="BACTERIA")
 #' 
 #' @rdname getData
-getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=1, minRich=0, verbose=TRUE) {
+getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=2, minRich=1, verbose=TRUE) {
   communityMatrix <- getCommunityMatrix(matrix.name, isPlot, minAbund)
   
   if (taxa.group != "all") {
@@ -219,7 +222,7 @@ grepl("Nudibranchia|Crocodylia|Serpentes|Testudines|Carnivora|Gymnophiona|Lagomo
 # groupLevel: used to assign colour for each group, and must higher than rankLevel
 # taxa.group: keep OTU rows contain given taxa group, if "all", keep all
 # return taxaAssgReads = CM + rankLevel + groupLevel
-getTaxaAssgReads <- function(matrix.name, isPlot, minAbund=1, rankLevel, groupLevel, taxa.group="all") {
+getTaxaAssgReads <- function(matrix.name, isPlot, minAbund=2, rankLevel, groupLevel, taxa.group="all") {
   cat("Create taxonomy assignment for", matrix.name, ".\n")
   
   ##### load data #####

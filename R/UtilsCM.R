@@ -4,37 +4,37 @@
 #' Remove rows or colums from community matrix
 #' 
 #' Remove rows or colums in the matrix, whose sum of abundance is 
-#' less and equal to the minimum abundance threshold. 
+#' less than the minimum abundance threshold. 
 #' 
 #' @param communityMatrix Community Matrix (OTU table), where rows are 
 #' OTUs or individual species and columns are sites or samples. 
 #' @param minAbund The minimum abundance threshold to remove rows/columns 
-#' by row/column sum of abundance. For exampe, if minAbund=1, then remove 
-#' all singletons appeared in only one sample. If minAbund=0, 
-#' then remove all empty rows/columns. Default to 1 (singletons).
+#' by row/column sum of abundance. For exampe, if minAbund=2, then remove 
+#' all singletons appeared in only one sample. If minAbund=1, 
+#' then remove all empty rows/columns. Default to 2 (singletons).
 #' @param MARGIN 1 indicates rows, 2 indicates columns. Default to 1.
 #' @param verbose More details. Default to TRUE.
 #' @return the procceded community matrix
 #' @keywords community matrix
 #' @export
 #' @examples 
-#' remove singletons 
-#' rmMinAbundance(communityMatrix, minAbund=1)
-rmMinAbundance <- function(communityMatrix, minAbund=1, MARGIN=1, verbose=TRUE) {
+#' # remove singletons 
+#' rmMinAbundance(communityMatrix, minAbund=2)
+rmMinAbundance <- function(communityMatrix, minAbund=2, MARGIN=1, verbose=TRUE) {
   if (is.element(1, MARGIN)) {
-    rm <- which(rowSums(communityMatrix)<=minAbund)
+    rm <- which(rowSums(communityMatrix)<minAbund)
     if (length(rm)>0) 
       communityMatrix <- communityMatrix[-rm,]
     msg <- "from rows"
   } else if (is.element(2, MARGIN)) {
-    rm <- which(colSums(communityMatrix)<=minAbund)
+    rm <- which(colSums(communityMatrix)<minAbund)
     if (length(rm)>0) 
       communityMatrix <- communityMatrix[,-rm]
     msg <- "from columns"
   }
   
   if(verbose) 
-    cat("Remove", length(rm), msg, "having minimum abundance <=", minAbund, "!\n")
+    cat("Remove", length(rm), msg, "having minimum abundance <", minAbund, "!\n")
   
   communityMatrix
 }
@@ -100,9 +100,9 @@ preprocessCM <- function(communityMatrix, keepSingleton, rowThr, colThr, mostAbu
     communityMatrix <- keepMostAbundantRows(communityMatrix, mostAbundThr=mostAbundThr)
   }  
   
-  communityMatrix <- rmMinAbundance(communityMatrix, minAbund=0, MARGIN=2)
+  communityMatrix <- rmMinAbundance(communityMatrix, minAbund=1, MARGIN=2)
   # filter column first to avoid empty rows after columns remvoed
-  communityMatrix <- rmMinAbundance(communityMatrix, minAbund=0, MARGIN=1)
+  communityMatrix <- rmMinAbundance(communityMatrix, minAbund=1, MARGIN=1)
   
   # summary
   cat("Processed community matrix : samples = ", ncol(communityMatrix), ", OTUs/taxa = ", nrow(communityMatrix), ".\n") 

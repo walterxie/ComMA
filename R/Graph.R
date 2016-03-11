@@ -21,9 +21,9 @@
 #' @keywords graph
 #' @export
 #' @examples 
-#' ranks.by.gourp <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
-#' ranks.by.gourp
-#' heatmapGgplot(df=ranks.by.gourp, id.melt="plot", fig.path="plot-prior-example-heatmap.pdf")
+#' ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
+#' ranks.by.group
+#' heatmapGgplot(df=ranks.by.group, id.melt="plot", fig.path="plot-prior-example-heatmap.pdf")
 heatmapGgplot <- function(df, id.melt, fig.path, title="Heatmap", x.lab="", y.lab="", 
                              low="white", high="steelblue", width=6, height=6) {
   if (!is.element(id.melt, tolower(colnames(df))))
@@ -104,54 +104,4 @@ scatterPlotEllipse <- function(df.clusters, fig.path, title="Clusters", point.si
   invisible(dev.off()) 
 }
 
-
-#' Extract legend in \pkg{ggplot2}
-#' @source \url{http://stackoverflow.com/questions/12041042/how-to-plot-just-the-legends-in-ggplot2}
-#' 
-#' @param a.gplot The \code{\link{ggplot}} object.
-#' @return
-#' The legend.
-#' @keywords utils
-#' @export
-#' @examples 
-#' library(ggplot2); library(grid)
-#' my_hist<-ggplot(diamonds, aes(clarity, fill=cut)) + geom_bar() 
-#' legend <- g_legend(my_hist) 
-#' grid.draw(legend) 
-g_legend<-function(a.gplot){
-  require(ggplot2)
-  tmp <- ggplot_gtable(ggplot_build(a.gplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)
-}
-
-#' Share a legend between multiple plots using \code{\link{grid.arrange}}.
-#' @source \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}
-#' 
-#' @param ... The list of \code{\link{ggplot}} objects.
-#' @keywords utils
-#' @export
-#' @examples 
-#' dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
-#' p1 <- qplot(carat, price, data=dsamp, colour=clarity)
-#' p2 <- qplot(cut, price, data=dsamp, colour=clarity)
-#' p3 <- qplot(color, price, data=dsamp, colour=clarity)
-#' p4 <- qplot(depth, price, data=dsamp, colour=clarity)
-#' grid_arrange_shared_legend(p1, p2, p3, p4)
-grid_arrange_shared_legend <- function(...) {
-  plots <- list(...)
-  require(ggplot2)
-  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
-  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
-  lheight <- sum(legend$height)
-  
-  require(gridExtra)
-  grid.arrange(
-    do.call(arrangeGrob, lapply(plots, function(x)
-      x + theme(legend.position="none"))),
-    legend,
-    ncol = 1,
-    heights = unit.c(unit(1, "npc") - lheight, lheight))
-}
 
