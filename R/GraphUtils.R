@@ -6,14 +6,14 @@
 #' Customised palette with about 70 colours.
 #' 
 #' @param add.grey Add grey colours in the begining of palette. Default to 0.
+#' @param n The number of colors (>= 1) to be in the palette. If missing, then return the whole palette.
 #' @return
 #' The customised palette with about 70 colours.
 #' @keywords utils
 #' @export
 #' @examples 
 #' myPalette <- getMyPalette() 
-getMyPalette<-function(add.grey=0){
-  require(ggplot2)
+getMyPalette<-function(n, add.grey=0){
   greyPalette <- c("#CCCCCC", "#999999")
   myPalette <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#AE22EC", "#FAF629",
                  "#CAB2D6", "#6A3D9A", "#B15928", "#E69F00", "#FF6666", "#56B4E9", "#006600", "#009E73", "#F0E442", "#FF3333",    
@@ -26,7 +26,10 @@ getMyPalette<-function(add.grey=0){
   if (add.grey>0 && add.grey<=length(greyPalette))
     myPalette <- c(greyPalette[1:add.grey], myPalette)
   
-  return(myPalette)
+  if (missing(n) || n < 1 || n > length(myPalette)) 
+    n <- length(myPalette)
+    
+  return(myPalette[1:n])
 }
 
 #' Extract legend in \pkg{ggplot2}

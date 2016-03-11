@@ -39,6 +39,13 @@ split_path <- function(path) {
 #' then use \code{\link{read.csv}}, otherwise use \code{\link{read.table}}.
 #' 
 #' @param file The 1st row is column names, the 1st column is row names.
+#' @param row.names A vector of row names. This can be a vector giving the actual row names, 
+#' or a single number giving the column of the table which contains the row names, 
+#' or character string giving the name of the table column containing the row names.
+#' If there is a header and the first row contains one fewer field than the number of columns, 
+#' the first column in the input is used for the row names. 
+#' Otherwise if row.names is NULL, the rows are numbered. Default to 1.
+#' Using row.names = NULL forces row numbering.
 #' @param sep Only used for non \emph{csv} file. Default to tab "\\t". 
 #' @return 
 #' A data frame from the file, such as
@@ -53,14 +60,15 @@ split_path <- function(path) {
 #' communityMatrix <- readFile("16S.txt", msg.file="16S OTU table", msg.col="samples", msg.row="OTUs")
 #' taxaPaths <- readFile("16S_taxonomy_table.txt", msg.file="16S taxonomy table", msg.row="OTUs")
 #' env <- readFile("env_data.txt", msg.file="enviornmental data", msg.row="samples")
-readFile <- function(file, sep="\t", verbose=TRUE, msg.file="file", msg.col="columns", msg.row="rows") { 
+#' taxa.phyla <- readFile("taxonomy97phyla.txt", row.names=NULL)
+readFile <- function(file, row.names=1, sep="\t", verbose=TRUE, msg.file="file", msg.col="columns", msg.row="rows") { 
   require(tools)
   # sep="\t" only work for non csv file
   if (tolower(file_ext(file))=="csv") {
-    df <- read.csv(file, head=TRUE, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)
+    df <- read.csv(file, head=TRUE, row.names=row.names, check.names=FALSE, stringsAsFactors=FALSE)
   } else {
     # be careful read.table bug   
-    df <- read.table(file, sep=sep, header=T, row.names=1, check.names=FALSE, stringsAsFactors=FALSE)  
+    df <- read.table(file, sep=sep, header=T, row.names=row.names, check.names=FALSE, stringsAsFactors=FALSE)  
   }	
   
   if (verbose) 

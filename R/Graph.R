@@ -12,10 +12,10 @@
 #'   CM30c44 \tab 10 \tab 26 \tab 15\cr
 #'   Plot01 \tab 6 \tab 5 \tab 6 
 #' } 
-#' @param id.melt A column name as a \code{\link{factor}}.
+#' @param id.melt A column name to \code{\link{melt}} and used as a \code{\link{factor}}.
 #' @param fig.path The full path of image file.
 #' @param title Graph title
-#' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names
+#' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
 #' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
 #' @keywords graph
@@ -25,8 +25,8 @@
 #' ranks.by.group
 #' heatmapGgplot(df=ranks.by.group, id.melt="plot", fig.path="plot-prior-example-heatmap.pdf")
 heatmapGgplot <- function(df, id.melt, fig.path, title="Heatmap", x.lab="", y.lab="", 
-                             low="white", high="steelblue", width=6, height=6) {
-  if (!is.element(id.melt, tolower(colnames(df))))
+                          low="white", high="steelblue", width=6, height=6) {
+  if (!is.element(tolower(id.melt), tolower(colnames(df))))
     stop(paste0("Data frame column names do NOT have \"", id.melt, "\" for melt function !"))
   
   require(reshape2)
@@ -104,4 +104,71 @@ scatterPlotEllipse <- function(df.clusters, fig.path, title="Clusters", point.si
   invisible(dev.off()) 
 }
 
+#' Percent bar chart coloured by groups. 
+#' 
+#' @param df A data frame to \code{\link{melt}} and then make a percent bar chart. 
+#' For example,
+#' \tabular{rrrrr}{
+#'   Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr
+#'   Actinobacteria \tab 958 \tab 1 \tab 3 \tab Bacteria\cr
+#'   Crenarchaeota \tab 1 \tab 0 \tab 0 \tab Archaea\cr
+#'   Ascomycota \tab 2 \tab 765 \tab 971 \tab Fungi 
+#' } 
+#' @param id.melt A column name to \code{\link{melt}} and used as a \code{\link{factor}}.
+#' @param id.colour A column name to assign the colours.
+#' @param fig.path The full path of image file.
+#' @param title Graph title
+#' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
+#' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
+#' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
+#' @keywords graph
+#' @export
+#' @examples 
+#' taxa.phyla <- readFile("./data/examples/taxonomy97phyla.txt", row.names=NULL)
+#' percentBarChart(taxa.phyla, id.melt="Phyla", id.colour="TaxaGroup", fig.path="taxa-percentage-bar.pdf")
+percentBarChart <- function(df, id.melt, id.colour, fig.path, title="Percent Bar Chart", x.lab="", y.lab="", width=8, height=8) {
+  if (!is.element(tolower(id.melt), tolower(colnames(df))))
+    stop(paste0("Data frame column names do NOT have \"", id.melt, "\" for melt function !"))
+  if (!is.element(tolower(id.colour), tolower(colnames(df))))
+    stop(paste0("Data frame column names do NOT have \"", id.colour, "\" for colouring !"))
+  
+  require(reshape2)
+  
+  df.melt <- melt(df, id=c(id.melt, id.colour))
+  #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
+  
+  # move unclassified group to the last of legend 
+  legend_ord <- as.character(unique(df[,id.colour]))
+  id.match <- grep("unclassified", legend_ord, ignore.case = TRUE)
+  if (length(id.match) > 0)
+    legend_ord <- legend_ord[c(setdiff(1:length(legend_ord), id.match),id.match)]
+  df.melt[,id.colour] <- factor(df.melt[,id.colour], levels = rev(legend_ord))
+  
+  pale <- getMyPalette(length(legend_ord))
+  if (length(legend_ord) > length(pale)) {
+    require(colorspace)
+    pale <- rainbow_hcl(length(legend_ord))
+  }
+  # number of columns for legend
+  legend.col = ceiling(length(legend_ord) / 25)
+  
+  require(ggplot2)
+  require(scales)
+  p <- ggplot(df.melt, aes_string(x = "variable", y = "value", fill = id.colour)) + 
+    geom_bar(position = "fill",stat = "identity") + 
+    scale_y_continuous(labels = percent_format()) +
+    scale_fill_manual(values=pale) +
+    guides(fill=guide_legend(ncol=legend.col)) +
+    theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
+    theme(axis.title.y = element_blank(),
+          axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3),
+          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          panel.background = element_blank()) 
+  
+  width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
+
+  pdf(fig.path, width=width, height=height)	
+  print(p)
+  invisible(dev.off()) 
+}
 
