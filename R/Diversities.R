@@ -10,8 +10,7 @@
 #' @description Data input \strong{t.communityMatrix} is 
 #' a transposed matrix of community matrix we defined in \pkg{ComMA}.
 #' Community matrix from file is a matrix where rows are OTUs or individual species 
-#' and columns are sites or samples. 
-#' Matrix elements are abundance data (e.g. counts, percent cover estimates).
+#' and columns are sites or samples. See \code{\link{ComMA}}. 
 #' 
 #' @param t.communityMatrix is abundances argument in \pkg{vegetarian} \code{\link{d}}, 
 #' which is a transposed matrix of community matrix, 
@@ -101,20 +100,6 @@ shannonPerSample <- function(t.communityMatrix, digits = 2) {
   return(round(perSample, digits))
 }
 
-######## alpha1 #######
-#' effective alpha per sample
-#' return one column matrix
-alpha1 <- function(t.communityMatrix) {    
-  # including diagonal
-  m.alpha1 <- matrix(0,nrow=nrow(t.communityMatrix),ncol=1)	
-  rownames(m.alpha1) <- c(rownames(t.communityMatrix))
-  for(i in 1:nrow(t.communityMatrix)){				
-    m.alpha1[i,1] <- d(t.communityMatrix[i,],lev="gamma",q=1)				
-  }
-  
-  return (m.alpha1) # 1 col matrix
-}
-
 ######## Pair-wise turnovers #######
 
 #' Calculate similarity/dissimilarity distance matrix between samples.
@@ -180,34 +165,41 @@ calculateDissimilarityMatrix <- function(t.communityMatrix, diss.fun="beta1-1", 
 #' @rdname JostDiversity
 TurnoverDist<-function(t.communityMatrix){ 
   require(vegetarian)
-  to.table<-matrix(0,nrow=nrow(t.communityMatrix),ncol=nrow(t.communityMatrix))
+  turnover.table<-matrix(0,nrow=nrow(t.communityMatrix),ncol=nrow(t.communityMatrix))
   for(i in 1:nrow(t.communityMatrix)){
     for(j in 1:nrow(t.communityMatrix)){
       # For numerous communities of equal weights, the numbers equivalent of 
       # the Shannon beta diversity and the number of samples (N) can be used to 
       # calculate the turnover rate per sample (Equation 25 from Jost 2007, Harrison et al. 1992)
-      to.table[i,j]<-turnover(t.communityMatrix[c(i,j),])
+      turnover.table[i,j]<-turnover(t.communityMatrix[c(i,j),])
     }
   }
   
-  d <- as.dist(to.table)
+  d <- as.dist(turnover.table)
   attr(d, "Labels") <- dimnames(t.communityMatrix)[[1L]]
   
   return(d)
 }
 
+######## alpha1 #######
+#' effective alpha per sample
+#' return one column matrix
+#alpha1 <- function(t.communityMatrix) {    
+  # including diagonal
+#  m.alpha1 <- matrix(0,nrow=nrow(t.communityMatrix),ncol=1)	
+#  rownames(m.alpha1) <- c(rownames(t.communityMatrix))
+#  for(i in 1:nrow(t.communityMatrix)){				
+#    m.alpha1[i,1] <- d(t.communityMatrix[i,],lev="gamma",q=1)				
+#  }
+#  
+#  return (m.alpha1) # 1 col matrix
+#}
 
-# COMPUTE TURNOVER TABLE
-#
-#d.turnover <- TurnoverDist(t.communityMatrix)
-#
 
 # COMPUTER HORN-MORISITA OVERLAPS
-
 #library(vegan)
 #d.hornMorisita <- vegdist(t.communityMatrix, method="horn", binary=FALSE)
 #d.brayBin <- vegdist(t.communityMatrix, method="bray", binary=TRUE)
-
 
 #library(untb)
 #cm_counts <- count(colSums(t.communityMatrix))

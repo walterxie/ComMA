@@ -33,7 +33,7 @@ split_path <- function(path) {
   rev(setdiff(strsplit(path,"/|\\\\")[[1]], ""))
 }
 
-#' Read a file to return a data frame. 
+#' Read a file to a data frame. 
 #' 
 #' If the file extension is \emph{csv}, 
 #' then use \code{\link{read.csv}}, otherwise use \code{\link{read.table}}.
@@ -61,7 +61,7 @@ split_path <- function(path) {
 #' taxaPaths <- readFile("16S_taxonomy_table.txt", msg.file="16S taxonomy table", msg.row="OTUs")
 #' env <- readFile("env_data.txt", msg.file="enviornmental data", msg.row="samples")
 #' taxa.phyla <- readFile("taxonomy97phyla.txt", row.names=NULL)
-readFile <- function(file, row.names=1, sep="\t", verbose=TRUE, msg.file="file", msg.col="columns", msg.row="rows") { 
+readFile <- function(file, sep="\t", row.names=1, verbose=TRUE, msg.file="file", msg.col="columns", msg.row="rows") { 
   require(tools)
   # sep="\t" only work for non csv file
   if (tolower(file_ext(file))=="csv") {
@@ -111,16 +111,17 @@ writeTable <- function(df, file){
 #' tableFile <- file.path(workingPath, "report.tex")
 #' printXTable(data.frame, caption = "Phylogenetic beta diversity", 
 #'             label = "tab:pd:beta", file=tableFile)
-printXTable <- function(df, caption, label, file=NULL, align = NULL, digits = NULL) {
+printXTable <- function(df, caption, label, include.rownames=TRUE, file=NULL, align = NULL, digits = NULL) {
   require(xtable)
   if (is.null(file)) {
     print(xtable(df, caption = caption, label = label, caption.placement = "top", 
                  align = align, digits = digits),
-          sanitize.text.function = function(x){x})
+          sanitize.text.function = function(x){x}, include.rownames=include.rownames)
   } else {
     print(xtable(df, caption = caption, label = label, caption.placement = "top", 
                  align = align, digits = digits),
-          sanitize.text.function = function(x){x}, file=file, append=TRUE)
+          sanitize.text.function = function(x){x}, include.rownames=include.rownames, 
+          file=file, append=TRUE)
   }
 }
 

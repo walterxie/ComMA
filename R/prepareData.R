@@ -2,15 +2,14 @@
 #' @name getData
 #' @title Get example data for \pkg{ComMA} package
 #'
-#' @description Data \strong{communityMatrix} \strong{t.communityMatrix} is 
-#' a transposed matrix from community matrix we defined here.
-#' \strong{phyloTree} is a rooted tree of phylo object, 
-#' which can get from \pkg{ape} \code{\link{read.tree}}.
+#' @description The data is described in \code{\link{ComMA}}.
 #' 
-# Add postfix for figure name or table label
+#' @details 
+#' \code{postfix} adds postfix for figure name or table label
 #' @param ... A list of names to be concatenated
 #' @param sep Default to dash "-"
-#' @return \code{postfix} returns a name concatenated by substrings and separated by \code{sep}.
+#' @return 
+#' \code{postfix} returns a name concatenated by substrings and separated by \code{sep}.
 #' @export
 #' @examples 
 #' postfix("16S", "assigned")
@@ -32,10 +31,11 @@ postfix <- function(..., isPlot=TRUE, taxa.group="all", minAbund=2, minRich=1, s
   return(full.name)
 }
 
-#' Extract plot names from full names (plot + subplot) separated by \code{sep}.
+#' \code{getPlot} extracts plot names from full names (plot + subplot) separated by \code{sep}.
 #' 
 #' @param full.name The full name has plot and subplot together, but separated by \code{sep}.
-#' @return \code{getPlot} returns plot names.
+#' @return 
+#' \code{getPlot} returns plot names.
 #' @export
 #' @examples 
 #' getPlot(c("Plot1-A", "CM30c39-L"))
@@ -47,6 +47,8 @@ getPlot <- function(full.name, sep="-") {
 }
 
 ######## load community matrix #######
+#' \code{getCommunityMatrix} gets a community matrix.
+#' 
 #' @param matrix.name The string to locate the matrix from its file name.
 #' @param isPlot Boolean value to determine the matrix file sampled by subplot or plot
 #' @param minAbund The minimum abundance threshold to remove rows/columns 
@@ -57,8 +59,6 @@ getPlot <- function(full.name, sep="-") {
 #' @param verbose More details. Default to TRUE.
 #' @return \code{getCommunityMatrix} returns a community matrix, 
 #' where rows are OTUs or individual species and columns are sites or samples. 
-#' It may contain empty rows or columns. \code{prepCommunityMatrix} can be used 
-#' to remove them.
 #' @export
 #' @examples 
 #' # keep singletons
@@ -73,39 +73,20 @@ getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
     inputCM <- file.path("data", paste(matrix.name, ".txt", sep=""))
   }
   
-  communityMatrix <- readFile(inputCM, verbose=verbose, msg.file=paste(matrix.name, "community matrix"), 
+  communityMatrix <- ComMA::readFile(inputCM, verbose=verbose, msg.file=paste(matrix.name, "community matrix"), 
                               msg.col="samples", msg.row="OTUs")
-  rmMinAbundance(communityMatrix, minAbund)
+  ComMA::rmMinAbundance(communityMatrix, minAbund)
   
   return(communityMatrix)
 }
 
-#' remove empty rows or columns after \code{getCommunityMatrix}.
-#' @return \code{prepCommunityMatrix} returns a community matrix no empty rows or columns.
-#' @export
-#' @examples 
-#' communityMatrix <- prepCommunityMatrix(communityMatrix)
-#' 
-#' @rdname getData
-prepCommunityMatrix <- function(communityMatrix) {
-  # filter column first to avoid empty rows after columns remvoed if vectorThr>0
-  if(any(colSums(communityMatrix)== 0)) {
-    communityMatrix <- rmVectorFromCM(communityMatrix, vectorThr=0, MARGIN=2)
-    #stop("Invalid input: community matrix has empty samples !")
-  }
-  if(any(rowSums(communityMatrix)== 0)) {
-    communityMatrix <- rmVectorFromCM(communityMatrix, vectorThr=0, MARGIN=1)
-    #stop("Invalid input: community matrix has empty OTUs !")
-  }
-  
-  return(communityMatrix)
-}
-
-#' Get a transposed matrix of community matrix, given more filters, such as \code{taxa.group}, \code{minRich}.
+#' \code{getCommunityMatrixT} gets a transposed matrix of (maybe also a subset of) 
+#' community matrix, given more filters, such as \code{taxa.group}, \code{minRich}.
 #' 
 #' @param minRich The minimum richness to keep matrix. For example, 
 #' drop the matrix (return NULL) if OTUs less than this threshold. Default to 1.
-#' @return \code{getCommunityMatrixT} returns a transposed matrix of community matrix, 
+#' @return 
+#' \code{getCommunityMatrixT} returns a transposed matrix of community matrix, 
 #' where columns are OTUs or individual species and rows are sites or samples. 
 #' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
 #' return \emph{NULL}, if no OTUs or OTUs less than \code{minRich} threshold.
@@ -116,11 +97,11 @@ prepCommunityMatrix <- function(communityMatrix) {
 #' 
 #' @rdname getData
 getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=2, minRich=1, verbose=TRUE) {
-  communityMatrix <- getCommunityMatrix(matrix.name, isPlot, minAbund)
+  communityMatrix <- ComMA::getCommunityMatrix(matrix.name, isPlot, minAbund)
   
   if (taxa.group != "all") {
     ##### load data #####
-    taxaPaths <- getTaxaPaths(matrix.name, taxa.group)
+    taxaPaths <- ComMA::getTaxaPaths(matrix.name, taxa.group)
     
     if (nrow(taxaPaths) < minRich) {
       cat("Warning: return NULL, because", nrow(taxaPaths), "row(s) classified as", taxa.group, "<", minRich, "threshold.\n")
@@ -146,9 +127,7 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
       communityMatrix <- data.matrix(taxaAssgReads)
     }
   }
-  
-  communityMatrix <- prepCommunityMatrix(communityMatrix)
-  communityMatrixT <- transposeCM(communityMatrix)
+  communityMatrixT <- ComMA::transposeCM(communityMatrix)
   
   return(communityMatrixT)
 }
@@ -165,10 +144,12 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
 #' 'root', 'cellular organisms', 'No hits', 'Not assigned'. 
 #' Alternatively, any high-ranking taxonomy in your taxonomy file 
 #' can be used as a group, such as 'BACTERIA', 'Proteobacteria', etc.
-#' @return \code{getCommunityMatrixT} returns a transposed matrix of community matrix, 
-#' where columns are OTUs or individual species and rows are sites or samples. 
-#' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
-#' return \emph{NULL}, if no OTUs or OTUs less than \code{minRich} threshold.
+#' @return 
+#' \code{getTaxaPaths} returns a taxonomic matrix, 
+#' where rows are OTUs or individual species (they have to be the subset of rows 
+#' in the community matrix from \code{getCommunityMatrix}), 
+#' and columns are taxonomic ranks, such as c("superkingdom", "kingdom", "phylum", 
+#' "class", "order", "family", "genus", "species") inlcuding full taxonomic path. 
 #' @export
 #' @examples 
 #' taxaPaths <- getTaxaPaths(matrix.name="18S", taxa.group="assigned")
@@ -176,7 +157,7 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
 #' @rdname getData
 getTaxaPaths <- function(matrix.name, taxa.group="all", rank="kingdom", verbose=TRUE) {
   inputTaxa <- file.path("data", "taxonomy_tables", paste(matrix.name, "taxonomy_table.txt", sep="_"))
-  taxaPaths <- readFile(inputTaxa, verbose=verbose,  msg.file=paste(matrix.name, "taxonomy table"), msg.row="OTUs")
+  taxaPaths <- ComMA::readFile(inputTaxa, verbose=verbose,  msg.file=paste(matrix.name, "taxonomy table"), msg.row="OTUs")
   taxaPaths <- taxaPaths[order(rownames(taxaPaths)),]
   # make lower case to match ranks
   colnames(taxaPaths) <- tolower(colnames(taxaPaths))
@@ -226,13 +207,12 @@ getTaxaAssgReads <- function(matrix.name, isPlot, minAbund=2, rankLevel, groupLe
   cat("Create taxonomy assignment for", matrix.name, ".\n")
   
   ##### load data #####
-  communityMatrix <- getCommunityMatrix(matrix.name, isPlot, minAbund)
-  communityMatrix <- prepCommunityMatrix(communityMatrix)
+  communityMatrix <- ComMA::getCommunityMatrix(matrix.name, isPlot, minAbund)
   
   communityMatrix <- communityMatrix[order(rownames(communityMatrix)),]
   communityMatrix <- communityMatrix[,order(colnames(communityMatrix))]
   
-  taxaPaths <- getTaxaPaths(matrix.name, taxa.group)
+  taxaPaths <- ComMA::getTaxaPaths(matrix.name, taxa.group)
   
   ###### taxa assignment by reads #####
   if ( ! tolower(rankLevel) %in% tolower(colnames(taxaPaths)) ) 
@@ -280,7 +260,7 @@ getSampleMetaData <- function(isPlot, verbose=TRUE) {
     # e.g. data/16S.txt
     inputCM <- file.path("data", "env", "LBI_all_env_data_by_subplot.txt")
   }
-  env <- readFile(inputCM, verbose=verbose, msg.file="enviornmental data", msg.row="samples")
+  env <- ComMA::readFile(inputCM, verbose=verbose, msg.file="enviornmental data", msg.row="samples")
   
   env[,"ForestType"] <- gsub(":.*", "", env[,"ForestType"], ignore.case = T)
   env[,"ForestType"] <- gsub("x", "unknown", env[,"ForestType"], ignore.case = T)
@@ -308,9 +288,9 @@ getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned", verbos
   n <- length(matrixNames) 
   # hard code for Vegetation that only has plot and always keep singletons
   if (expId == n) {
-    mid.name <- postfix("all", TRUE, FALSE, sep="-")
+    mid.name <- ComMA::postfix("all", TRUE, FALSE, sep="-")
   } else {
-    mid.name <- postfix(taxa.group, isPlot, min2, sep="-") 
+    mid.name <- ComMA::postfix(taxa.group, isPlot, min2, sep="-") 
   }
   
   inputT <- file.path("data", "pdrf", paste(matrixNames[expId], mid.name, "phylorare", "table.csv", sep="-"))
@@ -346,9 +326,9 @@ getRarefactionTable <- function(expId, isPlot, min2, verbose=TRUE) {
   matrixName <- matrixNames[expId]
   # hard code for Vegetation that only has plot and always keep singletons
   if (expId == n) {
-    matrixName <- postfix(matrixName, TRUE, FALSE, sep="-")
+    matrixName <- ComMA::postfix(matrixName, TRUE, FALSE, sep="-")
   } else {
-    matrixName <- postfix(matrixName, isPlot, min2, sep="-") 
+    matrixName <- ComMA::postfix(matrixName, isPlot, min2, sep="-") 
   }
   
   inputRDT <- file.path("data", paste(matrixName, "rarefaction-table.csv", sep="-"))
@@ -374,7 +354,7 @@ getDissimilarityMatrix <- function(expId, isPlot, min2, diss.fun="beta1-1", taxa
   if(verbose) 
     cat("\nUpload", diss.fun, "matrix of", taxa.group, "taxa group(s) from", inputB, "\n") 
   
-  diss.matrix <- readFile(file=inputB, sep=",")
+  diss.matrix <- ComMA::readFile(file=inputB, sep=",")
   
   return(diss.matrix)
 }

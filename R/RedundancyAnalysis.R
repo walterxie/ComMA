@@ -7,7 +7,7 @@
 #' given environmental variables.
 #' 
 #' @param cm.or.dist A data frame or dist. Rows are samples.
-#' @param env rows are samples, and must be same as rownames(cm.or.dist) inlcuding order.
+#' @param env The enviornmental data, where rows are samples, and must be same as rownames(cm.or.dist) inlcuding order.
 #' @param matrix.name The string to locate the matrix from its file name. 
 #' Only used for table name and label here.
 #' @param taxa.group The taxonomic group. Only used for table name and label here. 

@@ -7,7 +7,7 @@
 #' less than the minimum abundance threshold. 
 #' 
 #' @param communityMatrix Community Matrix (OTU table), where rows are 
-#' OTUs or individual species and columns are sites or samples. 
+#' OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.
 #' @param minAbund The minimum abundance threshold to remove rows/columns 
 #' by row/column sum of abundance. For exampe, if minAbund=2, then remove 
 #' all singletons appeared in only one sample. If minAbund=1, 

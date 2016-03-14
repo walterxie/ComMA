@@ -17,9 +17,9 @@
 #' # starts from 1e-2
 #' scale_y_continuous(trans = mylog_trans(base=10, from=-2))
 mylog_trans <- function(base=exp(1), from=0) {
-  require(scales)
   trans <- function(x) log(x, base)-from
   inv <- function(x) base^(x+from)
+  require(scales)
   trans_new("mylog", trans, inv, log_breaks(base=base), domain = c(base^from, Inf))
 }
 
@@ -31,14 +31,49 @@ mylog_trans <- function(base=exp(1), from=0) {
 #' @keywords utils
 #' @export
 #' @examples 
+#' #expression(10^04)
 #' scientific_10(10000)
-#' expression(10^04)
 scientific_10 <- function(x) {
   require(scales)
   text=gsub("1e\\+00", "1", scientific_format()(x))
   text=gsub("1e\\+01", "10", text)
+  text=gsub("0e\\+00", "0", text)
+  text=gsub("1e\\-01", "0.1", text)
   text=gsub("1e\\+", "10^", text)
   parse(text=text)
+}
+
+#' Breaks of multiples of 10 for positive values.
+#' 
+#' @param max.v The max value to create breaks.
+#' @param start The vector of values before 10. Default to c(0.1, 1).
+#' @return
+#' The vector of multiples of 10 used for breaks. 
+#' Mostly used with \code{\link{scientific_10}} together.
+#' @keywords utils
+#' @export
+#' @examples 
+#' get_breaks_positive_values(68759)
+#' [1] 1e-01 1e+00 1e+01 1e+02 1e+03 1e+04 1e+05
+#' 
+#' scale_y_continuous(trans = "log", labels = ComMA::scientific_10, 
+#' breaks = ComMA::get_breaks_positive_values(max(df, start=c(0))))
+get_breaks_positive_values <- function(max.v, start=c(0.1, 1)) {
+  breaks=c(start, 10, 100, 1000, 10000, 100000, 1000000)
+  if (max.v < 50) {
+    breaks=c(start, 10)
+  } else if (max.v < 500) {
+    breaks=c(start, 10, 100)
+  } else if (max.v < 5000) {
+    breaks=c(start, 10, 100, 1000)
+  } else if (max.v < 50000) {
+    breaks=c(start, 10, 100, 1000, 10000)
+  } else if (max.v < 500000) {
+    breaks=c(start, 10, 100, 1000, 10000, 100000)
+  } else if (max.v < 5000000) {
+    breaks=c(start, 10, 100, 1000, 10000, 100000, 1000000)
+  } 
+  return(breaks)
 }
 
 #' Get a table in the format of 'corr (sign)'
