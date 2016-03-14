@@ -1,6 +1,10 @@
 #' ComMA R documentation
 #'
-#' \pkg{ComMA} is a collection of tools to analyse community matrix for eDNA.
+#' This package is a collection of tools for community matrix analyse, 
+#' especially for eDNA data, but it also can be used for traditional species survey data.
+#' The package not only wraps bioinformatic, ecological methods and figure plotting  
+#' into one-line functions, but also create utility functions to procced data easily. 
+#' All functions are available by typing \code{help(package="ComMA")} in R. 
 #'
 #' \strong{Community matrix} in \pkg{ComMA} is a community data from file as a matrix,
 #' where rows are OTUs (therefore the matrix is called \emph{OTU table}) or individual species 
