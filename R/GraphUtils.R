@@ -2,6 +2,37 @@
 # Author: Walter Xie
 # Accessed on 11 Mar 2016
 
+#' Create pdf for ggplot object.
+#' 
+#' @param gg.plot A \code{\link{ggplot}} object.
+#' @param fig.path fig.path The full path of pdf file.
+#' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
+#' @keywords utils
+#' @export
+#' @examples 
+#' pdfGgplot(gg.plot, fig.path="fig.pdf", width=8, height=8)  
+pdfGgplot <- function(gg.plot, fig.path, width=6, height=6) {
+  pdf(fig.path, width=width, height=height)	
+  print(gg.plot)
+  invisible(dev.off()) 
+}
+
+#' Create pdf for gtable object.
+#' 
+#' @param gtable A \code{\link{gtable}} object.
+#' @param fig.path fig.path The full path of pdf file.
+#' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
+#' @keywords utils
+#' @export
+#' @examples 
+#' pdfGtable(g.table, fig.path="fig.pdf", width=8, height=8)  
+pdfGtable <- function(g.table, fig.path, width=6, height=6) {
+  require(grid)
+  pdf(fig.path, width=width, height=height)	
+  print(grid.draw(g.table))
+  invisible(dev.off()) 
+}
+
 
 #' Customised palette with about 70 colours.
 #' 

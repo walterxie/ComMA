@@ -13,19 +13,19 @@
 #'   Plot01 \tab 6 \tab 5 \tab 6 
 #' } 
 #' @param id.melt A column name to \code{\link{melt}} and used as a \code{\link{factor}}.
-#' @param fig.path The full path of image file.
 #' @param title Graph title
 #' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
-#' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
+#' @return
+#' A \code{\link{ggplot}} object of heatmap.
 #' @keywords graph
 #' @export
 #' @examples 
 #' ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
 #' ranks.by.group
-#' heatmapGgplot(df=ranks.by.group, id.melt="plot", fig.path="plot-prior-example-heatmap.pdf")
-heatmapGgplot <- function(df, id.melt, fig.path, title="Heatmap", x.lab="", y.lab="", 
-                          low="white", high="steelblue", width=6, height=6) {
+#' gg.plot <- ggHeatmap(df=ranks.by.group, id.melt="plot")
+#' pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
+ggHeatmap <- function(df, id.melt, title="Heatmap", x.lab="", y.lab="", low="white", high="steelblue") {
   if (!is.element(tolower(id.melt), tolower(colnames(df))))
     stop(paste0("Data frame column names do NOT have \"", id.melt, "\" for melt function !"))
   
@@ -43,9 +43,7 @@ heatmapGgplot <- function(df, id.melt, fig.path, title="Heatmap", x.lab="", y.la
     theme(axis.title.x=element_blank(), axis.text.x=element_text(angle=45, hjust=1), 
           panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank())
   
-  pdf(fig.path, width=width, height=height)	
-  print(p)
-  invisible(dev.off()) 
+  return(p) 
 }
 
 #' Data ellipse on a scatter plot. 
@@ -59,16 +57,17 @@ heatmapGgplot <- function(df, id.melt, fig.path, title="Heatmap", x.lab="", y.la
 #' @param point.size The size of points from \code{\link{point.size}}. Default to 3.
 #' @param palette The palette to colour clusters using \code{\link{scale_colour_brewer}}. 
 #' Default to 'Set1' (max 8 colours). Refer to \url{http://www.datavis.ca/sasmac/brewerpal.html}.
+#' @return
+#' A \code{\link{gtable}} object of scatter plot.
 #' @keywords graph
 #' @export
 #' @examples 
 #' df.clusters <- random2Clusters()
 #' df.clusters
-#' scatterPlotEllipse(df.clusters, fig.path="clusters-scatter-plot.pdf")
-#' scatterPlotEllipse(df.clusters, fig.path="clusters-scatter-plot.pdf", addLabel=T)
-scatterPlotEllipse <- function(df.clusters, fig.path, title="Clusters", point.size=3, palette="Set1", 
-                               addLabel=FALSE, label.size = 3, hjust=-0.1, vjust = -0.2, alpha = 0.5, 
-                               width=8, height=6) {
+#' g.table <- ggScatterPlotEllipse(df.clusters, addLabel=T)
+#' pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
+ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, palette="Set1", 
+                               addLabel=FALSE, label.size = 3, hjust=-0.1, vjust = -0.2, alpha = 0.5) {
   if (ncol(df.clusters) < 3)
     stop("Data frame should have 3 columns: first 2 columns are coordinates, 3rd is cluster names !")
   
@@ -95,10 +94,7 @@ scatterPlotEllipse <- function(df.clusters, fig.path, title="Clusters", point.si
   gt <- ggplot_gtable(ggplot_build(p))
   gt$layout$clip[gt$layout$name == "panel"] <- "off"
   
-  require(grid)
-  pdf(fig.path, width=width, height=height)
-  print(grid.draw(gt))
-  invisible(dev.off()) 
+  return(gt)
 }
 
 #' Percent bar chart coloured by groups. 
@@ -117,15 +113,15 @@ scatterPlotEllipse <- function(df.clusters, fig.path, title="Clusters", point.si
 #' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
 #' Default to low="white", high="steelblue".
-#' @param width, height Refer to \code{\link{pdf}}. But if width is NULL, 
-#' then use number of bars and legend columns to calculate width automatically. 
-#' Default to width=NULL, height=8.
+#' @param autoWidth If TRUE, then use number of bars and legend columns 
+#' to estimate pdf width automatically. Default to TRUE.
 #' @keywords graph
 #' @export
 #' @examples 
 #' taxa.phyla <- readFile("./data/examples/taxonomy97phyla.txt")
-#' percentBarChart(taxa.phyla, id.melt="TaxaGroup", fig.path="taxa-percentage-bar.pdf")
-percentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", x.lab="", y.lab="", width=NULL, height=8) {
+#' bar.chart <- ggPercentBarChart(taxa.phyla, id.melt="TaxaGroup")
+#' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
+ggPercentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", x.lab="", y.lab="", autoWidth=TRUE) {
   if (!is.element(tolower(id.melt), tolower(colnames(df))))
     stop(paste0("Data frame column names do NOT have \"", id.melt, "\" for melt function !"))
   
@@ -134,19 +130,19 @@ percentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", x.
   #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
   
   # move unclassified group to the last of legend 
-  legend_ord <- as.character(unique(df[,id.melt]))
-  id.match <- grep("unclassified", legend_ord, ignore.case = TRUE)
+  legend.ord <- as.character(unique(df[,id.melt]))
+  id.match <- grep("unclassified", legend.ord, ignore.case = TRUE)
   if (length(id.match) > 0)
-    legend_ord <- legend_ord[c(setdiff(1:length(legend_ord), id.match),id.match)]
-  df.melt[,id.melt] <- factor(df.melt[,id.melt], levels = rev(legend_ord))
+    legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
+  df.melt[,id.melt] <- factor(df.melt[,id.melt], levels = rev(legend.ord))
   
-  pale <- ComMA::getMyPalette(length(legend_ord))
-  if (length(legend_ord) > length(pale)) {
+  pale <- ComMA::getMyPalette(length(legend.ord))
+  if (length(legend.ord) > length(pale)) {
     require(colorspace)
-    pale <- rainbow_hcl(length(legend_ord))
+    pale <- rainbow_hcl(length(legend.ord))
   }
   # number of columns for legend
-  legend.col = ceiling(length(legend_ord) / 25)
+  legend.col = ceiling(length(legend.ord) / 25)
   
   require(ggplot2)
   require(scales)
@@ -161,12 +157,16 @@ percentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", x.
           panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           panel.background = element_blank()) 
   
-  if (is.null(width))
-    width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
+  if (autoWidth)
+    pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
   
-  pdf(fig.path, width=width, height=height)	
-  print(p)
-  invisible(dev.off()) 
+  # Return a list containing the filename
+  list(
+    pdf.width = pdf.width,
+    legend.len = length(legend.ord), # the length of legend
+    legend.ord = legend.ord, # the legend in the order
+    gg.plot = p # ggplot
+  )
 }
 
 
@@ -176,8 +176,7 @@ percentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", x.
 #' the number of OTUs (y-axis) across the number of samples (x-axis). 
 #' The 'red' bar is the number of OTUs appeared only in that number of samlpes, 
 #' and the 'green' bar is the number of reads assigned to those OTUs.
-#' @param df A data frame of community matrix. See \code{\link{ComMA}}. 
-#' @param fig.path The full path of image file.
+#' @param df.aggre A data frame of row counts and sums from a community matrix. See \code{\link{rowCountAndSum}}. 
 #' @param print.xtable TRUE/FALSE to print \code{\link{xtable}} in console. 
 #' Allow NULL, if NULL, then do not print. Default to NULL. 
 #' @param title Graph title
@@ -185,43 +184,31 @@ percentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", x.
 #' @param legend.title The title of legend. Refer to \pkg{ggplot2} \code{\link{scale_fill_discrete}}. 
 #' Default to a empty string.
 #' @param legend.labels The labels of legend, which are fixed to 2 groups. Default to c("OTUs", "reads").
-#' @param width, height Refer to \code{\link{pdf}}. Default to width=8, height=8.
+#' @param x.lab.interval The x labels interval. Default to 1 to dispay lables for every values.
 #' @keywords graph
 #' @export
 #' @examples 
 #' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' barYAcrossX(communityMatrix, fig.path="bar-otus-across-samples.pdf")
-barYAcrossX <- function(df, fig.path, print.xtable=NULL, title="The number of OTUs across the number of samples", 
+#' cm.aggre <- cmYAcrossX(communityMatrix)
+#' gg.plot <- ggBarYAcrossX(cm.aggre)
+#' pdfGgplot(gg.plot, fig.path="bar-otus-across-samples.pdf", width=8, height=8)  
+ggBarYAcrossX <- function(df.aggre, id.melt="samples", print.xtable=NULL, title="The number of OTUs across the number of samples", 
                        x.lab="Number of samples crossed", y.lab="Number of OTUs", 
-                       legend.title="", legend.labels=c("OTUs", "reads"),
-                       x.breaks.by=1, width=8, height=8) {
-  require(Matrix)
-  df.count.sum <- data.frame(row.names = rownames(df))
-  df.count.sum$sample <- apply(df, MARGIN=1, function(x) sum(x>0))
-  df.count.sum$reads <- apply(df, MARGIN=1, sum)
-  
-  df.aggre.c <- aggregate(as.formula(. ~ sample), data=df.count.sum, function(x) sum(x>0))
-  names(df.aggre.c)[names(df.aggre.c)=="reads"] <- "OTUs"
-  df.aggre.s <- aggregate(as.formula(. ~ sample), data=df.count.sum, FUN=sum)
-  df.aggre <- merge(df.aggre.c, df.aggre.s, by = "sample")
-  
-  if (is.null(print.xtable)) {
-    # do nothing
-  } else if (print.xtable) {
-    printXTable(df.aggre, caption = title, label = "tab:OTUsSamples", include.rownames=FALSE, file=NULL)
-  } else {
-    print(df.aggre, row.names = FALSE)
-  }
+                       legend.title="", legend.labels=c("OTUs", "reads"), x.lab.interval=1) {
+  if (!is.element(tolower(id.melt), tolower(colnames(df.aggre))))
+    stop(paste0("Data frame column names do NOT have \"", id.melt, "\" for melt function !"))
   
   require(reshape2)
-  df.melt <- melt(df.aggre, id="sample")
+  df.melt <- melt(df.aggre, id=id.melt)
   
+  x.breaks <- seq(min(df.aggre[,id.melt]), max(df.aggre[,id.melt]), x.lab.interval)
+  y.breaks <- ComMA::get_breaks_positive_values(max(df.aggre, start=c(0)))
   require(ggplot2)
-  p <- ggplot(df.melt, aes(x=sample, y=value)) + 
-    geom_bar(aes(fill = variable), position = "dodge", stat="identity") +
-    scale_y_continuous(trans = "log", expand = c(0,0), labels = ComMA::scientific_10, 
-                       breaks = ComMA::get_breaks_positive_values(max(df.aggre, start=c(0)))) + 
-    scale_x_discrete(breaks=seq(min(df.aggre[,"sample"]), max(df.aggre[,"sample"]), x.breaks.by)) +
+  # conside x as discrete values
+  p <- ggplot(df.melt, aes_string(x=id.melt, y="value")) + 
+    geom_bar(aes(fill=variable), position = "dodge", stat="identity") +
+    scale_y_continuous(trans="log", expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) + 
+    scale_x_discrete(breaks=x.breaks) +
     xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
     scale_fill_discrete(legend.title, labels=legend.labels) +
     theme_bw() +
@@ -231,9 +218,7 @@ barYAcrossX <- function(df, fig.path, print.xtable=NULL, title="The number of OT
           panel.border = element_blank(),
           panel.background = element_blank())
   
-  pdf(fig.path, width=width, height=height)	
-  print(p)
-  invisible(dev.off()) 
+  return(p)
 }
 
 

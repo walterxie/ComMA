@@ -9,7 +9,7 @@
 #' \strong{Community matrix} in \pkg{ComMA} is a community data from file as a matrix,
 #' where rows are OTUs (therefore the matrix is called \emph{OTU table}) or individual species 
 #' and columns are sites or samples. 
-#' Matrix elements are abundance data or portions (e.g. counts, percentage). For example,
+#' Matrix elements are abundance data or proportion (e.g. counts, percentage). For example,
 #' \tabular{rrrr}{
 #'   OTU_id \tab plot01 \tab plot02\tab ...\cr
 #'   OTU_1 \tab 1 \tab 0 \tab ...\cr
