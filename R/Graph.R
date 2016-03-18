@@ -12,7 +12,7 @@
 #'   CM30c44 \tab 10 \tab 26 \tab 15\cr
 #'   Plot01 \tab 6 \tab 5 \tab 6 
 #' } 
-#' @param id.melt A column name to \code{\link{melt}} and used as a \code{\link{factor}}.
+#' @param melt.id A column name to \code{\link{melt}} and used as a \code{\link{factor}}.
 #' @param title Graph title
 #' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
@@ -23,21 +23,21 @@
 #' @examples 
 #' ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
 #' ranks.by.group
-#' gg.plot <- ggHeatmap(df=ranks.by.group, id.melt="plot")
+#' gg.plot <- ggHeatmap(df=ranks.by.group, melt.id="plot")
 #' pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
-ggHeatmap <- function(df, id.melt, title="Heatmap", x.lab="", y.lab="", low="white", high="steelblue") {
-  if (!is.element(tolower(id.melt), tolower(colnames(df))))
-    stop(paste0("Data frame column names do NOT have \"", id.melt, "\" for melt function !"))
+ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="white", high="steelblue") {
+  if (!is.element(tolower(melt.id), tolower(colnames(df))))
+    stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
   require(reshape2)
   breaks.rank <- round(seq(1, nrow(df), length.out = 5), digits = 0)
-  ranks.melt <- melt(df, id=c(id.melt))
-  ranks.melt[,id.melt] <- factor(ranks.melt[,id.melt], levels=unique(ranks.melt[,id.melt]))
+  ranks.melt <- melt(df, id=c(melt.id))
+  ranks.melt[,melt.id] <- factor(ranks.melt[,melt.id], levels=unique(ranks.melt[,melt.id]))
   
   require(ggplot2)
   # variable is all group names, such as "16S" or "FUNGI"
   # value is ranks for each group
-  p <- ggplot(ranks.melt, aes_string(x="variable", y=id.melt)) + geom_tile(aes(fill=value)) + 
+  p <- ggplot(ranks.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) + 
     scale_fill_gradient(na.value="transparent", low=low, high=high, name="rank", breaks=breaks.rank) +
     xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
     theme(axis.title.x=element_blank(), axis.text.x=element_text(angle=45, hjust=1), 
@@ -97,7 +97,7 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
   return(gt)
 }
 
-#' Percent bar chart coloured by groups. 
+#' Percentage bar chart coloured by groups. 
 #' 
 #' @param df A data frame to \code{\link{melt}} and then make a percent bar chart. 
 #' For example,
@@ -107,8 +107,7 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
 #'   Crenarchaeota \tab 1 \tab 0 \tab 0 \tab Archaea\cr
 #'   Ascomycota \tab 2 \tab 765 \tab 971 \tab Fungi 
 #' } 
-#' @param id.melt A column name to \code{\link{melt}} and used to assign the colours.
-#' @param fig.path The full path of image file.
+#' @param melt.id A column name to \code{\link{melt}} and used to assign the colours.
 #' @param title Graph title
 #' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
@@ -119,22 +118,22 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
 #' @export
 #' @examples 
 #' taxa.phyla <- readFile("./data/examples/taxonomy97phyla.txt")
-#' bar.chart <- ggPercentBarChart(taxa.phyla, id.melt="TaxaGroup")
+#' bar.chart <- ggPercentBarChart(taxa.phyla, melt.id="TaxaGroup")
 #' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
-ggPercentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", x.lab="", y.lab="", autoWidth=TRUE) {
-  if (!is.element(tolower(id.melt), tolower(colnames(df))))
-    stop(paste0("Data frame column names do NOT have \"", id.melt, "\" for melt function !"))
+ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="", y.lab="", autoWidth=TRUE) {
+  if (!is.element(tolower(melt.id), tolower(colnames(df))))
+    stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
   require(reshape2)
-  df.melt <- melt(df, id=c(id.melt))
+  df.melt <- melt(df, id=c(melt.id))
   #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
   
   # move unclassified group to the last of legend 
-  legend.ord <- as.character(unique(df[,id.melt]))
+  legend.ord <- as.character(unique(df[,melt.id]))
   id.match <- grep("unclassified", legend.ord, ignore.case = TRUE)
   if (length(id.match) > 0)
     legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
-  df.melt[,id.melt] <- factor(df.melt[,id.melt], levels = rev(legend.ord))
+  df.melt[,melt.id] <- factor(df.melt[,melt.id], levels = rev(legend.ord))
   
   pale <- ComMA::getMyPalette(length(legend.ord))
   if (length(legend.ord) > length(pale)) {
@@ -146,7 +145,7 @@ ggPercentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", 
   
   require(ggplot2)
   require(scales)
-  p <- ggplot(df.melt, aes_string(x = "variable", y = "value", fill = id.melt)) + 
+  p <- ggplot(df.melt, aes_string(x = "variable", y = "value", fill = melt.id)) + 
     geom_bar(position = "fill",stat = "identity") + 
     scale_y_continuous(labels = percent_format()) +
     scale_fill_manual(values=pale) +
@@ -168,6 +167,70 @@ ggPercentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", 
     gg.plot = p # ggplot
   )
 }
+
+#' Bar chart. 
+#' 
+#' @param df.melt A data frame already \code{\link{melt}}. 
+#' @param x.id, y.id, fill.id The string of column names in the data frame 
+#' used for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.
+#' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
+#' or the result of a call to a position adjustment function. Default to "dodge". 
+#' Use "fill" to generate group percentage bars.
+#' @param y.scale The string defines the data scale used in y-axis, 
+#' which can be "nor" standing for normal, "per" standing for percentage, 
+#' "log" standing for logarithmic. Default to "nor". 
+#' @param title Graph title
+#' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
+#' @keywords graph
+#' @export
+#' @examples
+#' # log-scale y
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.scale="log")
+#' # percentage bars without grouping in one bar
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.scale="per")
+#' # percentage bars grouping in one bar
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
+ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", 
+                       title="Bar Chart", x.lab="x.id", y.lab="y.id") {
+  if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
+  if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", y.id, "\" !"))
+
+  require(ggplot2)
+  if (missing(fill.id)) {
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) 
+  } else {
+    if (!is.element(tolower(fill.id), tolower(colnames(df.melt))))
+      stop(paste0("Data frame do NOT have column name \"", fill.id, "\" !"))
+    
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
+  }
+  p <- p + geom_bar(position = bar.pos,stat = "identity") 
+  
+  y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
+  if (y.scale=="log") {
+    p <- p + scale_y_continuous(trans="log", expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
+  } else if (y.scale=="per") {
+    require(scales)
+    p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format(), breaks = y.breaks) 
+  } else {
+    p <- p + scale_y_continuous(expand = c(0,0))
+  }
+  
+  if (x.lab=="x.id") 
+    x.lab = x.id
+  if (y.lab=="y.id") 
+    y.lab = y.id
+
+  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3),
+          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          panel.background = element_blank())
+
+  return(p)
+}
+
 
 
 #' Grouping bar chart Y across X. 
@@ -192,20 +255,20 @@ ggPercentBarChart <- function(df, id.melt, fig.path, title="Percent Bar Chart", 
 #' cm.aggre <- cmYAcrossX(communityMatrix)
 #' gg.plot <- ggBarYAcrossX(cm.aggre)
 #' pdfGgplot(gg.plot, fig.path="bar-otus-across-samples.pdf", width=8, height=8)  
-ggBarYAcrossX <- function(df.aggre, id.melt="samples", print.xtable=NULL, title="The number of OTUs across the number of samples", 
+ggBarYAcrossX <- function(df.aggre, melt.id="samples", print.xtable=NULL, title="The number of OTUs across the number of samples", 
                        x.lab="Number of samples crossed", y.lab="Number of OTUs", 
                        legend.title="", legend.labels=c("OTUs", "reads"), x.lab.interval=1) {
-  if (!is.element(tolower(id.melt), tolower(colnames(df.aggre))))
-    stop(paste0("Data frame column names do NOT have \"", id.melt, "\" for melt function !"))
+  if (!is.element(tolower(melt.id), tolower(colnames(df.aggre))))
+    stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
   require(reshape2)
-  df.melt <- melt(df.aggre, id=id.melt)
+  df.melt <- melt(df.aggre, id=melt.id)
   
-  x.breaks <- seq(min(df.aggre[,id.melt]), max(df.aggre[,id.melt]), x.lab.interval)
+  x.breaks <- seq(min(df.aggre[,melt.id]), max(df.aggre[,melt.id]), x.lab.interval)
   y.breaks <- ComMA::get_breaks_positive_values(max(df.aggre, start=c(0)))
   require(ggplot2)
   # conside x as discrete values
-  p <- ggplot(df.melt, aes_string(x=id.melt, y="value")) + 
+  p <- ggplot(df.melt, aes_string(x=melt.id, y="value")) + 
     geom_bar(aes(fill=variable), position = "dodge", stat="identity") +
     scale_y_continuous(trans="log", expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) + 
     scale_x_discrete(breaks=x.breaks) +

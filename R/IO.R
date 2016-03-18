@@ -125,6 +125,23 @@ printXTable <- function(df, caption, label, include.rownames=TRUE, file=NULL, al
   }
 }
 
+
+#' Read File Line By Line
+#' 
+#' @param file The file to read.
+#' @return 
+#' A character vector of length the number of lines read. Refer to \code{\link{readLines}}.
+#' @keywords utils
+#' @export
+#' @examples 
+#' linn <- readFileLineByLine("time.txt")
+readFileLineByLine <- function(file) {
+  conn <- file(file,open="r")
+  linn <-readLines(conn)
+  close(conn)
+  return(linn)
+}
+
 # hasGroup, specify if values in the last column are groups, it affects how to process matrix
 # hasGroup=TRUE, return a data frame by removing last column (groups), 
 # and another 1-column data frame for the last column (groups). 

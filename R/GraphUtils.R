@@ -26,7 +26,7 @@ pdfGgplot <- function(gg.plot, fig.path, width=6, height=6) {
 #' @export
 #' @examples 
 #' pdfGtable(g.table, fig.path="fig.pdf", width=8, height=8)  
-pdfGtable <- function(g.table, fig.path, width=6, height=6) {
+pdfGtable <- function(g.table, fig.path, width=8, height=8) {
   require(grid)
   pdf(fig.path, width=width, height=height)	
   print(grid.draw(g.table))
@@ -88,6 +88,8 @@ g_legend<-function(a.gplot){
 #' @source \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}
 #' 
 #' @param ... The list of \code{\link{ggplot}} objects.
+#' @return
+#' A \code{\link{gtable}} object of \code{\link{grid.arrange}}.
 #' @keywords utils
 #' @export
 #' @examples 
