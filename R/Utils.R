@@ -107,7 +107,7 @@ getCorrSignTable <- function(corr.sign.matrix, digits=3) {
 #' @param x The string.
 #' @source \url{http://stackoverflow.com/questions/2261079/how-to-trim-leading-and-trailing-whitespace-in-r} 
 #' @return
-#' The string to remove leading or trailing whitespace.
+#' The string of leading or trailing whitespace removed.
 #' @keywords utils
 #' @export
 #' @examples 
@@ -115,6 +115,20 @@ getCorrSignTable <- function(corr.sign.matrix, digits=3) {
 #' trimStartEnd(text)
 #' [1] "foo bar  baz 3"
 trimStartEnd <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+#' Remove all whitespace from a string.
+#' 
+#' @param x The string.
+#' @source \url{http://stackoverflow.com/questions/5992082/how-to-remove-all-whitespace-from-a-string}
+#' @return
+#' The string of all whitespace removed.
+#' @keywords utils
+#' @export
+#' @examples 
+#' text = "   foo bar  baz 3 "
+#' trimAll(text)
+#' [1] "foobarbaz3"
+trimAll <- function (x) gsub("\\s", "", x)
 
 #' Extracting the last n characters from a string x
 #' 

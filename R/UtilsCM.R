@@ -97,7 +97,7 @@ cmYAcrossX <- function(communityMatrix, terms=c("OTUs", "samples", "reads")) {
 
 
 
-#' \code{mergeColums} combines the columns of  by the \emph{n}th substring defined in sample names.
+#' \code{sumColumns} sums the columns by the \emph{n}th substring defined in column names.
 #' 
 #' @param sep The seperator to get the \emph{n}th substring from column names. Default to dash '-'.
 #' @param nth The \emph{n}th substring. Default to 1 (first).
@@ -111,11 +111,11 @@ cmYAcrossX <- function(communityMatrix, terms=c("OTUs", "samples", "reads")) {
 #' # by subpl
 #' communityMatrix <- getCommunityMatrix("16S", isPlot=FALSE, minAbund=1)
 #' colSums(communityMatrix)
-#' communityMatrix1 <- mergeColums(communityMatrix)
+#' communityMatrix1 <- sumColumns(communityMatrix)
 #' colSums(communityMatrix1)
 #'
 #' @rdname utilsCM
-mergeColums <- function(communityMatrix, sep="-", nth=1) {
+sumColumns <- function(communityMatrix, sep="-", nth=1) {
   colnames(communityMatrix) <- sapply(strsplit(colnames(communityMatrix), sep), "[[", nth) # Strip subplot letter by sep
   communityMatrix1 <- data.frame(matrix(ncol = 0, nrow = nrow(communityMatrix))) # Empty data.frame with required number of rows
   for(col in unique(colnames(communityMatrix))){
@@ -126,6 +126,25 @@ mergeColums <- function(communityMatrix, sep="-", nth=1) {
   }
   
   return(communityMatrix1)
+}
+
+#' \code{mergeRowsByColumnValue} \code{\link{aggregate}}s data frame
+#' 
+#' @param ... The community matrix column names for \code{mergeRowsByColumnValue}.
+#' @param FUN The function to compute the summary statistics 
+#' which can be applied to all data subsets. Refer to \code{\link{aggregate}}.
+#' @return 
+#' Another community matrix whose rows are merged from 
+#' given community matrix according to given column value.
+#' @keywords community matrix
+#' @export
+#' @examples 
+#'
+#' @rdname utilsCM
+mergeRowsByColumnValue <- function(communityMatrix, ..., FUN=sum) {
+  cols <- paste(list(...), collapse="+")
+  
+  aggregate(as.formula(paste(". ~", cols)), data=communityMatrix, FUN=FUN)
 }
 
 #' \code{mostAbundantRows} trims data frame to the rows having most abundance given a threshold. 

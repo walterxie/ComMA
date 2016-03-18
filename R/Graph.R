@@ -14,7 +14,7 @@
 #' } 
 #' @param melt.id A column name to \code{\link{melt}} and used as a \code{\link{factor}}.
 #' @param title Graph title
-#' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
 #' @return
 #' A \code{\link{ggplot}} object of heatmap.
@@ -97,6 +97,90 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
   return(gt)
 }
 
+
+#' Bar chart. 
+#' 
+#' Universal bar chart function to plot many types of bar chart, 
+#' such as normal bars, log-scaled bars, percentage bars, and also grouping.
+#' @param df.melt A data frame already \code{\link{melt}}. 
+#' @param x.id,y.id, fill.id The string of column names in the data frame 
+#' used for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.
+#' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
+#' or the result of a call to a position adjustment function. Default to "dodge". 
+#' Use "fill" to generate group percentage bars.
+#' @param y.scale The string defines the data scale used in y-axis, 
+#' which can be "nor" standing for normal, or "per" standing for percentage, 
+#' moreover either the name of a transformation object for \code{\link{scale_y_continuous}} 
+#' (e.g. \code{trans="log"}), or the object itself. Built-in transformations include 
+#' "asn", "atanh", "boxcox", "exp", "identity", "log", "log10", "log1p", "log2", "logit", 
+#' "probability", "probit", "reciprocal", "reverse" and "sqrt". Default to "nor". 
+#' @param title Graph title
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
+#' @param palette The colour palette for bars. 
+#' If NULL, then use \code{\link{ggplot}} default colours. Default to NULL. 
+#' @param legend.col,legend.nrow Customize the number of columns or rows for legend. 
+#' And they cannot be used at the same time.
+#' Default not to use them, legend.col=1, legend.nrow=0. 
+#' @keywords graph
+#' @export
+#' @examples
+#' # log-scale y
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.scale="log")
+#' # percentage bars without grouping in one bar each
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.scale="per")
+#' # percentage bars one group in one bar
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
+ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", 
+                       title="Bar Chart", x.lab="x.id", y.lab="y.id", palette=NULL, 
+                       legend.col=1, legend.nrow=0) {
+  if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
+  if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", y.id, "\" !"))
+  
+  require(ggplot2)
+  if (missing(fill.id)) {
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) 
+  } else {
+    if (!is.element(tolower(fill.id), tolower(colnames(df.melt))))
+      stop(paste0("Data frame do NOT have column name \"", fill.id, "\" !"))
+    
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
+  }
+  p <- p + geom_bar(position = bar.pos,stat = "identity") 
+  
+  y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
+  if (y.scale=="nor") {
+    p <- p + scale_y_continuous(expand = c(0,0))
+  } else if (y.scale=="per") {
+    require(scales)
+    p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format()) 
+  } else {
+    p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
+  }
+  
+  if (!is.null(palette))
+    p <- p + scale_fill_manual(values=palette)
+  # cannot use both legend.col and legend.nrow
+  if (legend.col > 1 && legend.nrow == 0)
+    p <- p + guides(fill=guide_legend(ncol=legend.col))
+  if (legend.nrow > 0 && legend.col == 1)
+    p <- p + guides(fill=guide_legend(nrow=legend.nrow,byrow=TRUE))
+  
+  if (x.lab=="x.id") 
+    x.lab = x.id
+  if (y.lab=="y.id") 
+    y.lab = y.id
+  
+  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3),
+          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          panel.background = element_blank())
+  
+  return(p)
+}
+
+
 #' Percentage bar chart coloured by groups. 
 #' 
 #' @param df A data frame to \code{\link{melt}} and then make a percent bar chart. 
@@ -109,7 +193,7 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
 #' } 
 #' @param melt.id A column name to \code{\link{melt}} and used to assign the colours.
 #' @param title Graph title
-#' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
 #' Default to low="white", high="steelblue".
 #' @param autoWidth If TRUE, then use number of bars and legend columns 
@@ -118,7 +202,7 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
 #' @export
 #' @examples 
 #' taxa.phyla <- readFile("./data/examples/taxonomy97phyla.txt")
-#' bar.chart <- ggPercentBarChart(taxa.phyla, melt.id="TaxaGroup")
+#' bar.chart <- ggPercentageBarChart(taxa.phyla, melt.id="TaxaGroup")
 #' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="", y.lab="", autoWidth=TRUE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df))))
@@ -143,19 +227,9 @@ ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="
   # number of columns for legend
   legend.col = ceiling(length(legend.ord) / 25)
   
-  require(ggplot2)
-  require(scales)
-  p <- ggplot(df.melt, aes_string(x = "variable", y = "value", fill = melt.id)) + 
-    geom_bar(position = "fill",stat = "identity") + 
-    scale_y_continuous(labels = percent_format()) +
-    scale_fill_manual(values=pale) +
-    guides(fill=guide_legend(ncol=legend.col)) +
-    theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
-    theme(axis.title.y = element_blank(),
-          axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3),
-          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-          panel.background = element_blank()) 
-  
+  p <- ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, bar.pos="fill", 
+                  y.scale="per", title=title, x.lab=x.lab, y.lab=y.lab, palette=pale, legend.col=legend.col)
+
   if (autoWidth)
     pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
   
@@ -168,71 +242,6 @@ ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="
   )
 }
 
-#' Bar chart. 
-#' 
-#' @param df.melt A data frame already \code{\link{melt}}. 
-#' @param x.id, y.id, fill.id The string of column names in the data frame 
-#' used for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.
-#' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
-#' or the result of a call to a position adjustment function. Default to "dodge". 
-#' Use "fill" to generate group percentage bars.
-#' @param y.scale The string defines the data scale used in y-axis, 
-#' which can be "nor" standing for normal, "per" standing for percentage, 
-#' "log" standing for logarithmic. Default to "nor". 
-#' @param title Graph title
-#' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
-#' @keywords graph
-#' @export
-#' @examples
-#' # log-scale y
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.scale="log")
-#' # percentage bars without grouping in one bar
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.scale="per")
-#' # percentage bars grouping in one bar
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
-ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", 
-                       title="Bar Chart", x.lab="x.id", y.lab="y.id") {
-  if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
-    stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
-  if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
-    stop(paste0("Data frame do NOT have column name \"", y.id, "\" !"))
-
-  require(ggplot2)
-  if (missing(fill.id)) {
-    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) 
-  } else {
-    if (!is.element(tolower(fill.id), tolower(colnames(df.melt))))
-      stop(paste0("Data frame do NOT have column name \"", fill.id, "\" !"))
-    
-    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
-  }
-  p <- p + geom_bar(position = bar.pos,stat = "identity") 
-  
-  y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
-  if (y.scale=="log") {
-    p <- p + scale_y_continuous(trans="log", expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
-  } else if (y.scale=="per") {
-    require(scales)
-    p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format(), breaks = y.breaks) 
-  } else {
-    p <- p + scale_y_continuous(expand = c(0,0))
-  }
-  
-  if (x.lab=="x.id") 
-    x.lab = x.id
-  if (y.lab=="y.id") 
-    y.lab = y.id
-
-  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3),
-          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-          panel.background = element_blank())
-
-  return(p)
-}
-
-
-
 #' Grouping bar chart Y across X. 
 #' 
 #' Create a grouping bar chart given community matrix to display 
@@ -243,7 +252,7 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
 #' @param print.xtable TRUE/FALSE to print \code{\link{xtable}} in console. 
 #' Allow NULL, if NULL, then do not print. Default to NULL. 
 #' @param title Graph title
-#' @param x.lab, y.lab The label of x-axis or y-axis, such as plot names.
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param legend.title The title of legend. Refer to \pkg{ggplot2} \code{\link{scale_fill_discrete}}. 
 #' Default to a empty string.
 #' @param legend.labels The labels of legend, which are fixed to 2 groups. Default to c("OTUs", "reads").
@@ -266,13 +275,12 @@ ggBarYAcrossX <- function(df.aggre, melt.id="samples", print.xtable=NULL, title=
   
   x.breaks <- seq(min(df.aggre[,melt.id]), max(df.aggre[,melt.id]), x.lab.interval)
   y.breaks <- ComMA::get_breaks_positive_values(max(df.aggre, start=c(0)))
-  require(ggplot2)
+  
+  p <- ggBarChart(df.melt, x.id=melt.id, y.id="value", fill.id="variable", 
+                  y.scale="log", title=title, x.lab=x.lab, y.lab=y.lab)
+  
   # conside x as discrete values
-  p <- ggplot(df.melt, aes_string(x=melt.id, y="value")) + 
-    geom_bar(aes(fill=variable), position = "dodge", stat="identity") +
-    scale_y_continuous(trans="log", expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) + 
-    scale_x_discrete(breaks=x.breaks) +
-    xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
+  p <- p + scale_x_discrete(breaks=x.breaks) +
     scale_fill_discrete(legend.title, labels=legend.labels) +
     theme_bw() +
     theme(axis.line = element_line(colour = "black", size = 0.3),
