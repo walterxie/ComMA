@@ -83,18 +83,24 @@ readFile <- function(file, sep="\t", row.names=1, verbose=TRUE, msg.file="file",
 #' @param file If the file extension is \emph{csv}, 
 #' then use \code{\link{write.csv}}, 
 #' otherwise use \code{\link{write.table}}.
+#' @param ... More parameters, see \code{\link{write.table}}.
 #' @export
 #' @examples 
 #' writeTable(df, file.path)
-writeTable <- function(df, file){
+writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t", eol = "\n", 
+                       na = "NA", dec = ".", row.names = TRUE, col.names = TRUE) {
   require(tools)
   if (tolower(file_ext(file))=="csv") {
-    write.csv(df, file, quote=FALSE)
-  } else { # .tsv .txt
-    #write.table bug: mistake to start col names from the 1st cell
-    cat("",colnames(df),file=file,sep="\t")
-    cat("\n",file=file, append=TRUE)
-    write.table(df, file, sep ="\t", quote=FALSE, col.names=FALSE, append=TRUE)
+    write.csv(df, file, append = append, quote = quote, eol = eol, 
+              na = na, dec = dec, row.names = row.names, col.names = col.names)
+  } else if (row.names == TRUE && col.names == TRUE) {
+    cat(paste(c("row.names", colnames(df)), collapse = sep), file = file, sep = "\n")
+    write.table(df, file, append = TRUE, quote = quote, eol = eol, sep = sep,
+                na = na, dec = dec, row.names = row.names, col.names = FALSE)
+  } else {# .tsv .txt
+    #write.table bug: if row.names = TRUE, mistake to start col names from the 1st cell
+    write.table(df, file, append = append, quote = quote, eol = eol, sep = sep,
+                na = na, dec = dec, row.names = row.names, col.names = col.names)
   }
 }
 
