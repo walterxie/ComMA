@@ -116,7 +116,7 @@ cmYAcrossX <- function(communityMatrix, terms=c("OTUs", "samples", "reads")) {
 #'
 #' @rdname utilsCM
 sumColumns <- function(communityMatrix, sep="-", nth=1) {
-  colnames(communityMatrix) <- sapply(strsplit(colnames(communityMatrix), sep), "[[", nth) # Strip subplot letter by sep
+  colnames(communityMatrix) <- sapply(strsplit(colnames(communityMatrix), split=sep), "[[", nth) # Strip subplot letter by sep
   communityMatrix1 <- data.frame(matrix(ncol = 0, nrow = nrow(communityMatrix))) # Empty data.frame with required number of rows
   for(col in unique(colnames(communityMatrix))){
     cols <- communityMatrix[grep(col, colnames(communityMatrix))] # Find each pair of subplot columns

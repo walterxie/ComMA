@@ -75,7 +75,7 @@ getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
   
   communityMatrix <- ComMA::readFile(inputCM, verbose=verbose, msg.file=paste(matrix.name, "community matrix"), 
                               msg.col="samples", msg.row="OTUs")
-  ComMA::rmMinAbundance(communityMatrix, minAbund)
+  communityMatrix <- ComMA::rmMinAbundance(communityMatrix, minAbund)
   
   return(communityMatrix)
 }
