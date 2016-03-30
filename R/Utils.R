@@ -191,3 +191,4 @@ random2Clusters <- function(n=100, seed=101) {
   y <- 1.5*x + 0.4 + rnorm(n)
   df <- rbind(df, data.frame(x=x, y=y, group="B"))
 }
+

@@ -33,7 +33,6 @@ pdfGtable <- function(g.table, fig.path, width=8, height=8) {
   invisible(dev.off()) 
 }
 
-
 #' Customised palette with about 70 colours.
 #' 
 #' @param add.grey Add grey colours in the begining of palette. Default to 0.

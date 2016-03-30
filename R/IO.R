@@ -137,6 +137,13 @@ printXTable <- function(df, caption, label, include.rownames=TRUE, file=NULL, al
   }
 }
 
+# for Latex file
+mkValidTex <- function(file) {
+  # change all _, %
+  system(paste("sed -i.bak 's/\\_/\\\\_/g;' ", report.file))
+  system(paste("sed -i.bak 's/\\%/\\\\%/g;' ", file)) 
+}
+
 
 #' Read File Line By Line
 #' 

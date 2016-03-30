@@ -4,6 +4,33 @@
 
 #' Create a heat map using ggplot. 
 #' 
+#' @param xintercept,yintercept,intercept,slope,smooth.method Refer to \pkg{ggplot2} 
+#' \code{\link{geom_vline}}, \code{\link{geom_hline}}, \code{\link{geom_abline}}, 
+#' \code{\link{geom_smooth}}. They cannot be used at the same time.
+#' @param linetype \code{\link{linetype}} 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash.
+#' @return
+#' Add a line to the given \code{\link{ggplot}} object.
+#' @keywords graph
+#' @export
+#' @examples 
+#' p <- ggLine(p, linetype = 2, yintercept = 1)
+#' p <- ggLine(p, smooth.method = "lm")
+ggLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope, smooth.method) {
+  if (!missing(xintercept)) {
+    p <- gg.plot + geom_vline(linetype=linetype, xintercept = xintercept)
+  } else if (!missing(yintercept)) {
+    p <- gg.plot + geom_hline(linetype=linetype, yintercept = yintercept)
+  } else if (!missing(intercept) && !missing(slope)){
+    p <- gg.plot + geom_abline(linetype=linetype, intercept = intercept, slope = slope)
+  } else if (!missing(smooth.method)){  
+    p + geom_smooth(linetype=linetype, method = smooth.method, se = FALSE)
+  } else {
+    stop("Invalid input !")
+  }
+}
+
+#' Create a heat map using ggplot. 
+#' 
 #' @param df A data frame to \code{\link{melt}} and then make a heat map. 
 #' For example,
 #' \tabular{rrrr}{
@@ -15,7 +42,7 @@
 #' @param melt.id A column name to \code{\link{melt}} and used as a \code{\link{factor}}.
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
-#' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
+#' @param low,high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
 #' @return
 #' A \code{\link{ggplot}} object of heatmap.
 #' @keywords graph
@@ -98,9 +125,14 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
 }
 
 
-#' Bar chart. 
+#' @name ggPlot
+#' @title One-line command to get \pkg{ggplot} 
+#'
+#' @description Simplify \pkg{ggplot} codes into functions that can get a chart from one-line command.
 #' 
-#' Universal bar chart function to plot many types of bar chart, 
+#' @details Bar chart. 
+#' 
+#' One-line bar chart function to plot many types of bar chart, 
 #' such as normal bars, log-scaled bars, percentage bars, and also grouping.
 #' @param df.melt A data frame already \code{\link{melt}}. 
 #' @param x.id,y.id, fill.id The string of column names in the data frame 
@@ -118,9 +150,8 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param palette The colour palette for bars. 
 #' If NULL, then use \code{\link{ggplot}} default colours. Default to NULL. 
-#' @param legend.col,legend.nrow Customize the number of columns or rows for legend. 
-#' And they cannot be used at the same time.
-#' Default not to use them, legend.col=1, legend.nrow=0. 
+#' @param legend.col,legend.nrow Customize the number of columns or rows for legend in bar chart. 
+#' They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0. 
 #' @keywords graph
 #' @export
 #' @examples
@@ -130,9 +161,10 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
 #' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.scale="per")
 #' # percentage bars one group in one bar
 #' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
-ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", 
-                       title="Bar Chart", x.lab="x.id", y.lab="y.id", palette=NULL, 
-                       legend.col=1, legend.nrow=0) {
+#' 
+#' @rdname ggPlot
+ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", palette=NULL, 
+                       legend.col=1, legend.nrow=0, title="Bar Chart", title.size = 9, x.lab="x.id", y.lab="y.id") {
   if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
     stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
   if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
@@ -149,13 +181,13 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
   }
   p <- p + geom_bar(position = bar.pos,stat = "identity") 
   
-  y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
   if (y.scale=="nor") {
     p <- p + scale_y_continuous(expand = c(0,0))
   } else if (y.scale=="per") {
     require(scales)
     p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format()) 
   } else {
+    y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
     p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
   }
   
@@ -174,12 +206,84 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
   
   p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3),
+          plot.title = element_text(size = 9),
           panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           panel.background = element_blank())
   
   return(p)
 }
 
+#' Box Whiskers Plot. 
+#' 
+#' @param outlier.colour The colour of outliers in box whiskers plot 
+#' used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
+#' Default to alpha("black", 0.3).
+#' @keywords graph
+#' @export
+#' @examples
+#' box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
+#' 
+#' @rdname ggPlot
+ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, outlier.colour = alpha("black", 0.3), 
+                              y.scale="nor", palette=NULL, add.mean=FALSE,
+                              title="Box Whiskers Plot", title.size = 9, x.lab="x.id", y.lab="y.id") {
+  if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
+  if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", y.id, "\" !"))
+  
+  require(ggplot2)
+  if (missing(fill.id)) {
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) 
+  } else {
+    if (!is.element(tolower(fill.id), tolower(colnames(df.melt))))
+      stop(paste0("Data frame do NOT have column name \"", fill.id, "\" !"))
+    
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
+  }
+  p <- p + geom_boxplot(outlier.colour = alpha("black", 0.3)) + scale_shape(solid = FALSE) 
+  #geom_jitter(alpha = 0.5) + 
+  
+  if (!is.null(palette))
+    p <- p + scale_fill_manual(values=palette)
+  
+  if (y.scale=="nor") {
+    p <- p + scale_y_continuous(expand = c(0,0))
+  } else if (y.scale=="per") {
+    require(scales)
+    p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format()) 
+  } else {
+    y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
+    p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
+  }
+  
+  if (add.mean)
+    p <- p + stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red")
+  
+  if (x.lab=="x.id") 
+    x.lab = x.id
+  if (y.lab=="y.id") 
+    y.lab = y.id
+  
+  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3), 
+          plot.title = element_text(size = 9),
+          strip.background = element_blank(), panel.grid.minor = element_blank())
+  
+  return(p)
+}
+
+# http://stackoverflow.com/questions/15660829/how-to-add-a-number-of-observations-per-group-and-use-group-mean-in-ggplot2-boxp
+# function for number of observations 
+give.n <- function(x){
+  return(c(y = median(x)*1.05, label = length(x))) 
+  # experiment with the multiplier to find the perfect position
+}
+# function for mean labels
+mean.n <- function(x){
+  return(c(y = median(x)*0.98, label = round(mean(x),2))) 
+  # experiment with the multiplier to find the perfect position
+}
 
 #' Percentage bar chart coloured by groups. 
 #' 
@@ -291,5 +395,4 @@ ggBarYAcrossX <- function(df.aggre, melt.id="samples", print.xtable=NULL, title=
   
   return(p)
 }
-
 
