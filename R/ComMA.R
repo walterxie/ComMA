@@ -31,7 +31,7 @@
 #' where rows are sites or samples, and columns are the measurement, such as 
 #' elevation, tempurature, soil chemistry, forest type, etc.
 #' 
-#' The \strong{phyloTree} is a rooted tree of phylo object, 
+#' The \strong{phyloTree} is a rooted tree of \code{\link{phylo}} object, 
 #' which is created from \pkg{ape} \code{\link{read.tree}}.
 #' 
 #' @source \url{https://github.com/walterxie/ComMA}

@@ -102,41 +102,45 @@ getCorrSignTable <- function(corr.sign.matrix, digits=3) {
 	corr.sign.table <- corr.sign.table[-1,-ncol(corr.sign.table)]
 }
 
-#' Trim leading and trailing whitespace in a string.
+#' @name stringUtils
+#' @title Utils to deal with strings and characters
+#'
+#' @description Useful function to manipulate strings and characters in \code{\link{ComMA}}.
+#' 
+#' @details 
+#' \code{trimStartEnd} trims the leading and trailing whitespace in a string.
 #' 
 #' @param x The string.
 #' @source \url{http://stackoverflow.com/questions/2261079/how-to-trim-leading-and-trailing-whitespace-in-r} 
 #' @return
-#' The string of leading or trailing whitespace removed.
+#' The processed string.
 #' @keywords utils
 #' @export
 #' @examples 
 #' text = "   foo bar  baz 3 "
 #' trimStartEnd(text)
 #' [1] "foo bar  baz 3"
+#'
+#' @rdname stringUtils
 trimStartEnd <- function (x) gsub("^\\s+|\\s+$", "", x)
 
-#' Remove all whitespace from a string.
+#' @details \code{trimAll} removes all whitespace from a string.
 #' 
-#' @param x The string.
 #' @source \url{http://stackoverflow.com/questions/5992082/how-to-remove-all-whitespace-from-a-string}
-#' @return
-#' The string of all whitespace removed.
 #' @keywords utils
 #' @export
 #' @examples 
 #' text = "   foo bar  baz 3 "
 #' trimAll(text)
 #' [1] "foobarbaz3"
+#'
+#' @rdname stringUtils
 trimAll <- function (x) gsub("\\s", "", x)
 
-#' Extracting the last n characters from a string x
+#' @details \code{substrRight} extracts the last n characters from a string x
 #' 
-#' @param x The string.
 #' @param n The last n characters
 #' @source \url{http://stackoverflow.com/questions/7963898/extracting-the-last-n-characters-from-a-string-in-r}
-#' @return
-#' 
 #' @keywords utils
 #' @export
 #' @examples 
@@ -145,7 +149,22 @@ trimAll <- function (x) gsub("\\s", "", x)
 #' [1] "string"
 #' substrRight(x, 8)
 #' [1] "a string"
+#'
+#' @rdname stringUtils
 substrRight <- function(x, n) {substr(x, nchar(x)-n+1, nchar(x))}
+
+#' @details \code{substrBetween} extracts the substring between two given regular expressions.
+#' 
+#' @param l The regex on the left.
+#' @param r The regex on the right.
+#' @source \url{http://stackoverflow.com/questions/14146362/regex-extract-string-between}
+#' @examples 
+#' x <- "command took 0:1:34.67 (94.67s total)"
+#' substrBetween(x, "\\(", "s total\\)")
+#' [1] "string"
+#'
+#' @rdname stringUtils
+substrBetween <- function(x, l, r) {gsub(paste0("^.*", l, "(.*)", r, ".*$"), "\\1", x)}
 
 #' Get plural by adding 's' except special plural.
 #' 

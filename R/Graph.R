@@ -2,14 +2,12 @@
 # Author: Walter Xie
 # Accessed on 10 Mar 2016
 
-#' Create a heat map using ggplot. 
+#' Add a line to the given \code{\link{ggplot}} object.
 #' 
 #' @param xintercept,yintercept,intercept,slope,smooth.method Refer to \pkg{ggplot2} 
 #' \code{\link{geom_vline}}, \code{\link{geom_hline}}, \code{\link{geom_abline}}, 
 #' \code{\link{geom_smooth}}. They cannot be used at the same time.
 #' @param linetype \code{\link{linetype}} 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash.
-#' @return
-#' Add a line to the given \code{\link{ggplot}} object.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -23,10 +21,34 @@ ggLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope
   } else if (!missing(intercept) && !missing(slope)){
     p <- gg.plot + geom_abline(linetype=linetype, intercept = intercept, slope = slope)
   } else if (!missing(smooth.method)){  
-    p + geom_smooth(linetype=linetype, method = smooth.method, se = FALSE)
+    p <- p + geom_smooth(linetype=linetype, method = smooth.method, se = FALSE)
   } else {
     stop("Invalid input !")
   }
+}
+
+#' Add numbers as text in a \code{\link{ggplot}} object, such as mean of box plot. 
+#' Refer to \code{\link{stat_summary}}.
+#' 
+#' @param fun.y.lab A function to calculate numbers displayed in the figure.  
+#' Default to function \code{\link{mean}}. Ues \code{\link{length}} to show number of observations.
+#' @param fun.y.pos A function to calculate the initial poistion of text on y-value. 
+#' Default to \code{\link{median}}.
+#' @param y.adj The propotion of the initial poistion of text on y-value. 
+#' > 1 will raises the text, and < 1 will sinks the text. Default to 0.98.
+#' @param digits Integer indicating the number of decimal places for \code{\link{round}}.
+#' @param dodge.width Dodging width, when different to the width of the individual elements. 
+#' Default to 0.8. Refer to \code{\link{position_dodge}}.
+#' @param text.size The text size of labels. Default to 3.
+#' @param text.colour The text colour. Default to black.
+#' @keywords graph
+#' @export
+#' @examples 
+#' p <- ggAddNumbers(p, perf.df, x.id="model", y.id="performance", fill.id="OS")
+ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, digits=2, 
+                         dodge.width=0.8, text.size=3, text.colour="black") {
+  p <- gg.plot + stat_summary(fun.data = function(y) {return( c(y = fun.y.pos(y)*y.adj, label = round(fun.y.lab(y),digits)) )}, 
+                              geom = "text", position = position_dodge(width=dodge.width), colour = text.colour, size = text.size)
 }
 
 #' Create a heat map using ggplot. 
@@ -224,9 +246,9 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
 #' box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
 #' 
 #' @rdname ggPlot
-ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, outlier.colour = alpha("black", 0.3), 
-                              y.scale="nor", palette=NULL, add.mean=FALSE,
-                              title="Box Whiskers Plot", title.size = 9, x.lab="x.id", y.lab="y.id") {
+ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, outlier.colour = alpha("black", 0.3), y.scale="nor", 
+                              y.lower=NA, y.upper=NA, palette=NULL, rotate.x.text=FALSE, dodge.width=0.8,
+                              title="Box Whiskers Plot", title.size = 10, x.lab="x.id", y.lab="y.id") {
   if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
     stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
   if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
@@ -234,14 +256,16 @@ ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, outlier.colour = alp
   
   require(ggplot2)
   if (missing(fill.id)) {
-    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) 
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) +
+      geom_boxplot(outlier.colour = alpha("black", 0.3))
   } else {
     if (!is.element(tolower(fill.id), tolower(colnames(df.melt))))
       stop(paste0("Data frame do NOT have column name \"", fill.id, "\" !"))
     
-    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id)) +
+      geom_boxplot(outlier.colour = alpha("black", 0.3), position=position_dodge(width=dodge.width))
   }
-  p <- p + geom_boxplot(outlier.colour = alpha("black", 0.3)) + scale_shape(solid = FALSE) 
+  p <- p + scale_shape(solid = FALSE) 
   #geom_jitter(alpha = 0.5) + 
   
   if (!is.null(palette))
@@ -257,32 +281,22 @@ ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, outlier.colour = alp
     p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
   }
   
-  if (add.mean)
-    p <- p + stat_summary(fun.data = mean.n, geom = "text", fun.y = mean, colour = "red")
-  
+  if (!is.na(y.lower) || !is.na(y.upper)) 
+    p <- p + ylim(y.lower, y.upper) 
+
   if (x.lab=="x.id") 
     x.lab = x.id
   if (y.lab=="y.id") 
     y.lab = y.id
   
   p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3), 
-          plot.title = element_text(size = 9),
+    theme(plot.title = element_text(size = title.size),
           strip.background = element_blank(), panel.grid.minor = element_blank())
   
+  if (rotate.x.text) 
+    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
+    
   return(p)
-}
-
-# http://stackoverflow.com/questions/15660829/how-to-add-a-number-of-observations-per-group-and-use-group-mean-in-ggplot2-boxp
-# function for number of observations 
-give.n <- function(x){
-  return(c(y = median(x)*1.05, label = length(x))) 
-  # experiment with the multiplier to find the perfect position
-}
-# function for mean labels
-mean.n <- function(x){
-  return(c(y = median(x)*0.98, label = round(mean(x),2))) 
-  # experiment with the multiplier to find the perfect position
 }
 
 #' Percentage bar chart coloured by groups. 

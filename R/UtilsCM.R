@@ -9,8 +9,8 @@
 #' and aggregating matrix by different ways.
 #' 
 #' @details 
-#' \code{rmMinAbundance} removes rows or colums from community matrix, 
-#' whose sum of abundance is less than the minimum abundance threshold. 
+#' \code{rmMinAbundance} returns the subset matrix of given community matrix, 
+#' by removing rows or colums whose sum of abundance is less than the minimum abundance threshold. 
 #' 
 #' @param communityMatrix Community matrix (OTU table), where rows are 
 #' OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.
@@ -20,7 +20,6 @@
 #' then remove all empty rows/columns. Default to 2 (singletons).
 #' @param MARGIN 1 indicates rows, 2 indicates columns. Default to 1.
 #' @param verbose More details. Default to TRUE.
-#' @return the procceded community matrix
 #' @keywords community matrix
 #' @export
 #' @examples 
@@ -47,7 +46,7 @@ rmMinAbundance <- function(communityMatrix, minAbund=2, MARGIN=1, verbose=TRUE) 
   communityMatrix
 }
 
-#' \code{transposeCM} provides a transposed community matrix for \pkg{vegan} package
+#' @details \code{transposeCM} provides a transposed community matrix for \pkg{vegan} package
 #' 
 #' @return the rotated community matrix
 #' @keywords community matrix
@@ -63,16 +62,16 @@ transposeCM <- function(communityMatrix) {
   communityMatrixT <- as.data.frame(t(as.matrix(communityMatrix))) # transpose  
 }
 
-#' \code{cmYAcrossX} aggregates a community matrix to a data frame 
+#' @details \code{cmYAcrossX} aggregates a community matrix to a data frame 
 #' to show the number of OTUs (y-axis) across the number of samples (x-axis). 
+#' The 'samples' is the number of samlpes in sequence,
+#' the 'OTUs' is the number of OTUs appeared only in that number of samlpes, 
+#' and the 'reads' is the number of reads assigned to those OTUs.
+#' 
 #' @param terms The terms to be used in names of the data frame, 
 #' which will be shown in the graph if using \code{\link{ggBarYAcrossX}}. 
 #' Default to c("OTUs", "samples", "reads"). 
 #' Please be careful of the order if any change.
-#' @return 
-#' The 'samples' is the number of samlpes in sequence,
-#' the 'OTUs' is the number of OTUs appeared only in that number of samlpes, 
-#' and the 'reads' is the number of reads assigned to those OTUs.
 #' @keywords community matrix
 #' @export
 #' @examples 
@@ -97,14 +96,10 @@ cmYAcrossX <- function(communityMatrix, terms=c("OTUs", "samples", "reads")) {
 
 
 
-#' \code{sumColumns} sums the columns by the \emph{n}th substring defined in column names.
+#' @details \code{sumColumns} sums the columns by the \emph{n}th substring defined in column names.
 #' 
 #' @param sep The seperator to get the \emph{n}th substring from column names. Default to dash '-'.
 #' @param nth The \emph{n}th substring. Default to 1 (first).
-#' @return 
-#' The 'samples' is the number of samlpes in sequence,
-#' the 'OTUs' is the number of OTUs appeared only in that number of samlpes, 
-#' and the 'reads' is the number of reads assigned to those OTUs.
 #' @keywords community matrix
 #' @export
 #' @examples 
@@ -128,14 +123,13 @@ sumColumns <- function(communityMatrix, sep="-", nth=1) {
   return(communityMatrix1)
 }
 
-#' \code{mergeRowsByColumnValue} \code{\link{aggregate}}s data frame
+#' @details \code{mergeRowsByColumnValue} \code{\link{aggregate}}s 
+#' given community matrix by applying a specified function (e.g. sum) 
+#' to the values of given columns.
 #' 
 #' @param ... The community matrix column names for \code{mergeRowsByColumnValue}.
 #' @param FUN The function to compute the summary statistics 
 #' which can be applied to all data subsets. Refer to \code{\link{aggregate}}.
-#' @return 
-#' Another community matrix whose rows are merged from 
-#' given community matrix according to given column value.
 #' @keywords community matrix
 #' @export
 #' @examples 
@@ -147,13 +141,13 @@ mergeRowsByColumnValue <- function(communityMatrix, ..., FUN=sum) {
   aggregate(as.formula(paste(". ~", cols)), data=communityMatrix, FUN=FUN)
 }
 
-#' \code{mostAbundantRows} trims data frame to the rows having most abundance given a threshold. 
+#' @details \code{mostAbundantRows} trims data frame 
+#' to the rows having most abundance given a threshold. 
+#' The trimmed data frame having most abundant rows, 
+#' such as community matrix of 150 most abundant OTUs.
 #' 
 #' @param mostAbundant The threshold to return rows having most abundance. 
 #' If \code{nrow(communityMatrix) < mostAbundant}, then use \code{nrow}. Default to 150.
-#' @return 
-#' The trimmed data frame having most abundant rows, 
-#' such as community matrix of 150 most abundant OTUs.
 #' @keywords community matrix
 #' @export
 #' @examples 

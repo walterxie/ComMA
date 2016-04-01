@@ -2,14 +2,14 @@
 #' @name getData
 #' @title Get example data for \pkg{ComMA} package
 #'
-#' @description The data is described in \code{\link{ComMA}}.
+#' @description The functions are used to setup data for the project. 
+#' The data format is described in \code{\link{ComMA}}.
 #' 
 #' @details 
-#' \code{postfix} adds postfix for figure name or table label
-#' @param ... A list of names to be concatenated
-#' @param sep Default to dash "-"
-#' @return 
-#' \code{postfix} returns a name concatenated by substrings and separated by \code{sep}.
+#' \code{postfix} adds postfix for figure name or table label, 
+#' and returns a name concatenated by substrings and separated by \code{sep}.
+#' @param ... A list of names to be concatenated.
+#' @param sep Default to dash "-".
 #' @export
 #' @examples 
 #' postfix("16S", "assigned")
@@ -20,7 +20,7 @@ postfix <- function(..., isPlot=TRUE, taxa.group="all", minAbund=2, minRich=1, s
   full.name <- paste(list(...), collapse = sep)
   
   if (taxa.group!="all") 
-    full.name <- paste(full.name, "taxa.group", sep = sep) 
+    full.name <- paste(full.name, taxa.group, sep = sep) 
   if (isPlot) 
     full.name <- paste(full.name, "byplot", sep = sep) 
   if (minAbund > 1) 
@@ -31,11 +31,9 @@ postfix <- function(..., isPlot=TRUE, taxa.group="all", minAbund=2, minRich=1, s
   return(full.name)
 }
 
-#' \code{getPlot} extracts plot names from full names (plot + subplot) separated by \code{sep}.
+#' @details \code{getPlot} extracts plot names from full names (plot + subplot) separated by \code{sep}.
 #' 
 #' @param full.name The full name has plot and subplot together, but separated by \code{sep}.
-#' @return 
-#' \code{getPlot} returns plot names.
 #' @export
 #' @examples 
 #' getPlot(c("Plot1-A", "CM30c39-L"))
@@ -47,7 +45,8 @@ getPlot <- function(full.name, sep="-") {
 }
 
 ######## load community matrix #######
-#' \code{getCommunityMatrix} gets a community matrix.
+#' @details \code{getCommunityMatrix} returns a community matrix, 
+#' where rows are OTUs or individual species and columns are sites or samples. 
 #' 
 #' @param matrix.name The string to locate the matrix from its file name.
 #' @param isPlot Boolean value to determine the matrix file sampled by subplot or plot
@@ -57,8 +56,6 @@ getPlot <- function(full.name, sep="-") {
 #' then remove all empty rows/columns. Default to 2 (singletons).
 #' But \code{postfix} is only used for naming, no data processed.
 #' @param verbose More details. Default to TRUE.
-#' @return \code{getCommunityMatrix} returns a community matrix, 
-#' where rows are OTUs or individual species and columns are sites or samples. 
 #' @export
 #' @examples 
 #' # keep singletons
@@ -80,16 +77,15 @@ getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
   return(communityMatrix)
 }
 
-#' \code{getCommunityMatrixT} gets a transposed matrix of (maybe also a subset of) 
+#' @details 
+#' \code{getCommunityMatrixT} returns a transposed matrix of (maybe also a subset of) 
 #' community matrix, given more filters, such as \code{taxa.group}, \code{minRich}.
+#' Its columns are OTUs or individual species and rows are sites or samples. 
+#' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
+#' return \emph{NULL}, if no OTUs or OTUs less than \code{minRich} threshold.
 #' 
 #' @param minRich The minimum richness to keep matrix. For example, 
 #' drop the matrix (return NULL) if OTUs less than this threshold. Default to 1.
-#' @return 
-#' \code{getCommunityMatrixT} returns a transposed matrix of community matrix, 
-#' where columns are OTUs or individual species and rows are sites or samples. 
-#' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
-#' return \emph{NULL}, if no OTUs or OTUs less than \code{minRich} threshold.
 #' @export
 #' @examples 
 #' # by plot, remove singletons, BACTERIA only
@@ -144,7 +140,7 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
 #' 'root', 'cellular organisms', 'No hits', 'Not assigned'. 
 #' Alternatively, any high-ranking taxonomy in your taxonomy file 
 #' can be used as a group, such as 'BACTERIA', 'Proteobacteria', etc.
-#' @return 
+#' @details 
 #' \code{getTaxaPaths} returns a taxonomic matrix, 
 #' where rows are OTUs or individual species (they have to be the subset of rows 
 #' in the community matrix from \code{getCommunityMatrix}), 
@@ -245,9 +241,8 @@ getTaxaRef <- function() {
   tax_ref <- apply(tax_ref, 2, function(col) gsub("(\\s\\[=.*\\])", "", col))
 }
 
-#' meta data of samples
+#' @details \code{getSampleMetaData} returns a data frame containing meta data of samples
 #' 
-#' @return \code{getSampleMetaData} returns a data frame
 #' @export
 #' @examples 
 #' env <- getSampleMetaData(isPlot=TRUE)
@@ -266,9 +261,15 @@ getSampleMetaData <- function(isPlot, verbose=TRUE) {
   env[,"ForestType"] <- gsub("x", "unknown", env[,"ForestType"], ignore.case = T)
 }
 
-#' Trees
-getPhyloTree <- function(fNameStem, verbose=TRUE) {
-  inputT <- file.path("data", "trees", paste(fNameStem, "tre", sep = "."))
+#' @details \code{getPhyloTree} returns a rooted tree of \code{\link{phylo}} object.
+#' 
+#' @export
+#' @examples 
+#' phylo.tree <- getPhyloTree("16S", "bacteria")
+#' 
+#' @rdname getData
+getPhyloTree <- function(matrix.name, taxa.group="assigned", minAbund=2, verbose=TRUE) {
+  inputT <- file.path("data","trees",paste(postfix(matrix.name, taxa.group=taxa.group, minAbund=minAbund, isPlot=FALSE), "tre", sep = "."))
   if (file.exists(inputT)) {
     require(ape)
     cat("Load tree from", inputT, "\n") 

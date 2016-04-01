@@ -235,17 +235,17 @@ taxaTableMEGAN <- function(file.prefix, folder.path, col.names=c("path", "kingdo
 }
 
 # Zxan08_H415I8K02GEDIZ|2	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__;g__;s__	0.970
-taxaTableRDP <- function(file, minCred=0.8, sep="\t", regex="(\\|[0-9]+)") {
+taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)") {
   df.taxa <- readFile(file, sep=sep, header=FALSE, row.names=NULL) 
   
   if (ncol(df.taxa) < 3)
     stop(paste("RDP output file", file, "can be correctly parsed ! Please check the file format."))
   
-  colnames(df.taxa) <- c("OTUs","path","credibility")
+  colnames(df.taxa) <- c("OTUs","path","confidence")
   # assign unclassified
-  df.taxa[df.taxa[,"credibility"] < minCred, "path"] <- "unclassified"
+  df.taxa[df.taxa[,"confidence"] < min.conf, "path"] <- "unclassified"
   cat("Assign", nrow(df.taxa[df.taxa[,"path"] == "unclassified",]), 
-      "rows to 'unclassified' whose credibility <", minCred, ".\n")
+      "rows to 'unclassified' whose confidence <", min.conf, ".\n")
   
   
   for (n in 1:length(taxaFiles)) {
