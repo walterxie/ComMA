@@ -44,7 +44,8 @@ ggLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope
 #' @keywords graph
 #' @export
 #' @examples 
-#' p <- ggAddNumbers(p, perf.df, x.id="model", y.id="performance", fill.id="OS")
+#' p <- ggAddNumbers(p, fun.y.lab=mean)
+#' p <- ggAddNumbers(p, fun.y.lab=length, y.adj=1.02)
 ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, digits=2, 
                          dodge.width=0.8, text.size=3, text.colour="black") {
   p <- gg.plot + stat_summary(fun.data = function(y) {return( c(y = fun.y.pos(y)*y.adj, label = round(fun.y.lab(y),digits)) )}, 
