@@ -175,6 +175,15 @@ readFileLineByLine <- function(file) {
 #' \code{readCommunityMatrix} reads file to return a community matrix.
 #' 
 #' @param file The file to read.
+#' @param matrix.name The string to locate the matrix from its file name.
+#' @param minAbund The minimum abundance threshold to remove rows/columns 
+#' by row/column sum of abundance. For exampe, if minAbund=2, then remove 
+#' all singletons appeared in only one sample. If minAbund=1, 
+#' then remove all empty rows/columns. Default to 2 (singletons).
+#' But \code{postfix} is only used for naming, no data processed.
+#' @param regex Remove substring in row names by given regular expression, 
+#' but if NULL, then do nothing. Default to "(\\|[0-9]+)".
+#' @param verbose More details. Default to TRUE.
 #' @keywords IO
 #' @export
 #' @examples 
@@ -191,6 +200,69 @@ readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, regex="(\\|[
   
   attr(communityMatrix,"name") <- matrix.name
   return(communityMatrix)
+}
+
+#' \code{readTaxaTable} reads a file to return a taxa table
+#' 
+#' @param taxa.group The taxonomic group, the values can be 'all', 'assigned', or 
+#' Group 'all' includes everything.
+#' Group 'assigned' removes all uncertain classifications including 
+#' 'root', 'cellular organisms', 'No hits', 'Not assigned'. 
+#' Alternatively, any high-ranking taxonomy in your taxonomy file 
+#' can be used as a group or multi-groups (seperated by "|"), 
+#' such as 'BACTERIA', 'Proteobacteria', etc. But they have to be 
+#' in the same rank column in the file. Default to remove all 
+#' uncertain classifications, even when group(s) assigned.
+#' @param rank The rank column in the file to specify where to 
+#' search for \code{taxa.group}. 
+#' @param include Define whether include or exclude given \code{taxa.group}. 
+#' Default to TRUE.
+#' @keywords IO
+#' @export
+#' @examples 
+#' tt.megan <- readTaxaTable("16s-megan.txt", "16S taxa table", taxa.group="Bacteria")
+#' 
+#' @rdname ComMAIO
+readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="kingdom", 
+                          include=TRUE, regex="(\\|[0-9]+)", verbose=TRUE) {
+  taxa.table <- ComMA::readFile(file, verbose=verbose,  msg.file=paste(matrix.name, "taxonomy table"), msg.row="OTUs")
+  taxa.table <- taxa.table[order(rownames(taxa.table)),]
+  # make lower case to match ranks
+  colnames(taxa.table) <- tolower(colnames(taxa.table))
+  
+  if (!is.null(regex))
+    rownames(taxa.table) <- gsub(regex, "", rownames(taxa.table))
+  
+  n.taxa=nrow(taxa.table)
+  ##### keep OTU rows contain given taxa belongTo ##### 
+  if (taxa.group != "all") {
+    # Exclude unassigned etc
+    taxa.table <- subset(taxa.table, !(grepl("root|cellular organisms|No hits|Not assigned", taxa.table[,"kingdom"], ignore.case = T)))  
+    
+    # for PROTISTS, taxa.group="CHROMISTA|PROTOZOA"
+    if (toupper(taxa.group) == "PROTISTS")
+      taxa.group="CHROMISTA|PROTOZOA"
+    
+    if (taxa.group != "assigned") {
+      if (include) {
+        # include PROTISTS, taxa.group="CHROMISTA|PROTOZOA", rank="kingdom"
+        taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = T))) 
+      } else { 
+        # exclude some phyla, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum"
+        taxa.table <- subset(taxa.table, !grepl(taxa.group, taxa.table[,rank], ignore.case = T)) 
+      }
+    }
+  }
+  
+  if (nrow(taxa.table) < 1)
+    cat("Warning: cannot find", taxa.group, "at", rank, "from taxa path file", file, "!")
+  
+  if(verbose && nrow(taxa.table) < n.taxa) {
+    cat("\nSelect", nrow(taxa.table), "classifications, by given taxa.group =", taxa.group, 
+        ", rank =", rank, ", include =", include, ".\n") 
+  }
+  
+  return(taxa.table)
 }
 
 # "superkingdom", "kingdom", "phylum", "class", "order", "family", "genus"
@@ -262,49 +334,5 @@ taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)") {
   cat("Write taxa table", nrow(df.path), "rows", ncol(df.path), "columns to file", ,".\n")
   
   writeTable(df.path, file.path(folder.path, "16s-megan.txt"), row.names = FALSE)
-}
-
-
-#' \code{readTaxaTable} reads a file to return a taxa table
-#' 
-#' @return 
-#' A taxa table.
-#' @keywords IO
-#' @export
-#' @examples 
-#' tt.megan <- readTaxaTable("16s-megan.txt", "16S taxa table", taxa.group="Bacteria")
-#' 
-#' @rdname ComMAIO
-readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="kingdom", include=TRUE, verbose=TRUE) {
-  taxa.table <- ComMA::readFile(file, verbose=verbose,  msg.file=paste(matrix.name, "taxonomy table"), msg.row="OTUs")
-  taxa.table <- taxa.table[order(rownames(taxa.table)),]
-  # make lower case to match ranks
-  colnames(taxa.table) <- tolower(colnames(taxa.table))
-  
-  n.taxa=nrow(taxa.table)
-  ##### keep OTU rows contain given taxa belongTo ##### 
-  if (taxa.group != "all") {
-    # Exclude unassigned etc
-    taxa.table <- subset(taxa.table, !(grepl("root|cellular organisms|No hits|Not assigned", taxa.table[,"kingdom"], ignore.case = T)))  
-
-    if (taxa.group != "assigned") {
-      if (include) {
-        # for PROTISTS, taxa.group="CHROMISTA|PROTOZOA", rank="kingdom"
-        taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = T))) 
-      } else { 
-        # exclude some phyla, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum"
-        taxa.table <- subset(taxa.table, !grepl(taxa.group, taxa.table[,rank], ignore.case = T)) 
-      }
-    }
-  }
-  
-  if (nrow(taxa.table) < 1)
-    cat("Warning: cannot find", taxa.group, "at", rank, "from taxa path file", file, "!")
-  
-  if(verbose && nrow(taxa.table) < n.taxa) 
-    cat("\nSelect", nrow(taxa.table), "classifications, taxa.group =", taxa.group, 
-        ", rank =", rank, ", include =", include, ".\n") 
-  
-  return(taxa.table)
 }
 

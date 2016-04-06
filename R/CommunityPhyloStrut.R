@@ -30,7 +30,7 @@
 #' @rdname CommunityPhyloStru
 phylo.alpha <- function(t.communityMatrix, phylo.tree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
   if ( ! all( sort(colnames(t.communityMatrix)) == sort(phylo.tree$tip.label) ) ) 
-    stop( paste("Community OTU names do not match tree tip labels") )
+    cat("Warning: community OTU names do not match tree tip labels !\n")
   
   if(verbose) {
     cat("Input community", nrow(t.communityMatrix), "samples", ncol(t.communityMatrix), "OTUs", 

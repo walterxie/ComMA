@@ -166,6 +166,23 @@ substrRight <- function(x, n) {substr(x, nchar(x)-n+1, nchar(x))}
 #' @rdname stringUtils
 substrBetween <- function(x, l, r) {gsub(paste0("^.*", l, "(.*)", r, ".*$"), "\\1", x)}
 
+#' @details \code{simpleCap} capitalizes the first letter of a word string.
+#' 
+#' @source \url{http://stackoverflow.com/questions/6364783/capitalize-the-first-letter-of-both-words-in-a-two-word-string}
+#' @examples 
+#' simpleCap("BACTERIA")
+#' # for multi-words
+#' taxaGroups <- c("BACTERIA", "FUNGI", "PROTISTS", "ANIMALIA")
+#' sapply(taxaGroups, simpleCap)
+#' #BACTERIA      FUNGI   PROTISTS   ANIMALIA 
+#' #"Bacteria"    "Fungi" "Protists" "Animalia"
+#'
+#' @rdname stringUtils
+simpleCap <- function(x) {
+  s <- strsplit(tolower(x), " ")[[1]]
+  paste(toupper(substring(s, 1,1)), substring(s, 2), sep="", collapse=" ")
+}
+
 #' Get plural by adding 's' except special plural.
 #' 
 #' @param singular The singular of a word in string.

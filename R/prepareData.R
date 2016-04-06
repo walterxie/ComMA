@@ -70,9 +70,8 @@ getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
     inputCM <- file.path("data", paste(matrix.name, ".txt", sep=""))
   }
   
-  communityMatrix <- ComMA::readFile(inputCM, verbose=verbose, msg.file=paste(matrix.name, "community matrix"), 
-                              msg.col="samples", msg.row="OTUs")
-  communityMatrix <- ComMA::rmMinAbundance(communityMatrix, minAbund)
+  communityMatrix <- ComMA::readCommunityMatrix(inputCM, matrix.name = matrix.name, 
+                                                minAbund = minAbund, verbose = verbose)
   
   return(communityMatrix)
 }
@@ -100,14 +99,14 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
     taxaPaths <- ComMA::getTaxaPaths(matrix.name, taxa.group)
     
     if (nrow(taxaPaths) < minRich) {
-      cat("Warning: return NULL, because", nrow(taxaPaths), "row(s) classified as", taxa.group, "<", minRich, "threshold.\n")
+      cat("Warning: return NULL, because taxa table has", nrow(taxaPaths), "row(s) classified as", taxa.group, "<", minRich, "threshold.\n")
       return(NULL)
     } else {
       # merge needs at least 2 cols 
       taxaAssgReads <- merge(communityMatrix, taxaPaths, by = "row.names")
       
       if (nrow(taxaAssgReads) < minRich) {
-        cat("Warning: return NULL, because", nrow(taxaAssgReads), "row(s) in cm match", taxa.group, "<", minRich, "threshold.\n")
+        cat("Warning: return NULL, because cm has", nrow(taxaAssgReads), "row(s) match", taxa.group, "<", minRich, "threshold.\n")
         return(NULL)
       }
       
@@ -148,48 +147,31 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
 #' "class", "order", "family", "genus", "species") inlcuding full taxonomic path. 
 #' @export
 #' @examples 
-#' taxaPaths <- getTaxaPaths(matrix.name="18S", taxa.group="assigned")
+#' taxaPaths <- getTaxaPaths(matrix.name="16S", taxa.group="BACTERIA|ARCHAEA")
+#' taxaPaths <- getTaxaPaths(matrix.name="16S", taxa.group="BACTERIA|ARCHAEA", include=FALSE)
+#' taxaPaths <- getTaxaPaths(matrix.name="18S", taxa.group="PROKARYOTA", rank="superkingdom")
 #' 
 #' @rdname getData
-getTaxaPaths <- function(matrix.name, taxa.group="all", rank="kingdom", verbose=TRUE) {
+getTaxaPaths <- function(matrix.name, taxa.group="all", rank="kingdom", 
+                         include=TRUE, regex="(\\|[0-9]+)", verbose=TRUE) {
   inputTaxa <- file.path("data", "taxonomy_tables", paste(matrix.name, "taxonomy_table.txt", sep="_"))
-  taxaPaths <- ComMA::readFile(inputTaxa, verbose=verbose,  msg.file=paste(matrix.name, "taxonomy table"), msg.row="OTUs")
-  taxaPaths <- taxaPaths[order(rownames(taxaPaths)),]
-  # make lower case to match ranks
-  colnames(taxaPaths) <- tolower(colnames(taxaPaths))
+  taxaPaths <- ComMA::readTaxaTable(inputTaxa, matrix.name=matrix.name, taxa.group=taxa.group, 
+                                    rank=rank, include=include, regex=regex, verbose=verbose)
   
   nTaxa=nrow(taxaPaths)
   ##### keep OTU rows contain given taxa belongTo ##### 
   if (taxa.group != "all") {
-    # Exclude unassigned etc
-    taxaPaths <- subset(taxaPaths, !(grepl("root|cellular organisms|No hits|Not assigned", taxaPaths[,"kingdom"])))  
-    # (Only retain prokaryotes for 16S, eukaryotes for the other amplicons)  
-    if (toupper(matrix.name)=="16S") {
-      taxaPaths <- subset(taxaPaths, (grepl("BACTERIA|ARCHAEA", taxaPaths[,"kingdom"])))  
-    } else {
-      taxaPaths <- subset(taxaPaths, !(grepl("BACTERIA|ARCHAEA", taxaPaths[,"kingdom"])))
-    }
     # Exclude probably bogus taxa
     taxaPaths <- subset(taxaPaths, !(grepl("Cnidaria|Brachiopoda|Echinodermata|Porifera", taxaPaths[,"phylum"])|
                                        grepl("Bivalvia|Teleostei|Elasmobranchii|Polyplacophora", taxaPaths[,"class"])|
 grepl("Nudibranchia|Crocodylia|Serpentes|Testudines|Carnivora|Gymnophiona|Lagomorpha|Rodentia|Serpentes|Scorpiones", taxaPaths[,"order"])))
-    
-    if (taxa.group != "assigned") {
-      if (toupper(taxa.group) == "PROKARYOTA" || toupper(taxa.group) == "EUKARYOTA") {
-        taxaPaths <- subset(taxaPaths, grepl(taxa.group, taxaPaths[,"superkingdom"])) 
-      } else if (toupper(taxa.group) == "PROTISTS") {
-        taxaPaths <- subset(taxaPaths, grepl("CHROMISTA|PROTOZOA", taxaPaths[,"kingdom"])) 
-      } else {
-        taxaPaths <- subset(taxaPaths, grepl(taxa.group, taxaPaths[,rank])) 
-      }
-    }
   }
   
   if (nrow(taxaPaths) < 1)
     cat("Warning: cannot find", taxa.group, "from taxa path file", inputTaxa, "!")
   
   if(verbose && nrow(taxaPaths) < nTaxa) 
-    cat("\nSelect", nrow(taxaPaths), "taxa classification, taxa.group =", taxa.group, ".\n") 
+    cat("\nSelect", nrow(taxaPaths), "taxa classification after excluding probably bogus taxa.\n") 
   
   return(taxaPaths)
 }
@@ -259,6 +241,8 @@ getSampleMetaData <- function(isPlot, verbose=TRUE) {
   
   env[,"ForestType"] <- gsub(":.*", "", env[,"ForestType"], ignore.case = T)
   env[,"ForestType"] <- gsub("x", "unknown", env[,"ForestType"], ignore.case = T)
+  
+  return(env)
 }
 
 #' @details \code{getPhyloTree} returns a rooted tree of \code{\link{phylo}} object.
@@ -269,7 +253,8 @@ getSampleMetaData <- function(isPlot, verbose=TRUE) {
 #' 
 #' @rdname getData
 getPhyloTree <- function(matrix.name, taxa.group="assigned", minAbund=2, verbose=TRUE) {
-  inputT <- file.path("data","trees",paste(postfix(matrix.name, taxa.group=taxa.group, minAbund=minAbund, isPlot=FALSE), "tre", sep = "."))
+  inputT <- file.path("data","trees",paste(postfix(matrix.name, taxa.group=tolower(taxa.group), 
+                                                   minAbund=minAbund, isPlot=FALSE), "tre", sep = "."))
   if (file.exists(inputT)) {
     require(ape)
     cat("Load tree from", inputT, "\n") 
