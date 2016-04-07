@@ -282,12 +282,12 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
 #' @rdname ComMAIO
 taxaTableMEGAN <- function(file.prefix, folder.path, col.names=c("path", "kingdom", "phylum", "class", "order", "family"), 
                            sep="\t", regex="(\\|[0-9]+)") {
-  taxa.files <- paste0("16s-", col.names, ".txt")
+  taxa.files <- paste0(file.prefix, "-", col.names, ".txt")
   
   for (n in 1:length(col.names)) {
     t.f <- file.path(folder.path, taxa.files[n])
     # no header, no row.names in the file
-    df.taxa <- readFile(t.f, sep=sep, header=FALSE, row.names=NULL) 
+    df.taxa <- ComMA::readFile(t.f, sep=sep, header=FALSE, row.names=NULL) 
     if (ncol(df.taxa) < 2)
       stop(paste("Taxa file", t.f, "can be correctly parsed ! Please check the file format."))
     
@@ -301,38 +301,38 @@ taxaTableMEGAN <- function(file.prefix, folder.path, col.names=c("path", "kingdo
   if (!is.null(regex))
     df.path[,"OTUs"] <- gsub(regex, "", df.path[,"OTUs"])
   
-  megan.f <- file.path(folder.path, "16s-megan.txt")
-  cat("Write taxa table", nrow(df.path), "rows", ncol(df.path), "columns to file", megan.f,".\n")
-  writeTable(df.path, megan.f, row.names = FALSE)
+  taxa.f <- file.path(folder.path, paste0(file.prefix, "-megan.txt"))
+  cat("Write taxa table", nrow(df.path), "rows", ncol(df.path), "columns to file", taxa.f,".\n")
+  ComMA::writeTable(df.path, taxa.f, row.names = FALSE)
 }
 
 # Zxan08_H415I8K02GEDIZ|2	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__;g__;s__	0.970
-taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)") {
-  df.taxa <- readFile(file, sep=sep, header=FALSE, row.names=NULL) 
-  
+taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)", rm.rank.prefix=TRUE) {
+  df.taxa <- ComMA::readFile(file, sep=sep, header=FALSE, row.names=NULL) 
   if (ncol(df.taxa) < 3)
-    stop(paste("RDP output file", file, "can be correctly parsed ! Please check the file format."))
+    stop(cat("RDP output file", file, "can be correctly parsed !\nPlease check the file format."))
   
   colnames(df.taxa) <- c("OTUs","path","confidence")
-  # assign unclassified
-  df.taxa[df.taxa[,"confidence"] < min.conf, "path"] <- "unclassified"
-  cat("Assign", nrow(df.taxa[df.taxa[,"path"] == "unclassified",]), 
-      "rows to 'unclassified' whose confidence <", min.conf, ".\n")
   
+  cols.lin <- read.table(text = df.taxa[,"path"], sep = ";", colClasses = "character", fill=TRUE)
+  if (ncol(cols.lin) < 3)
+    stop(cat("RDP output file", file, ", 2nd column 'taxa path' needs at least 3 ranks !",
+               "\nFor example, k__;p__;c__;o__;f__;g__;s__"))
   
-  for (n in 1:length(taxaFiles)) {
-    
-    colnames(df.taxa) <- c("OTUs",ranks[n])
-    if (n==1)
-      df.path <- df.taxa
-    else 
-      df.path <- merge(df.path, df.taxa, by = "OTUs")
-  }
+  # fix to k__;p__;c__;o__;f__;g__;s__
+  colnames(cols.lin) <-  c("kingdom", "phylum", "class", "order", "family", "genus", "species")[1:ncol(cols.lin)]
+  
+  df.path <- cbind(df.taxa, cols.lin)
+  # drop rows < min.conf
+  n.row <- nrow(df.path)
+  df.path <- df.path[df.path[,"confidence"] >= min.conf, ] 
+  cat("Drop", n.row-nrow(df.path), "rows whose confidence <", min.conf, ".\n")
+  
   if (!is.null(regex))
     df.path[,"OTUs"] <- gsub(regex, "", df.path[,"OTUs"])
   
-  cat("Write taxa table", nrow(df.path), "rows", ncol(df.path), "columns to file", ,".\n")
-  
-  writeTable(df.path, file.path(folder.path, "16s-megan.txt"), row.names = FALSE)
+  taxa.f <- file.path("16s-rdp.txt")
+  cat("Write taxa table", nrow(df.path), "rows", ncol(df.path), "columns to file", taxa.f,".\n")
+  ComMA::writeTable(df.path, taxa.f, row.names = FALSE)
 }
 
