@@ -44,7 +44,7 @@ getPlot <- function(full.name, sep="-") {
   sapply(strsplit(as.character(full.name), sep), "[[", 1)
 }
 
-# download data from https://www.dropbox.com/sh/6st61wikksjkjpr/AACzedFT_gHESqQ57s2VZ6gOa
+# Dropbox: Hauturu Miseq analysis data
 ######## load community matrix #######
 #' @details \code{getCommunityMatrix} returns a community matrix, 
 #' where rows are OTUs or individual species and columns are sites or samples. 
@@ -254,7 +254,7 @@ getSampleMetaData <- function(isPlot, verbose=TRUE) {
 #' 
 #' @rdname getData
 getPhyloTree <- function(matrix.name, taxa.group="assigned", minAbund=2, verbose=TRUE) {
-  inputT <- file.path("data","trees",paste(postfix(matrix.name, taxa.group=tolower(taxa.group), 
+  inputT <- file.path("data","Trees",paste(postfix(matrix.name, taxa.group=tolower(taxa.group), 
                                                    minAbund=minAbund, isPlot=FALSE), "tre", sep = "."))
   if (file.exists(inputT)) {
     require(ape)
