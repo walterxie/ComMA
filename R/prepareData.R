@@ -44,6 +44,7 @@ getPlot <- function(full.name, sep="-") {
   sapply(strsplit(as.character(full.name), sep), "[[", 1)
 }
 
+# download data from https://www.dropbox.com/sh/6st61wikksjkjpr/AACzedFT_gHESqQ57s2VZ6gOa
 ######## load community matrix #######
 #' @details \code{getCommunityMatrix} returns a community matrix, 
 #' where rows are OTUs or individual species and columns are sites or samples. 
