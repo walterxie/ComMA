@@ -64,10 +64,10 @@ getPlot <- function(full.name, sep="-") {
 #' @rdname getData
 getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
   if (isPlot) {
-    inputCM <- file.path("data", paste(matrix.name, "by_plot.txt", sep="_"))
+    inputCM <- file.path("data", "OTU_tables", paste(matrix.name, "_otutable_by_plot.txt", sep="_"))
   } else {
     # e.g. data/16S.txt
-    inputCM <- file.path("data", paste(matrix.name, ".txt", sep=""))
+    inputCM <- file.path("data", "OTU_tables", paste(matrix.name, "_otutable.txt", sep=""))
   }
   
   communityMatrix <- ComMA::readCommunityMatrix(inputCM, matrix.name = matrix.name, 
@@ -154,7 +154,7 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
 #' @rdname getData
 getTaxaPaths <- function(matrix.name, taxa.group="all", rank="kingdom", 
                          include=TRUE, regex="(\\|[0-9]+)", verbose=TRUE) {
-  inputTaxa <- file.path("data", "taxonomy_tables", paste(matrix.name, "taxonomy_table.txt", sep="_"))
+  inputTaxa <- file.path("data", "Taxonomy_tables", paste(matrix.name, "taxonomy_table.txt", sep="_"))
   taxaPaths <- ComMA::readTaxaTable(inputTaxa, matrix.name=matrix.name, taxa.group=taxa.group, 
                                     rank=rank, include=include, regex=regex, verbose=verbose)
   
@@ -232,10 +232,10 @@ getTaxaRef <- function() {
 #' @rdname getData
 getSampleMetaData <- function(isPlot, verbose=TRUE) {
   if (isPlot) {
-    inputCM <- file.path("data", "env", "LBI_all_env_data_by_plot.txt")
+    inputCM <- file.path("data", "Environmental_data", "LBI_all_env_data_by_plot.txt")
   } else {
     # e.g. data/16S.txt
-    inputCM <- file.path("data", "env", "LBI_all_env_data_by_subplot.txt")
+    inputCM <- file.path("data", "Environmental_data", "LBI_all_env_data_by_subplot.txt")
   }
   env <- ComMA::readFile(inputCM, verbose=verbose, msg.file="enviornmental data", msg.row="samples")
   

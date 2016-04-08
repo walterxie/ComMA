@@ -187,7 +187,8 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, pa
 #' 
 #' @rdname ggPlot
 ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", palette=NULL, 
-                       legend.col=1, legend.nrow=0, title="Bar Chart", title.size = 9, x.lab="x.id", y.lab="y.id") {
+                       rotate.x.text=FALSE, legend.col=1, legend.nrow=0, 
+                       title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id") {
   if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
     stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
   if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
@@ -202,7 +203,7 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
     
     p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
   }
-  p <- p + geom_bar(position = bar.pos,stat = "identity") 
+  p <- p + geom_bar(position = bar.pos, stat = "identity") 
   
   if (y.scale=="nor") {
     p <- p + scale_y_continuous(expand = c(0,0))
@@ -228,10 +229,12 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
     y.lab = y.id
   
   p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3),
-          plot.title = element_text(size = 9),
+    theme(plot.title = element_text(size = title.size),
           panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
           panel.background = element_blank())
+  
+  if (rotate.x.text) 
+    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
   
   return(p)
 }
