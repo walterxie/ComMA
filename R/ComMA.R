@@ -7,7 +7,7 @@
 #' All functions are available by typing \code{help(package="ComMA")} in R. 
 #'
 #' \strong{Community matrix} in \pkg{ComMA} is a community data from file as a matrix,
-#' where rows are OTUs (therefore the matrix is called \emph{OTU table}) or individual species 
+#' where rows are OTUs (therefore this matrix is called \emph{OTU table}) or individual species 
 #' and columns are sites or samples. 
 #' Matrix elements are abundance data or proportion (e.g. counts, percentage). For example,
 #' \tabular{rrrr}{
@@ -21,15 +21,30 @@
 #' we defined here, where columns are OTUs or individual species and rows are sites or samples. 
 #' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
 #' 
-#' The \strong{taxaPaths} from taxonomic path file is a taxonomic matrix, 
-#' where rows are OTUs or individual species (they have to be the subset of rows 
-#' in the community matrix from \code{getCommunityMatrix}), 
-#' and columns are taxonomic ranks, such as c("superkingdom", "kingdom", "phylum", 
-#' "class", "order", "family", "genus", "species") inlcuding full taxonomic path. 
-#' 
+#' The \strong{taxa.table} is a data frame to contain taxonomic classifications of OTUs.  
+#' Rows are OTUs or individual species, which have to be the subset of (or matching) rows 
+#' in the community matrix from \code{getCommunityMatrix}). 
+#' Columns are taxonomy at the rank, such as c("superkingdom", "kingdom", "phylum", 
+#' "class", "order", "family", "genus", "species"), or full taxonomic lineage but it is optional. 
+#' If it is from RDP, then column "confidence" is required.
+#' For example,
+#' \tabular{rrrr}{
+#'   OTU_id \tab kingdom \tab phylum\tab ...\cr
+#'   OTU_1 \tab Bacteria \tab Firmicutes \tab ...\cr
+#'   OTU_2 \tab Bacteria \tab Proteobacteria \tab ...\cr
+#'   OTU_3 \tab Not assigned \tab Not assigned \tab ...
+#' }
+#'  
 #' The enviornmental data \strong{env} is also called as the meta data of samples, 
 #' where rows are sites or samples, and columns are the measurement, such as 
 #' elevation, tempurature, soil chemistry, forest type, etc.
+#' For example,
+#' \tabular{rrrr}{
+#'   Plot \tab Elevation(m) \tab pH\tab ...\cr
+#'   plot01 \tab 50 \tab 5.89 \tab ...\cr
+#'   plot02 \tab 90 \tab 5.12 \tab ...\cr
+#'   plot03 \tab 160 \tab 5.46 \tab ...
+#' }
 #' 
 #' The \strong{phyloTree} is a rooted tree of \code{\link{phylo}} object, 
 #' which is created from \pkg{ape} \code{\link{read.tree}}.

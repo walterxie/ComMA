@@ -10,8 +10,8 @@ subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE, verbose = TRUE)
 
 assignTaxa(community.matrix, taxa.table, classifier = "MEGAN",
-  min.conf = 0.8, col.names = c("kingdom", "phylum", "class", "order",
-  "family", "genus"))
+  min.conf = 0.8, total = 1, col.names = c("kingdom", "phylum", "class",
+  "order", "family", "genus"))
 }
 \arguments{
 \item{taxa.table}{A data frame to contain taxonomic classifications of OTUs. 
@@ -36,7 +36,14 @@ Default to TRUE.}
 
 \item{verbose}{More details. Default to TRUE.}
 
+\item{community.matrix}{Community matrix (OTU table), where rows are 
+OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.}
+
 \item{min.conf}{The confidence threshold to drop rows < \emph{min.conf}.}
+
+\item{total}{If 0, then only return abudence by samples (columns) of community matrix. 
+If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
+Default to 1.}
 }
 \description{
 Utils to preprocess taxa table, 
