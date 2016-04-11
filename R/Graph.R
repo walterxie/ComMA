@@ -2,7 +2,13 @@
 # Author: Walter Xie
 # Accessed on 10 Mar 2016
 
-#' Add a line to the given \code{\link{ggplot}} object.
+#' @name ggPlot
+#' @title One-line command to get \pkg{ggplot} 
+#'
+#' @description Simplify \pkg{ggplot} codes into functions that can get a chart from one-line command.
+#' 
+#' @details 
+#' \code{ggLine} adds a line to the given \code{\link{ggplot}} object.
 #' 
 #' @param xintercept,yintercept,intercept,slope,smooth.method Refer to \pkg{ggplot2} 
 #' \code{\link{geom_vline}}, \code{\link{geom_hline}}, \code{\link{geom_abline}}, 
@@ -13,6 +19,8 @@
 #' @examples 
 #' p <- ggLine(p, linetype = 2, yintercept = 1)
 #' p <- ggLine(p, smooth.method = "lm")
+#' 
+#' @rdname ggPlot
 ggLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope, smooth.method) {
   if (!missing(xintercept)) {
     p <- gg.plot + geom_vline(linetype=linetype, xintercept = xintercept)
@@ -27,7 +35,8 @@ ggLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope
   }
 }
 
-#' Add numbers as text in a \code{\link{ggplot}} object, such as mean of box plot. 
+#' @details 
+#' \code{ggAddNumbers} adds numbers as text in a \code{\link{ggplot}} object, such as mean of box plot. 
 #' Refer to \code{\link{stat_summary}}.
 #' 
 #' @param fun.y.lab A function to calculate numbers displayed in the figure.  
@@ -46,13 +55,16 @@ ggLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope
 #' @examples 
 #' p <- ggAddNumbers(p, fun.y.lab=mean)
 #' p <- ggAddNumbers(p, fun.y.lab=length, y.adj=1.02)
+#' 
+#' @rdname ggPlot
 ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, digits=2, 
                          dodge.width=0.8, text.size=3, text.colour="black") {
   p <- gg.plot + stat_summary(fun.data = function(y) {return( c(y = fun.y.pos(y)*y.adj, label = round(fun.y.lab(y),digits)) )}, 
                               geom = "text", position = position_dodge(width=dodge.width), colour = text.colour, size = text.size)
 }
 
-#' Create a heat map using ggplot. 
+#' @details 
+#' \code{ggHeatmap} creates a heat map using ggplot. 
 #' 
 #' @param df A data frame to \code{\link{melt}} and then make a heat map. 
 #' For example,
@@ -75,6 +87,8 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' ranks.by.group
 #' gg.plot <- ggHeatmap(df=ranks.by.group, melt.id="plot")
 #' pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
+#' 
+#' @rdname ggPlot
 ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="white", high="steelblue") {
   if (!is.element(tolower(melt.id), tolower(colnames(df))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
@@ -96,99 +110,22 @@ ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="whi
   return(p) 
 }
 
-#' Data ellipse on a scatter plot. 
+#' @details 
+#' \code{ggScatterPlot} uses one-line function to plot many types of scatter chart.
 #' 
-#' Superimposed data ellipse on a \pkg{ggplot2} scatter plot.
-#' @source \url{http://stackoverflow.com/questions/2397097/how-can-a-data-ellipse-be-superimposed-on-a-ggplot2-scatterplot}.
-#' 
-#' @param df.clusters The 3-column data frame for plotting. 
-#' The first 2 columns are coordinates, and 3rd is cluster names. 
-#' @param addLabel Add row names to scatter plot. Default to FALSE
-#' @param point.size The size of points from \code{\link{point.size}}. Default to 3.
-#' @param palette The palette to colour clusters using \code{\link{scale_colour_brewer}}. 
-#' Default to 'Set1' (max 8 colours). Refer to \url{http://www.datavis.ca/sasmac/brewerpal.html}.
-#' @return
-#' A \code{\link{gtable}} object of scatter plot.
+#' @param limits A numeric vector of length two providing limits of the scale. 
+#' Use NA to refer to the existing minimum or maximum. Refer to \code{\link{scale_y_continuous}}.
+#' Set lower bound only to y-axis using limits = c(1000, NA). Defaul to NULL. 
 #' @keywords graph
 #' @export
 #' @examples 
-#' df.clusters <- random2Clusters()
-#' df.clusters
-#' g.table <- ggScatterPlotEllipse(df.clusters, addLabel=T)
-#' pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
-ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, palette="Set1", 
-                               addLabel=FALSE, label.size = 3, hjust=-0.1, vjust = -0.2, alpha = 0.5) {
-  if (ncol(df.clusters) < 3)
-    stop("Data frame should have 3 columns: first 2 columns are coordinates, 3rd is cluster names !")
-  
-  colnames(df.clusters)[1:3] <- c("PC1", "PC2", "cluster")
-  # df.clusters$species <- paste(sapply(strsplit(rownames(df.clusters), "_"), "[[", 1), sapply(strsplit(rownames(df.clusters), "_"), "[[", 2), sep=".")
-  df.clusters$cluster <- factor(df.clusters$cluster, levels = sort(unique(df.clusters$cluster)))
-  
-  require(ggplot2)
-  p <- ggplot(df.clusters, aes(x=PC1, y=PC2, color=factor(cluster))) + 
-    geom_point(size=point.size) + #aes(shape=factor(species)),
-    scale_colour_brewer(name="cluster", palette=palette) + #scale_fill_manual(name = "cluster", values = myPalette)  +
-    #    scale_shape_manual(name ="species", values=1:length(unique(gg$species))) +
-    stat_ellipse(type = "t", linetype = 2) +
-    geom_hline(yintercept=0,linetype=2) + 
-    geom_vline(xintercept=0,linetype=2) +
-    ggtitle(title) +
-    theme_bw() + theme(panel.grid.major = element_blank(), 
-                       panel.grid.minor = element_blank(), panel.background = element_blank()) 
-  
-  if (addLabel) {
-    p <- p + geom_text(aes(color=factor(cluster), label=rownames(df.clusters)), size=label.size, hjust=hjust, vjust=vjust, alpha=alpha) 
-  }
-  
-  gt <- ggplot_gtable(ggplot_build(p))
-  gt$layout$clip[gt$layout$name == "panel"] <- "off"
-  
-  return(gt)
-}
-
-
-#' @name ggPlot
-#' @title One-line command to get \pkg{ggplot} 
-#'
-#' @description Simplify \pkg{ggplot} codes into functions that can get a chart from one-line command.
 #' 
-#' @details Bar chart. 
-#' 
-#' One-line bar chart function to plot many types of bar chart, 
-#' such as normal bars, log-scaled bars, percentage bars, and also grouping.
-#' @param df.melt A data frame already \code{\link{melt}}. 
-#' @param x.id,y.id, fill.id The string of column names in the data frame 
-#' used for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.
-#' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
-#' or the result of a call to a position adjustment function. Default to "dodge". 
-#' Use "fill" to generate group percentage bars.
-#' @param y.scale The string defines the data scale used in y-axis, 
-#' which can be "nor" standing for normal, or "per" standing for percentage, 
-#' moreover either the name of a transformation object for \code{\link{scale_y_continuous}} 
-#' (e.g. \code{trans="log"}), or the object itself. Built-in transformations include 
-#' "asn", "atanh", "boxcox", "exp", "identity", "log", "log10", "log1p", "log2", "logit", 
-#' "probability", "probit", "reciprocal", "reverse" and "sqrt". Default to "nor". 
-#' @param title Graph title
-#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
-#' @param palette The colour palette for bars. 
-#' If NULL, then use \code{\link{ggplot}} default colours. Default to NULL. 
-#' @param legend.col,legend.nrow Customize the number of columns or rows for legend in bar chart. 
-#' They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0. 
-#' @keywords graph
-#' @export
-#' @examples
-#' # log-scale y
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.scale="log")
-#' # percentage bars without grouping in one bar each
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.scale="per")
-#' # percentage bars one group in one bar
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
 #' 
 #' @rdname ggPlot
-ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", palette=NULL, 
-                       rotate.x.text=FALSE, legend.col=1, legend.nrow=0, 
-                       title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id") {
+ggScatterPlot <- function(df.melt, x.id, y.id, fill.id, point.size=3, palette=NULL, 
+                          rotate.x.text=FALSE, legend.col=1, legend.nrow=0, limits=NULL,
+                          title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id", 
+                          addLabel=FALSE, label.size = 3, hjust=-0.1, vjust = -0.2, alpha = 0.5) {
   if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
     stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
   if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
@@ -203,16 +140,17 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
     
     p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
   }
-  p <- p + geom_bar(position = bar.pos, stat = "identity") 
+  p <- p + geom_point(size=point.size) + #aes(shape=factor(species)),
   
   if (y.scale=="nor") {
-    p <- p + scale_y_continuous(expand = c(0,0))
+    p <- p + scale_y_continuous(expand = c(0,0), limits=limits)
   } else if (y.scale=="per") {
     require(scales)
-    p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format()) 
+    p <- p + scale_y_continuous(expand = c(0,0), limits=limits, labels = percent_format()) 
   } else {
     y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
-    p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
+    p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), limits=limits, 
+                                labels = ComMA::scientific_10, breaks = y.breaks) 
   }
   
   if (!is.null(palette))
@@ -239,6 +177,113 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
   return(p)
 }
 
+#' @details 
+#' One-line bar chart function to plot many types of bar chart, 
+#' such as normal bars, log-scaled bars, percentage bars, and also grouping.
+#' @param df.melt A data frame already \code{\link{melt}}. 
+#' @param x.id,y.id, fill.id The string of column names in the data frame 
+#' used for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.
+#' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
+#' or the result of a call to a position adjustment function. Default to "dodge". 
+#' Use "fill" to generate group percentage bars.
+#' @param y.scale The string defines the data scale used in y-axis, 
+#' which can be "nor" standing for normal, or "per" standing for percentage, 
+#' moreover either the name of a transformation object for \code{\link{scale_y_continuous}} 
+#' (e.g. \code{trans="log"}), or the object itself. Built-in transformations include 
+#' "asn", "atanh", "boxcox", "exp", "identity", "log", "log10", "log1p", "log2", "logit", 
+#' "probability", "probit", "reciprocal", "reverse" and "sqrt". Default to "nor". 
+#' @param x.lim.cart,y.lim.cart Setting limits on the coordinate system will zoom the plot, 
+#' and will not change the underlying data like setting limits on a scale will. 
+#' Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
+#' Defaul to NULL. 
+#' @param title Graph title
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
+#' @param palette The colour palette for bars. 
+#' If NULL, then use \code{\link{ggplot}} default colours. Default to NULL. 
+#' @param legend.col,legend.nrow Customize the number of columns or rows for legend in bar chart. 
+#' They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0. 
+#' @keywords graph
+#' @export
+#' @examples
+#' # log-scale y
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.scale="log")
+#' # percentage bars without grouping in one bar each
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.scale="per")
+#' # percentage bars one group in one bar
+#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
+#' 
+#' @rdname ggPlot
+ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", palette=NULL, 
+                       rotate.x.text=FALSE, legend.col=1, legend.nrow=0, x.lim.cart=NULL, y.lim.cart=NULL,
+                       title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id") {
+  if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
+  if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", y.id, "\" !"))
+  
+  require(ggplot2)
+  if (missing(fill.id)) {
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) 
+  } else {
+    if (!is.element(tolower(fill.id), tolower(colnames(df.melt))))
+      stop(paste0("Data frame do NOT have column name \"", fill.id, "\" !"))
+    
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
+  }
+  p <- p + geom_bar(position = bar.pos, stat = "identity") 
+  
+  if (y.scale=="nor") {
+    p <- p + scale_y_continuous(expand = c(0,0))
+  } else if (y.scale=="per") {
+    require(scales)
+    p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format()) 
+  } else {
+    y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
+    p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), 
+                                labels = ComMA::scientific_10, breaks = y.breaks) 
+  }
+
+  if (!is.null(x.lim.cart)) {
+    if (which(is.na(x.lim.cart))==1) {
+      x.lim.cart[1] = min(df.mu.aggr[,x.id])
+    } else if (which(is.na(x.lim.cart))==2) {
+      x.lim.cart[2] = max(df.mu.aggr[,x.id])
+    }
+    p <- p + coord_cartesian(xlim=x.lim.cart)
+  } else if (!is.null(y.lim.cart)) {
+    if (which(is.na(y.lim.cart))==1) {
+      y.lim.cart[1] = min(df.mu.aggr[,y.id])
+    } else if (which(is.na(y.lim.cart))==2) {
+      y.lim.cart[2] = max(df.mu.aggr[,y.id])
+    }
+    p <- p + coord_cartesian(ylim=y.lim.cart)
+  } 
+  
+  if (!is.null(palette))
+    p <- p + scale_fill_manual(values=palette)
+  # cannot use both legend.col and legend.nrow
+  if (legend.col > 1 && legend.nrow == 0)
+    p <- p + guides(fill=guide_legend(ncol=legend.col))
+  if (legend.nrow > 0 && legend.col == 1)
+    p <- p + guides(fill=guide_legend(nrow=legend.nrow,byrow=TRUE))
+  
+  if (x.lab=="x.id") 
+    x.lab = x.id
+  if (y.lab=="y.id") 
+    y.lab = y.id
+  
+  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
+    theme(plot.title = element_text(size = title.size),
+          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+          panel.background = element_blank())
+  
+  if (rotate.x.text) 
+    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
+  
+  return(p)
+}
+
+#' @details 
 #' Box Whiskers Plot. 
 #' 
 #' @param outlier.colour The colour of outliers in box whiskers plot 
@@ -414,3 +459,53 @@ ggBarYAcrossX <- function(df.aggre, melt.id="samples", print.xtable=NULL, title=
   return(p)
 }
 
+#' Data ellipse on a scatter plot. 
+#' 
+#' Superimposed data ellipse on a \pkg{ggplot2} scatter plot.
+#' @source \url{http://stackoverflow.com/questions/2397097/how-can-a-data-ellipse-be-superimposed-on-a-ggplot2-scatterplot}.
+#' 
+#' @param df.clusters The 3-column data frame for plotting. 
+#' The first 2 columns are coordinates, and 3rd is cluster names. 
+#' @param addLabel Add row names to scatter plot. Default to FALSE
+#' @param point.size The size of points from \code{\link{point.size}}. Default to 3.
+#' @param palette The palette to colour clusters using \code{\link{scale_colour_brewer}}. 
+#' Default to 'Set1' (max 8 colours). Refer to \url{http://www.datavis.ca/sasmac/brewerpal.html}.
+#' @return
+#' A \code{\link{gtable}} object of scatter plot.
+#' @keywords graph
+#' @export
+#' @examples 
+#' df.clusters <- random2Clusters()
+#' df.clusters
+#' g.table <- ggScatterPlotEllipse(df.clusters, addLabel=T)
+#' pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
+ggScatterPlotEllipse <- function(df.clusters, title="Clusters", point.size=3, palette="Set1", 
+                                 addLabel=FALSE, label.size = 3, hjust=-0.1, vjust = -0.2, alpha = 0.5) {
+  if (ncol(df.clusters) < 3)
+    stop("Data frame should have 3 columns: first 2 columns are coordinates, 3rd is cluster names !")
+  
+  colnames(df.clusters)[1:3] <- c("PC1", "PC2", "cluster")
+  # df.clusters$species <- paste(sapply(strsplit(rownames(df.clusters), "_"), "[[", 1), sapply(strsplit(rownames(df.clusters), "_"), "[[", 2), sep=".")
+  df.clusters$cluster <- factor(df.clusters$cluster, levels = sort(unique(df.clusters$cluster)))
+  
+  require(ggplot2)
+  p <- ggplot(df.clusters, aes(x=PC1, y=PC2, color=factor(cluster))) + 
+    geom_point(size=point.size) + #aes(shape=factor(species)),
+    scale_colour_brewer(name="cluster", palette=palette) + #scale_fill_manual(name = "cluster", values = myPalette)  +
+    #    scale_shape_manual(name ="species", values=1:length(unique(gg$species))) +
+    stat_ellipse(type = "t", linetype = 2) +
+    geom_hline(yintercept=0,linetype=2) + 
+    geom_vline(xintercept=0,linetype=2) +
+    ggtitle(title) +
+    theme_bw() + theme(panel.grid.major = element_blank(), 
+                       panel.grid.minor = element_blank(), panel.background = element_blank()) 
+  
+  if (addLabel) {
+    p <- p + geom_text(aes(color=factor(cluster), label=rownames(df.clusters)), size=label.size, hjust=hjust, vjust=vjust, alpha=alpha) 
+  }
+  
+  gt <- ggplot_gtable(ggplot_build(p))
+  gt$layout$clip[gt$layout$name == "panel"] <- "off"
+  
+  return(gt)
+}
