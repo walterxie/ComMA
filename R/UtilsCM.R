@@ -12,7 +12,7 @@
 #' \code{rmMinAbundance} returns the subset matrix of given community matrix, 
 #' by removing rows or colums whose sum of abundance is less than the minimum abundance threshold. 
 #' 
-#' @param communityMatrix Community matrix (OTU table), where rows are 
+#' @param community.matrix Community matrix (OTU table), where rows are 
 #' OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.
 #' @param minAbund The minimum abundance threshold to remove rows/columns 
 #' by row/column sum of abundance. For exampe, if minAbund=2, then remove 
@@ -24,26 +24,26 @@
 #' @export
 #' @examples 
 #' # remove singletons 
-#' rmMinAbundance(communityMatrix, minAbund=2)
+#' rmMinAbundance(community.matrix, minAbund=2)
 #'
 #' @rdname utilsCM
-rmMinAbundance <- function(communityMatrix, minAbund=2, MARGIN=1, verbose=TRUE) {
+rmMinAbundance <- function(community.matrix, minAbund=2, MARGIN=1, verbose=TRUE) {
   if (is.element(1, MARGIN)) {
-    rm <- which(rowSums(communityMatrix)<minAbund)
+    rm <- which(rowSums(community.matrix)<minAbund)
     if (length(rm)>0) 
-      communityMatrix <- communityMatrix[-rm,]
+      community.matrix <- community.matrix[-rm,]
     msg <- "from rows"
   } else if (is.element(2, MARGIN)) {
-    rm <- which(colSums(communityMatrix)<minAbund)
+    rm <- which(colSums(community.matrix)<minAbund)
     if (length(rm)>0) 
-      communityMatrix <- communityMatrix[,-rm]
+      community.matrix <- community.matrix[,-rm]
     msg <- "from columns"
   }
   
   if(verbose) 
     cat("Remove", length(rm), msg, "having minimum abundance <", minAbund, "!\n")
   
-  communityMatrix
+  community.matrix
 }
 
 #' @details \code{transposeCM} provides a transposed community matrix for \pkg{vegan} package
@@ -52,14 +52,14 @@ rmMinAbundance <- function(communityMatrix, minAbund=2, MARGIN=1, verbose=TRUE) 
 #' @keywords community matrix
 #' @export
 #' @examples 
-#' communityMatrixT <- transposeCM(communityMatrix)
+#' communityMatrixT <- transposeCM(community.matrix)
 #'
 #' @rdname utilsCM
-transposeCM <- function(communityMatrix) {
-  if (!all(sapply(communityMatrix, is.numeric))) 
+transposeCM <- function(community.matrix) {
+  if (!all(sapply(community.matrix, is.numeric))) 
     stop("All community matrix elements have to be numeric type") 
   
-  communityMatrixT <- as.data.frame(t(as.matrix(communityMatrix))) # transpose  
+  communityMatrixT <- as.data.frame(t(as.matrix(community.matrix))) # transpose  
 }
 
 #' @details \code{cmYAcrossX} aggregates a community matrix to a data frame 
@@ -75,16 +75,16 @@ transposeCM <- function(communityMatrix) {
 #' @keywords community matrix
 #' @export
 #' @examples 
-#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' cm.aggre <- cmYAcrossX(communityMatrix)
+#' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+#' cm.aggre <- cmYAcrossX(community.matrix)
 #' print(cm.aggre, row.names = FALSE)
 #'
 #' @rdname utilsCM
-cmYAcrossX <- function(communityMatrix, terms=c("OTUs", "samples", "reads")) {
+cmYAcrossX <- function(community.matrix, terms=c("OTUs", "samples", "reads")) {
   require(Matrix)
-  row.count.sum <- data.frame(row.names = rownames(communityMatrix))
-  row.count.sum[, terms[2]] <- apply(communityMatrix, MARGIN=1, function(x) sum(x>0))
-  row.count.sum$reads <- apply(communityMatrix, MARGIN=1, sum)
+  row.count.sum <- data.frame(row.names = rownames(community.matrix))
+  row.count.sum[, terms[2]] <- apply(community.matrix, MARGIN=1, function(x) sum(x>0))
+  row.count.sum$reads <- apply(community.matrix, MARGIN=1, sum)
   
   cm.aggre.c <- aggregate(as.formula(paste(". ~", terms[2])), data=row.count.sum, function(x) sum(x>0))
   names(cm.aggre.c)[names(cm.aggre.c)==terms[3]] <- terms[1] # 1: OTUs, 3: reads
@@ -104,17 +104,17 @@ cmYAcrossX <- function(communityMatrix, terms=c("OTUs", "samples", "reads")) {
 #' @export
 #' @examples 
 #' # by subpl
-#' communityMatrix <- getCommunityMatrix("16S", isPlot=FALSE, minAbund=1)
-#' colSums(communityMatrix)
-#' communityMatrix1 <- sumColumns(communityMatrix)
+#' community.matrix <- getCommunityMatrix("16S", isPlot=FALSE, minAbund=1)
+#' colSums(community.matrix)
+#' communityMatrix1 <- sumColumns(community.matrix)
 #' colSums(communityMatrix1)
 #'
 #' @rdname utilsCM
-sumColumns <- function(communityMatrix, sep="-", nth=1) {
-  colnames(communityMatrix) <- sapply(strsplit(colnames(communityMatrix), split=sep), "[[", nth) # Strip subplot letter by sep
-  communityMatrix1 <- data.frame(matrix(ncol = 0, nrow = nrow(communityMatrix))) # Empty data.frame with required number of rows
-  for(col in unique(colnames(communityMatrix))){
-    cols <- communityMatrix[grep(col, colnames(communityMatrix))] # Find each pair of subplot columns
+sumColumns <- function(community.matrix, sep="-", nth=1) {
+  colnames(community.matrix) <- sapply(strsplit(colnames(community.matrix), split=sep), "[[", nth) # Strip subplot letter by sep
+  communityMatrix1 <- data.frame(matrix(ncol = 0, nrow = nrow(community.matrix))) # Empty data.frame with required number of rows
+  for(col in unique(colnames(community.matrix))){
+    cols <- community.matrix[grep(col, colnames(community.matrix))] # Find each pair of subplot columns
     cols1 <- as.data.frame(rowSums(cols)) # Add subplot pair together
     colnames(cols1) <- col
     communityMatrix1 <- cbind(communityMatrix1, cols1)
@@ -135,10 +135,10 @@ sumColumns <- function(communityMatrix, sep="-", nth=1) {
 #' @examples 
 #'
 #' @rdname utilsCM
-mergeRowsByColumnValue <- function(communityMatrix, ..., FUN=sum) {
+mergeRowsByColumnValue <- function(community.matrix, ..., FUN=sum) {
   cols <- paste(list(...), collapse="+")
   
-  aggregate(as.formula(paste(". ~", cols)), data=communityMatrix, FUN=FUN)
+  aggregate(as.formula(paste(". ~", cols)), data=community.matrix, FUN=FUN)
 }
 
 #' @details \code{mostAbundantRows} trims data frame 
@@ -147,33 +147,33 @@ mergeRowsByColumnValue <- function(communityMatrix, ..., FUN=sum) {
 #' such as community matrix of 150 most abundant OTUs.
 #' 
 #' @param mostAbundant The threshold to return rows having most abundance. 
-#' If \code{nrow(communityMatrix) < mostAbundant}, then use \code{nrow}. Default to 150.
+#' If \code{nrow(community.matrix) < mostAbundant}, then use \code{nrow}. Default to 150.
 #' @keywords community matrix
 #' @export
 #' @examples 
-#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' OTU100 <- mostAbundantRows(communityMatrix, mostAbundant=100)
+#' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+#' OTU100 <- mostAbundantRows(community.matrix, mostAbundant=100)
 #'
 #' @rdname utilsCM
-mostAbundantRows <- function(communityMatrix, mostAbundant=150) {
-  if (nrow(communityMatrix) < mostAbundant) 
-    mostAbundant <- nrow(communityMatrix)
+mostAbundantRows <- function(community.matrix, mostAbundant=150) {
+  if (nrow(community.matrix) < mostAbundant) 
+    mostAbundant <- nrow(community.matrix)
   
   cat("Trim matrix to", mostAbundant, "rows having most abundance.\n") 
   
-  rs <- rowSums(communityMatrix)
+  rs <- rowSums(community.matrix)
   # order row sums decreasing
   ord<-order(rs, decreasing=TRUE) 
-  communityMatrix <- communityMatrix[ord,]    
+  community.matrix <- community.matrix[ord,]    
 
-  return(communityMatrix[1:mostAbundant,])
+  return(community.matrix[1:mostAbundant,])
 }
 
-# rowThr, colThr: remove row or/and column sum <= rowThr, colThr in communityMatrix,
+# rowThr, colThr: remove row or/and column sum <= rowThr, colThr in community.matrix,
 # if rowThr, colThr = 0, then remove empty rows or/and columns
 # mostAbundThr: keep the most abundant (mostAbundThr) OTUs only 
-# return preprocessed communityMatrix
-preprocessCM <- function(communityMatrix, keepSingleton, rowThr, colThr, mostAbundThr) { 
+# return preprocessed community.matrix
+preprocessCM <- function(community.matrix, keepSingleton, rowThr, colThr, mostAbundThr) { 
   # keepSingleton, abundPercThr, transverse, verbose
   # args <- list(...)
   if(missing(keepSingleton)) keepSingleton=TRUE
@@ -183,29 +183,29 @@ preprocessCM <- function(communityMatrix, keepSingleton, rowThr, colThr, mostAbu
   
   cat("keepSingleton = ", keepSingleton, "; rowThr = ", rowThr, "; colThr = ", colThr, 
       "; mostAbundThr = ", mostAbundThr, "\n") 
-  cat("Original community matrix : samples = ", ncol(communityMatrix), ", OTUs/taxa = ", nrow(communityMatrix), ".\n") 
+  cat("Original community matrix : samples = ", ncol(community.matrix), ", OTUs/taxa = ", nrow(community.matrix), ".\n") 
   
   # singletons
   if (!keepSingleton) {
-    singletons <- which(rowSums(communityMatrix)==1)
-    communityMatrix <- communityMatrix[-singletons,]
+    singletons <- which(rowSums(community.matrix)==1)
+    community.matrix <- community.matrix[-singletons,]
     cat("Remove", length(singletons) ,"singletons !\n")
     rm(singletons)		
   }	
   
   # this must be in front of filter column/row to avoid empty column
   if (mostAbundThr > 0) {
-    communityMatrix <- keepMostAbundantRows(communityMatrix, mostAbundThr=mostAbundThr)
+    community.matrix <- keepMostAbundantRows(community.matrix, mostAbundThr=mostAbundThr)
   }  
   
-  communityMatrix <- rmMinAbundance(communityMatrix, minAbund=1, MARGIN=2)
+  community.matrix <- rmMinAbundance(community.matrix, minAbund=1, MARGIN=2)
   # filter column first to avoid empty rows after columns remvoed
-  communityMatrix <- rmMinAbundance(communityMatrix, minAbund=1, MARGIN=1)
+  community.matrix <- rmMinAbundance(community.matrix, minAbund=1, MARGIN=1)
   
   # summary
-  cat("Processed community matrix : samples = ", ncol(communityMatrix), ", OTUs/taxa = ", nrow(communityMatrix), ".\n") 
+  cat("Processed community matrix : samples = ", ncol(community.matrix), ", OTUs/taxa = ", nrow(community.matrix), ".\n") 
   
-  return(communityMatrix)
+  return(community.matrix)
 }
 
 

@@ -63,7 +63,7 @@ split_path <- function(path) {
 #' @export
 #' @keywords IO
 #' @examples 
-#' communityMatrix <- readFile("16S.txt", msg.file="16S OTU table", msg.col="samples", msg.row="OTUs")
+#' community.matrix <- readFile("16S.txt", msg.file="16S OTU table", msg.col="samples", msg.row="OTUs")
 #' taxa.table <- readFile("16S_taxonomy_table.txt", msg.file="16S taxonomy table", msg.row="OTUs")
 #' env <- readFile("env_data.txt", msg.file="enviornmental data", msg.row="samples")
 #' taxa.phyla <- readFile("taxonomy97phyla.txt", row.names=NULL)
@@ -178,7 +178,7 @@ readFileLineByLine <- function(file) {
 # hasGroup, specify if values in the last column are groups, it affects how to process matrix
 # hasGroup=TRUE, return a data frame by removing last column (groups), 
 # and another 1-column data frame for the last column (groups). 
-# return a list, where data frame communityMatrix, cols are samples, rows are OTUs/taxa, no preprocessing
+# return a list, where data frame community.matrix, cols are samples, rows are OTUs/taxa, no preprocessing
 # data frame groups may be NULL depending on hasGroup
 #' @name ComMAIO
 #' @title IO functions in \pkg{ComMA}
@@ -204,19 +204,21 @@ readFileLineByLine <- function(file) {
 #' 
 #' @rdname ComMAIO
 readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, regex="(\\|[0-9]+)", verbose=TRUE) { 
-  communityMatrix <- ComMA::readFile(file, verbose=verbose, msg.file=paste(matrix.name, "community matrix"), 
+  community.matrix <- ComMA::readFile(file, verbose=verbose, msg.file=paste(matrix.name, "community matrix"), 
                                      msg.col="samples", msg.row="OTUs")
-  communityMatrix <- ComMA::rmMinAbundance(communityMatrix, minAbund)
+  community.matrix <- ComMA::rmMinAbundance(community.matrix, minAbund)
   
   if (!is.null(regex))
-    rownames(communityMatrix) <- gsub(regex, "", rownames(communityMatrix))
+    rownames(community.matrix) <- gsub(regex, "", rownames(community.matrix))
   
-  attr(communityMatrix,"name") <- matrix.name
-  return(communityMatrix)
+  attr(community.matrix,"name") <- matrix.name
+  return(community.matrix)
 }
 
 #' @details 
-#' \code{readTaxaTable} reads a file to return a taxa table.
+#' \code{readTaxaTable} reads a file to return a taxa table. 
+#' \code{\link{subsetTaxaTable}} can be used to takes or excludes 
+#' a subset of the taxa table recursively.
 #' 
 #' @param taxa.group The taxonomic group, the values can be 'all', 'assigned', or 
 #' Group 'all' includes everything.
@@ -235,6 +237,7 @@ readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, regex="(\\|[
 #' @export
 #' @examples 
 #' tt.megan <- readTaxaTable("16s-megan.txt", "16S taxa table", taxa.group="Bacteria")
+#' tt.rdp.8 <- readTaxaTable("16s-rdp.txt", "16S taxa table", taxa.group="Bacteria")
 #' 
 #' @rdname ComMAIO
 readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="kingdom", 
@@ -280,33 +283,11 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
   return(taxa.table)
 }
 
-#' @details 
-#' \code{subsetTaxaTable} takes or excludes a subset of given a taxa table at given rank.
-#' 
-#' @keywords IO
-#' @export
-#' @examples 
-#' tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
-#' tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
-#' 
-#' @rdname ComMAIO
-subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", include=TRUE, verbose=TRUE) {
-  if (include) {
-    # include PROTISTS, taxa.group="CHROMISTA|PROTOZOA", rank="kingdom"
-    taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = T))) 
-  } else { 
-    # exclude some phyla, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum"
-    taxa.table <- subset(taxa.table, !grepl(taxa.group, taxa.table[,rank], ignore.case = T)) 
-  }
-  return(taxa.table)
-}
-
-
 # "superkingdom", "kingdom", "phylum", "class", "order", "family", "genus"
 # "kingdom" is compulsory, "path" is optional
 # c("16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt", "16s-class.txt", "16s-order.txt", "16s-family.txt")
 #' @details 
-#' \code{taxaTableMEGAN} reads a list of taxa mapping files exported 
+#' \code{createTaxaTableMEGAN} reads a list of taxa mapping files exported 
 #' from MEGAN to create a taxa table in \code{folder.path}.
 #' 
 #' @param file.prefix The prefix to find taxa mapping files, 
@@ -315,18 +296,19 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 #' and output MEGAN taxa table.
 #' @param col.names A vector fo column names of taxonomic ranks in the taxa table, 
 #' and they also determine the files to be merged into columns. Default to 
-#' c("path", "kingdom", "phylum", "class", "order", "family"), which indicates 
+#' c("path", "kingdom", "phylum", "class", "order", "family", "genus"), which indicates 
 #' the list of files c("16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt", "16s-class.txt", 
-#' "16s-order.txt", "16s-family.txt") given file.prefix = "16s". "path" is optional.
+#' "16s-order.txt", "16s-family.txt", "16s-genus.txt") given file.prefix = "16s". "path" is optional.
 #' @param file.out The taxonomic table file name.
 #' @keywords IO
 #' @export
 #' @examples 
-#' tt.megan <- taxaTableMEGAN(getwd(), "16s", file.out="16s-megan.txt")
+#' createTaxaTableMEGAN(getwd(), "16s", file.out="16s-megan.txt")
 #' 
 #' @rdname ComMAIO
-taxaTableMEGAN <- function(folder.path, file.prefix, col.names=c("path", "kingdom", "phylum", "class", "order", "family"), 
-                           sep="\t", regex="(\\|[0-9]+)", file.out="taxa-table-megan.txt") {
+createTaxaTableMEGAN <- function(folder.path, file.prefix, sep="\t", regex="(\\|[0-9]+)", 
+                                 col.names=c("path", "kingdom", "phylum", "class", "order", "family", "genus"), 
+                                 file.out="taxa-table-megan.txt") {
   taxa.files <- paste0(file.prefix, "-", col.names, ".txt")
   
   for (n in 1:length(col.names)) {
@@ -336,6 +318,8 @@ taxaTableMEGAN <- function(folder.path, file.prefix, col.names=c("path", "kingdo
     if (ncol(df.taxa) < 2)
       stop(paste("Taxa file", t.f, "can be correctly parsed ! Please check the file format."))
     
+    # remove " <phylumn>" added from MEGAN
+    df.taxa[,2] <- gsub("\\s+<.*>", "", df.taxa[,2])
     colnames(df.taxa) <- c("OTUs",col.names[n])
     if (n==1)
       df.path <- df.taxa
@@ -351,20 +335,18 @@ taxaTableMEGAN <- function(folder.path, file.prefix, col.names=c("path", "kingdo
 }
 
 #' @details 
-#' \code{taxaTableRDP} reads a 3-column taxa mapping file generated from RDP 
+#' \code{createTaxaTableRDP} reads a 3-column taxa mapping file generated from RDP 
 #' to create a taxa table in \code{folder.path}. The row look like: 
 #' OTU1	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__;g__;s__	0.970
 #' 
-#' @param min.conf The confidence threshold to drop rows < \emph{min.conf}.
 #' @param rm.rank.prefix Remove rank prefix, such as 'k__'. Default to TRUE.
 #' @keywords IO
 #' @export
 #' @examples 
-#' tt.rdp.8 <- taxaTableRDP("otus_tax_assignments.txt", file.out="16s-rdp.txt")
+#' createTaxaTableRDP("otus_tax_assignments.txt", file.out="16s-rdp.txt")
 #' 
 #' @rdname ComMAIO
-taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)", 
-                         rm.rank.prefix=TRUE, file.out="taxa-table-rdp.txt") {
+createTaxaTableRDP <- function(file, sep="\t", regex="(\\|[0-9]+)", rm.rank.prefix=TRUE, file.out="taxa-table-rdp.txt") {
   df.taxa <- ComMA::readFile(file, sep=sep, header=FALSE, row.names=NULL) 
   if (ncol(df.taxa) < 3)
     stop(cat("RDP output file", file, "can be correctly parsed !\nPlease check the file format."))
@@ -377,21 +359,17 @@ taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)",
     vector.path <- gsub("[a-z]__", "", df.taxa[,"path"])
   else 
     vector.path <- df.taxa[,"path"] 
-    
+  
   cols.lin <- read.table(text = vector.path, sep = ";", colClasses = "character", fill=TRUE)
   if (ncol(cols.lin) < 3)
     stop(cat("RDP output file", file, ", 2nd column 'taxa path' needs at least 3 ranks !",
-               "\nFor example, k__;p__;c__;o__;f__;g__;s__"))
+             "\nFor example, k__;p__;c__;o__;f__;g__;s__"))
   
   # fix to k__;p__;c__;o__;f__;g__;s__
-  colnames(cols.lin) <-  c("kingdom", "phylum", "class", "order", "family", "genus", "species")[1:ncol(cols.lin)]
+  colnames(cols.lin) <- c("kingdom", "phylum", "class", "order", "family", "genus", "species")[1:ncol(cols.lin)]
   
   df.path <- cbind(df.taxa, cols.lin)
-  # drop rows < min.conf
-  n.row <- nrow(df.path)
-  df.path <- df.path[df.path[,"confidence"] >= min.conf, ] 
-  cat("Drop", n.row-nrow(df.path), "rows whose confidence <", min.conf, ".\n")
-  
+
   if (!is.null(regex))
     df.path[,"OTUs"] <- gsub(regex, "", df.path[,"OTUs"])
   

@@ -2,17 +2,17 @@
 # Accessed on 9 Sep 2015
 
 ######## Jost diversity section #######
-# t.communityMatrix = t(communityMatrix), row is sample
+# t.community.matrix = t(community.matrix), row is sample
 
 #' @name JostDiversity
 #' @title Jost diversity from \pkg{vegetarian} Package
 #'
-#' @description Data input \strong{t.communityMatrix} is 
+#' @description Data input \strong{t.community.matrix} is 
 #' a transposed matrix of community matrix we defined in \pkg{ComMA}.
 #' Community matrix from file is a matrix where rows are OTUs or individual species 
 #' and columns are sites or samples. See \code{\link{ComMA}}. 
 #' 
-#' @param t.communityMatrix is abundances argument in \pkg{vegetarian} \code{\link{d}}, 
+#' @param t.community.matrix is abundances argument in \pkg{vegetarian} \code{\link{d}}, 
 #' which is a transposed matrix of community matrix, 
 #' where rows are plots (Use plots instead of subplots.), columns are OTUs.
 #' @return 
@@ -27,27 +27,27 @@
 #' @export
 #' @keywords diversity
 #' @examples 
-#' diversity.table <- diversityTable(t.communityMatrix)
+#' diversity.table <- diversityTable(t.community.matrix)
 #' 
 #' @rdname JostDiversity
-diversityTable <- function(t.communityMatrix) { 
+diversityTable <- function(t.community.matrix) { 
   require(vegetarian)
   diversity.df <- data.frame(row.names=c("gamma", "alpha", "beta"))
   
   diversity.df$'q=0' <- c(
-    d(t.communityMatrix,lev="gamma",q=0),
-    d(t.communityMatrix,lev="alpha",q=0),
-    d(t.communityMatrix,lev="beta",q=0))
+    d(t.community.matrix,lev="gamma",q=0),
+    d(t.community.matrix,lev="alpha",q=0),
+    d(t.community.matrix,lev="beta",q=0))
   
   diversity.df$'q=1' <- c(
-    d(t.communityMatrix,lev="gamma",q=1),
-    d(t.communityMatrix,lev="alpha",q=1),
-    d(t.communityMatrix,lev="beta",q=1))
+    d(t.community.matrix,lev="gamma",q=1),
+    d(t.community.matrix,lev="alpha",q=1),
+    d(t.community.matrix,lev="beta",q=1))
   
   diversity.df$'q=2' <- c(
-    d(t.communityMatrix,lev="gamma",q=2),
-    d(t.communityMatrix,lev="alpha",q=2),
-    d(t.communityMatrix,lev="beta", q=2))
+    d(t.community.matrix,lev="gamma",q=2),
+    d(t.community.matrix,lev="alpha",q=2),
+    d(t.community.matrix,lev="beta", q=2))
   
   colnames(diversity.df) <- c("$q=0$", "$q=1$", "$q=2$")
   rownames(diversity.df) <- c("$D_\\gamma(q)$", "$D_\\alpha(q)$", "$D_\\beta(q)$")
@@ -57,10 +57,10 @@ diversityTable <- function(t.communityMatrix) {
 
 #' abundance (reads, gamme0) per sample
 #' return 1-column data frame
-abundancePerSample <- function(t.communityMatrix, hasTotal=TRUE) {
+abundancePerSample <- function(t.community.matrix, hasTotal=TRUE) {
   # gamme0
-  perSample <- data.frame(abundance=rowSums(t.communityMatrix), stringsAsFactors=FALSE)
-  rownames(perSample) <- rownames(t.communityMatrix)
+  perSample <- data.frame(abundance=rowSums(t.community.matrix), stringsAsFactors=FALSE)
+  rownames(perSample) <- rownames(t.community.matrix)
   
   if (hasTotal) {
     perSample <- rbind(perSample, sum(perSample[,1]))
@@ -72,10 +72,10 @@ abundancePerSample <- function(t.communityMatrix, hasTotal=TRUE) {
 
 #' richness (OTUs/species) per sample
 #' return 1-column data frame
-richnessPerSample <- function(t.communityMatrix, hasTotal=TRUE) {
+richnessPerSample <- function(t.community.matrix, hasTotal=TRUE) {
   # richness
-  perSample <- data.frame(richness=rowSums(t.communityMatrix > 0), stringsAsFactors=FALSE)
-  rownames(perSample) <- rownames(t.communityMatrix)
+  perSample <- data.frame(richness=rowSums(t.community.matrix > 0), stringsAsFactors=FALSE)
+  rownames(perSample) <- rownames(t.community.matrix)
   
   if (hasTotal) {
     perSample <- rbind(perSample, sum(perSample[,1]))
@@ -87,13 +87,13 @@ richnessPerSample <- function(t.communityMatrix, hasTotal=TRUE) {
 
 #' Shannon index (gamma1) per sample
 #' return 1-column data frame
-shannonPerSample <- function(t.communityMatrix, digits = 2) {
+shannonPerSample <- function(t.community.matrix, digits = 2) {
   # Shannon
   #  gamma1 <- function(r) d(r,lev="gamma",q=1)
-  #  perSample <- data.frame(Shannon=apply(t.communityMatrix, 1, gamma1), stringsAsFactors=FALSE)
-  perSample <- data.frame(row.names=rownames(t.communityMatrix), stringsAsFactors=FALSE)
-  for (i in 1:nrow(t.communityMatrix)) 
-    perSample[i,1] <- d(t.communityMatrix[i,],lev="gamma",q=1)
+  #  perSample <- data.frame(Shannon=apply(t.community.matrix, 1, gamma1), stringsAsFactors=FALSE)
+  perSample <- data.frame(row.names=rownames(t.community.matrix), stringsAsFactors=FALSE)
+  for (i in 1:nrow(t.community.matrix)) 
+    perSample[i,1] <- d(t.community.matrix[i,],lev="gamma",q=1)
   
   colnames(perSample)[1] <- "Shannon"
   
@@ -113,16 +113,16 @@ shannonPerSample <- function(t.communityMatrix, digits = 2) {
 #' @export
 #' @keywords diversity
 #' @examples 
-#' diss.matrix <- calculateDissimilarityMatrix(t.communityMatrix, diss.fun="jaccard")
+#' diss.matrix <- calculateDissimilarityMatrix(t.community.matrix, diss.fun="jaccard")
 #' 
 #' @rdname JostDiversity
-calculateDissimilarityMatrix <- function(t.communityMatrix, diss.fun="beta1-1", printProgressBar) {    
+calculateDissimilarityMatrix <- function(t.community.matrix, diss.fun="beta1-1", printProgressBar) {    
   # including diagonal
-  diss.matrix <- matrix(0,nrow=nrow(t.communityMatrix),ncol=nrow(t.communityMatrix))
-  colnames(diss.matrix) <- c(rownames(t.communityMatrix))
-  rownames(diss.matrix) <- c(rownames(t.communityMatrix))
-  # row.pairs : each row is a pair of row number of t.communityMatrix
-  row.pairs <- t(combn(nrow(t.communityMatrix),2))
+  diss.matrix <- matrix(0,nrow=nrow(t.community.matrix),ncol=nrow(t.community.matrix))
+  colnames(diss.matrix) <- c(rownames(t.community.matrix))
+  rownames(diss.matrix) <- c(rownames(t.community.matrix))
+  # row.pairs : each row is a pair of row number of t.community.matrix
+  row.pairs <- t(combn(nrow(t.community.matrix),2))
   
   cat("\nCalculating", diss.fun, "from", nrow(row.pairs), "pairs of samples.\n")
   
@@ -136,16 +136,16 @@ calculateDissimilarityMatrix <- function(t.communityMatrix, diss.fun="beta1-1", 
     if (printProgressBar) setTxtProgressBar(pb, n)
     if (diss.fun=="jaccard") {
       # Jaccard
-      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.communityMatrix[row.pairs[n,],], method="jaccard", binary=TRUE)
+      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.community.matrix[row.pairs[n,],], method="jaccard", binary=TRUE)
     } else if (diss.fun=="horn.morisita") {
       # Horn-Morisita
-      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.communityMatrix[row.pairs[n,],], method="horn", binary=FALSE)
+      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.community.matrix[row.pairs[n,],], method="horn", binary=FALSE)
     } else if (diss.fun=="bray.curtis") {
       # Bray-Curtis
-      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.communityMatrix[row.pairs[n,],])
+      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.community.matrix[row.pairs[n,],])
     } else { # diss.fun="beta1-1"
       # beta1-1
-      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- d(t.communityMatrix[row.pairs[n,],],lev="beta",q=1)-1
+      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- d(t.community.matrix[row.pairs[n,],],lev="beta",q=1)-1
     }
   }
   if (printProgressBar) close(pb)
@@ -160,23 +160,23 @@ calculateDissimilarityMatrix <- function(t.communityMatrix, diss.fun="beta1-1", 
 #' @export
 #' @keywords diversity
 #' @examples 
-#' turnover.dist <- TurnoverDist(t.communityMatrix)
+#' turnover.dist <- TurnoverDist(t.community.matrix)
 #' 
 #' @rdname JostDiversity
-TurnoverDist<-function(t.communityMatrix){ 
+TurnoverDist<-function(t.community.matrix){ 
   require(vegetarian)
-  turnover.table<-matrix(0,nrow=nrow(t.communityMatrix),ncol=nrow(t.communityMatrix))
-  for(i in 1:nrow(t.communityMatrix)){
-    for(j in 1:nrow(t.communityMatrix)){
+  turnover.table<-matrix(0,nrow=nrow(t.community.matrix),ncol=nrow(t.community.matrix))
+  for(i in 1:nrow(t.community.matrix)){
+    for(j in 1:nrow(t.community.matrix)){
       # For numerous communities of equal weights, the numbers equivalent of 
       # the Shannon beta diversity and the number of samples (N) can be used to 
       # calculate the turnover rate per sample (Equation 25 from Jost 2007, Harrison et al. 1992)
-      turnover.table[i,j]<-turnover(t.communityMatrix[c(i,j),])
+      turnover.table[i,j]<-turnover(t.community.matrix[c(i,j),])
     }
   }
   
   d <- as.dist(turnover.table)
-  attr(d, "Labels") <- dimnames(t.communityMatrix)[[1L]]
+  attr(d, "Labels") <- dimnames(t.community.matrix)[[1L]]
   
   return(d)
 }
@@ -184,12 +184,12 @@ TurnoverDist<-function(t.communityMatrix){
 ######## alpha1 #######
 #' effective alpha per sample
 #' return one column matrix
-#alpha1 <- function(t.communityMatrix) {    
+#alpha1 <- function(t.community.matrix) {    
   # including diagonal
-#  m.alpha1 <- matrix(0,nrow=nrow(t.communityMatrix),ncol=1)	
-#  rownames(m.alpha1) <- c(rownames(t.communityMatrix))
-#  for(i in 1:nrow(t.communityMatrix)){				
-#    m.alpha1[i,1] <- d(t.communityMatrix[i,],lev="gamma",q=1)				
+#  m.alpha1 <- matrix(0,nrow=nrow(t.community.matrix),ncol=1)	
+#  rownames(m.alpha1) <- c(rownames(t.community.matrix))
+#  for(i in 1:nrow(t.community.matrix)){				
+#    m.alpha1[i,1] <- d(t.community.matrix[i,],lev="gamma",q=1)				
 #  }
 #  
 #  return (m.alpha1) # 1 col matrix
@@ -198,9 +198,9 @@ TurnoverDist<-function(t.communityMatrix){
 
 # COMPUTER HORN-MORISITA OVERLAPS
 #library(vegan)
-#d.hornMorisita <- vegdist(t.communityMatrix, method="horn", binary=FALSE)
-#d.brayBin <- vegdist(t.communityMatrix, method="bray", binary=TRUE)
+#d.hornMorisita <- vegdist(t.community.matrix, method="horn", binary=FALSE)
+#d.brayBin <- vegdist(t.community.matrix, method="bray", binary=TRUE)
 
 #library(untb)
-#cm_counts <- count(colSums(t.communityMatrix))
+#cm_counts <- count(colSums(t.community.matrix))
 #theta <- round(optimal.theta(cm_counts),2)

@@ -17,7 +17,7 @@
 #'   OTU_3 \tab 56 \tab 3 \tab ...
 #' }
 #' 
-#' Variable \strong{t.communityMatrix} is a transposed matrix from community matrix 
+#' Variable \strong{t.community.matrix} is a transposed matrix from community matrix 
 #' we defined here, where columns are OTUs or individual species and rows are sites or samples. 
 #' It is also the abundances argument in \pkg{vegetarian} \code{\link{d}}.
 #' 

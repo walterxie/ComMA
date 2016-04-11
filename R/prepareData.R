@@ -60,7 +60,7 @@ getPlot <- function(full.name, sep="-") {
 #' @export
 #' @examples 
 #' # keep singletons
-#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+#' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 #' 
 #' @rdname getData
 getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
@@ -71,10 +71,10 @@ getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
     inputCM <- file.path("data", "OTU_tables", paste(matrix.name, "_otutable.txt", sep=""))
   }
   
-  communityMatrix <- ComMA::readCommunityMatrix(inputCM, matrix.name = matrix.name, 
+  community.matrix <- ComMA::readCommunityMatrix(inputCM, matrix.name = matrix.name, 
                                                 minAbund = minAbund, verbose = verbose)
   
-  return(communityMatrix)
+  return(community.matrix)
 }
 
 #' @details 
@@ -89,11 +89,11 @@ getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
 #' @export
 #' @examples 
 #' # by plot, remove singletons, BACTERIA only
-#' t.communityMatrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=2, taxa.group="BACTERIA")
+#' t.community.matrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=2, taxa.group="BACTERIA")
 #' 
 #' @rdname getData
 getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=2, minRich=1, verbose=TRUE) {
-  communityMatrix <- ComMA::getCommunityMatrix(matrix.name, isPlot, minAbund)
+  community.matrix <- ComMA::getCommunityMatrix(matrix.name, isPlot, minAbund)
   
   if (taxa.group != "all") {
     ##### load data #####
@@ -104,7 +104,7 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
       return(NULL)
     } else {
       # merge needs at least 2 cols 
-      taxaAssgReads <- merge(communityMatrix, taxaPaths, by = "row.names")
+      taxaAssgReads <- merge(community.matrix, taxaPaths, by = "row.names")
       
       if (nrow(taxaAssgReads) < minRich) {
         cat("Warning: return NULL, because cm has", nrow(taxaAssgReads), "row(s) match", taxa.group, "<", minRich, "threshold.\n")
@@ -115,19 +115,19 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
       rownames(taxaAssgReads) <- taxaAssgReads[,"Row.names"]
       taxaAssgReads <- taxaAssgReads[,-1]
       # get CM
-      taxaAssgReads <- taxaAssgReads[,1:ncol(communityMatrix)]
+      taxaAssgReads <- taxaAssgReads[,1:ncol(community.matrix)]
       
-      cat("Merging", nrow(taxaAssgReads), "matched OTUs from", nrow(communityMatrix), "OTUs in matrix to", 
+      cat("Merging", nrow(taxaAssgReads), "matched OTUs from", nrow(community.matrix), "OTUs in matrix to", 
           nrow(taxaPaths), "taxa classification, taxa.group =", taxa.group, ", final ncol =", ncol(taxaAssgReads), ".\n")
       
-      communityMatrix <- data.matrix(taxaAssgReads)
+      community.matrix <- data.matrix(taxaAssgReads)
     }
   }
-  communityMatrixT <- ComMA::transposeCM(communityMatrix)
+  t.community.matrix <- ComMA::transposeCM(community.matrix)
   
-  return(communityMatrixT)
+  return(t.community.matrix)
 }
-# rownames(communityMatrix) <- gsub("-(.*)|", "\\1", rownames(communityMatrix))
+# rownames(community.matrix) <- gsub("-(.*)|", "\\1", rownames(community.matrix))
 
 ###### taxa assignment by reads #####
 # "ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA", "EUKARYOTA", "PROKARYOTA", "PROTISTS"
@@ -186,10 +186,10 @@ getTaxaAssgReads <- function(matrix.name, isPlot, minAbund=2, rankLevel, groupLe
   cat("Create taxonomy assignment for", matrix.name, ".\n")
   
   ##### load data #####
-  communityMatrix <- ComMA::getCommunityMatrix(matrix.name, isPlot, minAbund)
+  community.matrix <- ComMA::getCommunityMatrix(matrix.name, isPlot, minAbund)
   
-  communityMatrix <- communityMatrix[order(rownames(communityMatrix)),]
-  communityMatrix <- communityMatrix[,order(colnames(communityMatrix))]
+  community.matrix <- community.matrix[order(rownames(community.matrix)),]
+  community.matrix <- community.matrix[,order(colnames(community.matrix))]
   
   taxaPaths <- ComMA::getTaxaPaths(matrix.name, taxa.group)
   
@@ -202,12 +202,12 @@ getTaxaAssgReads <- function(matrix.name, isPlot, minAbund=2, rankLevel, groupLe
   colRankLevel <- which(tolower(colnames(taxaPaths))==tolower(rankLevel))
   colGroupLevel <- which(tolower(colnames(taxaPaths))==tolower(groupLevel))
   
-  taxaAssgReads <- merge(communityMatrix, taxaPaths[,c(colRankLevel, colGroupLevel)], by = "row.names")
+  taxaAssgReads <- merge(community.matrix, taxaPaths[,c(colRankLevel, colGroupLevel)], by = "row.names")
   
   taxaAssgReads[,rankLevel] <- gsub("(\\s\\[=.*\\])", "", taxaAssgReads[,rankLevel])
   taxaAssgReads[,groupLevel] <- gsub("(\\s\\[=.*\\])", "", taxaAssgReads[,groupLevel])
   
-  cat("Merging:", nrow(taxaAssgReads), "OTUs are matched from", nrow(communityMatrix), "OTUs in matrix to", 
+  cat("Merging:", nrow(taxaAssgReads), "OTUs are matched from", nrow(community.matrix), "OTUs in matrix to", 
       nrow(taxaPaths), "taxa classification, taxa.group =", taxa.group, ".\n")
   
   return(taxaAssgReads)
