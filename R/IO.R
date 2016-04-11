@@ -49,7 +49,9 @@ split_path <- function(path) {
 #' Using row.names = NULL forces row numbering.
 #' @param header A logical value indicating whether the file contains 
 #' the names of the variables as its first line. Default to TRUE. 
-#' @param sep Only used for non \emph{csv} file. Default to tab "\\t". 
+#' @param sep Only used for non \emph{csv} file. Default to tab "\\t".
+#' @param msg.file,msg.col,msg.row The message regarding file, column and row, if verbose=TRUE.  
+#' @param verbose More details. Default to TRUE.
 #' @return 
 #' A data frame from the file, such as
 #' \tabular{rrrr}{
@@ -65,7 +67,8 @@ split_path <- function(path) {
 #' taxa.table <- readFile("16S_taxonomy_table.txt", msg.file="16S taxonomy table", msg.row="OTUs")
 #' env <- readFile("env_data.txt", msg.file="enviornmental data", msg.row="samples")
 #' taxa.phyla <- readFile("taxonomy97phyla.txt", row.names=NULL)
-readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE, msg.file="file", msg.col="columns", msg.row="rows") { 
+readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE, 
+                     msg.file="file", msg.col="columns", msg.row="rows") { 
   require(tools)
   # sep="\t" only work for non csv file
   if (tolower(file_ext(file))=="csv") {
@@ -75,8 +78,14 @@ readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE, msg
     df <- read.table(file, sep=sep, header=header, row.names=row.names, check.names=FALSE, stringsAsFactors=FALSE)  
   }	
   
-  if (verbose) 
-    cat("\nUpload", msg.file, ":", ncol(df), msg.col, ",", nrow(df), msg.row, ", from", file, "\n") 
+  if (verbose) {
+    if (header) 
+      msg.row <- paste(msg.row, "excluding column names from row 1")
+    if (!is.null(row.names))
+      msg.col <- paste(msg.col, "excluding row names from column", row.names)
+    
+    cat("\nUpload", msg.file, ":", ncol(df), paste0(msg.col, ","), nrow(df), paste0(msg.row, ","), "from file", file, "\n") 
+  }
   
   return(df)
 }
@@ -93,7 +102,8 @@ readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE, msg
 #' @examples 
 #' writeTable(df, file.path)
 writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t", eol = "\n", 
-                       na = "NA", dec = ".", row.names = TRUE, col.names = TRUE) {
+                       na = "NA", dec = ".", row.names = TRUE, col.names = TRUE, 
+                       verbose=TRUE, msg.file="file", msg.col="columns", msg.row="rows") {
   require(tools)
   if (tolower(file_ext(file))=="csv") {
     write.csv(df, file, append = append, quote = quote, eol = eol, 
@@ -106,6 +116,10 @@ writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t", eol 
     #write.table bug: if row.names = TRUE, mistake to start col names from the 1st cell
     write.table(df, file, append = append, quote = quote, eol = eol, sep = sep,
                 na = na, dec = dec, row.names = row.names, col.names = col.names)
+  }
+  
+  if (verbose) {
+    cat("\nWrite", msg.file, ":", ncol(df), paste0(msg.col, ","), nrow(df), paste0(msg.row, ","), "to file", file, "\n") 
   }
 }
 
@@ -183,7 +197,6 @@ readFileLineByLine <- function(file) {
 #' But \code{postfix} is only used for naming, no data processed.
 #' @param regex Remove substring in row names by given regular expression, 
 #' but if NULL, then do nothing. Default to "(\\|[0-9]+)".
-#' @param verbose More details. Default to TRUE.
 #' @keywords IO
 #' @export
 #' @examples 
@@ -202,6 +215,7 @@ readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, regex="(\\|[
   return(communityMatrix)
 }
 
+#' @details 
 #' \code{readTaxaTable} reads a file to return a taxa table
 #' 
 #' @param taxa.group The taxonomic group, the values can be 'all', 'assigned', or 
@@ -224,8 +238,9 @@ readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, regex="(\\|[
 #' 
 #' @rdname ComMAIO
 readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="kingdom", 
-                          include=TRUE, regex="(\\|[0-9]+)", verbose=TRUE) {
-  taxa.table <- ComMA::readFile(file, verbose=verbose,  msg.file=paste(matrix.name, "taxonomy table"), msg.row="OTUs")
+                          include=TRUE, sep="\t", regex="(\\|[0-9]+)", verbose=TRUE) {
+  taxa.table <- ComMA::readFile(file, sep=sep, verbose=verbose, 
+                                msg.file=paste(matrix.name, "taxonomy table"), msg.row="OTUs")
   taxa.table <- taxa.table[order(rownames(taxa.table)),]
   # make lower case to match ranks
   colnames(taxa.table) <- tolower(colnames(taxa.table))
@@ -268,20 +283,28 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
 # "superkingdom", "kingdom", "phylum", "class", "order", "family", "genus"
 # "kingdom" is compulsory, "path" is optional
 # c("16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt", "16s-class.txt", "16s-order.txt", "16s-family.txt")
-#' \code{taxaTableMEGAN} reads a list of taxa mapping files exported from MEGAN to create a taxa table in \code{folder.path}.
+#' @details 
+#' \code{taxaTableMEGAN} reads a list of taxa mapping files exported 
+#' from MEGAN to create a taxa table in \code{folder.path}.
 #' 
 #' @param file.prefix The prefix to find taxa mapping files, 
 #' such as "16s" for "16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt".
 #' @param folder.path The folder path to contain taxa mapping files 
 #' and output MEGAN taxa table.
+#' @param col.names A vector fo column names of taxonomic ranks in the taxa table, 
+#' and they also determine the files to be merged into columns. Default to 
+#' c("path", "kingdom", "phylum", "class", "order", "family"), which indicates 
+#' the list of files c("16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt", "16s-class.txt", 
+#' "16s-order.txt", "16s-family.txt") given file.prefix = "16s". "path" is optional.
+#' @param file.out The taxonomic table file name.
 #' @keywords IO
 #' @export
 #' @examples 
-#' taxaTableMEGAN("16s", getwd())
+#' tt.megan <- taxaTableMEGAN(getwd(), "16s", file.out="16s-megan.txt")
 #' 
 #' @rdname ComMAIO
-taxaTableMEGAN <- function(file.prefix, folder.path, col.names=c("path", "kingdom", "phylum", "class", "order", "family"), 
-                           sep="\t", regex="(\\|[0-9]+)") {
+taxaTableMEGAN <- function(folder.path, file.prefix, col.names=c("path", "kingdom", "phylum", "class", "order", "family"), 
+                           sep="\t", regex="(\\|[0-9]+)", file.out="taxa-table-megan.txt") {
   taxa.files <- paste0(file.prefix, "-", col.names, ".txt")
   
   for (n in 1:length(col.names)) {
@@ -301,20 +324,39 @@ taxaTableMEGAN <- function(file.prefix, folder.path, col.names=c("path", "kingdo
   if (!is.null(regex))
     df.path[,"OTUs"] <- gsub(regex, "", df.path[,"OTUs"])
   
-  taxa.f <- file.path(folder.path, paste0(file.prefix, "-megan.txt"))
-  cat("Write taxa table", nrow(df.path), "rows", ncol(df.path), "columns to file", taxa.f,".\n")
-  ComMA::writeTable(df.path, taxa.f, row.names = FALSE)
+  taxa.f <- file.path(folder.path, file.out)
+  ComMA::writeTable(df.path, taxa.f, row.names = FALSE, msg.file = "taxa table")
 }
 
-# Zxan08_H415I8K02GEDIZ|2	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__;g__;s__	0.970
-taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)", rm.rank.prefix=TRUE) {
+#' @details 
+#' \code{taxaTableRDP} reads a 3-column taxa mapping file generated from RDP 
+#' to create a taxa table in \code{folder.path}. The row look like: 
+#' OTU1	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__;g__;s__	0.970
+#' 
+#' @param min.conf The confidence threshold to drop rows < \emph{min.conf}.
+#' @param rm.rank.prefix Remove rank prefix, such as 'k__'. Default to FALSE.
+#' @keywords IO
+#' @export
+#' @examples 
+#' tt.rdp.8 <- taxaTableRDP("otus_tax_assignments.txt", file.out="16s-rdp.txt")
+#' 
+#' @rdname ComMAIO
+taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)", 
+                         rm.rank.prefix=FALSE, file.out="taxa-table-rdp.txt") {
   df.taxa <- ComMA::readFile(file, sep=sep, header=FALSE, row.names=NULL) 
   if (ncol(df.taxa) < 3)
     stop(cat("RDP output file", file, "can be correctly parsed !\nPlease check the file format."))
   
   colnames(df.taxa) <- c("OTUs","path","confidence")
+  # rm []
+  df.taxa[,"path"] <- gsub("\\[(.*)\\]", "\\1", df.taxa[,"path"])
   
-  cols.lin <- read.table(text = df.taxa[,"path"], sep = ";", colClasses = "character", fill=TRUE)
+  if (rm.rank.prefix) 
+    vector.path <- gsub("[a-z]__", "", df.taxa[,"path"])
+  else 
+    vector.path <- df.taxa[,"path"] 
+    
+  cols.lin <- read.table(text = vector.path, sep = ";", colClasses = "character", fill=TRUE)
   if (ncol(cols.lin) < 3)
     stop(cat("RDP output file", file, ", 2nd column 'taxa path' needs at least 3 ranks !",
                "\nFor example, k__;p__;c__;o__;f__;g__;s__"))
@@ -331,8 +373,6 @@ taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)", rm.r
   if (!is.null(regex))
     df.path[,"OTUs"] <- gsub(regex, "", df.path[,"OTUs"])
   
-  taxa.f <- file.path("16s-rdp.txt")
-  cat("Write taxa table", nrow(df.path), "rows", ncol(df.path), "columns to file", taxa.f,".\n")
-  ComMA::writeTable(df.path, taxa.f, row.names = FALSE)
+  ComMA::writeTable(df.path, file.out, row.names = FALSE, msg.file = "taxa table")
 }
 
