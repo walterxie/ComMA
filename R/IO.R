@@ -216,7 +216,7 @@ readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, regex="(\\|[
 }
 
 #' @details 
-#' \code{readTaxaTable} reads a file to return a taxa table
+#' \code{readTaxaTable} reads a file to return a taxa table.
 #' 
 #' @param taxa.group The taxonomic group, the values can be 'all', 'assigned', or 
 #' Group 'all' includes everything.
@@ -280,6 +280,28 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
   return(taxa.table)
 }
 
+#' @details 
+#' \code{subsetTaxaTable} takes or excludes a subset of given a taxa table at given rank.
+#' 
+#' @keywords IO
+#' @export
+#' @examples 
+#' tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
+#' tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
+#' 
+#' @rdname ComMAIO
+subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", include=TRUE, verbose=TRUE) {
+  if (include) {
+    # include PROTISTS, taxa.group="CHROMISTA|PROTOZOA", rank="kingdom"
+    taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = T))) 
+  } else { 
+    # exclude some phyla, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum"
+    taxa.table <- subset(taxa.table, !grepl(taxa.group, taxa.table[,rank], ignore.case = T)) 
+  }
+  return(taxa.table)
+}
+
+
 # "superkingdom", "kingdom", "phylum", "class", "order", "family", "genus"
 # "kingdom" is compulsory, "path" is optional
 # c("16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt", "16s-class.txt", "16s-order.txt", "16s-family.txt")
@@ -334,7 +356,7 @@ taxaTableMEGAN <- function(folder.path, file.prefix, col.names=c("path", "kingdo
 #' OTU1	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__;g__;s__	0.970
 #' 
 #' @param min.conf The confidence threshold to drop rows < \emph{min.conf}.
-#' @param rm.rank.prefix Remove rank prefix, such as 'k__'. Default to FALSE.
+#' @param rm.rank.prefix Remove rank prefix, such as 'k__'. Default to TRUE.
 #' @keywords IO
 #' @export
 #' @examples 
@@ -342,7 +364,7 @@ taxaTableMEGAN <- function(folder.path, file.prefix, col.names=c("path", "kingdo
 #' 
 #' @rdname ComMAIO
 taxaTableRDP <- function(file, min.conf=0.8, sep="\t", regex="(\\|[0-9]+)", 
-                         rm.rank.prefix=FALSE, file.out="taxa-table-rdp.txt") {
+                         rm.rank.prefix=TRUE, file.out="taxa-table-rdp.txt") {
   df.taxa <- ComMA::readFile(file, sep=sep, header=FALSE, row.names=NULL) 
   if (ncol(df.taxa) < 3)
     stop(cat("RDP output file", file, "can be correctly parsed !\nPlease check the file format."))
