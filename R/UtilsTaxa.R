@@ -70,8 +70,8 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 #' @keywords utils
 #' @export
 #' @examples 
-#' ta.list <- assignTaxa(community.matrix, tt.megan)
-#' ta.list <- assignTaxa(community.matrix, tt.rdp, col.names="kingdom", classifier="RDP")
+#' ta.megan <- assignTaxa(community.matrix, tt.megan)
+#' ta.rdp <- assignTaxa(community.matrix, tt.rdp, col.names="kingdom", classifier="RDP")
 #' 
 #' @rdname utilsTaxa
 assignTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.conf=0.8, has.total=1,
@@ -108,6 +108,9 @@ assignTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.con
   
   # taxa.assign 1st col is "row.names", "ncol.cm" columns abundence, and length(col.names) columns rank
   taxa.assign <- merge(cm, taxa.table, by = "row.names")
+  # order rank by rank
+  ord.cmd = parse(text = paste0('taxa.assign[order(taxa.assign[,"', paste(col.names, collapse = '"], taxa.assign[,"'), '"]),]')) 
+  taxa.assign <- eval(ord.cmd)
   
   cat("Merge", nrow(cm), "rows in community matrix with", nrow(taxa.table), "rows in taxa table, get", 
       nrow(taxa.assign), "classifications.\n")

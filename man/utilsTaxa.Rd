@@ -72,8 +72,8 @@ are changed to "unclassified", which will be moved to the last row.
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
 
-ta.list <- assignTaxa(community.matrix, tt.megan)
-ta.list <- assignTaxa(community.matrix, tt.rdp, col.names="kingdom", classifier="RDP")
+ta.megan <- assignTaxa(community.matrix, tt.megan)
+ta.rdp <- assignTaxa(community.matrix, tt.rdp, col.names="kingdom", classifier="RDP")
 
 }
 \keyword{utils}
