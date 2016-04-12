@@ -10,8 +10,8 @@ subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE, verbose = TRUE)
 
 assignTaxa(community.matrix, taxa.table, classifier = "MEGAN",
-  min.conf = 0.8, total = 1, col.names = c("kingdom", "phylum", "class",
-  "order", "family", "genus"))
+  min.conf = 0.8, has.total = 1, col.names = c("kingdom", "phylum",
+  "class", "order", "family", "genus"))
 }
 \arguments{
 \item{taxa.table}{A data frame to contain taxonomic classifications of OTUs. 
@@ -39,11 +39,19 @@ Default to TRUE.}
 \item{community.matrix}{Community matrix (OTU table), where rows are 
 OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.}
 
+\item{classifier}{The classifier is used to generate \code{taxa.table}. 
+Value is MEGAN or RDP. Default to MEGAN.}
+
 \item{min.conf}{The confidence threshold to drop rows < \emph{min.conf}.}
 
-\item{total}{If 0, then only return abudence by samples (columns) of community matrix. 
+\item{has.total}{If 0, then only return abudence by samples (columns) of community matrix. 
 If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
 Default to 1.}
+
+\item{col.names}{A vector or string of column name(s) of taxonomic ranks in the taxa table, 
+which will determine the aggregated abundence matrix. They have to be full set or subset of 
+c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species"). 
+Default to c("kingdom", "phylum", "class", "order", "family", "genus").}
 }
 \description{
 Utils to preprocess taxa table, 
@@ -58,8 +66,8 @@ and make it easy for visualization.
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
 
-tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
-tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
+ta.list <- assignTaxa(community.matrix, tt.megan)
+ta.list <- assignTaxa(community.matrix, tt.rdp, classifier="RDP")
 
 }
 \keyword{utils}

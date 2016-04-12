@@ -294,7 +294,7 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
 #' such as "16s" for "16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt".
 #' @param folder.path The folder path to contain taxa mapping files 
 #' and output MEGAN taxa table.
-#' @param col.names A vector fo column names of taxonomic ranks in the taxa table, 
+#' @param col.names A vector of column names of taxonomic ranks in the taxa table, 
 #' and they also determine the files to be merged into columns. Default to 
 #' c("path", "kingdom", "phylum", "class", "order", "family", "genus"), which indicates 
 #' the list of files c("16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt", "16s-class.txt", 
@@ -353,7 +353,7 @@ createTaxaTableRDP <- function(file, sep="\t", regex="(\\|[0-9]+)", rm.rank.pref
   
   colnames(df.taxa) <- c("OTUs","path","confidence")
   # rm []
-  df.taxa[,"path"] <- gsub("\\[(.*)\\]", "\\1", df.taxa[,"path"])
+  df.taxa[,"path"] <- gsub("\\[|\\]", "", df.taxa[,"path"])
   
   if (rm.rank.prefix) 
     vector.path <- gsub("[a-z]__", "", df.taxa[,"path"])

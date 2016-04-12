@@ -58,7 +58,7 @@ and output MEGAN taxa table.}
 \item{file.prefix}{The prefix to find taxa mapping files, 
 such as "16s" for "16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt".}
 
-\item{col.names}{A vector fo column names of taxonomic ranks in the taxa table, 
+\item{col.names}{A vector of column names of taxonomic ranks in the taxa table, 
 and they also determine the files to be merged into columns. Default to 
 c("path", "kingdom", "phylum", "class", "order", "family", "genus"), which indicates 
 the list of files c("16s-path.txt", "16s-kingdom.txt", "16s-phylum.txt", "16s-class.txt", 

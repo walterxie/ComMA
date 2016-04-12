@@ -65,10 +65,10 @@ getPlot <- function(full.name, sep="-") {
 #' @rdname getData
 getCommunityMatrix <- function(matrix.name, isPlot, minAbund=2, verbose=TRUE) {
   if (isPlot) {
-    inputCM <- file.path("data", "OTU_tables", paste(matrix.name, "_otutable_by_plot.txt", sep="_"))
+    inputCM <- file.path("data", "OTU_tables", paste(matrix.name, "otutable_by_plot.txt", sep="_"))
   } else {
     # e.g. data/16S.txt
-    inputCM <- file.path("data", "OTU_tables", paste(matrix.name, "_otutable.txt", sep=""))
+    inputCM <- file.path("data", "OTU_tables", paste(matrix.name, "otutable.txt", sep=""))
   }
   
   community.matrix <- ComMA::readCommunityMatrix(inputCM, matrix.name = matrix.name, 

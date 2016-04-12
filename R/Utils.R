@@ -2,6 +2,30 @@
 # Author: Walter Xie
 # Accessed on 11 Mar 2016
 
+#' Move rows to the last rows of data frame given a column value 
+#' 
+#' @param data A data frame.
+#' @param col The column, which can be a string (column name) 
+#' or number (index of the column).  
+#' @param regex Regular expression for \code{\link{grep}} to indetify rows. 
+#' Default to "unclassified". Use "^string$" to perform exact match.
+#' @param ignore.case Refer to \code{\link{grep}}.
+#' @return
+#' The data frame of rows moved to the last.
+#' @keywords utils
+#' @export
+#' @examples 
+#' 
+#' # move all rows having "unclassified" phyla to the last rows
+#' data <- mvRowsToLast(data, "phylum")
+#' # move all rows having exctly mathced "Bacteria" in column 1 to the last rows
+#' data <- mvRowsToLast(data, 1, regex="^Bacteria$")
+mvRowsToLast <- function(data, col, regex="unclassified", ignore.case = TRUE) {
+  id.match <- grep(regex, data[,col], ignore.case = ignore.case)
+  if (length(id.match) > 0)
+    data <- data[c(setdiff(1:nrow(data), id.match),id.match),]
+  return(data)
+}
 
 #' Get a table in the format of 'corr (sign)'
 #' 
