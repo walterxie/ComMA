@@ -320,6 +320,9 @@ createTaxaTableMEGAN <- function(folder.path, file.prefix, sep="\t", regex="(\\|
     
     # remove " <phylumn>" added from MEGAN
     df.taxa[,2] <- gsub("\\s+<.*>", "", df.taxa[,2])
+    # remove " (miscellaneous)"
+    df.taxa[,2] <- gsub("\\s+\\(miscellaneous\\)", "", df.taxa[,2])
+
     colnames(df.taxa) <- c("OTUs",col.names[n])
     if (n==1)
       df.path <- df.taxa

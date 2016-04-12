@@ -47,7 +47,13 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 
 
 #' @details 
-#' \code{assignTaxa} provides taxonomic assignment with abudence from community matrix.
+#' \code{assignTaxa} provides a list of taxonomic assignments with abudence 
+#' from community matrix. The function is iterated through \code{col.names}, 
+#' and \code{\link{aggregate}}s abudence into taxonomy based on the rank in 
+#' \code{col.names}. All sequences either classified as 
+#' "root|cellular organisms|No hits|Not assigned|unclassified sequences"
+#' from BLAST + MEGAN, or confidence < \emph{min.conf} threshold from RDP, 
+#' are changed to "unclassified", which will be moved to the last row.  
 #' 
 #' @param community.matrix Community matrix (OTU table), where rows are 
 #' OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.
@@ -65,7 +71,7 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 #' @export
 #' @examples 
 #' ta.list <- assignTaxa(community.matrix, tt.megan)
-#' ta.list <- assignTaxa(community.matrix, tt.rdp, classifier="RDP")
+#' ta.list <- assignTaxa(community.matrix, tt.rdp, col.names="kingdom", classifier="RDP")
 #' 
 #' @rdname utilsTaxa
 assignTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.conf=0.8, has.total=1,
@@ -77,6 +83,8 @@ assignTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.con
   if (!all(col.names %in% colnames(taxa.table))) 
     stop(cat("Column names in taxa.table do not have", 
              paste(col.names, collapse = ",")))
+  if ("confidence" %in% colnames(taxa.table) && classifier != "RDP")
+    stop("Find 'confidence' column, please define classifier = 'RDP' !")
   
   ###### merge community.matrix, taxa.table 
   cm <- data.frame(row.names = rownames(community.matrix))
@@ -86,7 +94,7 @@ assignTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.con
     cm$Total <- rowSums(community.matrix) 
   ncol.cm <- ncol(cm)
   
-  if (classifier=="RDP") {
+  if (classifier == "RDP") {
     if (! "confidence" %in% colnames(taxa.table))
       stop("Invaild file format from RDP: column 'confidence' is required !")
     
@@ -106,24 +114,33 @@ assignTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.con
   
   ###### aggregate by ranks
   ta.list <- list()
+  pre.ra <- NA
   for (ra in col.names) {
     ra.col=which(colnames(taxa.assign)==ra)
     
     ### preprocess rank columns
-    if (length(ta.list) < 1) {
-      id.match <- grep("root|cellular organisms|No hits|Not assigned", taxa.assign[, ra.col], ignore.case = TRUE)
-      if (length(id.match) > 0)
-        taxa.assign[id.match, ra.col] <- paste("unclassified")
-    } else {
+    # BLAST + MEGAN
+    id.match <- grep("root|cellular organisms|No hits|Not assigned|unclassified sequences", 
+                     taxa.assign[, ra.col], ignore.case = TRUE)
+    if (length(id.match) > 0)
+      taxa.assign[id.match, ra.col] <- paste("unclassified")
+    
+    if (length(ta.list) > 0) {
       # replace repeated high rank taxa to unclassified high rank
-      id.match <- which(taxa.assign[, pre.ra.col] != "unclassified" & taxa.assign[, pre.ra.col]==taxa.assign[, ra.col])
-      id.match <- c(id.match, which(taxa.assign[, pre.ra.col] != "unclassified" & trimAll(taxa.assign[, ra.col])==""))
+      # MEGAN unclassified
+      id.match <- intersect(!grep("unclassified", taxa.assign[, pre.ra.col], ignore.case = T), 
+                            which(taxa.assign[, pre.ra.col]==taxa.assign[, ra.col]))
+      # MEGAN environmental samples
+      id.match <- c(id.match, grep("environmental samples", taxa.assign[, ra.col], ignore.case = T))
+      # RDP unclassified
+      id.match <- c(id.match, which(trimAll(taxa.assign[, ra.col])==""))
       if (length(id.match) > 0)
         taxa.assign[id.match, ra.col] <- paste("unclassified", taxa.assign[id.match, pre.ra.col])
+      
       # replace unclassified ??? to unclassified high rank
       id.match <- grep("unclassified ", taxa.assign[, pre.ra.col], ignore.case = TRUE)
       if (length(id.match) > 0)
-        taxa.assign[id.match, ra.col] <- paste("unclassified", ra)
+        taxa.assign[id.match, ra.col] <- paste("unclassified", pre.ra)
     }
     
     ### aggregate
@@ -133,11 +150,15 @@ assignTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.con
 
     # move "unclassified ???" to last
     taxa.assign.ra <- ComMA::mvRowsToLast(taxa.assign.ra, ra, "unclassified")
+    # move "unclassified phylum" to last
+    if (!is.na(pre.ra)) 
+      taxa.assign.ra <- ComMA::mvRowsToLast(taxa.assign.ra, ra, paste0("^unclassified ", pre.ra, "$"))
     # move "unclassified" to last
     taxa.assign.ra <- ComMA::mvRowsToLast(taxa.assign.ra, ra, "^unclassified$")
     
     ta.list[[ra]] <- taxa.assign.ra
     pre.ra.col <- ra.col
+    pre.ra <- ra
   }
   return(ta.list)
 }

@@ -60,14 +60,20 @@ and make it easy for visualization.
 \details{
 \code{subsetTaxaTable} takes or excludes a subset of given a taxa table at given rank.
 
-\code{assignTaxa} provides taxonomic assignment with abudence from community matrix.
+\code{assignTaxa} provides a list of taxonomic assignments with abudence 
+from community matrix. The function is iterated through \code{col.names}, 
+and \code{\link{aggregate}}s abudence into taxonomy based on the rank in 
+\code{col.names}. All sequences either classified as 
+"root|cellular organisms|No hits|Not assigned|unclassified sequences"
+from BLAST + MEGAN, or confidence < \emph{min.conf} threshold from RDP, 
+are changed to "unclassified", which will be moved to the last row.
 }
 \examples{
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
 
 ta.list <- assignTaxa(community.matrix, tt.megan)
-ta.list <- assignTaxa(community.matrix, tt.rdp, classifier="RDP")
+ta.list <- assignTaxa(community.matrix, tt.rdp, col.names="kingdom", classifier="RDP")
 
 }
 \keyword{utils}
