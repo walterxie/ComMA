@@ -1,6 +1,6 @@
 # Graph
 # Author: Walter Xie
-# Accessed on 10 Mar 2016
+# Accessed on 12 Apr 2016
 
 #' @name ggPlot
 #' @title One-line command to get \pkg{ggplot} 
@@ -141,17 +141,17 @@ ggScatterPlot <- function(df.melt, x.id, y.id, fill.id, point.size=3, palette=NU
     p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id))
   }
   p <- p + geom_point(size=point.size) + #aes(shape=factor(species)),
-  
-  if (y.scale=="nor") {
-    p <- p + scale_y_continuous(expand = c(0,0), limits=limits)
-  } else if (y.scale=="per") {
-    require(scales)
-    p <- p + scale_y_continuous(expand = c(0,0), limits=limits, labels = percent_format()) 
-  } else {
-    y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
-    p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), limits=limits, 
-                                labels = ComMA::scientific_10, breaks = y.breaks) 
-  }
+    
+    if (y.scale=="nor") {
+      p <- p + scale_y_continuous(expand = c(0,0), limits=limits)
+    } else if (y.scale=="per") {
+      require(scales)
+      p <- p + scale_y_continuous(expand = c(0,0), limits=limits, labels = percent_format()) 
+    } else {
+      y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
+      p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), limits=limits, 
+                                  labels = ComMA::scientific_10, breaks = y.breaks) 
+    }
   
   if (!is.null(palette))
     p <- p + scale_fill_manual(values=palette)
@@ -185,7 +185,8 @@ ggScatterPlot <- function(df.melt, x.id, y.id, fill.id, point.size=3, palette=NU
 #' used for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.
 #' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
 #' or the result of a call to a position adjustment function. Default to "dodge". 
-#' Use "fill" to generate group percentage bars.
+#' Assume \code{x} as discrete values for each bar. 
+#' Use \code{fill} to generate group percentage bars.
 #' @param y.scale The string defines the data scale used in y-axis, 
 #' which can be "nor" standing for normal, or "per" standing for percentage, 
 #' moreover either the name of a transformation object for \code{\link{scale_y_continuous}} 
@@ -198,6 +199,8 @@ ggScatterPlot <- function(df.melt, x.id, y.id, fill.id, point.size=3, palette=NU
 #' Defaul to NULL. 
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
+#' @param x.lab.interval The interval to display x values in axis. Default to 0 to do nothing.
+#' @param legend.title The title of legend. Set legend.title="" to remove legend.
 #' @param palette The colour palette for bars. 
 #' If NULL, then use \code{\link{ggplot}} default colours. Default to NULL. 
 #' @param legend.col,legend.nrow Customize the number of columns or rows for legend in bar chart. 
@@ -212,9 +215,17 @@ ggScatterPlot <- function(df.melt, x.id, y.id, fill.id, point.size=3, palette=NU
 #' # percentage bars one group in one bar
 #' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
 #' 
+#' # the number of OTUs (y-axis) across the number of samples (x-axis)
+#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+#' cm.aggre <- cmYAcrossX(communityMatrix)
+#' df.melt <- melt(cm.aggre, id="samples")
+#' bar.chart <- ggBarChart(df.melt, x.id="samples", y.id="value", fill.id="variable", y.scale="log", 
+#'                         y.lab="", legend.title="", x.interval=1)
+#' 
 #' @rdname ggPlot
-ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", palette=NULL, 
-                       rotate.x.text=FALSE, legend.col=1, legend.nrow=0, x.lim.cart=NULL, y.lim.cart=NULL,
+ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", 
+                       rotate.x.text=FALSE, x.interval=0, x.lim.cart=NULL, y.lim.cart=NULL,
+                       palette=NULL, legend.col=1, legend.nrow=0, legend.title, 
                        title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id") {
   if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
     stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
@@ -242,7 +253,12 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
     p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), 
                                 labels = ComMA::scientific_10, breaks = y.breaks) 
   }
-
+  
+  if (x.interval > 0) {
+    x.breaks <- seq(min(df.melt[,x.id]), max(df.melt[,x.id]), x.interval)
+    p <- p + scale_x_discrete(breaks=x.breaks) 
+  }
+  
   if (!is.null(x.lim.cart)) {
     if (which(is.na(x.lim.cart))==1) {
       x.lim.cart[1] = min(df.mu.aggr[,x.id])
@@ -271,6 +287,8 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
     x.lab = x.id
   if (y.lab=="y.id") 
     y.lab = y.id
+  if (!missing(legend.title))
+    p <- p + labs(fill=legend.title)
   
   p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
     theme(plot.title = element_text(size = title.size),
@@ -332,7 +350,7 @@ ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, outlier.colour = alp
   
   if (!is.na(y.lower) || !is.na(y.upper)) 
     p <- p + ylim(y.lower, y.upper) 
-
+  
   if (x.lab=="x.id") 
     x.lab = x.id
   if (y.lab=="y.id") 
@@ -344,7 +362,7 @@ ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, outlier.colour = alp
   
   if (rotate.x.text) 
     p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
-    
+  
   return(p)
 }
 
@@ -396,7 +414,7 @@ ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="
   
   p <- ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, bar.pos="fill", 
                   y.scale="per", title=title, x.lab=x.lab, y.lab=y.lab, palette=pale, legend.col=legend.col)
-
+  
   if (autoWidth)
     pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
   
@@ -409,55 +427,6 @@ ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="
   )
 }
 
-#' Grouping bar chart Y across X. 
-#' 
-#' Create a grouping bar chart given community matrix to display 
-#' the number of OTUs (y-axis) across the number of samples (x-axis). 
-#' The 'red' bar is the number of OTUs appeared only in that number of samlpes, 
-#' and the 'green' bar is the number of reads assigned to those OTUs.
-#' @param df.aggre A data frame of row counts and sums from a community matrix. See \code{\link{rowCountAndSum}}. 
-#' @param print.xtable TRUE/FALSE to print \code{\link{xtable}} in console. 
-#' Allow NULL, if NULL, then do not print. Default to NULL. 
-#' @param title Graph title
-#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
-#' @param legend.title The title of legend. Refer to \pkg{ggplot2} \code{\link{scale_fill_discrete}}. 
-#' Default to a empty string.
-#' @param legend.labels The labels of legend, which are fixed to 2 groups. Default to c("OTUs", "reads").
-#' @param x.lab.interval The x labels interval. Default to 1 to dispay lables for every values.
-#' @keywords graph
-#' @export
-#' @examples 
-#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' cm.aggre <- cmYAcrossX(communityMatrix)
-#' gg.plot <- ggBarYAcrossX(cm.aggre)
-#' pdfGgplot(gg.plot, fig.path="bar-otus-across-samples.pdf", width=8, height=8)  
-ggBarYAcrossX <- function(df.aggre, melt.id="samples", print.xtable=NULL, title="The number of OTUs across the number of samples", 
-                       x.lab="Number of samples crossed", y.lab="Number of OTUs", 
-                       legend.title="", legend.labels=c("OTUs", "reads"), x.lab.interval=1) {
-  if (!is.element(tolower(melt.id), tolower(colnames(df.aggre))))
-    stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
-  
-  require(reshape2)
-  df.melt <- melt(df.aggre, id=melt.id)
-  
-  x.breaks <- seq(min(df.aggre[,melt.id]), max(df.aggre[,melt.id]), x.lab.interval)
-  y.breaks <- ComMA::get_breaks_positive_values(max(df.aggre, start=c(0)))
-  
-  p <- ggBarChart(df.melt, x.id=melt.id, y.id="value", fill.id="variable", 
-                  y.scale="log", title=title, x.lab=x.lab, y.lab=y.lab)
-  
-  # conside x as discrete values
-  p <- p + scale_x_discrete(breaks=x.breaks) +
-    scale_fill_discrete(legend.title, labels=legend.labels) +
-    theme_bw() +
-    theme(axis.line = element_line(colour = "black", size = 0.3),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank())
-  
-  return(p)
-}
 
 #' Data ellipse on a scatter plot. 
 #' 
