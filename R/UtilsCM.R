@@ -46,9 +46,8 @@ rmMinAbundance <- function(community.matrix, minAbund=2, MARGIN=1, verbose=TRUE)
   community.matrix
 }
 
-#' @details \code{transposeCM} provides a transposed community matrix for \pkg{vegan} package
+#' @details \code{transposeCM} returns a transposed community matrix for \pkg{vegan} package
 #' 
-#' @return the rotated community matrix
 #' @keywords community matrix
 #' @export
 #' @examples 
@@ -61,6 +60,69 @@ transposeCM <- function(community.matrix) {
   
   communityMatrixT <- as.data.frame(t(as.matrix(community.matrix))) # transpose  
 }
+
+#' @details \code{summaryCM.Vector} return a vector of summary of the 
+#' community matrix, where \code{community.matrix} can be one column only.
+#' The vector is c("reads","OTUs","Shannon","samples","singletons","doubletons").
+#' 
+#' @param digits The digits to \code{\link{round}} decimal places 
+#' if number is not interger. Default to 2.
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' summary.cm.vector <- summaryCM.Vector(community.matrix)
+#'
+#' @rdname utilsCM
+summaryCM.Vector <- function(community.matrix, digits=2) {
+  require(vegetarian)
+  samples <- ncol(community.matrix)
+  otus <- nrow(community.matrix)
+  reads <- sum(community.matrix)
+  rs <- rowSums(community.matrix)
+  singletons <- sum(rs==1)
+  doubletons <- sum(rs==2)
+  shannon <- d(community.matrix,lev="gamma",q=1)
+  
+  return(prettyNum(c(reads, otus, round(shannon, digits), 
+           samples, singletons, doubletons)))
+}
+
+#' @details \code{summaryCM} summarizes the community matrix.
+#' 
+#' @param has.total If 0, then only return abudence by samples (columns) of community matrix. 
+#' If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
+#' Default to 1.
+#' @param most.abund The threshold to define the number of the most abundent OTUs.
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' summary.cm <- summaryCM(community.matrix)
+#'
+#' @rdname utilsCM
+summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2) {
+  summary.cm <- data.frame(row.names = c("reads","OTUs","Shannon","samples","singletons","doubletons"))
+  if (has.total!=1) {
+    for (col.name in colnames(community.matrix)) 
+      summary.cm[,col.name] <- summaryCM.Vector(community.matrix[,col.name], digits=digits)
+  }
+  if (has.total > 0) {
+    summary.cm$total <- summaryCM.Vector(community.matrix, digits=digits)
+    
+    if (!missing(most.abund)) {
+      if (most.abund > nrow(community.matrix))
+        most.abund <- nrow(community.matrix)
+      cat("Set most abundent OTUs threshold =", most.abund, ".\n")
+      
+      community.matrix <- community.matrix[order(rs, decreasing=TRUE),]
+      cm <- community.matrix[1:most.abund,]
+      col.name <- paste0("most.abund.", most.abund, ".otus)")
+      
+      summary.cm[,col.name] <- summaryCM.Vector(cm, digits=digits)
+    }
+  }
+  return(summary.cm)
+}
+
 
 #' @details \code{cmYAcrossX} aggregates a community matrix to a data frame 
 #' to show the number of OTUs (y-axis) across the number of samples (x-axis). 
@@ -146,8 +208,8 @@ mergeRowsByColumnValue <- function(community.matrix, ..., FUN=sum) {
 #' The trimmed data frame having most abundant rows, 
 #' such as community matrix of 150 most abundant OTUs.
 #' 
-#' @param mostAbundant The threshold to return rows having most abundance. 
-#' If \code{nrow(community.matrix) < mostAbundant}, then use \code{nrow}. Default to 150.
+#' @param most.abund The threshold to define the number 
+#' of the most abundent OTUs. Default to 150.
 #' @keywords community matrix
 #' @export
 #' @examples 
@@ -155,18 +217,18 @@ mergeRowsByColumnValue <- function(community.matrix, ..., FUN=sum) {
 #' OTU100 <- mostAbundantRows(community.matrix, mostAbundant=100)
 #'
 #' @rdname utilsCM
-mostAbundantRows <- function(community.matrix, mostAbundant=150) {
-  if (nrow(community.matrix) < mostAbundant) 
-    mostAbundant <- nrow(community.matrix)
+mostAbundantRows <- function(community.matrix, most.abund=150) {
+  if (nrow(community.matrix) < most.abund) 
+    most.abund <- nrow(community.matrix)
   
-  cat("Trim matrix to", mostAbundant, "rows having most abundance.\n") 
+  cat("Trim matrix to", most.abund, "rows having most abundance.\n") 
   
   rs <- rowSums(community.matrix)
   # order row sums decreasing
   ord<-order(rs, decreasing=TRUE) 
   community.matrix <- community.matrix[ord,]    
 
-  return(community.matrix[1:mostAbundant,])
+  return(community.matrix[1:most.abund,])
 }
 
 # rowThr, colThr: remove row or/and column sum <= rowThr, colThr in community.matrix,

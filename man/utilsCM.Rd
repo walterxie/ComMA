@@ -6,6 +6,8 @@
 \alias{mostAbundantRows}
 \alias{rmMinAbundance}
 \alias{sumColumns}
+\alias{summaryCM}
+\alias{summaryCM.Vector}
 \alias{transposeCM}
 \alias{utilsCM}
 \title{Utils to preprocess community matrix}
@@ -14,13 +16,17 @@ rmMinAbundance(community.matrix, minAbund = 2, MARGIN = 1, verbose = TRUE)
 
 transposeCM(community.matrix)
 
+summaryCM.Vector(community.matrix, digits = 2)
+
+summaryCM(community.matrix, most.abund, has.total = 1, digits = 2)
+
 cmYAcrossX(community.matrix, terms = c("OTUs", "samples", "reads"))
 
 sumColumns(community.matrix, sep = "-", nth = 1)
 
 mergeRowsByColumnValue(community.matrix, ..., FUN = sum)
 
-mostAbundantRows(community.matrix, mostAbundant = 150)
+mostAbundantRows(community.matrix, most.abund = 150)
 }
 \arguments{
 \item{community.matrix}{Community matrix (OTU table), where rows are 
@@ -34,6 +40,15 @@ then remove all empty rows/columns. Default to 2 (singletons).}
 \item{MARGIN}{1 indicates rows, 2 indicates columns. Default to 1.}
 
 \item{verbose}{More details. Default to TRUE.}
+
+\item{digits}{The digits to \code{\link{round}} decimal places 
+if number is not interger. Default to 2.}
+
+\item{most.abund}{The threshold to define the number of the most abundent OTUs.}
+
+\item{has.total}{If 0, then only return abudence by samples (columns) of community matrix. 
+If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
+Default to 1.}
 
 \item{terms}{The terms to be used in names of the data frame, 
 which will be shown in the graph if using \code{\link{ggBarYAcrossX}}. 
@@ -49,11 +64,8 @@ Please be careful of the order if any change.}
 \item{FUN}{The function to compute the summary statistics 
 which can be applied to all data subsets. Refer to \code{\link{aggregate}}.}
 
-\item{mostAbundant}{The threshold to return rows having most abundance. 
-If \code{nrow(community.matrix) < mostAbundant}, then use \code{nrow}. Default to 150.}
-}
-\value{
-the rotated community matrix
+\item{most.abund}{The threshold to define the number 
+of the most abundent OTUs. Default to 150.}
 }
 \description{
 Utils to preprocess community matrix, 
@@ -64,7 +76,13 @@ and aggregating matrix by different ways.
 \code{rmMinAbundance} returns the subset matrix of given community matrix, 
 by removing rows or colums whose sum of abundance is less than the minimum abundance threshold.
 
-\code{transposeCM} provides a transposed community matrix for \pkg{vegan} package
+\code{transposeCM} returns a transposed community matrix for \pkg{vegan} package
+
+\code{summaryCM.Vector} return a vector of summary of the 
+community matrix, where \code{community.matrix} can be one column only.
+The vector is c("reads","OTUs","Shannon","samples","singletons","doubletons").
+
+\code{summaryCM} summarizes the community matrix.
 
 \code{cmYAcrossX} aggregates a community matrix to a data frame 
 to show the number of OTUs (y-axis) across the number of samples (x-axis). 
@@ -88,6 +106,10 @@ such as community matrix of 150 most abundant OTUs.
 rmMinAbundance(community.matrix, minAbund=2)
 
 communityMatrixT <- transposeCM(community.matrix)
+
+summary.cm.vector <- summaryCM.Vector(community.matrix)
+
+summary.cm <- summaryCM(community.matrix)
 
 community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 cm.aggre <- cmYAcrossX(community.matrix)

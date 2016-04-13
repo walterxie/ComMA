@@ -77,8 +77,10 @@ and make it easy for visualization.
 \details{
 \code{subsetTaxaTable} takes or excludes a subset of given a taxa table at given rank.
 
-\code{mergeCMTaxa} creates a data frame combined community matrix with 
-taxonomic classification table. 
+\code{mergeCMTaxa} creates a data frame \code{cm.taxa} combined community matrix with 
+taxonomic classification table. The 1st column is "row.names" that are OTUs/individuals, 
+the next "ncol.cm" columns are abundence that can be sample-based or total, 
+and the last "length(col.ranks)" columns are the ranks. 
 
 All sequences either classified as 
 "root|cellular organisms|No hits|Not assigned|unclassified sequences"
