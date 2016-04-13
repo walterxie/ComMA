@@ -26,9 +26,10 @@ ggScatterPlot(df.melt, x.id, y.id, fill.id, point.size = 3, palette = NULL,
   alpha = 0.5)
 
 ggBarChart(df.melt, x.id, y.id, fill.id, bar.pos = "dodge", y.scale = "nor",
-  palette = NULL, rotate.x.text = FALSE, legend.col = 1,
-  legend.nrow = 0, x.lim.cart = NULL, y.lim.cart = NULL,
-  title = "Bar Chart", title.size = 10, x.lab = "x.id", y.lab = "y.id")
+  rotate.x.text = FALSE, x.interval = 0, x.lim.cart = NULL,
+  y.lim.cart = NULL, palette = NULL, legend.col = 1, legend.nrow = 0,
+  legend.title, title = "Bar Chart", title.size = 10, x.lab = "x.id",
+  y.lab = "y.id")
 
 ggBoxWhiskersPlot(df.melt, x.id, y.id, fill.id,
   outlier.colour = alpha("black", 0.3), y.scale = "nor", y.lower = NA,
@@ -95,7 +96,8 @@ Set lower bound only to y-axis using limits = c(1000, NA). Defaul to NULL.}
 
 \item{bar.pos}{Position adjustment for \code{\link{geom_bar}}, either as a string, 
 or the result of a call to a position adjustment function. Default to "dodge". 
-Use "fill" to generate group percentage bars.}
+Assume \code{x} as discrete values for each bar. 
+Use \code{fill} to generate group percentage bars.}
 
 \item{y.scale}{The string defines the data scale used in y-axis, 
 which can be "nor" standing for normal, or "per" standing for percentage, 
@@ -109,6 +111,8 @@ and will not change the underlying data like setting limits on a scale will.
 Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
 Defaul to NULL.}
 
+\item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
+
 \item{outlier.colour}{The colour of outliers in box whiskers plot 
 used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
 Default to alpha("black", 0.3).}
@@ -116,6 +120,8 @@ Default to alpha("black", 0.3).}
 \item{title}{Graph title}
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
+
+\item{x.lab.interval}{The interval to display x values in axis. Default to 0 to do nothing.}
 }
 \value{
 A \code{\link{ggplot}} object of heatmap.
@@ -158,6 +164,13 @@ bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version",
 bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.scale="per")
 # percentage bars one group in one bar
 bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
+
+# the number of OTUs (y-axis) across the number of samples (x-axis)
+communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+cm.aggre <- cmYAcrossX(communityMatrix)
+df.melt <- melt(cm.aggre, id="samples")
+bar.chart <- ggBarChart(df.melt, x.id="samples", y.id="value", fill.id="variable", y.scale="log", 
+                        y.lab="", legend.title="", x.interval=1)
 
 box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
 
