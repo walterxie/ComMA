@@ -2,37 +2,81 @@
 # Author: Walter Xie
 # Accessed on 11 Mar 2016
 
-#' Create pdf for ggplot object.
+#' @name pdf
+#' @title Create pdf 
+#'
+#' @details \code{pdfGgplot} creates pdf for ggplot object.
 #' 
 #' @param gg.plot A \code{\link{ggplot}} object.
 #' @param fig.path fig.path The full path of pdf file.
 #' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
+#' @param useDingbats Defaults to TRUE, which produces smaller and better output. 
+#' Setting this to FALSE can work around font display problems in broken PDF viewers.
+#' Refer to \code{\link{pdf}}.
 #' @keywords utils
 #' @export
 #' @examples 
 #' pdfGgplot(gg.plot, fig.path="fig.pdf", width=8, height=8)  
-pdfGgplot <- function(gg.plot, fig.path, width=6, height=6) {
-  pdf(fig.path, width=width, height=height)	
+#' 
+#' @rdname pdf
+pdfGgplot <- function(gg.plot, fig.path, width=6, height=6, useDingbats=TRUE) {
+  pdf(fig.path, width=width, height=height, useDingbats=useDingbats)	
   print(gg.plot)
   invisible(dev.off()) 
 }
 
-#' Create pdf for gtable object.
+#' @details \code{pdfGtable} creates pdf for gtable object.
 #' 
 #' @param gtable A \code{\link{gtable}} object.
-#' @param fig.path fig.path The full path of pdf file.
-#' @param width, height Refer to \code{\link{pdf}}. Default to width=6, height=6.
 #' @keywords utils
 #' @export
 #' @examples 
 #' pdfGtable(g.table, fig.path="fig.pdf", width=8, height=8)  
-pdfGtable <- function(g.table, fig.path, width=8, height=8) {
+#' 
+#' @rdname pdf
+pdfGtable <- function(g.table, fig.path, width=8, height=8, useDingbats=TRUE) {
   require(grid)
-  pdf(fig.path, width=width, height=height)	
+  pdf(fig.path, width=width, height=height, useDingbats=useDingbats)	
   print(grid.draw(g.table))
   invisible(dev.off()) 
 }
 
+
+#' @details \code{grid_arrange_shared_legend} shares a legend 
+#' between multiple plots using \code{\link{grid.arrange}}. 
+#' Return a \code{\link{gtable}} object.
+#' @source \code{grid_arrange_shared_legend} is derived from 
+#' \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}
+#' 
+#' @param ... The list of \code{\link{ggplot}} objects.
+#' @keywords utils
+#' @export
+#' @examples 
+#' library(ggplot2); library(grid); library(gridExtra)
+#' dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+#' p1 <- qplot(carat, price, data=dsamp, colour=clarity)
+#' p2 <- qplot(cut, price, data=dsamp, colour=clarity)
+#' p3 <- qplot(color, price, data=dsamp, colour=clarity)
+#' p4 <- qplot(depth, price, data=dsamp, colour=clarity)
+#' grid_arrange_shared_legend(p1, p2, p3, p4)
+#' 
+#' @rdname pdf
+grid_arrange_shared_legend <- function(...) {
+  plots <- list(...)
+  require(ggplot2)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height)
+  
+  require(gridExtra)
+  require(grid)
+  grid.arrange(
+    do.call(arrangeGrob, lapply(plots, function(x)
+      x + theme(legend.position="none"))),
+    legend,
+    ncol = 1,
+    heights = unit.c(unit(1, "npc") - lheight, lheight))
+}
 
 #' Defining the scale change.
 #' It is mostly used to force bars to start from a lower value than 0 in \pkg{ggplot2} \code{\link{geom_bar}} in R
@@ -156,37 +200,4 @@ g_legend<-function(a.gplot){
   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
   legend <- tmp$grobs[[leg]]
   return(legend)
-}
-
-#' Share a legend between multiple plots using \code{\link{grid.arrange}}.
-#' @source \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}
-#' 
-#' @param ... The list of \code{\link{ggplot}} objects.
-#' @return
-#' A \code{\link{gtable}} object of \code{\link{grid.arrange}}.
-#' @keywords utils
-#' @export
-#' @examples 
-#' library(ggplot2); library(grid); library(gridExtra)
-#' dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
-#' p1 <- qplot(carat, price, data=dsamp, colour=clarity)
-#' p2 <- qplot(cut, price, data=dsamp, colour=clarity)
-#' p3 <- qplot(color, price, data=dsamp, colour=clarity)
-#' p4 <- qplot(depth, price, data=dsamp, colour=clarity)
-#' grid_arrange_shared_legend(p1, p2, p3, p4)
-grid_arrange_shared_legend <- function(...) {
-  plots <- list(...)
-  require(ggplot2)
-  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
-  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
-  lheight <- sum(legend$height)
-  
-  require(gridExtra)
-  require(grid)
-  grid.arrange(
-    do.call(arrangeGrob, lapply(plots, function(x)
-      x + theme(legend.position="none"))),
-    legend,
-    ncol = 1,
-    heights = unit.c(unit(1, "npc") - lheight, lheight))
 }

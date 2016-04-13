@@ -98,7 +98,7 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.co
   if (has.total!=1) 
     cm <- community.matrix
   if (has.total > 0) 
-    cm$Total <- rowSums(community.matrix) 
+    cm[,"total"] <- rowSums(community.matrix) 
   ncol.cm <- ncol(cm)
   
   if (classifier == "RDP") {

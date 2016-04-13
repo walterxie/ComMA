@@ -106,7 +106,7 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2) {
       summary.cm[,col.name] <- summaryCM.Vector(community.matrix[,col.name], digits=digits)
   }
   if (has.total > 0) {
-    summary.cm$total <- summaryCM.Vector(community.matrix, digits=digits)
+    summary.cm[,"total"] <- summaryCM.Vector(community.matrix, digits=digits)
     
     if (!missing(most.abund)) {
       if (most.abund > nrow(community.matrix))
