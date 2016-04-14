@@ -19,23 +19,23 @@ ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
 ggHeatmap(df, melt.id, title = "Heatmap", x.lab = "", y.lab = "",
   low = "white", high = "steelblue")
 
-ggScatterPlot(df.melt, x.id, y.id, fill.id, point.size = 3, palette = NULL,
-  rotate.x.text = FALSE, legend.col = 1, legend.nrow = 0, limits = NULL,
-  title = "Bar Chart", title.size = 10, x.lab = "x.id", y.lab = "y.id",
-  addLabel = FALSE, label.size = 3, hjust = -0.1, vjust = -0.2,
-  alpha = 0.5)
-
 ggBarChart(df.melt, x.id, y.id, fill.id, bar.pos = "dodge", y.scale = "nor",
   rotate.x.text = FALSE, x.interval = 0, x.lim.cart = NULL,
-  y.lim.cart = NULL, palette = NULL, legend.col = 1, legend.nrow = 0,
+  y.lim.cart = NULL, palette, legend.col = 1, legend.nrow = 0,
   legend.title, title = "Bar Chart", title.size = 10, x.lab = "x.id",
+  y.lab = "y.id")
+
+ggScatterPlot(df.melt, x.id, y.id, coloured.by, shaped.by, linked.by,
+  ellipsed.by, scale.colours, palette, point.size = 3, xintercept, yintercept,
+  linetype = 2, text.id, text.size = 3, hjust = -0.1, vjust = -0.2,
+  alpha = 0.5, title.size = 10, title = "Scatter Plot", x.lab = "x.id",
   y.lab = "y.id")
 
 ggBoxWhiskersPlot(df.melt, x.id, y.id, fill.id,
   outlier.colour = alpha("black", 0.3), y.scale = "nor", y.lower = NA,
-  y.upper = NA, palette = NULL, rotate.x.text = FALSE,
-  dodge.width = 0.8, title = "Box Whiskers Plot", title.size = 10,
-  x.lab = "x.id", y.lab = "y.id")
+  y.upper = NA, palette, rotate.x.text = FALSE, dodge.width = 0.8,
+  title = "Box Whiskers Plot", title.size = 10, x.lab = "x.id",
+  y.lab = "y.id")
 }
 \arguments{
 \item{linetype}{\code{\link{linetype}} 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash.}
@@ -81,22 +81,11 @@ For example,
 
 \item{df.melt}{A data frame already \code{\link{melt}}.}
 
-\item{x.id, y.id, }{fill.id The string of column names in the data frame 
-used for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.}
-
-\item{palette}{The colour palette for bars. 
-If NULL, then use \code{\link{ggplot}} default colours. Default to NULL.}
-
-\item{legend.col, legend.nrow}{Customize the number of columns or rows for legend in bar chart. 
-They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0.}
-
-\item{limits}{A numeric vector of length two providing limits of the scale. 
-Use NA to refer to the existing minimum or maximum. Refer to \code{\link{scale_y_continuous}}.
-Set lower bound only to y-axis using limits = c(1000, NA). Defaul to NULL.}
+\item{x.id, y.id, fill.id}{The string of column names in \code{df.melt},
+which use for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.}
 
 \item{bar.pos}{Position adjustment for \code{\link{geom_bar}}, either as a string, 
 or the result of a call to a position adjustment function. Default to "dodge". 
-Assume \code{x} as discrete values for each bar. 
 Use \code{fill} to generate group percentage bars.}
 
 \item{y.scale}{The string defines the data scale used in y-axis, 
@@ -111,17 +100,49 @@ and will not change the underlying data like setting limits on a scale will.
 Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
 Defaul to NULL.}
 
+\item{palette}{The colour palette for bar, box, scatter plot, etc. 
+If length <= 1, then use \code{\link{scale_colour_brewer}} 
+(\url{http://www.datavis.ca/sasmac/brewerpal.html}), such as "Set1" (max 8 colours).
+Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
+Default missing to use \code{\link{ggplot}} default colours.}
+
+\item{legend.col, legend.nrow}{Customize the number of columns or rows for legend in bar chart. 
+They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0.}
+
 \item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
+
+\item{coloured.by, shaped.by, linked.by}{The column name in \code{df.melt} to 
+define how the data points are coloured, shaped, or linked according their values.}
+
+\item{ellipsed.by}{The column name in \code{df.melt} to define 
+how to draw ellipse over data points, which is normally same as 
+\code{coloured.by} to show clusters.}
+
+\item{scale.colours}{A vector of colours to use for n-colour gradient in 
+\code{\link{scale_colour_gradientn}}, such as scale.colours=c("red", "green", "blue").
+Default not to use.}
+
+\item{point.size}{The size of points from \code{\link{point.size}}. Default to 3.}
+
+\item{text.id}{Label the data points according \code{text.id} column, 
+such as "Row.names" column after \code{\link{merge}}.}
 
 \item{outlier.colour}{The colour of outliers in box whiskers plot 
 used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
 Default to alpha("black", 0.3).}
 
-\item{title}{Graph title}
+\item{title}{Graph title, set title="" to remove it from the plot.}
 
-\item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
+\item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names. 
+Set x.lab="" to remove x-axis label from the plot.}
 
-\item{x.lab.interval}{The interval to display x values in axis. Default to 0 to do nothing.}
+\item{x.lab.interval}{The interval to display x values in axis. 
+Assume x values are discrete for each bar. Default to 0 to do nothing.}
+
+\item{text.size, hjust, vjust, alpha}{Refer to aesthetics from \code{\link{geom_text}}.}
+
+\item{xintercept, yintercept, linetype}{Add horizontal or vertical line. 
+Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
 }
 \value{
 A \code{\link{ggplot}} object of heatmap.
@@ -137,12 +158,12 @@ Refer to \code{\link{stat_summary}}.
 
 \code{ggHeatmap} creates a heat map using ggplot.
 
-\code{ggScatterPlot} uses one-line function to plot many types of scatter chart.
-
-One-line bar chart function to plot many types of bar chart, 
+\code{ggBarChart} is an one-line function to plot many types of bar chart, 
 such as normal bars, log-scaled bars, percentage bars, and also grouping.
 
-Box Whiskers Plot.
+\code{ggScatterPlot} uses one-line function to plot many types of scatter chart.
+
+\code{ggBoxWhiskersPlot} creates box Whiskers plot.
 }
 \examples{
 p <- ggLine(p, linetype = 2, yintercept = 1)
@@ -155,8 +176,6 @@ ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1),
 ranks.by.group
 gg.plot <- ggHeatmap(df=ranks.by.group, melt.id="plot")
 pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
-
-
 
 # log-scale y
 bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.scale="log")
@@ -171,6 +190,8 @@ cm.aggre <- cmYAcrossX(communityMatrix)
 df.melt <- melt(cm.aggre, id="samples")
 bar.chart <- ggBarChart(df.melt, x.id="samples", y.id="value", fill.id="variable", y.scale="log", 
                         y.lab="", legend.title="", x.interval=1)
+
+
 
 box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
 
