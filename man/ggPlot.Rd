@@ -20,10 +20,9 @@ ggHeatmap(df, melt.id, title = "Heatmap", x.lab = "", y.lab = "",
   low = "white", high = "steelblue")
 
 ggBarChart(df.melt, x.id, y.id, fill.id, bar.pos = "dodge", y.scale = "nor",
-  rotate.x.text = FALSE, x.interval = 0, x.lim.cart = NULL,
-  y.lim.cart = NULL, palette, legend.col = 1, legend.nrow = 0,
-  legend.title, title = "Bar Chart", title.size = 10, x.lab = "x.id",
-  y.lab = "y.id")
+  rotate.x.text = FALSE, x.interval = 0, x.lim.cart, y.lim.cart, palette,
+  legend.col = 1, legend.nrow = 0, legend.title, title = "Bar Chart",
+  title.size = 10, x.lab = "x.id", y.lab = "y.id")
 
 ggScatterPlot(df.melt, x.id, y.id, coloured.by, shaped.by, linked.by,
   ellipsed.by, scale.colours, palette, point.size = 3, xintercept, yintercept,
@@ -98,7 +97,7 @@ moreover either the name of a transformation object for \code{\link{scale_y_cont
 \item{x.lim.cart, y.lim.cart}{Setting limits on the coordinate system will zoom the plot, 
 and will not change the underlying data like setting limits on a scale will. 
 Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
-Defaul to NULL.}
+Default missing.}
 
 \item{palette}{The colour palette for bar, box, scatter plot, etc. 
 If length <= 1, then use \code{\link{scale_colour_brewer}} 

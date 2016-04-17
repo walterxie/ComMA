@@ -1,13 +1,16 @@
-# Graph
+# Extended Graph 
 # Author: Walter Xie
-# Accessed on 12 Apr 2016
+# Accessed on 15 Apr 2016
 
 #' Use \code{\link{metaMDS}} in \code{\link{vegan}}
 #' to create Nonmetric Multidimensional Scaling (NMDS) plot . 
 #' 
-#' @param comm Community data for NMDS plot. It is dissimilarities either 
-#' as a \code{\link{dist}} structure or as a symmetric square \code{\link{matrix}}.
-#' Refer to \code{\link{metaMDS}}.
+#' @param comm Community data for NMDS plot. 
+#' It is dissimilarities either as a \code{\link{dist}} structure 
+#' or as a community data defined by \code{\link{vegan}} which is 
+#' a transposed matrix of community matrix in \code{\link{ComMA}}.
+#' Use \code{\link{transposeCM}} to rotate the data frame.
+#' Detail to \code{\link{metaMDS}}.
 #' @param distance Dissimilarity index used in \code{\link{vegdist}}.
 #' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
 #' where its row names have to match row names of community data \code{comm}.
@@ -16,30 +19,31 @@
 #' @examples
 #' 
 #' nmds.plot <- ggNMDSPlot(comm, attr.df, coloured.by="", shaped.by="", linked.by="")
-ggNMDSPlot <- function(comm, attr.df, coloured.by, shaped.by, linked.by, distance = "bray", ..., title="MDS", verbose=TRUE) {
+ggNMDSPlot <- function(comm, attr.df, coloured.by, shaped.by, linked.by, 
+                       distance = "bray", add.text=FALSE, ..., 
+                       title="MDS", verbose=TRUE) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
       stop(paste("Invalid attr.df, rownames(as.matrix(comm)) should match rownames(attr.df)  !"))
-    col.by <- c()
   }
 
+  agrs <- ""
   if (! missing(coloured.by)) {
     if (! coloured.by %in% colnames(attr.df))
       stop(paste("Invalid coloured.by,", coloured.by,  "not exsit in column names !"))
-    col.by <- c(col.by, coloured.by)
-    list(...)[["coloured.by"]] <- coloured.by
-  } else if (! missing(linked.by)) { 
+    agrs <- paste0(agrs, ", coloured.by=\"", coloured.by, "\"")
+  } 
+  if (! missing(linked.by)) { 
     if (! linked.by %in% colnames(attr.df) )
       stop(paste("Invalid linked.by,", linked.by,  "not exsit in column names !"))
-    col.by <- c(col.by, linked.by)
-    list(...)[["linked.by"]] <- linked.by
-  } else if (! missing(shaped.by)) { 
+    agrs <- paste0(agrs, ", linked.by=\"", linked.by, "\"")
+  } 
+  if (! missing(shaped.by)) { 
     if (! shaped.by %in% colnames(attr.df) )
       stop(paste("Invalid shaped.by,", shaped.by,  "not exsit in column names !"))
-    col.by <- c(col.by, shaped.by)
-    list(...)[["shaped.by"]] <- shaped.by
+    agrs <- paste0(agrs, ", shaped.by=\"", shaped.by, "\"")
   }
-  
+    
   # Run metaMDS, get points and stress
   require(vegan)
   mds <- metaMDS(comm, distance = distance)
@@ -53,20 +57,27 @@ ggNMDSPlot <- function(comm, attr.df, coloured.by, shaped.by, linked.by, distanc
     rownames(pts.mds) <- tolower(rownames(pts.mds))
     rownames(attr.df) <- tolower(rownames(attr.df))
     
-    pts.mds.merge <- merge(pts.mds, attr.df[,col.by], by = "row.names")
+    pts.mds.merge <- merge(pts.mds, attr.df, by = "row.names")
     
-    if (nrow(pts.mds.merge) != nrow(pts.mds)) 
-      warning("Community data row names do not match rownames(attr.df), some data points are missing in MDS!")
+    if (nrow(pts.mds.merge) != nrow(pts.mds) || nrow(pts.mds.merge) != nrow(attr.df)) 
+      warning(paste("Some data points are missing after merge !", 
+                    nrow(pts.mds.merge), "!=", nrow(pts.mds), "!=", nrow(attr.df) ))
   } else {
     pts.mds.merge <- pts.mds
     pts.mds.merge[,"Row.names"] <- rownames(pts.mds) 
   }
   
+  if (add.text)
+    agrs <- paste0(agrs, ", text.id=\"Row.names\"")
+  
   if (verbose)
-    cat("Passing additional argurments to ggScatterPlot : ", paste(names(list(...)), list(...), sep = ": ", collapse = ", "), "\n")
+    cat("Passing additional argurments to ggScatterPlot : ", agrs, "\n")
   
   # Plot MDS ordination
-  g.d.gt <- ComMA::ggScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", ..., title=title)
+  # ComMA::ggScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", ..., title=title)
+  ord.cmd = parse(text = paste0('ComMA::ggScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2",', 
+                                agrs, ', ..., title=title)')) 
+  g.d.gt <- eval(ord.cmd)
   
   return(g.d.gt)
 }

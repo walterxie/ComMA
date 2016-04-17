@@ -130,7 +130,7 @@ ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="whi
 #' @param x.lim.cart,y.lim.cart Setting limits on the coordinate system will zoom the plot, 
 #' and will not change the underlying data like setting limits on a scale will. 
 #' Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
-#' Defaul to NULL. 
+#' Default missing. 
 #' @param title Graph title, set title="" to remove it from the plot.
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names. 
 #' Set x.lab="" to remove x-axis label from the plot.
@@ -163,7 +163,7 @@ ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="whi
 #' 
 #' @rdname ggPlot
 ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", 
-                       rotate.x.text=FALSE, x.interval=0, x.lim.cart=NULL, y.lim.cart=NULL,
+                       rotate.x.text=FALSE, x.interval=0, x.lim.cart, y.lim.cart,
                        palette, legend.col=1, legend.nrow=0, legend.title, 
                        title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id") {
   if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
@@ -198,18 +198,22 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
     p <- p + scale_x_discrete(breaks=x.breaks) 
   }
   
-  if (!is.null(x.lim.cart)) {
+  if (! missing(x.lim.cart)) {
+    if (length(x.lim.cart) != 2)
+      stop("Invalid format, use x.lim.cart = c(1000,NA) !")
     if (which(is.na(x.lim.cart))==1) {
-      x.lim.cart[1] = min(df.mu.aggr[,x.id])
+      x.lim.cart[1] = min(df.melt[,x.id])
     } else if (which(is.na(x.lim.cart))==2) {
-      x.lim.cart[2] = max(df.mu.aggr[,x.id])
+      x.lim.cart[2] = max(df.melt[,x.id])
     }
     p <- p + coord_cartesian(xlim=x.lim.cart)
-  } else if (!is.null(y.lim.cart)) {
+  } else if (! missing(y.lim.cart)) {
+    if (length(y.lim.cart) != 2)
+      stop("Invalid format, use y.lim.cart = c(1000,NA) !")
     if (which(is.na(y.lim.cart))==1) {
-      y.lim.cart[1] = min(df.mu.aggr[,y.id])
+      y.lim.cart[1] = min(df.melt[,y.id])
     } else if (which(is.na(y.lim.cart))==2) {
-      y.lim.cart[2] = max(df.mu.aggr[,y.id])
+      y.lim.cart[2] = max(df.melt[,y.id])
     }
     p <- p + coord_cartesian(ylim=y.lim.cart)
   } 
@@ -283,11 +287,13 @@ ggScatterPlot <- function(df.melt, x.id, y.id, coloured.by, shaped.by, linked.by
     if (! coloured.by %in% colnames(df.melt))
       stop(paste("Invalid coloured.by,", coloured.by,  "not exsit in column names !"))
     col.by <- c(col.by, coloured.by)
-  } else if (! missing(linked.by)) { 
+  } 
+  if (! missing(linked.by)) { 
     if (! linked.by %in% colnames(df.melt) )
       stop(paste("Invalid linked.by,", linked.by,  "not exsit in column names !"))
     col.by <- c(col.by, linked.by)
-  } else if (! missing(shaped.by)) { 
+  } 
+  if (! missing(shaped.by)) { 
     if (! shaped.by %in% colnames(df.melt) )
       stop(paste("Invalid shaped.by,", shaped.by,  "not exsit in column names !"))
     col.by <- c(col.by, shaped.by)
@@ -309,10 +315,10 @@ ggScatterPlot <- function(df.melt, x.id, y.id, coloured.by, shaped.by, linked.by
     n_shape <- length(unique(pts.mds.merge[,shaped.by]))
     myshape <- seq(1, (1 + n_shape-1))
     # The shape palette can deal with a maximum of 6 discrete values
-    p <- p + geom_point(aes_string(shape=shaped.by), size = 3) +
+    p <- p + geom_point(aes_string(shape=shaped.by), size = point.size) +
       scale_shape_manual(values=myshape)  
   } else {
-    p <- p + geom_point(size = 3)
+    p <- p + geom_point(size = point.size)
   }
   
   if (! missing(linked.by)) {
@@ -366,8 +372,7 @@ ggScatterPlot <- function(df.melt, x.id, y.id, coloured.by, shaped.by, linked.by
   gt <- ggplot_gtable(ggplot_build(p))
   gt$layout$clip[gt$layout$name == "panel"] <- "off"
   
-  require(grid)
-  return(grid.draw(gt))
+  return(gt)
 }
 
 #' @details 

@@ -5,18 +5,22 @@
 \title{Use \code{\link{metaMDS}} in \code{\link{vegan}}
 to create Nonmetric Multidimensional Scaling (NMDS) plot .}
 \usage{
-ggNMDSPlot(comm, distance = "bray", ..., title = "MDS", x.lab = "MDS1",
-  y.lab = "MDS2")
+ggNMDSPlot(comm, attr.df, coloured.by, shaped.by, linked.by,
+  distance = "bray", add.text = FALSE, ..., title = "MDS",
+  verbose = TRUE)
 }
 \arguments{
-\item{comm}{Community data for NMDS plot. It is dissimilarities either 
-as a \code{\link{dist}} structure or as a symmetric square \code{\link{matrix}}.
-Refer to \code{\link{metaMDS}}.}
-
-\item{distance}{Dissimilarity index used in \code{\link{vegdist}}.}
+\item{comm}{Community data for NMDS plot. 
+It is dissimilarities either as a \code{\link{dist}} structure 
+or as a community data defined by \code{\link{vegan}} which is 
+a transposed matrix of community matrix in \code{\link{ComMA}}.
+Use \code{\link{transposeCM}} to rotate the data frame.
+Detail to \code{\link{metaMDS}}.}
 
 \item{attr.df}{A data frame to define how NMDS plot is coloured, shaped, or linked.
 where its row names have to match row names of community data \code{comm}.}
+
+\item{distance}{Dissimilarity index used in \code{\link{vegdist}}.}
 }
 \description{
 Use \code{\link{metaMDS}} in \code{\link{vegan}}
