@@ -18,8 +18,8 @@
 #' @export
 #' @examples
 #' 
-#' nmds.plot <- ggNMDSPlot(comm, attr.df, coloured.by="", shaped.by="", linked.by="")
-ggNMDSPlot <- function(comm, attr.df, coloured.by, shaped.by, linked.by, 
+#' nmds.plot <- gtNMDSPlot(comm, attr.df, coloured.id="", shaped.id="", linked.id="")
+gtNMDSPlot <- function(comm, attr.df, coloured.id, shaped.id, linked.id, 
                        distance = "bray", add.text=FALSE, ..., 
                        title="MDS", verbose=TRUE) {
   if (! missing(attr.df)) {
@@ -28,20 +28,20 @@ ggNMDSPlot <- function(comm, attr.df, coloured.by, shaped.by, linked.by,
   }
 
   agrs <- ""
-  if (! missing(coloured.by)) {
-    if (! coloured.by %in% colnames(attr.df))
-      stop(paste("Invalid coloured.by,", coloured.by,  "not exsit in column names !"))
-    agrs <- paste0(agrs, ", coloured.by=\"", coloured.by, "\"")
+  if (! missing(coloured.id)) {
+    if (! coloured.id %in% colnames(attr.df))
+      stop(paste("Invalid coloured.id,", coloured.id,  "not exsit in column names !"))
+    agrs <- paste0(agrs, ", coloured.id=\"", coloured.id, "\"")
   } 
-  if (! missing(linked.by)) { 
-    if (! linked.by %in% colnames(attr.df) )
-      stop(paste("Invalid linked.by,", linked.by,  "not exsit in column names !"))
-    agrs <- paste0(agrs, ", linked.by=\"", linked.by, "\"")
+  if (! missing(linked.id)) { 
+    if (! linked.id %in% colnames(attr.df) )
+      stop(paste("Invalid linked.id,", linked.id,  "not exsit in column names !"))
+    agrs <- paste0(agrs, ", linked.id=\"", linked.id, "\"")
   } 
-  if (! missing(shaped.by)) { 
-    if (! shaped.by %in% colnames(attr.df) )
-      stop(paste("Invalid shaped.by,", shaped.by,  "not exsit in column names !"))
-    agrs <- paste0(agrs, ", shaped.by=\"", shaped.by, "\"")
+  if (! missing(shaped.id)) { 
+    if (! shaped.id %in% colnames(attr.df) )
+      stop(paste("Invalid shaped.id,", shaped.id,  "not exsit in column names !"))
+    agrs <- paste0(agrs, ", shaped.id=\"", shaped.id, "\"")
   }
     
   # Run metaMDS, get points and stress
@@ -75,7 +75,7 @@ ggNMDSPlot <- function(comm, attr.df, coloured.by, shaped.by, linked.by,
   
   # Plot MDS ordination
   # ComMA::ggScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", ..., title=title)
-  ord.cmd = parse(text = paste0('ComMA::ggScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2",', 
+  ord.cmd = parse(text = paste0('ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2",', 
                                 agrs, ', ..., title=title)')) 
   g.d.gt <- eval(ord.cmd)
   
@@ -95,9 +95,9 @@ ggNMDSPlot <- function(comm, attr.df, coloured.by, shaped.by, linked.by,
 #' @examples 
 #' df.clusters <- random2Clusters()
 #' df.clusters
-#' g.table <- ggScatterPlotEllipse(df.clusters, add.text=T)
+#' g.table <- gtScatterPlotEllipse(df.clusters, add.text=T)
 #' pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
-ggScatterPlotEllipse <- function(df.clusters, title="Clusters", palette="Set1", ...) {
+gtScatterPlotEllipse <- function(df.clusters, title="Clusters", palette="Set1", ...) {
   if (ncol(df.clusters) < 3)
     stop("Data frame should have 3 columns: first 2 columns are coordinates, 3rd is cluster names !")
   
@@ -105,8 +105,8 @@ ggScatterPlotEllipse <- function(df.clusters, title="Clusters", palette="Set1", 
   # df.clusters$species <- paste(sapply(strsplit(rownames(df.clusters), "_"), "[[", 1), sapply(strsplit(rownames(df.clusters), "_"), "[[", 2), sep=".")
   df.clusters$cluster <- factor(df.clusters$cluster, levels = sort(unique(df.clusters$cluster)))
 
-  g.d.gt <- ComMA::ggScatterPlot(df.clusters, x.id="PC1", y.id="PC2", coloured.by="cluster", 
-                                 ellipsed.by="cluster", xintercept=0, yintercept=0, 
+  g.d.gt <- ComMA::gtScatterPlot(df.clusters, x.id="PC1", y.id="PC2", coloured.id="cluster", 
+                                 ellipsed.id="cluster", xintercept=0, yintercept=0, 
                                  palette=palette, title=title, ...)
   return(g.d.gt)
 }
