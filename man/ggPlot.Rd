@@ -2,8 +2,8 @@
 % Please edit documentation in R/Graph.R
 \name{ggPlot}
 \alias{ggAddNumbers}
-\alias{ggBarChart}
 \alias{ggBoxWhiskersPlot}
+\alias{ggFrequencyDataOpt}
 \alias{ggHeatmap}
 \alias{ggLine}
 \alias{ggPlot}
@@ -19,21 +19,22 @@ ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
 ggHeatmap(df, melt.id, title = "Heatmap", x.lab = "", y.lab = "",
   low = "white", high = "steelblue")
 
-ggBarChart(df.melt, x.id, y.id, fill.id, bar.pos = "dodge", y.scale = "nor",
-  rotate.x.text = FALSE, x.interval = 0, x.lim.cart, y.lim.cart, palette,
-  legend.col = 1, legend.nrow = 0, legend.title, title = "Bar Chart",
-  title.size = 10, x.lab = "x.id", y.lab = "y.id")
+ggFrequencyDataOpt(df.melt, x.id, y.id, fill.id, x.facet.id, y.facet.id,
+  bar.pos = "dodge", y.scale = "nor", rotate.x.text = FALSE,
+  x.interval = 0, x.lim.cart, y.lim.cart, palette, legend.col = 1,
+  legend.nrow = 0, legend.title, title = "Bar Chart", title.size = 10,
+  x.lab = "x.id", y.lab = "y.id")
+
+ggBoxWhiskersPlot(df.melt, x.id, y.id, fill.id, x.facet.id, y.facet.id,
+  outlier.colour = alpha("black", 0.3), y.scale = "nor", y.lower = NA,
+  y.upper = NA, x.lim.cart, y.lim.cart, palette, rotate.x.text = FALSE,
+  dodge.width = 0.8, title = "Box Whiskers Plot", title.size = 10,
+  x.lab = "x.id", y.lab = "y.id")
 
 ggScatterPlot(df.melt, x.id, y.id, coloured.by, shaped.by, linked.by,
   ellipsed.by, scale.colours, palette, point.size = 3, xintercept, yintercept,
   linetype = 2, text.id, text.size = 3, hjust = -0.1, vjust = -0.2,
   alpha = 0.5, title.size = 10, title = "Scatter Plot", x.lab = "x.id",
-  y.lab = "y.id")
-
-ggBoxWhiskersPlot(df.melt, x.id, y.id, fill.id,
-  outlier.colour = alpha("black", 0.3), y.scale = "nor", y.lower = NA,
-  y.upper = NA, palette, rotate.x.text = FALSE, dodge.width = 0.8,
-  title = "Box Whiskers Plot", title.size = 10, x.lab = "x.id",
   y.lab = "y.id")
 }
 \arguments{
@@ -83,6 +84,9 @@ For example,
 \item{x.id, y.id, fill.id}{The string of column names in \code{df.melt},
 which use for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.}
 
+\item{x.facet.id, }{y.facet.id The string of column names in \code{df.melt},
+which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.}
+
 \item{bar.pos}{Position adjustment for \code{\link{geom_bar}}, either as a string, 
 or the result of a call to a position adjustment function. Default to "dodge". 
 Use \code{fill} to generate group percentage bars.}
@@ -110,6 +114,12 @@ They cannot be used at the same time. Default not to use them, legend.col=1, leg
 
 \item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
 
+\item{outlier.colour}{The colour of outliers in box whiskers plot 
+used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
+Default to alpha("black", 0.3).}
+
+\item{y.lower, y.upper}{The \code{\link{limits}} of y-axis, which can cut off the data points.}
+
 \item{coloured.by, shaped.by, linked.by}{The column name in \code{df.melt} to 
 define how the data points are coloured, shaped, or linked according their values.}
 
@@ -125,10 +135,6 @@ Default not to use.}
 
 \item{text.id}{Label the data points according \code{text.id} column, 
 such as "Row.names" column after \code{\link{merge}}.}
-
-\item{outlier.colour}{The colour of outliers in box whiskers plot 
-used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
-Default to alpha("black", 0.3).}
 
 \item{title}{Graph title, set title="" to remove it from the plot.}
 
@@ -160,9 +166,9 @@ Refer to \code{\link{stat_summary}}.
 \code{ggBarChart} is an one-line function to plot many types of bar chart, 
 such as normal bars, log-scaled bars, percentage bars, and also grouping.
 
-\code{ggScatterPlot} uses one-line function to plot many types of scatter chart.
-
 \code{ggBoxWhiskersPlot} creates box Whiskers plot.
+
+\code{ggScatterPlot} uses one-line function to plot many types of scatter chart.
 }
 \examples{
 p <- ggLine(p, linetype = 2, yintercept = 1)
@@ -190,9 +196,9 @@ df.melt <- melt(cm.aggre, id="samples")
 bar.chart <- ggBarChart(df.melt, x.id="samples", y.id="value", fill.id="variable", y.scale="log", 
                         y.lab="", legend.title="", x.interval=1)
 
-
-
 box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
+
+
 
 }
 \keyword{graph}

@@ -110,6 +110,8 @@ ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="whi
   return(p) 
 }
 
+ggFrequencyDataOpt <- 
+
 
 #' @details 
 #' \code{ggBarChart} is an one-line function to plot many types of bar chart, 
@@ -118,6 +120,8 @@ ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="whi
 #' @param df.melt A data frame already \code{\link{melt}}. 
 #' @param x.id,y.id,fill.id The string of column names in \code{df.melt},
 #' which use for \code{x, y, fill} in \code{\link{aes}} in \code{\link{ggplot}}.
+#' @param x.facet.id, y.facet.id The string of column names in \code{df.melt},
+#' which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.
 #' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
 #' or the result of a call to a position adjustment function. Default to "dodge". 
 #' Use \code{fill} to generate group percentage bars.
@@ -162,7 +166,8 @@ ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="whi
 #'                         y.lab="", legend.title="", x.interval=1)
 #' 
 #' @rdname ggPlot
-ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="nor", 
+ggBarChart <- function(df.melt, x.id, y.id, fill.id, x.facet.id, y.facet.id, 
+                       bar.pos="dodge", y.scale="nor", 
                        rotate.x.text=FALSE, x.interval=0, x.lim.cart, y.lim.cart,
                        palette, legend.col=1, legend.nrow=0, legend.title, 
                        title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id") {
@@ -182,6 +187,17 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
   }
   p <- p + geom_bar(position = bar.pos, stat = "identity") 
   
+  if (! missing(x.facet.id) || ! missing(y.facet.id)) {
+    fac1 <- "."
+    fac2 <- "."
+    if (! missing(x.facet.id))
+      fac1 <- x.facet.id
+    if (! missing(y.facet.id))
+      fac2 <- y.facet.id
+    
+    p <- p + facet_grid(reformulate(fac2,fac1))
+  }
+    
   if (y.scale=="nor") {
     p <- p + scale_y_continuous(expand = c(0,0))
   } else if (y.scale=="per") {
@@ -248,6 +264,111 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id, bar.pos="dodge", y.scale="n
   
   return(p)
 }
+
+
+#' @details 
+#' \code{ggBoxWhiskersPlot} creates box Whiskers plot. 
+#' 
+#' @param outlier.colour The colour of outliers in box whiskers plot 
+#' used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
+#' Default to alpha("black", 0.3).
+#' @param y.lower,y.upper The \code{\link{limits}} of y-axis, which can cut off the data points.
+#' @keywords graph
+#' @export
+#' @examples
+#' box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
+#' 
+#' @rdname ggPlot
+ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, x.facet.id, y.facet.id, 
+                              outlier.colour = alpha("black", 0.3), y.scale="nor", 
+                              y.lower=NA, y.upper=NA, x.lim.cart, y.lim.cart,
+                              palette, rotate.x.text=FALSE, dodge.width=0.8,
+                              title="Box Whiskers Plot", title.size = 10, x.lab="x.id", y.lab="y.id") {
+  if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
+  if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
+    stop(paste0("Data frame do NOT have column name \"", y.id, "\" !"))
+  
+  require(ggplot2)
+  if (missing(fill.id)) {
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) +
+      geom_boxplot(outlier.colour = alpha("black", 0.3))
+  } else {
+    if (!is.element(tolower(fill.id), tolower(colnames(df.melt))))
+      stop(paste0("Data frame do NOT have column name \"", fill.id, "\" !"))
+    
+    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id)) +
+      geom_boxplot(outlier.colour = alpha("black", 0.3), position=position_dodge(width=dodge.width))
+  }
+  p <- p + scale_shape(solid = FALSE) 
+  #geom_jitter(alpha = 0.5) + 
+  
+  if (! missing(x.facet.id) || ! missing(y.facet.id)) {
+    fac1 <- "."
+    fac2 <- "."
+    if (! missing(x.facet.id))
+      fac1 <- x.facet.id
+    if (! missing(y.facet.id))
+      fac2 <- y.facet.id
+    
+    p <- p + facet_grid(reformulate(fac2,fac1))
+  }
+  
+  if (! missing(palette)) {
+    if (length(palette) == 1)
+      p <- p + scale_colour_brewer(palette=palette)
+    else 
+      p <- p + scale_fill_manual(values=palette)
+  }
+  
+  if (y.scale=="nor") {
+    p <- p + scale_y_continuous(expand = c(0,0))
+  } else if (y.scale=="per") {
+    require(scales)
+    p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format()) 
+  } else {
+    y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
+    p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
+  }
+  
+  if (!is.na(y.lower) || !is.na(y.upper)) 
+    p <- p + ylim(y.lower, y.upper) 
+  
+  if (! missing(x.lim.cart)) {
+    if (length(x.lim.cart) != 2)
+      stop("Invalid format, use x.lim.cart = c(1000,NA) !")
+    if (which(is.na(x.lim.cart))==1) {
+      x.lim.cart[1] = min(df.melt[,x.id])
+    } else if (which(is.na(x.lim.cart))==2) {
+      x.lim.cart[2] = max(df.melt[,x.id])
+    }
+    p <- p + coord_cartesian(xlim=x.lim.cart)
+  } else if (! missing(y.lim.cart)) {
+    if (length(y.lim.cart) != 2)
+      stop("Invalid format, use y.lim.cart = c(1000,NA) !")
+    if (which(is.na(y.lim.cart))==1) {
+      y.lim.cart[1] = min(df.melt[,y.id])
+    } else if (which(is.na(y.lim.cart))==2) {
+      y.lim.cart[2] = max(df.melt[,y.id])
+    }
+    p <- p + coord_cartesian(ylim=y.lim.cart)
+  } 
+  
+  if (x.lab=="x.id") 
+    x.lab = x.id
+  if (y.lab=="y.id") 
+    y.lab = y.id
+  
+  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
+    theme(plot.title = element_text(size = title.size),
+          strip.background = element_blank(), panel.grid.minor = element_blank())
+  
+  if (rotate.x.text) 
+    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
+  
+  return(p)
+}
+
 
 #' @details 
 #' \code{ggScatterPlot} uses one-line function to plot many types of scatter chart.
@@ -374,73 +495,3 @@ ggScatterPlot <- function(df.melt, x.id, y.id, coloured.by, shaped.by, linked.by
   
   return(gt)
 }
-
-#' @details 
-#' \code{ggBoxWhiskersPlot} creates box Whiskers plot. 
-#' 
-#' @param outlier.colour The colour of outliers in box whiskers plot 
-#' used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
-#' Default to alpha("black", 0.3).
-#' @keywords graph
-#' @export
-#' @examples
-#' box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
-#' 
-#' @rdname ggPlot
-ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id, outlier.colour = alpha("black", 0.3), y.scale="nor", 
-                              y.lower=NA, y.upper=NA, palette, rotate.x.text=FALSE, dodge.width=0.8,
-                              title="Box Whiskers Plot", title.size = 10, x.lab="x.id", y.lab="y.id") {
-  if (!is.element(tolower(x.id), tolower(colnames(df.melt))))
-    stop(paste0("Data frame do NOT have column name \"", x.id, "\" !"))
-  if (!is.element(tolower(y.id), tolower(colnames(df.melt))))
-    stop(paste0("Data frame do NOT have column name \"", y.id, "\" !"))
-  
-  require(ggplot2)
-  if (missing(fill.id)) {
-    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id)) +
-      geom_boxplot(outlier.colour = alpha("black", 0.3))
-  } else {
-    if (!is.element(tolower(fill.id), tolower(colnames(df.melt))))
-      stop(paste0("Data frame do NOT have column name \"", fill.id, "\" !"))
-    
-    p <- ggplot(df.melt, aes_string(x = x.id, y = y.id, fill = fill.id)) +
-      geom_boxplot(outlier.colour = alpha("black", 0.3), position=position_dodge(width=dodge.width))
-  }
-  p <- p + scale_shape(solid = FALSE) 
-  #geom_jitter(alpha = 0.5) + 
-  
-  if (! missing(palette)) {
-    if (length(palette) == 1)
-      p <- p + scale_colour_brewer(palette=palette)
-    else 
-      p <- p + scale_fill_manual(values=palette)
-  }
-  
-  if (y.scale=="nor") {
-    p <- p + scale_y_continuous(expand = c(0,0))
-  } else if (y.scale=="per") {
-    require(scales)
-    p <- p + scale_y_continuous(expand = c(0,0), labels = percent_format()) 
-  } else {
-    y.breaks <- ComMA::get_breaks_positive_values(max(df.melt[,y.id], start=c(0)))
-    p <- p + scale_y_continuous(trans=y.scale, expand = c(0,0), labels = ComMA::scientific_10, breaks = y.breaks) 
-  }
-  
-  if (!is.na(y.lower) || !is.na(y.upper)) 
-    p <- p + ylim(y.lower, y.upper) 
-  
-  if (x.lab=="x.id") 
-    x.lab = x.id
-  if (y.lab=="y.id") 
-    y.lab = y.id
-  
-  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
-    theme(plot.title = element_text(size = title.size),
-          strip.background = element_blank(), panel.grid.minor = element_blank())
-  
-  if (rotate.x.text) 
-    p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3))
-  
-  return(p)
-}
-
