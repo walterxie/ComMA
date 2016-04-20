@@ -81,6 +81,9 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
   # make lower case to match ranks
   colnames(taxa.table) <- tolower(colnames(taxa.table))
   
+  if (! is.element(rank, colnames(taxa.table)) )
+    stop("Cannot find rank column ", rank, "! Use createTaxaTable??? function to create taxa.table file.")
+  
   # remove/replace annotation
   if (! is.null(regex1)) 
     rownames(taxa.table) <- gsub(regex1, regex2, rownames(taxa.table), ignore.case = ignore.case)
@@ -107,7 +110,7 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
   }
   
   if (nrow(taxa.table) < 1)
-    cat("Warning: cannot find", taxa.group, "at", rank, "from taxa path file", file, "!")
+    warning("Cannot find ", taxa.group, " at ", rank, " from taxa path file ", file, " !")
   
   if(verbose && nrow(taxa.table) < n.taxa) {
     cat("\nSelect", nrow(taxa.table), "classifications, by given taxa.group =", taxa.group, 
@@ -195,6 +198,8 @@ createTaxaTableRDP <- function(file, sep="\t", rm.rank.prefix=TRUE,
   colnames(df.taxa) <- c("OTUs","path","confidence")
   # rm []
   df.taxa[,"path"] <- gsub("\\[|\\]", "", df.taxa[,"path"])
+  # rm Root; for early version 
+  df.taxa[,"path"] <- gsub("Root;", "", df.taxa[,"path"], ignore.case = T)
   
   if (rm.rank.prefix) 
     vector.path <- gsub("[a-z]__", "", df.taxa[,"path"])

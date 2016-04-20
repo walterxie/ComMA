@@ -25,24 +25,33 @@
 #' Read by \code{\link{readFasta}}.
 #' @param otus.names The vector of names to match sequence labels in \code{otus.file}.
 #' @param otus.out.file The output fasta file containing extrated sequences.
-#' @param regex1,regex2 Use for \code{\link{gsub}(regex1, regex2, id(otus.fasta))} 
-#' to remove or replace annotation from original sequence labels. 
-#' Default to \code{regex1=NULL, regex2=""}.
+#' @param regex1,regex2 Use for \code{\link{gsub}(regex1, regex2, row.names)} 
+#' to remove or replace annotation from original labels. 
+#' Default to \code{regex1="(\\|[0-9]+)", regex2=""}, 
+#' which removes size annotation seperated by "|".
 #' @param ignore.case Refer to \code{\link{gsub}}.
 #' @keywords util
 #' @export
 #' @examples 
-#' extractSequences(otus.file, otus.names, otus.out.file)
+#' subsetSequences(otus.file, otus.names, otus.out.file)
 #'
 #' @rdname utilsSeq
-subsetSequences <- function(otus.file, otus.names, otus.out.file, regex1=NULL, regex2="", ignore.case = TRUE) {
+subsetSequences <- function(otus.file, otus.names, otus.out.file, 
+                            regex1="(\\|[0-9]+)", regex2="", ignore.case = TRUE) {
   require(ShortRead)
   
   otus.fasta <- readFasta(otus.file)
-  otus.id <- id(otus.fasta)
   # remove/replace annotation
-  if (! is.null(regex1)) 
+  if (! is.null(regex1)) {
     otus.id <- gsub(regex1, regex2, id(otus.fasta), ignore.case = ignore.case)
+    # change to new id
+    otus.id <- BStringSet(otus.id)
+    otus.fasta@id <- otus.id
+  } 
+  otus.id <- as.character(id(otus.fasta))
+  
+  if (! is(otus.names, "character"))
+    otus.names <- as.character(otus.names)
   
   final.fasta <- otus.fasta[(otus.id %in% otus.names),]
   

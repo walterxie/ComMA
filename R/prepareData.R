@@ -100,14 +100,16 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
     taxaPaths <- ComMA::getTaxaPaths(matrix.name, taxa.group)
     
     if (nrow(taxaPaths) < minRich) {
-      cat("Warning: return NULL, because taxa table has", nrow(taxaPaths), "row(s) classified as", taxa.group, "<", minRich, "threshold.\n")
+      warning("Return NULL, because taxa table has ", nrow(taxaPaths), " row(s) classified as ", 
+              taxa.group, " < ", minRich, " threshold.\n")
       return(NULL)
     } else {
       # merge needs at least 2 cols 
       taxaAssgReads <- merge(community.matrix, taxaPaths, by = "row.names")
       
       if (nrow(taxaAssgReads) < minRich) {
-        cat("Warning: return NULL, because cm has", nrow(taxaAssgReads), "row(s) match", taxa.group, "<", minRich, "threshold.\n")
+        warning("Return NULL, because cm has ", nrow(taxaAssgReads), " row(s) match ", taxa.group, 
+                " < ", minRich, " threshold.\n")
         return(NULL)
       }
       
@@ -169,7 +171,7 @@ grepl("Nudibranchia|Crocodylia|Serpentes|Testudines|Carnivora|Gymnophiona|Lagomo
   }
   
   if (nrow(taxaPaths) < 1)
-    cat("Warning: cannot find", taxa.group, "from taxa path file", inputTaxa, "!")
+    warning("Cannot find ", taxa.group, " from taxa path file ", inputTaxa, " !")
   
   if(verbose && nrow(taxaPaths) < nTaxa) 
     cat("\nSelect", nrow(taxaPaths), "taxa classification after excluding probably bogus taxa.\n") 
@@ -263,7 +265,7 @@ getPhyloTree <- function(matrix.name, taxa.group="assigned", minAbund=2, verbose
     if(verbose) print(tree)
   } else {
     tree <- NULL
-    cat("Warning: cannot find tree file:", inputT, "\n") 
+    warning("Cannot find tree file: ", inputT, "\n") 
   }
   tree
 }
@@ -287,7 +289,7 @@ getPhyloRareTable <- function(expId, isPlot, min2, taxa.group="assigned", verbos
       cat("\nUpload phylo rarefaction table from", inputT, "\n") 
   } else {
     phylo.rare.df <- NULL
-    cat("Warning: cannot find phylo rarefaction table", inputT, "\n") 
+    warning("Cannot find phylo rarefaction table ", inputT, " \n") 
   }
   phylo.rare.df
 }
@@ -303,7 +305,7 @@ getRarefactionTableTaxa <- function(expId, isPlot, min2, taxa.group, div="alpha1
       cat("\nUpload rarefaction table per sample from", inputT, "\n") 
   } else {
     rare.df <- NULL
-    cat("Warning: cannot find rarefaction table per sample", inputT, "\n") 
+    warning("Cannot find rarefaction table per sample ", inputT, " \n") 
   }
   rare.df
 }
@@ -355,7 +357,7 @@ getMaxRemainedDiversity <- function(lev.q, taxa.group="assigned", verbose=TRUE) 
       cat("\nUpload max remained diversity table from", inputT, "\n") 
   } else {
     max.rd <- NULL
-    cat("Warning: cannot find max remained diversity table", inputT, "\n") 
+    warning("Cannot find max remained diversity table ", inputT, " \n") 
   }
   max.rd
 }
@@ -368,7 +370,7 @@ getMaxRemainedDiversityRank <- function(lev.q, taxa.group="assigned", verbose=TR
       cat("\nUpload max remained diversity rank table from", inputT, "\n") 
   } else {
     max.rd <- NULL
-    cat("Warning: cannot find max remained diversity rank table", inputT, "\n") 
+    warning("Cannot find max remained diversity rank table ", inputT, " \n") 
   }
   max.rd
 }

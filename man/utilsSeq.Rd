@@ -5,8 +5,8 @@
 \alias{utilsSeq}
 \title{Utils to manipulate sequences or OTUs}
 \usage{
-subsetSequences(otus.file, otus.names, otus.out.file, regex1 = NULL,
-  regex2 = "", ignore.case = TRUE)
+subsetSequences(otus.file, otus.names, otus.out.file,
+  regex1 = "(\\\\|[0-9]+)", regex2 = "", ignore.case = TRUE)
 }
 \arguments{
 \item{otus.file}{The fasta file of OTU representive sequences. 
@@ -16,9 +16,10 @@ Read by \code{\link{readFasta}}.}
 
 \item{otus.out.file}{The output fasta file containing extrated sequences.}
 
-\item{regex1, regex2}{Use for \code{\link{gsub}(regex1, regex2, id(otus.fasta))} 
-to remove or replace annotation from original sequence labels. 
-Default to \code{regex1=NULL, regex2=""}.}
+\item{regex1, regex2}{Use for \code{\link{gsub}(regex1, regex2, row.names)} 
+to remove or replace annotation from original labels. 
+Default to \code{regex1="(\\|[0-9]+)", regex2=""}, 
+which removes size annotation seperated by "|".}
 
 \item{ignore.case}{Refer to \code{\link{gsub}}.}
 }
@@ -34,7 +35,7 @@ It is depended on \code{\link{ShortRead}} package. Follow the instruction
 \url{https://bioconductor.org/packages/release/bioc/html/ShortRead.html} to install.
 }
 \examples{
-extractSequences(otus.file, otus.names, otus.out.file)
+subsetSequences(otus.file, otus.names, otus.out.file)
 
 }
 \keyword{util}
