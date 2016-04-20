@@ -1,5 +1,5 @@
 # Author: Walter Xie, Andrew Dopheide
-# Accessed on 19 Nov 2015
+# Accessed on 20 Apr 2016
 
 #' @name utilsCM
 #' @title Utils to preprocess community matrix
@@ -124,6 +124,39 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2) {
 }
 
 
+subsetCM <- function(cm.taxa, unclassified=0) {
+  
+}
+
+#' @details \code{mostAbundantRows} trims data frame 
+#' to the rows having most abundance given a threshold. 
+#' The trimmed data frame having most abundant rows, 
+#' such as community matrix of 150 most abundant OTUs.
+#' 
+#' @param most.abund The threshold to define the number 
+#' of the most abundent OTUs. Default to 150.
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+#' OTU100 <- mostAbundantRows(community.matrix, mostAbundant=100)
+#'
+#' @rdname utilsCM
+mostAbundantRows <- function(community.matrix, most.abund=150) {
+  if (nrow(community.matrix) < most.abund) 
+    most.abund <- nrow(community.matrix)
+  
+  cat("Trim matrix to", most.abund, "rows having most abundance.\n") 
+  
+  rs <- rowSums(community.matrix)
+  # order row sums decreasing
+  ord<-order(rs, decreasing=TRUE) 
+  community.matrix <- community.matrix[ord,]    
+  
+  return(community.matrix[1:most.abund,])
+}
+
+
 #' @details \code{cmYAcrossX} aggregates a community matrix to a data frame 
 #' to show the number of OTUs (y-axis) across the number of samples (x-axis). 
 #' The 'samples' is the number of samlpes in sequence,
@@ -202,73 +235,3 @@ mergeRowsByColumnValue <- function(community.matrix, ..., FUN=sum) {
   
   aggregate(as.formula(paste(". ~", cols)), data=community.matrix, FUN=FUN)
 }
-
-#' @details \code{mostAbundantRows} trims data frame 
-#' to the rows having most abundance given a threshold. 
-#' The trimmed data frame having most abundant rows, 
-#' such as community matrix of 150 most abundant OTUs.
-#' 
-#' @param most.abund The threshold to define the number 
-#' of the most abundent OTUs. Default to 150.
-#' @keywords community matrix
-#' @export
-#' @examples 
-#' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' OTU100 <- mostAbundantRows(community.matrix, mostAbundant=100)
-#'
-#' @rdname utilsCM
-mostAbundantRows <- function(community.matrix, most.abund=150) {
-  if (nrow(community.matrix) < most.abund) 
-    most.abund <- nrow(community.matrix)
-  
-  cat("Trim matrix to", most.abund, "rows having most abundance.\n") 
-  
-  rs <- rowSums(community.matrix)
-  # order row sums decreasing
-  ord<-order(rs, decreasing=TRUE) 
-  community.matrix <- community.matrix[ord,]    
-
-  return(community.matrix[1:most.abund,])
-}
-
-# rowThr, colThr: remove row or/and column sum <= rowThr, colThr in community.matrix,
-# if rowThr, colThr = 0, then remove empty rows or/and columns
-# mostAbundThr: keep the most abundant (mostAbundThr) OTUs only 
-# return preprocessed community.matrix
-preprocessCM <- function(community.matrix, keepSingleton, rowThr, colThr, mostAbundThr) { 
-  # keepSingleton, abundPercThr, transverse, verbose
-  # args <- list(...)
-  if(missing(keepSingleton)) keepSingleton=TRUE
-  if(missing(rowThr)) rowThr=0
-  if(missing(colThr)) colThr=0
-  if(missing(mostAbundThr)) mostAbundThr=0
-  
-  cat("keepSingleton = ", keepSingleton, "; rowThr = ", rowThr, "; colThr = ", colThr, 
-      "; mostAbundThr = ", mostAbundThr, "\n") 
-  cat("Original community matrix : samples = ", ncol(community.matrix), ", OTUs/taxa = ", nrow(community.matrix), ".\n") 
-  
-  # singletons
-  if (!keepSingleton) {
-    singletons <- which(rowSums(community.matrix)==1)
-    community.matrix <- community.matrix[-singletons,]
-    cat("Remove", length(singletons) ,"singletons !\n")
-    rm(singletons)		
-  }	
-  
-  # this must be in front of filter column/row to avoid empty column
-  if (mostAbundThr > 0) {
-    community.matrix <- keepMostAbundantRows(community.matrix, mostAbundThr=mostAbundThr)
-  }  
-  
-  community.matrix <- rmMinAbundance(community.matrix, minAbund=1, MARGIN=2)
-  # filter column first to avoid empty rows after columns remvoed
-  community.matrix <- rmMinAbundance(community.matrix, minAbund=1, MARGIN=1)
-  
-  # summary
-  cat("Processed community matrix : samples = ", ncol(community.matrix), ", OTUs/taxa = ", nrow(community.matrix), ".\n") 
-  
-  return(community.matrix)
-}
-
-
-

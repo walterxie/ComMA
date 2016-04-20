@@ -20,13 +20,13 @@ summaryCM.Vector(community.matrix, digits = 2)
 
 summaryCM(community.matrix, most.abund, has.total = 1, digits = 2)
 
+mostAbundantRows(community.matrix, most.abund = 150)
+
 cmYAcrossX(community.matrix, terms = c("OTUs", "samples", "reads"))
 
 sumColumns(community.matrix, sep = "-", nth = 1)
 
 mergeRowsByColumnValue(community.matrix, ..., FUN = sum)
-
-mostAbundantRows(community.matrix, most.abund = 150)
 }
 \arguments{
 \item{community.matrix}{Community matrix (OTU table), where rows are 
@@ -84,6 +84,11 @@ The vector is c("reads","OTUs","Shannon","samples","singletons","doubletons").
 
 \code{summaryCM} summarizes the community matrix.
 
+\code{mostAbundantRows} trims data frame 
+to the rows having most abundance given a threshold. 
+The trimmed data frame having most abundant rows, 
+such as community matrix of 150 most abundant OTUs.
+
 \code{cmYAcrossX} aggregates a community matrix to a data frame 
 to show the number of OTUs (y-axis) across the number of samples (x-axis). 
 The 'samples' is the number of samlpes in sequence,
@@ -95,11 +100,6 @@ and the 'reads' is the number of reads assigned to those OTUs.
 \code{mergeRowsByColumnValue} \code{\link{aggregate}}s 
 given community matrix by applying a specified function (e.g. sum) 
 to the values of given columns.
-
-\code{mostAbundantRows} trims data frame 
-to the rows having most abundance given a threshold. 
-The trimmed data frame having most abundant rows, 
-such as community matrix of 150 most abundant OTUs.
 }
 \examples{
 # remove singletons 
@@ -112,6 +112,9 @@ summary.cm.vector <- summaryCM.Vector(community.matrix)
 summary.cm <- summaryCM(community.matrix)
 
 community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+OTU100 <- mostAbundantRows(community.matrix, mostAbundant=100)
+
+community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 cm.aggre <- cmYAcrossX(community.matrix)
 print(cm.aggre, row.names = FALSE)
 
@@ -121,9 +124,6 @@ colSums(community.matrix)
 communityMatrix1 <- sumColumns(community.matrix)
 colSums(communityMatrix1)
 
-
-community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-OTU100 <- mostAbundantRows(community.matrix, mostAbundant=100)
 
 }
 \keyword{community}
