@@ -15,7 +15,7 @@
 #' @details 
 #' \code{readCommunityMatrix} reads file to return a community matrix.
 #' 
-#' @param file The file to read.
+#' @param file The file to read/write.
 #' @param matrix.name The string to locate the matrix from its file name.
 #' @param minAbund The minimum abundance threshold to remove rows/columns 
 #' by row/column sum of abundance. For exampe, if minAbund=2, then remove 
@@ -24,7 +24,7 @@
 #' But \code{postfix} is only used for naming, no data processed.
 #' @param regex1,regex2 Use for \code{\link{gsub}(regex1, regex2, row.names)} 
 #' to remove or replace annotation from original labels. 
-#' Default to \code{regex1="(\\|[0-9]+)", regex2=""}, 
+#' Default to \code{regex1="(\\|[0-9]+)", regex2=""} for read??? but NULL to write???, 
 #' which removes size annotation seperated by "|".
 #' @param ignore.case Refer to \code{\link{gsub}}.
 #' @keywords IO
@@ -45,6 +45,30 @@ readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, verbose=TRUE
   
   attr(community.matrix,"name") <- matrix.name
   return(community.matrix)
+}
+
+#' @details 
+#' \code{writeCommunityMatrix} writes a community matrix to file.
+#' 
+#' @keywords IO
+#' @export
+#' @examples 
+#' writeCommunityMatrix(cm, "16S-new.txt", msg.file="16S")
+#' 
+#' @rdname IOComMA
+writeCommunityMatrix <- function(community.matrix, file, 
+                                 msg.file="file", msg.col="columns", msg.row="rows",
+                                 regex1=NULL, regex2="", ignore.case=TRUE) { 
+  # rm empty rows and columns
+  community.matrix <- ComMA::rmMinAbundance(community.matrix, minAbund=1)
+  community.matrix <- ComMA::rmMinAbundance(community.matrix, minAbund=1, MARGIN=2)
+  
+  # remove/replace annotation
+  if (! is.null(regex1)) 
+    rownames(community.matrix) <- gsub(regex1, regex2, rownames(community.matrix), 
+                                       ignore.case = ignore.case)
+  
+  ComMA::writeTable(community.matrix, file, msg.file=msg.file, msg.col=msg.col, msg.row=msg.row)
 }
 
 #' @details 

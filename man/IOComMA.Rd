@@ -6,10 +6,15 @@
 \alias{createTaxaTableRDP}
 \alias{readCommunityMatrix}
 \alias{readTaxaTable}
+\alias{writeCommunityMatrix}
 \title{IO functions in \pkg{ComMA}}
 \usage{
 readCommunityMatrix(file, matrix.name = NULL, minAbund = 2,
   verbose = TRUE, regex1 = "(\\\\|[0-9]+)", regex2 = "",
+  ignore.case = TRUE)
+
+writeCommunityMatrix(community.matrix, file, msg.file = "file",
+  msg.col = "columns", msg.row = "rows", regex1 = NULL, regex2 = "",
   ignore.case = TRUE)
 
 readTaxaTable(file, matrix.name = NULL, taxa.group = "assigned",
@@ -26,7 +31,7 @@ createTaxaTableRDP(file, sep = "\\t", rm.rank.prefix = TRUE,
   file.out = "taxa-table-rdp.txt")
 }
 \arguments{
-\item{file}{The file to read.}
+\item{file}{The file to read/write.}
 
 \item{matrix.name}{The string to locate the matrix from its file name.}
 
@@ -38,7 +43,7 @@ But \code{postfix} is only used for naming, no data processed.}
 
 \item{regex1, regex2}{Use for \code{\link{gsub}(regex1, regex2, row.names)} 
 to remove or replace annotation from original labels. 
-Default to \code{regex1="(\\|[0-9]+)", regex2=""}, 
+Default to \code{regex1="(\\|[0-9]+)", regex2=""} for read??? but NULL to write???, 
 which removes size annotation seperated by "|".}
 
 \item{ignore.case}{Refer to \code{\link{gsub}}.}
@@ -81,6 +86,8 @@ IO functions for the data defined in \pkg{ComMA} package, such as community matr
 \details{
 \code{readCommunityMatrix} reads file to return a community matrix.
 
+\code{writeCommunityMatrix} writes a community matrix to file.
+
 \code{readTaxaTable} reads a file to return a taxa table. 
 \code{\link{subsetTaxaTable}} can be used to takes or excludes 
 a subset of the taxa table recursively.
@@ -94,6 +101,8 @@ OTU1	k__Bacteria;p__Firmicutes;c__Clostridia;o__Clostridiales;f__;g__;s__	0.970
 }
 \examples{
 cm <- readCommunityMatrix("16S.txt", "16S")
+
+writeCommunityMatrix(cm, "16S-new.txt", msg.file="16S")
 
 tt.megan <- readTaxaTable("16s-megan.txt", "16S taxa table", taxa.group="Bacteria")
 tt.rdp.8 <- readTaxaTable("16s-rdp.txt", "16S taxa table", taxa.group="Bacteria")
