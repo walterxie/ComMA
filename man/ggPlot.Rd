@@ -20,29 +20,41 @@ ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
 ggHeatmap(df, melt.id, title = "Heatmap", x.lab = "", y.lab = "",
   low = "white", high = "steelblue")
 
-ggBarChart(df.melt, x.id, y.id, fill.id, x.facet.id, y.facet.id,
-  bar.pos = "dodge", y.scale = "identity", rotate.x.text = FALSE,
-  x.interval = 0, x.lim.cart, y.lim.cart, palette, legend.col = 1,
-  legend.nrow = 0, legend.title, title = "Bar Chart", title.size = 10,
+ggBarChart(df.melt, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
+  bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
+  y.trans = "identity", auto.scale.y = FALSE, x.interval = 0,
+  x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
+  legend.title = NULL, legend.col = 1, legend.nrow = 0,
+  x.text.angle = 0, title = "Bar Chart", title.size = 10,
   x.lab = "x.id", y.lab = "y.id")
 
-ggBoxWhiskersPlot(df.melt, x.id, y.id, fill.id, x.facet.id, y.facet.id,
-  outlier.colour = alpha("black", 0.3), y.scale = "identity",
-  y.lower = NA, y.upper = NA, x.lim.cart, y.lim.cart, palette,
-  rotate.x.text = FALSE, dodge.width = 0.8, title = "Box Whiskers Plot",
-  title.size = 10, x.lab = "x.id", y.lab = "y.id")
-
-gtScatterPlot(df.melt, x.id, y.id, colour.id, shaped.id, linked.id, text.id,
-  ellipsed.id, scale.colours, palette, shapes, point.size = 3, xintercept,
-  yintercept, linetype = 2, text.size = 3, hjust = -0.1, vjust = -0.2,
-  text.alpha = 0.5, title.size = 10, title = "Scatter Plot",
+ggBoxWhiskersPlot(df.melt, x.id, y.id, fill.id = NULL,
+  outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
+  x.facet.id = NULL, y.facet.id = NULL, y.trans = "identity",
+  auto.scale.y = FALSE, x.lim.cart = NULL, y.lim.cart = NULL,
+  palette = NULL, legend.title = NULL, legend.col = 1, legend.nrow = 0,
+  x.text.angle = 0, title = "Box Whiskers Plot", title.size = 10,
   x.lab = "x.id", y.lab = "y.id")
 
-gtLine(df.melt, x.id, y.id, group.id, colour.id, shaped.id, text.id,
-  x.scale = "identity", y.scale = "identity", shapes, palette,
-  line.size = 0.5, line.alpha = 0.75, legend.title, text.size = 3,
-  hjust = -0.1, vjust = -0.2, text.alpha = 0.5, title = "Line",
-  title.size = 10, x.lab = "x.id", y.lab = "y.id")
+gtScatterPlot(df.melt, x.id, y.id, colour.id = NULL, shape.id = NULL,
+  shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
+  linke.id = NULL, ellipsed.id = NULL, text.id = NULL, text.data = NULL,
+  text.size = 3, text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
+  xintercept = NULL, yintercept = NULL, line.type = 2,
+  x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
+  legend.title = NULL, legend.col = 1, legend.nrow = 0,
+  title = "Scatter Plot", title.size = 10, x.lab = "x.id",
+  y.lab = "y.id")
+
+gtLine(df.melt, x.id, y.id, group.id = NULL, colour.id = NULL,
+  line.size = 0.5, line.type = 2, line.alpha = 0.75, shape.id = NULL,
+  shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
+  y.trans = "identity", auto.scale.y = FALSE, text.id = NULL,
+  text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
+  text.alpha = 0.5, x.lim.cart = NULL, y.lim.cart = NULL,
+  palette = NULL, legend.title = NULL, legend.col = 1, legend.nrow = 0,
+  x.text.angle = 0, title = "", title.size = 10, x.lab = "x.id",
+  y.lab = "y.id")
 }
 \arguments{
 \item{linetype}{\code{\link{linetype}} 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash.}
@@ -91,17 +103,20 @@ For example,
 \item{x.id, y.id, fill.id, group.id}{The string of column names in \code{df.melt},
 which use for \code{x, y, fill, group} in \code{\link{aes}} in \code{\link{ggplot}}.}
 
-\item{x.facet.id, }{y.facet.id The string of column names in \code{df.melt},
-which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.}
-
 \item{bar.pos}{Position adjustment for \code{\link{geom_bar}}, either as a string, 
 or the result of a call to a position adjustment function. Default to "dodge". 
 Use \code{fill} to generate group percentage bars.}
 
+\item{bar.stat}{Determine what is mapped to bar height. Refer to \code{\link{geom_bar}}. 
+Default to "identity", which define the heights of the bars to represent values in the data.}
+
+\item{x.facet.id, }{y.facet.id The string of column names in \code{df.melt},
+which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.}
+
 \item{x.lim.cart, y.lim.cart}{Setting limits on the coordinate system will zoom the plot, 
 and will not change the underlying data like setting limits on a scale will. 
 Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
-Default missing.}
+Default NULL.}
 
 \item{palette}{The colour palette for bar, box, scatter plot, etc. 
 If length == 1, then use \code{\link{scale_colour_brewer}} 
@@ -109,47 +124,41 @@ If length == 1, then use \code{\link{scale_colour_brewer}}
 If 1 != length <= 3, then use \code{\link{scale_colour_gradientn}}, 
 such as c("blue", "orange").
 Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
-Default missing to use \code{\link{ggplot}} default colours.}
+Default NULL to use \code{\link{ggplot}} default colours.}
+
+\item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
 
 \item{legend.col, legend.nrow}{Customize the number of columns or rows for legend in bar chart. 
 They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0.}
-
-\item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
 
 \item{outlier.colour}{The colour of outliers in box whiskers plot 
 used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
 Default to alpha("black", 0.3).}
 
-\item{y.lower, y.upper}{The \code{\link{limits}} of y-axis, which can cut off the data points.}
-
-\item{colour.id, shaped.id, linked.id}{The column name in \code{df.melt} to 
+\item{colour.id, shape.id, linke.id}{The column name in \code{df.melt} to 
 define how the data points are coloured, shaped, or linked according their values.}
-
-\item{text.id}{Label the data points according \code{text.id} column, 
-such as "Row.names" column after \code{\link{merge}}.}
-
-\item{ellipsed.id}{The column name in \code{df.melt} to define 
-how to draw ellipse over data points, which is normally same as 
-\code{colour.id} to show clusters.}
-
-\item{scale.colours}{A vector of colours to use for n-colour gradient in 
-\code{\link{scale_colour_gradientn}}, such as scale.colours=c("red", "green", "blue").
-Default not to use.}
 
 \item{shapes}{Manually define the shapes of points. Refer to \code{\link{scale_shape_manual}}, 
 and \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}.}
 
 \item{point.size}{The size of points from \code{\link{point.size}}. Default to 3.}
 
-\item{x.scale, y.scale}{The string defines the data scale used in either x-axis or y-axis, 
+\item{ellipsed.id}{The column name in \code{df.melt} to define 
+how to draw ellipse over data points, which is normally same as 
+\code{colour.id} to show clusters.}
+
+\item{text.id}{Label the data points according \code{text.id} column, 
+such as "Row.names" column after \code{\link{merge}}.}
+
+\item{line.size, line.alpha}{The feature of lines for \code{\link{geom_line}}.}
+
+\item{x.trans, y.trans}{The string defines the data scale used in either x-axis or y-axis, 
 which can be "identity" standing for normal, or "per" standing for percentage, 
 moreover either the name of a transformation object for \code{\link{scale_x_continuous}}
 or \code{\link{scale_y_continuous}} (e.g. \code{trans="log"}), or the object itself. 
 Built-in transformations include "asn", "atanh", "boxcox", "exp", "identity", 
 "log", "log10", "log1p", "log2", "logit", "probability", "probit", "reciprocal", 
 "reverse" and "sqrt". Default to "identity".}
-
-\item{line.size, line.alpha}{The feature of lines for \code{\link{geom_line}}.}
 
 \item{title}{Graph title, set title="" to remove it from the plot.}
 
@@ -159,7 +168,11 @@ Set x.lab="" to remove x-axis label from the plot.}
 \item{x.lab.interval}{The interval to display x values in axis. 
 Assume x values are discrete for each bar. Default to 0 to do nothing.}
 
-\item{text.size, hjust, vjust, alpha}{Refer to aesthetics from \code{\link{geom_text}}.}
+\item{dodge.width}{Dodging width, when different to the width of the individual elements. 
+This is useful when you want to align narrow geoms with wider geoms. 
+Refer to \code{\link{position_dodge}}.}
+
+\item{text.size, text.hjust, text.vjust, text.alpha}{The parameters to adjust text in \code{\link{geom_text}}.}
 
 \item{xintercept, yintercept, linetype}{Add horizontal or vertical line. 
 Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
@@ -205,22 +218,35 @@ gg.plot <- ggHeatmap(df=ranks.by.group, melt.id="plot")
 pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
 
 # log-scale y
-bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.scale="log")
+bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
 # percentage bars without grouping in one bar each
-bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.scale="per")
+bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.trans="per")
 # percentage bars one group in one bar
-bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.scale="per")
+bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
 
 # the number of OTUs (y-axis) across the number of samples (x-axis)
 communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 cm.aggre <- cmYAcrossX(communityMatrix)
+require(reshape2)
 df.melt <- melt(cm.aggre, id="samples")
-bar.chart <- ggBarChart(df.melt, x.id="samples", y.id="value", fill.id="variable", y.scale="log", 
+bar.chart <- ggBarChart(df.melt, x.id="samples", y.id="value", fill.id="variable", y.trans="log", 
                         y.lab="", legend.title="", x.interval=1)
 
 box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
 
-
+df.clusters <- random2Clusters()
+df.clusters$labels <- rownames(df.clusters)
+df.clusters
+g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", shape.id="group",   
+                         xintercept=0, yintercept=0, title="Clusters", palette="Set1")
+require(grid)
+grid.draw(g.table)
+# selective labeling for points x > 3 and y > 6
+g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
+                         text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
+                         xintercept=0, yintercept=0, title="Clusters", palette="Set1")
+grid.draw(g.table)
+pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
 
 
 

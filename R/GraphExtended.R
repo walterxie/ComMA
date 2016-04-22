@@ -2,8 +2,11 @@
 # Author: Walter Xie
 # Accessed on 15 Apr 2016
 
+#' NMDS Plot
+#' 
 #' Use \code{\link{metaMDS}} in \code{\link{vegan}}
-#' to create Nonmetric Multidimensional Scaling (NMDS) plot . 
+#' to create Nonmetric Multidimensional Scaling (NMDS) plot.
+#' It is extended from \code{\link{gtScatterPlot}}. 
 #' 
 #' @param comm Community data for NMDS plot. 
 #' It is dissimilarities either as a \code{\link{dist}} structure 
@@ -18,32 +21,15 @@
 #' @export
 #' @examples
 #' 
-#' nmds.plot <- gtNMDSPlot(comm, attr.df, coloured.id="", shaped.id="", linked.id="")
-gtNMDSPlot <- function(comm, attr.df, coloured.id, shaped.id, linked.id, 
-                       distance = "bray", add.text=FALSE, ..., 
-                       title="MDS", verbose=TRUE) {
+#' nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NULL, 
+                       add.text=TRUE, text.data = NULL, text.size=3, 
+                       distance="bray", title="MDS", verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
       stop(paste("Invalid attr.df, rownames(as.matrix(comm)) should match rownames(attr.df)  !"))
   }
 
-  agrs <- ""
-  if (! missing(coloured.id)) {
-    if (! coloured.id %in% colnames(attr.df))
-      stop(paste("Invalid coloured.id,", coloured.id,  "not exsit in column names !"))
-    agrs <- paste0(agrs, ", coloured.id=\"", coloured.id, "\"")
-  } 
-  if (! missing(linked.id)) { 
-    if (! linked.id %in% colnames(attr.df) )
-      stop(paste("Invalid linked.id,", linked.id,  "not exsit in column names !"))
-    agrs <- paste0(agrs, ", linked.id=\"", linked.id, "\"")
-  } 
-  if (! missing(shaped.id)) { 
-    if (! shaped.id %in% colnames(attr.df) )
-      stop(paste("Invalid shaped.id,", shaped.id,  "not exsit in column names !"))
-    agrs <- paste0(agrs, ", shaped.id=\"", shaped.id, "\"")
-  }
-    
   # Run metaMDS, get points and stress
   require(vegan)
   mds <- metaMDS(comm, distance = distance)
@@ -54,8 +40,21 @@ gtNMDSPlot <- function(comm, attr.df, coloured.id, shaped.id, linked.id,
     title <- paste0(title, " (stress ", round(mds$stress, 2), ")")
   
   if (! missing(attr.df)) {
-    rownames(pts.mds) <- tolower(rownames(pts.mds))
-    rownames(attr.df) <- tolower(rownames(attr.df))
+    #rownames(pts.mds) <- tolower(rownames(pts.mds))
+    #rownames(attr.df) <- tolower(rownames(attr.df))
+    
+    if (! is.null(colour.id)) {
+      if (! colour.id %in% colnames(attr.df))
+        stop(paste("Invalid colour.id,", colour.id,  "not exsit in column names !"))
+    } 
+    if (! is.null(linke.id)) { 
+      if (! linke.id %in% colnames(attr.df) )
+        stop(paste("Invalid linke.id,", linke.id,  "not exsit in column names !"))
+    } 
+    if (! is.null(shape.id)) { 
+      if (! shape.id %in% colnames(attr.df) )
+        stop(paste("Invalid shape.id,", shape.id,  "not exsit in column names !"))
+    }
     
     pts.mds.merge <- merge(pts.mds, attr.df, by = "row.names")
     
@@ -68,48 +67,16 @@ gtNMDSPlot <- function(comm, attr.df, coloured.id, shaped.id, linked.id,
   }
   
   if (add.text)
-    agrs <- paste0(agrs, ", text.id=\"Row.names\"")
-  
-  if (verbose)
-    cat("Passing additional argurments to ggScatterPlot : ", agrs, "\n")
-  
+    text.id="Row.names"
+
   # Plot MDS ordination
-  # ComMA::ggScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", ..., title=title)
-  ord.cmd = parse(text = paste0('ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2",', 
-                                agrs, ', ..., title=title)')) 
-  g.d.gt <- eval(ord.cmd)
+  gt <- ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", colour.id=colour.id, 
+                             shape.id=shape.id, linke.id=linke.id, text.id=text.id, 
+                             text.data=text.data, text.size=text.size, title=title, ...)
   
-  return(g.d.gt)
+  return(gt)
 }
 
-#' Superimposed data ellipse on a scatter plot, which is extended from \code{\link{ggScatterPlot}}.
-#' 
-#' @param df.clusters The 3-column data frame for plotting. 
-#' The first 2 columns are coordinates, and 3rd is cluster names. 
-#' @param palette The palette to colour clusters using \code{\link{scale_colour_brewer}}. 
-#' Default to 'Set1' (max 8 colours). Refer to \url{http://www.datavis.ca/sasmac/brewerpal.html}.
-#' @return
-#' A \code{\link{gtable}} object of scatter plot.
-#' @keywords graph
-#' @export
-#' @examples 
-#' df.clusters <- random2Clusters()
-#' df.clusters
-#' g.table <- gtScatterPlotEllipse(df.clusters, add.text=T)
-#' pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
-gtScatterPlotEllipse <- function(df.clusters, title="Clusters", palette="Set1", ...) {
-  if (ncol(df.clusters) < 3)
-    stop("Data frame should have 3 columns: first 2 columns are coordinates, 3rd is cluster names !")
-  
-  colnames(df.clusters)[1:3] <- c("PC1", "PC2", "cluster")
-  # df.clusters$species <- paste(sapply(strsplit(rownames(df.clusters), "_"), "[[", 1), sapply(strsplit(rownames(df.clusters), "_"), "[[", 2), sep=".")
-  df.clusters$cluster <- factor(df.clusters$cluster, levels = sort(unique(df.clusters$cluster)))
-
-  g.d.gt <- ComMA::gtScatterPlot(df.clusters, x.id="PC1", y.id="PC2", coloured.id="cluster", 
-                                 ellipsed.id="cluster", xintercept=0, yintercept=0, 
-                                 palette=palette, title=title, ...)
-  return(g.d.gt)
-}
 
 
 #' Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}. 
@@ -134,6 +101,7 @@ gtScatterPlotEllipse <- function(df.clusters, title="Clusters", palette="Set1", 
 #' @examples 
 #' taxa.phyla <- readFile("./data/examples/taxonomy97phyla.txt")
 #' bar.chart <- ggPercentageBarChart(taxa.phyla, melt.id="TaxaGroup")
+#' bar.chart$gg.plot
 #' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="", y.lab="", autoWidth=TRUE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df))))
@@ -159,7 +127,7 @@ ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="
   legend.col = ceiling(length(legend.ord) / 25)
   
   p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, bar.pos="fill", 
-                  y.scale="per", title=title, x.lab=x.lab, y.lab=y.lab, palette=pale, legend.col=legend.col)
+                         y.trans="per", title=title, x.lab=x.lab, y.lab=y.lab, palette=pale, legend.col=legend.col)
   
   if (autoWidth)
     pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2

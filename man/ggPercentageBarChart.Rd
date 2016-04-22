@@ -35,6 +35,7 @@ Percentage bar chart coloured by groups, which is extended from \code{\link{ggBa
 \examples{
 taxa.phyla <- readFile("./data/examples/taxonomy97phyla.txt")
 bar.chart <- ggPercentageBarChart(taxa.phyla, melt.id="TaxaGroup")
+bar.chart$gg.plot
 pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 }
 \keyword{graph}

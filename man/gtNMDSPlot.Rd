@@ -2,12 +2,11 @@
 % Please edit documentation in R/GraphExtended.R
 \name{gtNMDSPlot}
 \alias{gtNMDSPlot}
-\title{Use \code{\link{metaMDS}} in \code{\link{vegan}}
-to create Nonmetric Multidimensional Scaling (NMDS) plot .}
+\title{NMDS Plot}
 \usage{
-gtNMDSPlot(comm, attr.df, coloured.id, shaped.id, linked.id,
-  distance = "bray", add.text = FALSE, ..., title = "MDS",
-  verbose = TRUE)
+gtNMDSPlot(comm, attr.df, colour.id = NULL, shape.id = NULL,
+  linke.id = NULL, add.text = TRUE, text.data = NULL, text.size = 3,
+  distance = "bray", title = "MDS", verbose = TRUE, ...)
 }
 \arguments{
 \item{comm}{Community data for NMDS plot. 
@@ -24,11 +23,12 @@ where its row names have to match row names of community data \code{comm}.}
 }
 \description{
 Use \code{\link{metaMDS}} in \code{\link{vegan}}
-to create Nonmetric Multidimensional Scaling (NMDS) plot .
+to create Nonmetric Multidimensional Scaling (NMDS) plot.
+It is extended from \code{\link{gtScatterPlot}}.
 }
 \examples{
 
-nmds.plot <- gtNMDSPlot(comm, attr.df, coloured.id="", shaped.id="", linked.id="")
+nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
 }
 \keyword{graph}
 
