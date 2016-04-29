@@ -125,7 +125,7 @@ getCommunityMatrixT <- function(matrix.name, isPlot, taxa.group="all", minAbund=
       community.matrix <- data.matrix(taxaAssgReads)
     }
   }
-  t.community.matrix <- ComMA::transposeCM(community.matrix)
+  t.community.matrix <- ComMA::transpose.df(community.matrix)
   
   return(t.community.matrix)
 }

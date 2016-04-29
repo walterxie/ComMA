@@ -46,19 +46,20 @@ rmMinAbundance <- function(community.matrix, minAbund=2, MARGIN=1, verbose=TRUE)
   community.matrix
 }
 
-#' @details \code{transposeCM} returns a transposed community matrix for \pkg{vegan} package
+#' @details \code{transpose.df} returns a transposed data frame, 
+#' such as transposed community matrix for \pkg{vegan} package.
 #' 
 #' @keywords community matrix
 #' @export
 #' @examples 
-#' communityMatrixT <- transposeCM(community.matrix)
+#' t.community.matrix <- transpose.df(community.matrix)
 #'
 #' @rdname utilsCM
-transposeCM <- function(community.matrix) {
+transpose.df <- function(community.matrix) {
   if (!all(sapply(community.matrix, is.numeric))) 
     stop("All community matrix elements have to be numeric type") 
   
-  communityMatrixT <- as.data.frame(t(as.matrix(community.matrix))) # transpose  
+  t.community.matrix <- as.data.frame(t(as.matrix(community.matrix))) # transpose  
 }
 
 #' @details \code{summaryCM.Vector} return a vector of summary of the 

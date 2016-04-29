@@ -8,13 +8,13 @@
 \alias{sumColumns}
 \alias{summaryCM}
 \alias{summaryCM.Vector}
-\alias{transposeCM}
+\alias{transpose.df}
 \alias{utilsCM}
 \title{Utils to preprocess community matrix}
 \usage{
 rmMinAbundance(community.matrix, minAbund = 2, MARGIN = 1, verbose = TRUE)
 
-transposeCM(community.matrix)
+transpose.df(community.matrix)
 
 summaryCM.Vector(community.matrix, digits = 2)
 
@@ -76,7 +76,8 @@ and aggregating matrix by different ways.
 \code{rmMinAbundance} returns the subset matrix of given community matrix, 
 by removing rows or colums whose sum of abundance is less than the minimum abundance threshold.
 
-\code{transposeCM} returns a transposed community matrix for \pkg{vegan} package
+\code{transpose.df} returns a transposed data frame, 
+such as transposed community matrix for \pkg{vegan} package.
 
 \code{summaryCM.Vector} return a vector of summary of the 
 community matrix, where \code{community.matrix} can be one column only.
@@ -105,7 +106,7 @@ to the values of given columns.
 # remove singletons 
 rmMinAbundance(community.matrix, minAbund=2)
 
-communityMatrixT <- transposeCM(community.matrix)
+t.community.matrix <- transpose.df(community.matrix)
 
 summary.cm.vector <- summaryCM.Vector(community.matrix)
 

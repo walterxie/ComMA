@@ -3,22 +3,22 @@
 #' @name CommunityPhyloStru
 #' @title Community Phylogenetic Structure from \pkg{picante} Package
 #'
-#' @description Data input \strong{t.communityMatrix} is 
+#' @description A wrapper class using \pkg{picante} Package. 
+#' Data input \strong{t.community.matrix} is 
 #' a transposed matrix from community matrix we defined in \pkg{ComMA}.
 #' \strong{phylo.tree} is a rooted tree of phylo object, 
 #' which can get from \pkg{ape} \code{\link{read.tree}}.
 #' 
-#' @details \code{phylo.alpha} calls \code{\link{pd}} in \pkg{picante}, 
-#' which calculates phylogenetic alpha diversity (PD) index proposed by Faith (1992).
-#' @param t.communityMatrix A transposed matrix from community matrix, where rows are samples, columns are OTUs
+#' @details \code{phylo.alpha} returns a data frame of the PD and species richness (SR) 
+#' values for all samples from \code{\link{pd}} in \pkg{picante}. 
+#' Phylogenetic alpha diversity (PD) index is proposed by Faith (1992).
+#' @param t.community.matrix A transposed matrix from community matrix, where rows are samples, columns are OTUs
 #' @param phylo.tree A rooted tree of phylo object
 #' @param ORD.RES The function how to order the sample names in the result
 #' @param verbose default TRUE
-#' @return 
-#' \code{phylo.alpha} returns a data frame of the PD and species richness (SR) values for all samples. 
 #' @export
 #' @examples 
-#' pd.alpha <- phylo.alpha(t.communityMatrix, phylo.tree)
+#' pd.alpha <- phylo.alpha(t.community.matrix, phylo.tree)
 #' pd.alpha
 #' \tabular{rrr}{
 #'    \tab PD \tab SR\cr
@@ -28,12 +28,12 @@
 #' }
 #' 
 #' @rdname CommunityPhyloStru
-phylo.alpha <- function(t.communityMatrix, phylo.tree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
-  if ( ! all( sort(colnames(t.communityMatrix)) == sort(phylo.tree$tip.label) ) ) 
+phylo.alpha <- function(t.community.matrix, phylo.tree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
+  if ( ! all( sort(colnames(t.community.matrix)) == sort(phylo.tree$tip.label) ) ) 
     cat("Warning: community OTU names do not match tree tip labels !\n")
   
   if(verbose) {
-    cat("Input community", nrow(t.communityMatrix), "samples", ncol(t.communityMatrix), "OTUs", 
+    cat("Input community", nrow(t.community.matrix), "samples", ncol(t.community.matrix), "OTUs", 
         ", phylogenetic tree with", length(phylo.tree$tip.label), "tips and", phylo.tree$Nnode, "internal nodes.\n") 
     cat("Analysis: Faith's phylogenetic alpha diversity.\n") 
   }
@@ -41,7 +41,7 @@ phylo.alpha <- function(t.communityMatrix, phylo.tree, ORD.RES=function(res) {re
   require(picante)
   
   # phylogenetic alpha diversity (PD) index proposed by Faith (1992)
-  pd.result <- pd(t.communityMatrix, phylo.tree, include.root = TRUE)
+  pd.result <- pd(t.community.matrix, phylo.tree, include.root = TRUE)
   
   pd.result <- ORD.RES(pd.result)
   pd.result
@@ -50,14 +50,12 @@ phylo.alpha <- function(t.communityMatrix, phylo.tree, ORD.RES=function(res) {re
 #' @details \code{phylo.mpd} returns \pkg{picante} \code{\link{ses.mpd}}, 
 #' which is MPD standardized effect size of mean pairwise distances in communities.
 #' When used with a phylogenetic distance matrix, equivalent to -1 times the Nearest Taxon Index (NTI).
-#' @return 
-#' \code{phylo.mpd} returns a data frame of results from \code{\link{ses.mpd}}. 
 #' @export
 #' @examples 
-#' pd.mpd <- phylo.mpd(t.communityMatrix, phylo.tree)
+#' pd.mpd <- phylo.mpd(t.community.matrix, phylo.tree)
 #' 
 #' @rdname CommunityPhyloStru
-phylo.mpd <- function(t.communityMatrix, phylo.tree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
+phylo.mpd <- function(t.community.matrix, phylo.tree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
   if(verbose) 
     cat("Analysis: mean pairwise distance (MPD).\n")
   
@@ -68,20 +66,18 @@ phylo.mpd <- function(t.communityMatrix, phylo.tree, ORD.RES=function(res) {res[
   
   # When used with a phylogenetic distance matrix, equivalent to -1 times the Nearest Taxon Index (NTI).
   # MPD: standardized effect size of mean pairwise distances in communities
-  ses.mpd.result <- ses.mpd(t.communityMatrix, phydist, null.model = "taxa.labels", abundance.weighted = FALSE, runs = 99)
+  ses.mpd.result <- ses.mpd(t.community.matrix, phydist, null.model = "taxa.labels", abundance.weighted = FALSE, runs = 99)
   ses.mpd.result <- ORD.RES(ses.mpd.result)
   ses.mpd.result
 }
 
 #' @details \code{phylo.mntd} returns \pkg{picante} \code{\link{ses.mntd}}, 
-#' which is MNTD standardized effect size of mean nearest taxon distances in communities
-#' @return 
-#' \code{phylo.mntd} returns a data frame of results from \code{\link{ses.mntd}}. 
+#' which is MNTD standardized effect size of mean nearest taxon distances in communities.
 #' @export
 #' @examples 
-#' pd.mntd <- phylo.mntd(t.communityMatrix, phylo.tree)
+#' pd.mntd <- phylo.mntd(t.community.matrix, phylo.tree)
 #' @rdname CommunityPhyloStru
-phylo.mntd <- function(t.communityMatrix, phylo.tree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
+phylo.mntd <- function(t.community.matrix, phylo.tree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
   if(verbose) 
     cat("Analysis: mean nearest taxon distance (MNTD).\n")
 
@@ -90,32 +86,54 @@ phylo.mntd <- function(t.communityMatrix, phylo.tree, ORD.RES=function(res) {res
   # cophenetic distances for a hierarchical clustering
   phydist <- cophenetic(phylo.tree)
   # MNTD: standardized effect size of mean nearest taxon distances in communities
-  ses.mntd.result <- ses.mntd(t.communityMatrix, phydist, null.model = "taxa.labels", abundance.weighted = FALSE, runs = 99)
+  ses.mntd.result <- ses.mntd(t.community.matrix, phydist, null.model = "taxa.labels", abundance.weighted = FALSE, runs = 99)
   ses.mntd.result <- ORD.RES(ses.mntd.result)
   ses.mntd.result
 }
 
-#' @details \code{phylo.beta.dist} returns dist object from \pkg{picante} \code{\link{comdist}}, 
+#' @details \code{phylo.beta.dist} returns \code{\link{dist}} object from \pkg{picante} \code{\link{comdist}}, 
 #' which is phylogenetic beta diversity (Steven Kembel).
-#' @return 
-#' \code{phylo.beta.dist} returns a \code{\link{dist}} of results from \code{\link{comdist}}. 
 #' @export
 #' @examples 
-#' pd.beta.dist <- phylo.beta.dist(t.communityMatrix, phylo.tree)
+#' pd.beta.dist <- phylo.beta.dist(t.community.matrix, phylo.tree)
 #' 
 #' @rdname CommunityPhyloStru
-phylo.beta.dist <- function(t.communityMatrix, phylo.tree, verbose=TRUE) {
-  if(verbose) 
+phylo.beta.dist <- function(t.community.matrix, phylo.tree, verbose=TRUE) {
+  if(verbose) {
     cat("Analysis: MPD phylogenetic beta diversity.\n")
-  
+    cat("t.community.matrix has", nrow(t.community.matrix), "samples,", 
+        ncol(t.community.matrix), "OTUs/taxa,", ".\n")
+    cat(phylo.tree, ".\n")
+  }
   require(picante)
 
   # cophenetic distances for a hierarchical clustering
   phydist <- cophenetic(phylo.tree)
   # MPD (mean pairwise distance) separating taxa in two communities, phylogenetic beta diversity (Steven Kembel)
-  comdist.result <- comdist(t.communityMatrix, phydist)
+  comdist.result <- comdist(t.community.matrix, phydist)
   comdist.result
 }
+
+#' @details \code{phylo.unifrac.dist} calculates unweighted UniFrac and 
+#' returns dist object from \pkg{picante} \code{\link{unifrac}}.
+#' @export
+#' @examples 
+#' unifrac.dist <- phylo.unifrac.dist(t.community.matrix, phylo.tree)
+#' 
+#' @rdname CommunityPhyloStru
+phylo.unifrac.dist <- function(t.community.matrix, phylo.tree, verbose=TRUE) {
+  if(verbose) {
+    cat("Analysis: calculates unweighted UniFrac.\n")
+    cat("t.community.matrix has", nrow(t.community.matrix), "samples,", 
+        ncol(t.community.matrix), "OTUs/taxa,", ".\n")
+    cat("phylo.tree has ", length(phylo.tree$tip.label), " tips and ", phylo.tree$Nnode, " internal nodes.\n")
+  }
+  require(picante)
+  
+  unifrac.dist <- unifrac(t.community.matrix, phylo.tree)
+  unifrac.dist
+}
+
 
 #' @details \code{printResult} prints intermediate data to either file or console.
 #' @param pd.alpha The result of phylogenetic alpha diversity, ignore it if NULL. 
@@ -194,5 +212,3 @@ plotPDBeta <- function(pd.beta.dist, filePath, fileStem) {
   plot(comdist.clusters, xlab="", sub ="", main=paste("Phylogenetic beta diversity"))
   invisible(dev.off())
 }
-
-

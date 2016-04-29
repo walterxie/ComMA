@@ -12,7 +12,7 @@
 #' It is dissimilarities either as a \code{\link{dist}} structure 
 #' or as a community data defined by \code{\link{vegan}} which is 
 #' a transposed matrix of community matrix in \code{\link{ComMA}}.
-#' Use \code{\link{transposeCM}} to rotate the data frame.
+#' Use \code{\link{transpose.df}} to rotate the data frame.
 #' Detail to \code{\link{metaMDS}}.
 #' @param distance Dissimilarity index used in \code{\link{vegdist}}.
 #' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
@@ -22,6 +22,8 @@
 #' @examples
 #' 
 #' nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+#' require(grid)
+#' grid.draw(nmds.plot)
 gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NULL, 
                        add.text=TRUE, text.data = NULL, text.size=3, 
                        distance="bray", title="MDS", verbose=TRUE, ...) {

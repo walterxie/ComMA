@@ -259,9 +259,16 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
 }
 
 #' @details 
-#' \code{groupsClassifiedRows} groups the classified rows (e.g. OTUs) from 
-#' \code{taxa.table} for each taxa in \code{taxa.assign} at the \code{rank}, 
-#' and returns a list of rows (e.g. OTUs) grouped by taxonomy. 
+#' \code{groupsTaxaMembers} groups the members (rows, also OTUs) from 
+#' \code{cm.taxa} for each taxa in \code{taxa.assign} at the \code{rank}, 
+#' and returns a list of members (OTUs) grouped by taxonomy. 
+#' Default to drop all unclassified members (OTUs). 
+#' 
+#' It is impossible to trace back members after \code{assignTaxaByRank},
+#' so that this function only has one option except the default, 
+#' which assign the rest of members (OTUs) not picked up from other taxa  
+#' into "unclassified". The result relies on using the identical \code{cm.taxa} 
+#' in both \code{assignTaxaByRank} and \code{groupsTaxaMembers}.
 #' 
 #' @param taxa.assign The data frame of taxonomic assignments with abudence
 #' at the \code{rank}, where rownames are taxonomy at that rank, 
@@ -272,17 +279,21 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
 #' to remove or replace annotation from original labels. 
 #' Default to \code{regex1="(\\|[0-9]+)", regex2=""}, 
 #' which removes size annotation seperated by "|".
+#' @param rm.unclassified Drop all unclassified rows (OTUs). Default to TRUE.
 #' @keywords utils
 #' @export
 #' @examples 
-#' taxa.members <- groupsClassifiedRows(ta.rdp[["phylum"]], tt.rdp)
-#' taxa.members <- groupsClassifiedRows(ta.rdp[["family"]], tt.rdp, rank="family")
+#' taxa.members <- groupsTaxaMembers(ta.rdp[["phylum"]], tt.rdp)
+#' taxa.members <- groupsTaxaMembers(ta.rdp[["family"]], tt.rdp, rank="family")
 #' 
 #' @rdname utilsTaxa
-groupsClassifiedRows <- function(taxa.assign, taxa.table, rank="phylum",
-                                 regex1="(\\|[0-9]+)", regex2="", ignore.case=TRUE) {
-  if (is.null(rownames(taxa.assign)) || is.null(rownames(taxa.table)))
-    stop("Invalid taxa.assign or taxa.table, which needs taxa or OTUs in its rownames !")
+groupsTaxaMembers <- function(taxa.assign, cm.taxa, rank="phylum", rm.unclassified=TRUE,
+                              regex1="(\\|[0-9]+)", regex2="", ignore.case=TRUE) {
+  if (!is.element("Row.names", colnames(cm.taxa)))
+    stop("Invalid cm.taxa, which needs the column \"Row.names\" !")
+  rownames(cm.taxa) <- cm.taxa[,"Row.names"]
+  if (is.null(rownames(taxa.assign)) || is.null(rownames(cm.taxa)))
+    stop("Invalid taxa.assign or cm.taxa, which needs taxa or OTUs in its rownames !")
   ra <- attributes(taxa.assign)$rank
   if (is.null(ra))
     warning("Cannot find rank attribute from taxa.assign, no validation is proceeded !")
@@ -291,17 +302,26 @@ groupsClassifiedRows <- function(taxa.assign, taxa.table, rank="phylum",
   
   id.unclassified <- grep("unclassified", rownames(taxa.assign), ignore.case = T)
   if (length(id.unclassified) > 0) {
-    warning("Drop all unclassified rows (OTUs) belonging to : ", 
-                paste(rownames(taxa.assign)[id.unclassified], collapse = ","), " !\n")
+    if (rm.unclassified)
+      warning("Drop all unclassified rows (OTUs) belonging to : ", 
+              paste(rownames(taxa.assign)[id.unclassified], collapse = ","), " !\n")
+    
     taxa.assign <- taxa.assign[-id.unclassified,]
   }
   
   # remove/replace annotation
   if (! is.null(regex1)) 
-    rownames(taxa.table) <- gsub(regex1, regex2, rownames(taxa.table), ignore.case = ignore.case)
+    rownames(cm.taxa) <- gsub(regex1, regex2, rownames(cm.taxa), ignore.case = ignore.case)
   
   taxa.members <- sapply(rownames(taxa.assign), 
-                         function(taxa) rownames(taxa.table)[which(taxa.table[,rank] == taxa)])
+                         function(taxa) rownames(cm.taxa)[which(cm.taxa[,rank] == taxa)])
+  
+  # add the rest of OTUs into unclassified
+  if (!rm.unclassified && length(id.unclassified) > 0) {
+    uncl.members <- setdiff(rownames(cm.taxa), unlist(taxa.members)) 
+    taxa.members[["unclassified"]] <- uncl.members
+    cat("Add", length(uncl.members), "OTUs into unclassified.\n")
+  }
   
   if (!all(lapply(taxa.members,length)>0)) {
     warning("Remove taxa having no OTU : ", 
@@ -309,7 +329,7 @@ groupsClassifiedRows <- function(taxa.assign, taxa.table, rank="phylum",
     # Remove empty elements from list
     taxa.members <- taxa.members[lapply(taxa.members,length)>0]
   }
-
+  
   return(taxa.members)
 }
 

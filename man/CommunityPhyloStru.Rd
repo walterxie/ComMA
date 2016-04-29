@@ -6,20 +6,23 @@
 \alias{phylo.beta.dist}
 \alias{phylo.mntd}
 \alias{phylo.mpd}
+\alias{phylo.unifrac.dist}
 \alias{plotPDBeta}
 \alias{printResult}
 \title{Community Phylogenetic Structure from \pkg{picante} Package}
 \usage{
-phylo.alpha(t.communityMatrix, phylo.tree, ORD.RES = function(res) {    
+phylo.alpha(t.community.matrix, phylo.tree, ORD.RES = function(res) {    
   res[order(rownames(res)), ] }, verbose = TRUE)
 
-phylo.mpd(t.communityMatrix, phylo.tree, ORD.RES = function(res) {    
+phylo.mpd(t.community.matrix, phylo.tree, ORD.RES = function(res) {    
   res[order(rownames(res)), ] }, verbose = TRUE)
 
-phylo.mntd(t.communityMatrix, phylo.tree, ORD.RES = function(res) {    
+phylo.mntd(t.community.matrix, phylo.tree, ORD.RES = function(res) {    
   res[order(rownames(res)), ] }, verbose = TRUE)
 
-phylo.beta.dist(t.communityMatrix, phylo.tree, verbose = TRUE)
+phylo.beta.dist(t.community.matrix, phylo.tree, verbose = TRUE)
+
+phylo.unifrac.dist(t.community.matrix, phylo.tree, verbose = TRUE)
 
 printResult(pd.alpha = NULL, pd.mpd = NULL, pd.mntd = NULL,
   pd.beta.dist = NULL, filePath, fileStem, tableFile = NULL)
@@ -27,7 +30,7 @@ printResult(pd.alpha = NULL, pd.mpd = NULL, pd.mntd = NULL,
 plotPDBeta(pd.beta.dist, filePath, fileStem)
 }
 \arguments{
-\item{t.communityMatrix}{A transposed matrix from community matrix, where rows are samples, columns are OTUs}
+\item{t.community.matrix}{A transposed matrix from community matrix, where rows are samples, columns are OTUs}
 
 \item{phylo.tree}{A rooted tree of phylo object}
 
@@ -49,41 +52,37 @@ plotPDBeta(pd.beta.dist, filePath, fileStem)
 
 \item{tableFile}{If NULL, then print the results to console, otherwise print them to the file. Default to NULL.}
 }
-\value{
-\code{phylo.alpha} returns a data frame of the PD and species richness (SR) values for all samples.
-
-\code{phylo.mpd} returns a data frame of results from \code{\link{ses.mpd}}.
-
-\code{phylo.mntd} returns a data frame of results from \code{\link{ses.mntd}}.
-
-\code{phylo.beta.dist} returns a \code{\link{dist}} of results from \code{\link{comdist}}.
-}
 \description{
-Data input \strong{t.communityMatrix} is 
+A wrapper class using \pkg{picante} Package. 
+Data input \strong{t.community.matrix} is 
 a transposed matrix from community matrix we defined in \pkg{ComMA}.
 \strong{phylo.tree} is a rooted tree of phylo object, 
 which can get from \pkg{ape} \code{\link{read.tree}}.
 }
 \details{
-\code{phylo.alpha} calls \code{\link{pd}} in \pkg{picante}, 
-which calculates phylogenetic alpha diversity (PD) index proposed by Faith (1992).
+\code{phylo.alpha} returns a data frame of the PD and species richness (SR) 
+values for all samples from \code{\link{pd}} in \pkg{picante}. 
+Phylogenetic alpha diversity (PD) index is proposed by Faith (1992).
 
 \code{phylo.mpd} returns \pkg{picante} \code{\link{ses.mpd}}, 
 which is MPD standardized effect size of mean pairwise distances in communities.
 When used with a phylogenetic distance matrix, equivalent to -1 times the Nearest Taxon Index (NTI).
 
 \code{phylo.mntd} returns \pkg{picante} \code{\link{ses.mntd}}, 
-which is MNTD standardized effect size of mean nearest taxon distances in communities
+which is MNTD standardized effect size of mean nearest taxon distances in communities.
 
-\code{phylo.beta.dist} returns dist object from \pkg{picante} \code{\link{comdist}}, 
+\code{phylo.beta.dist} returns \code{\link{dist}} object from \pkg{picante} \code{\link{comdist}}, 
 which is phylogenetic beta diversity (Steven Kembel).
+
+\code{phylo.unifrac.dist} calculates unweighted UniFrac and 
+returns dist object from \pkg{picante} \code{\link{unifrac}}.
 
 \code{printResult} prints intermediate data to either file or console.
 
 \code{plotPDBeta} plots the dendrogram of phylogenetic beta diversity (Steven Kembel)
 }
 \examples{
-pd.alpha <- phylo.alpha(t.communityMatrix, phylo.tree)
+pd.alpha <- phylo.alpha(t.community.matrix, phylo.tree)
 pd.alpha
 \\tabular{rrr}{
    \\tab PD \\tab SR\\cr
@@ -92,10 +91,12 @@ pd.alpha
   CM30b60 \\tab 554.9873 \\tab 2931
 }
 
-pd.mpd <- phylo.mpd(t.communityMatrix, phylo.tree)
+pd.mpd <- phylo.mpd(t.community.matrix, phylo.tree)
 
-pd.mntd <- phylo.mntd(t.communityMatrix, phylo.tree)
-pd.beta.dist <- phylo.beta.dist(t.communityMatrix, phylo.tree)
+pd.mntd <- phylo.mntd(t.community.matrix, phylo.tree)
+pd.beta.dist <- phylo.beta.dist(t.community.matrix, phylo.tree)
+
+unifrac.dist <- phylo.unifrac.dist(t.community.matrix, phylo.tree)
 
 tableFile <- file.path(workingPath, "report.tex")
 pdFilePath <- file.path(workingPath, "data", "pd")

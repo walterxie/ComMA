@@ -13,7 +13,7 @@ gtNMDSPlot(comm, attr.df, colour.id = NULL, shape.id = NULL,
 It is dissimilarities either as a \code{\link{dist}} structure 
 or as a community data defined by \code{\link{vegan}} which is 
 a transposed matrix of community matrix in \code{\link{ComMA}}.
-Use \code{\link{transposeCM}} to rotate the data frame.
+Use \code{\link{transpose.df}} to rotate the data frame.
 Detail to \code{\link{metaMDS}}.}
 
 \item{attr.df}{A data frame to define how NMDS plot is coloured, shaped, or linked.
@@ -29,6 +29,8 @@ It is extended from \code{\link{gtScatterPlot}}.
 \examples{
 
 nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+require(grid)
+grid.draw(nmds.plot)
 }
 \keyword{graph}
 
