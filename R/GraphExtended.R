@@ -29,7 +29,8 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NU
                        distance="bray", title="MDS", verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
-      stop(paste("Invalid attr.df, rownames(as.matrix(comm)) should match rownames(attr.df)  !"))
+      stop("Invalid attr.df,", paste(rownames(as.matrix(comm)), collapse = ","), 
+           "should match", paste(rownames(attr.df), collapse = ","), "!\n")
   }
 
   # Run metaMDS, get points and stress
@@ -47,22 +48,22 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NU
     
     if (! is.null(colour.id)) {
       if (! colour.id %in% colnames(attr.df))
-        stop(paste("Invalid colour.id,", colour.id,  "not exsit in column names !"))
+        stop("Invalid colour.id,", colour.id,  "not exsit in column names !\n")
     } 
     if (! is.null(linke.id)) { 
       if (! linke.id %in% colnames(attr.df) )
-        stop(paste("Invalid linke.id,", linke.id,  "not exsit in column names !"))
+        stop("Invalid linke.id,", linke.id,  "not exsit in column names !\n")
     } 
     if (! is.null(shape.id)) { 
       if (! shape.id %in% colnames(attr.df) )
-        stop(paste("Invalid shape.id,", shape.id,  "not exsit in column names !"))
+        stop("Invalid shape.id,", shape.id,  "not exsit in column names !\n")
     }
     
     pts.mds.merge <- merge(pts.mds, attr.df, by = "row.names")
     
     if (nrow(pts.mds.merge) != nrow(pts.mds) || nrow(pts.mds.merge) != nrow(attr.df)) 
-      warning(paste("Some data points are missing after merge !", 
-                    nrow(pts.mds.merge), "!=", nrow(pts.mds), "!=", nrow(attr.df) ))
+      warning(paste("Some data points are missing after merge ! nrow(pts.mds.merge) =", 
+                    nrow(pts.mds.merge), ", nrow(pts.mds) =", nrow(pts.mds), ", nrow(attr.df) =", nrow(attr.df) ))
   } else {
     pts.mds.merge <- pts.mds
     pts.mds.merge[,"Row.names"] <- rownames(pts.mds) 
@@ -80,6 +81,82 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NU
 }
 
 
+#' PCA Plot
+#' 
+#' Use \code{\link{prcomp}} to create Principal Components Analysis (PCA) plot.
+#' It is extended from \code{\link{gtScatterPlot}}. 
+#' 
+#' @param comm Community data for NMDS plot. 
+#' It is dissimilarities either as a \code{\link{dist}} structure 
+#' or as a community data defined by \code{\link{vegan}} which is 
+#' a transposed matrix of community matrix in \code{\link{ComMA}}.
+#' Use \code{\link{transpose.df}} to rotate the data frame.
+#' Detail to \code{\link{prcomp}}.
+#' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
+#' where its row names have to match row names of community data \code{comm}.
+#' @keywords graph
+#' @export
+#' @examples
+#' 
+#' pca.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+#' require(grid)
+#' grid.draw(pca.plot)
+gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL, linke.id=NULL, 
+                       add.text=TRUE, text.data = NULL, text.size=3, 
+                       title="PCA", verbose=TRUE, ...) {
+  if (! missing(attr.df)) {
+    if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
+      stop("Invalid attr.df,", paste(rownames(as.matrix(comm)), collapse = ","), 
+           "should match", paste(rownames(attr.df), collapse = ","), "!\n")
+  }
+
+  # Run prcomp, get points 
+  pca <- prcomp(comm, scale. = TRUE)
+  pts.pca <- as.data.frame(pca$rotation)
+  pts.pca <- pts.pca[order(rownames(pts.pca)),]
+
+  if (x.i>=y.i || x.i < 1 || y.i > ncol(pts.pca))
+    stop("Invalid x.i", x.i,  "or y.i", y.i, "for PCA dimension index !\n")
+    
+  if (! missing(attr.df)) {
+    #rownames(pts.pca) <- tolower(rownames(pts.pca))
+    #rownames(attr.df) <- tolower(rownames(attr.df))
+    
+    if (! is.null(colour.id)) {
+      if (! colour.id %in% colnames(attr.df))
+        stop("Invalid colour.id,", colour.id,  "not exsit in column names !\n")
+    } 
+    if (! is.null(linke.id)) { 
+      if (! linke.id %in% colnames(attr.df) )
+        stop("Invalid linke.id,", linke.id,  "not exsit in column names !\n")
+    } 
+    if (! is.null(shape.id)) { 
+      if (! shape.id %in% colnames(attr.df) )
+        stop("Invalid shape.id,", shape.id,  "not exsit in column names !\n")
+    }
+    
+    pts.pca.merge <- merge(pts.pca, attr.df, by = "row.names")
+    
+    if (nrow(pts.pca.merge) != nrow(pts.pca) || nrow(pts.pca.merge) != nrow(attr.df)) 
+      warning(paste("Some data points are missing after merge !", 
+                    nrow(pts.pca.merge), "!=", nrow(pts.pca), "!=", nrow(attr.df) ))
+  } else {
+    pts.pca.merge <- pts.pca
+    pts.pca.merge[,"Row.names"] <- rownames(pts.pca) 
+  }
+  
+  if (add.text)
+    text.id="Row.names"
+  
+  x.id <- paste0("PC", x.i)
+  y.id <- paste0("PC", y.i)
+  # Plot MDS ordination
+  gt <- ComMA::gtScatterPlot(pts.pca.merge, x.id="PC1", y.id="PC2", colour.id=colour.id, 
+                             shape.id=shape.id, linke.id=linke.id, text.id=text.id, 
+                             text.data=text.data, text.size=text.size, title=title, ...)
+  
+  return(gt)
+}
 
 #' Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}. 
 #' 
