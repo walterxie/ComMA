@@ -88,7 +88,7 @@ trimStartEnd <- function (x) gsub("^\\s+|\\s+$", "", x)
 #' @rdname stringUtils
 trimAll <- function (x) gsub("\\s", "", x)
 
-#' @details \code{substrRight} extracts the last n characters from a string x
+#' @details \code{substrLast} extracts the last n characters from a string x
 #' 
 #' @param n The last n characters
 #' @source \url{http://stackoverflow.com/questions/7963898/extracting-the-last-n-characters-from-a-string-in-r}
@@ -96,13 +96,13 @@ trimAll <- function (x) gsub("\\s", "", x)
 #' @export
 #' @examples 
 #' x <- "some text in a string"
-#' substrRight(x, 6)
+#' substrLast(x, 6)
 #' [1] "string"
-#' substrRight(x, 8)
+#' substrLast(x, 8)
 #' [1] "a string"
 #'
 #' @rdname stringUtils
-substrRight <- function(x, n) {substr(x, nchar(x)-n+1, nchar(x))}
+substrLast <- function(x, n) {substr(x, nchar(x)-n+1, nchar(x))}
 
 #' @details \code{substrBetween} extracts the substring between two given regular expressions.
 #' 

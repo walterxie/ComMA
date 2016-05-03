@@ -6,7 +6,8 @@
 \usage{
 gtNMDSPlot(comm, attr.df, colour.id = NULL, shape.id = NULL,
   link.id = NULL, add.text = TRUE, text.data = NULL, text.size = 3,
-  palette = NULL, distance = "bray", title = "MDS", verbose = TRUE, ...)
+  palette = NULL, xintercept = NULL, yintercept = NULL,
+  distance = "bray", title = "MDS", verbose = TRUE, ...)
 }
 \arguments{
 \item{comm}{Community data for NMDS plot. 

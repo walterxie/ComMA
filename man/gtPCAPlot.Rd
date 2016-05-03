@@ -6,7 +6,8 @@
 \usage{
 gtPCAPlot(comm, attr.df, x.i = 1, y.i = 2, colour.id = NULL,
   shape.id = NULL, link.id = NULL, add.text = TRUE, text.data = NULL,
-  text.size = 3, palette = NULL, title = "PCA", verbose = TRUE, ...)
+  text.size = 3, palette = NULL, xintercept = NULL, yintercept = NULL,
+  title = "PCA", verbose = TRUE, ...)
 }
 \arguments{
 \item{comm}{Community data for NMDS plot. 

@@ -4,7 +4,7 @@
 \alias{simpleCap}
 \alias{stringUtils}
 \alias{substrBetween}
-\alias{substrRight}
+\alias{substrLast}
 \alias{trimAll}
 \alias{trimStartEnd}
 \title{Utils to deal with strings and characters}
@@ -24,7 +24,7 @@ trimStartEnd(x)
 
 trimAll(x)
 
-substrRight(x, n)
+substrLast(x, n)
 
 substrBetween(x, l, r)
 
@@ -50,7 +50,7 @@ Useful function to manipulate strings and characters in \code{\link{ComMA}}.
 
 \code{trimAll} removes all whitespace from a string.
 
-\code{substrRight} extracts the last n characters from a string x
+\code{substrLast} extracts the last n characters from a string x
 
 \code{substrBetween} extracts the substring between two given regular expressions.
 
@@ -66,9 +66,9 @@ trimAll(text)
 [1] "foobarbaz3"
 
 x <- "some text in a string"
-substrRight(x, 6)
+substrLast(x, 6)
 [1] "string"
-substrRight(x, 8)
+substrLast(x, 8)
 [1] "a string"
 
 x <- "command took 0:1:34.67 (94.67s total)"

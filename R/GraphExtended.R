@@ -26,13 +26,14 @@
 #' grid.draw(nmds.plot)
 gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
                        add.text=TRUE, text.data = NULL, text.size=3, palette=NULL,
+                       xintercept=NULL, yintercept=NULL, 
                        distance="bray", title="MDS", verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
       stop("Invalid attr.df,", paste(rownames(as.matrix(comm)), collapse = ","), 
            "should match", paste(rownames(attr.df), collapse = ","), "!\n")
   }
-
+  
   # Run metaMDS, get points and stress
   require(vegan)
   mds <- metaMDS(comm, distance = distance)
@@ -71,10 +72,11 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
   
   if (add.text)
     text.id="Row.names"
-
+  
   # Plot MDS ordination
   gt <- ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", colour.id=colour.id, 
-                             shape.id=shape.id, link.id=link.id, text.id=text.id, palette=palette,
+                             shape.id=shape.id, link.id=link.id, text.id=text.id, 
+                             palette=palette, xintercept=xintercept, yintercept=yintercept,
                              text.data=text.data, text.size=text.size, title=title, ...)
   
   return(gt)
@@ -102,22 +104,22 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
 #' require(grid)
 #' grid.draw(pca.plot)
 gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL, link.id=NULL, 
-                       add.text=TRUE, text.data = NULL, text.size=3, palette=NULL,
-                       title="PCA", verbose=TRUE, ...) {
+                      add.text=TRUE, text.data=NULL, text.size=3, palette=NULL,
+                      xintercept=NULL, yintercept=NULL, title="PCA", verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
       stop("Invalid attr.df,", paste(rownames(as.matrix(comm)), collapse = ","), 
            "should match", paste(rownames(attr.df), collapse = ","), "!\n")
   }
-
+  
   # Run prcomp, get points 
   pca <- prcomp(comm, scale. = TRUE)
   pts.pca <- as.data.frame(pca$rotation)
   pts.pca <- pts.pca[order(rownames(pts.pca)),]
-
+  
   if (x.i>=y.i || x.i < 1 || y.i > ncol(pts.pca))
     stop("Invalid x.i", x.i,  "or y.i", y.i, "for PCA dimension index !\n")
-    
+  
   if (! missing(attr.df)) {
     #rownames(pts.pca) <- tolower(rownames(pts.pca))
     #rownames(attr.df) <- tolower(rownames(attr.df))
@@ -152,7 +154,8 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
   y.id <- paste0("PC", y.i)
   # Plot MDS ordination
   gt <- ComMA::gtScatterPlot(pts.pca.merge, x.id="PC1", y.id="PC2", colour.id=colour.id, 
-                             shape.id=shape.id, link.id=link.id, text.id=text.id, palette=palette,
+                             shape.id=shape.id, link.id=link.id, text.id=text.id, 
+                             palette=palette, xintercept=xintercept, yintercept=yintercept,
                              text.data=text.data, text.size=text.size, title=title, ...)
   
   return(gt)
