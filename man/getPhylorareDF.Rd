@@ -27,9 +27,9 @@ between 1 and \code{min(rowSums(t.community.matrix))} or and \code{max(rowSums(t
 \item{verbose}{Default to TRUE}
 }
 \description{
-Use \code{\link{phylocurve}} in David Nipperess's package \pkg{PDcalc} 
+Use \code{\link{phylorare}} from David Nipperess's code 
 to build rarefaction curves of phylogenetic diversity of multiple samples. 
-The detail to see \url{https://github.com/davidnipperess/PDcalc} or 
+The detail to see 
 \url{http://davidnipperess.blogspot.co.nz}.
 }
 \details{

@@ -3,9 +3,10 @@
 
 #' Rarefaction curve of Phylogenetic Diversity
 #'
-#' Use \code{\link{phylocurve}} in David Nipperess's package \pkg{PDcalc} 
+#' Use \code{\link{phylorare}} from David Nipperess's code 
 #' to build rarefaction curves of phylogenetic diversity of multiple samples. 
-#' The detail to see \url{https://github.com/davidnipperess/PDcalc} or 
+#' The detail to see 
+#\url{https://github.com/davidnipperess/PDcalc} or 
 #' \url{http://davidnipperess.blogspot.co.nz}.
 #' 
 #' Data input \strong{t.community.matrix} is 
@@ -43,13 +44,14 @@ getPhylorareDF <- function(t.community.matrix, phylo.tree, min.size=100, sample.
   if (verbose)
     cat("Phylo rare: subsampling by individual.\n") 
   
-  require(PDcalc)
+  #require(PDcalc) # seem not working. change back to phylorare 
   for (ss in sample.sizes) {
     if (verbose)
-      cat("Subsampling size =", ss, ".\n") 
+      cat("Subsampling size =", ss, "...\n") 
     
     # individual (default), site or species
-    phylo.rare <- PDcalc::phylocurve(t.community.matrix, phylo.tree, ss, subsampling = "individual", replace =F)
+    #phylo.rare <- PDcalc::phylocurve(t.community.matrix, phylo.tree, ss, subsampling = "individual", replace =F)
+    phylo.rare <- phylorare(t.community.matrix, phylo.tree, ss, subsampling = "individual", replace =F)
     # create phylo.rare.df
     if (which(sample.sizes == ss) == 1) 
       phylo.rare.df <- data.frame(row.names=rownames(phylo.rare), check.names=FALSE)
