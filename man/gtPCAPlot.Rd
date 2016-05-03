@@ -5,8 +5,8 @@
 \title{PCA Plot}
 \usage{
 gtPCAPlot(comm, attr.df, x.i = 1, y.i = 2, colour.id = NULL,
-  shape.id = NULL, linke.id = NULL, add.text = TRUE, text.data = NULL,
-  text.size = 3, title = "PCA", verbose = TRUE, ...)
+  shape.id = NULL, link.id = NULL, add.text = TRUE, text.data = NULL,
+  text.size = 3, palette = NULL, title = "PCA", verbose = TRUE, ...)
 }
 \arguments{
 \item{comm}{Community data for NMDS plot. 

@@ -17,10 +17,10 @@ ggAddLine(gg.plot, linetype = 1, xintercept, yintercept, intercept, slope,
 ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
   digits = 2, dodge.width = 0.8, text.size = 3, text.colour = "black")
 
-ggHeatmap(df, melt.id, title = "Heatmap", x.lab = "", y.lab = "",
+ggHeatmap(df.to.melt, melt.id, title = "Heatmap", x.lab = "", y.lab = "",
   low = "white", high = "steelblue")
 
-ggBarChart(df.melt, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
+ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
   y.trans = "identity", auto.scale.y = FALSE, x.interval = 0,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
@@ -28,7 +28,7 @@ ggBarChart(df.melt, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   x.text.angle = 0, title = "Bar Chart", title.size = 10,
   x.lab = "x.id", y.lab = "y.id")
 
-ggBoxWhiskersPlot(df.melt, x.id, y.id, fill.id = NULL,
+ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
   x.facet.id = NULL, y.facet.id = NULL, y.trans = "identity",
   auto.scale.y = FALSE, x.lim.cart = NULL, y.lim.cart = NULL,
@@ -36,9 +36,9 @@ ggBoxWhiskersPlot(df.melt, x.id, y.id, fill.id = NULL,
   x.text.angle = 0, title = "Box Whiskers Plot", title.size = 10,
   x.lab = "x.id", y.lab = "y.id")
 
-gtScatterPlot(df.melt, x.id, y.id, colour.id = NULL, shape.id = NULL,
+gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
-  linke.id = NULL, ellipsed.id = NULL, text.id = NULL, text.data = NULL,
+  link.id = NULL, ellipsed.id = NULL, text.id = NULL, text.data = NULL,
   text.size = 3, text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
   xintercept = NULL, yintercept = NULL, line.type = 2,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
@@ -46,9 +46,9 @@ gtScatterPlot(df.melt, x.id, y.id, colour.id = NULL, shape.id = NULL,
   title = "Scatter Plot", title.size = 10, x.lab = "x.id",
   y.lab = "y.id")
 
-gtLine(df.melt, x.id, y.id, group.id = NULL, colour.id = NULL,
-  line.size = 0.5, line.type = 2, line.alpha = 0.75, shape.id = NULL,
-  shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
+gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
+  line.type = 2, line.alpha = 0.75, shape.id = NULL, shapes = NULL,
+  point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
   y.trans = "identity", auto.scale.y = FALSE, text.id = NULL,
   text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
   text.alpha = 0.5, x.lim.cart = NULL, y.lim.cart = NULL,
@@ -81,7 +81,7 @@ Default to 0.8. Refer to \code{\link{position_dodge}}.}
 
 \item{text.colour}{The text colour. Default to black.}
 
-\item{df}{A data frame to \code{\link{melt}} and then make a heat map. 
+\item{df.to.melt}{A data frame required to \code{\link{melt}} before making a heat map. 
 For example,
 \tabular{rrrr}{
   plot \tab 16s \tab 18s \tab ITS\cr
@@ -98,9 +98,9 @@ For example,
 
 \item{low, high}{Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".}
 
-\item{df.melt}{A data frame already \code{\link{melt}}.}
+\item{df}{A data frame used for plot.}
 
-\item{x.id, y.id, fill.id, group.id}{The string of column names in \code{df.melt},
+\item{x.id, y.id, fill.id, group.id}{The string of column names in \code{df},
 which use for \code{x, y, fill, group} in \code{\link{aes}} in \code{\link{ggplot}}.}
 
 \item{bar.pos}{Position adjustment for \code{\link{geom_bar}}, either as a string, 
@@ -110,7 +110,7 @@ Use \code{fill} to generate group percentage bars.}
 \item{bar.stat}{Determine what is mapped to bar height. Refer to \code{\link{geom_bar}}. 
 Default to "identity", which define the heights of the bars to represent values in the data.}
 
-\item{x.facet.id, }{y.facet.id The string of column names in \code{df.melt},
+\item{x.facet.id, }{y.facet.id The string of column names in \code{df},
 which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.}
 
 \item{x.lim.cart, y.lim.cart}{Setting limits on the coordinate system will zoom the plot, 
@@ -135,7 +135,7 @@ They cannot be used at the same time. Default not to use them, legend.col=1, leg
 used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
 Default to alpha("black", 0.3).}
 
-\item{colour.id, shape.id, linke.id}{The column name in \code{df.melt} to 
+\item{colour.id, shape.id, link.id}{The column name in \code{df} to 
 define how the data points are coloured, shaped, or linked according their values.}
 
 \item{shapes}{Manually define the shapes of points. Refer to \code{\link{scale_shape_manual}}, 
@@ -143,7 +143,7 @@ and \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}.}
 
 \item{point.size}{The size of points from \code{\link{point.size}}. Default to 3.}
 
-\item{ellipsed.id}{The column name in \code{df.melt} to define 
+\item{ellipsed.id}{The column name in \code{df} to define 
 how to draw ellipse over data points, which is normally same as 
 \code{colour.id} to show clusters.}
 
@@ -214,25 +214,25 @@ p <- ggAddNumbers(p, fun.y.lab=length, y.adj=1.02)
 
 ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
 ranks.by.group
-gg.plot <- ggHeatmap(df=ranks.by.group, melt.id="plot")
+gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
 pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
 
 # log-scale y
-bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
+bar.chart <- ggBarChart(df, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
 # percentage bars without grouping in one bar each
-bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.trans="per")
+bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", y.trans="per")
 # percentage bars one group in one bar
-bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
+bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
 
 # the number of OTUs (y-axis) across the number of samples (x-axis)
 communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 cm.aggre <- cmYAcrossX(communityMatrix)
 require(reshape2)
-df.melt <- melt(cm.aggre, id="samples")
-bar.chart <- ggBarChart(df.melt, x.id="samples", y.id="value", fill.id="variable", y.trans="log", 
+df <- melt(cm.aggre, id="samples")
+bar.chart <- ggBarChart(df, x.id="samples", y.id="value", fill.id="variable", y.trans="log", 
                         y.lab="", legend.title="", x.interval=1)
 
-box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
+box.plot <- ggBoxWhiskersPlot(df, x.id="test", y.id="performance")
 
 df.clusters <- random2Clusters()
 df.clusters$labels <- rownames(df.clusters)

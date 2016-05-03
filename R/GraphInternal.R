@@ -3,10 +3,10 @@
 # Accessed on 21 Apr 2016
 
 
-# df.melt, x.id, y.id are compulsory, 
+# df, x.id, y.id are compulsory, 
 # fill.id, group.id, colour.id are optional
-ggInit <- function(df.melt, x.id, y.id, fill.id=NULL, group.id=NULL, colour.id=NULL, verbose=TRUE) {
-  col.names <- colnames(df.melt)
+ggInit <- function(df, x.id, y.id, fill.id=NULL, group.id=NULL, colour.id=NULL, verbose=TRUE) {
+  col.names <- colnames(df)
   if (!is.element(tolower(x.id), tolower(col.names)))
     stop("Data frame do NOT have column name \"", x.id, "\" !")
   if (!is.element(tolower(y.id), tolower(col.names)))
@@ -37,7 +37,7 @@ ggInit <- function(df.melt, x.id, y.id, fill.id=NULL, group.id=NULL, colour.id=N
   if (verbose)
     cat("ggplot aesthetic mappings are ", aes.string, ".\n")
   
-  p <- ggplot(df.melt, eval(parse(text = aes.string)))
+  p <- ggplot(df, eval(parse(text = aes.string)))
   return(p)
 }
 
@@ -86,19 +86,22 @@ ggOptEllipse <- function(p, col.names, ellipsed.id=NULL) {
   return(p)
 }
 
-ggOptPalette <- function(p, palette=NULL) {
+# scale_*_brewer, * has "colour", "fill" 
+ggOptPalette <- function(p, scale.to="colour", palette=NULL) {
   if (! is.null(palette)) {
     if (length(palette) == 1)
-      p <- p + scale_colour_brewer(palette=palette)
+      scale.string <- paste0("scale_", scale.to, "_brewer(palette=palette)")
     else if (length(palette) <= 3)
-      p <- p + scale_colour_gradientn(colours=palette)
+      scale.string <- paste0("scale_", scale.to, "_gradientn(colours=palette)")
     else 
-      p <- p + scale_fill_manual(values=palette)
+      scale.string <- paste0("scale_", scale.to, "_manual(values=palette)")
+    
+    p <- p + eval(parse(text = scale.string))
   }
   return(p)
 }
 
-# add text.id before ggOptText, such as df.melt$row.names <- rownames(df.melt)
+# add text.id before ggOptText, such as df$row.names <- rownames(df)
 ggOptText <- function(p, col.names, text.id=NULL, text.data=NULL, colour.id=NULL, text.size=3, 
                       text.hjust=-0.1, text.vjust=-0.2, text.alpha=0.5) {
   if (! is.null(text.id)) {
@@ -115,7 +118,7 @@ ggOptText <- function(p, col.names, text.id=NULL, text.data=NULL, colour.id=NULL
   return(p)
 }
 
-# 1) auto.scale.x.max = max(df.melt[,x.id]) to determine positive breaks automatically,
+# 1) auto.scale.x.max = max(df[,x.id]) to determine positive breaks automatically,
 # breaks=c(start, 10, 100, ...), default start=c(0.1, 1) in get_breaks_positive_values.
 # 2) breaks.interval > 0, seq(interval.min, interval.max, breaks.interval)
 ggOptScaleAxis <- function(p, axis="y", scale="continuous", trans="identity", 
@@ -155,14 +158,14 @@ ggOptScaleAxis <- function(p, axis="y", scale="continuous", trans="identity",
 
 # Setting limits on the coordinate system will zoom the plot, 
 # but will not change the underlying data like setting limits on a scale will
-ggOptCoordCartesian <- function(p, df.melt, x.id, y.id, x.lim.cart=NULL, y.lim.cart=NULL) {
+ggOptCoordCartesian <- function(p, df, x.id, y.id, x.lim.cart=NULL, y.lim.cart=NULL) {
   if (! is.null(x.lim.cart)) {
     if (length(x.lim.cart) != 2)
       stop("Invalid format, use x.lim.cart = c(1000,NA) !")
     if (which(is.na(x.lim.cart))==1) {
-      x.lim.cart[1] = min(df.melt[,x.id])
+      x.lim.cart[1] = min(df[,x.id])
     } else if (which(is.na(x.lim.cart))==2) {
-      x.lim.cart[2] = max(df.melt[,x.id])
+      x.lim.cart[2] = max(df[,x.id])
     }
     p <- p + coord_cartesian(xlim=x.lim.cart)
   } 
@@ -170,9 +173,9 @@ ggOptCoordCartesian <- function(p, df.melt, x.id, y.id, x.lim.cart=NULL, y.lim.c
     if (length(y.lim.cart) != 2)
       stop("Invalid format, use y.lim.cart = c(1000,NA) !")
     if (which(is.na(y.lim.cart))==1) {
-      y.lim.cart[1] = min(df.melt[,y.id])
+      y.lim.cart[1] = min(df[,y.id])
     } else if (which(is.na(y.lim.cart))==2) {
-      y.lim.cart[2] = max(df.melt[,y.id])
+      y.lim.cart[2] = max(df[,y.id])
     }
     p <- p + coord_cartesian(ylim=y.lim.cart)
   } 

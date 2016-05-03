@@ -73,7 +73,7 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' @details 
 #' \code{ggHeatmap} creates a heat map using ggplot. 
 #' 
-#' @param df A data frame to \code{\link{melt}} and then make a heat map. 
+#' @param df.to.melt A data frame required to \code{\link{melt}} before making a heat map. 
 #' For example,
 #' \tabular{rrrr}{
 #'   plot \tab 16s \tab 18s \tab ITS\cr
@@ -92,17 +92,17 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' @examples 
 #' ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
 #' ranks.by.group
-#' gg.plot <- ggHeatmap(df=ranks.by.group, melt.id="plot")
+#' gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
 #' pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
 #' 
 #' @rdname ggPlot
-ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="white", high="steelblue") {
-  if (!is.element(tolower(melt.id), tolower(colnames(df))))
+ggHeatmap <- function(df.to.melt, melt.id, title="Heatmap", x.lab="", y.lab="", low="white", high="steelblue") {
+  if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop("Data frame column names do NOT have \"", melt.id, "\" for melt function !")
   
   require(reshape2)
-  breaks.rank <- round(seq(1, nrow(df), length.out = 5), digits = 0)
-  ranks.melt <- melt(df, id=c(melt.id))
+  breaks.rank <- round(seq(1, nrow(df.to.melt), length.out = 5), digits = 0)
+  ranks.melt <- melt(df.to.melt, id=c(melt.id))
   ranks.melt[,melt.id] <- factor(ranks.melt[,melt.id], levels=unique(ranks.melt[,melt.id]))
   
   require(ggplot2)
@@ -121,10 +121,10 @@ ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="whi
 #' \code{ggBarChart} is an one-line function to plot many types of bar chart, 
 #' such as normal bars, log-scaled bars, percentage bars, and also grouping.
 #' 
-#' @param df.melt A data frame already \code{\link{melt}}. 
-#' @param x.id,y.id,fill.id,group.id The string of column names in \code{df.melt},
+#' @param df A data frame used for plot. 
+#' @param x.id,y.id,fill.id,group.id The string of column names in \code{df},
 #' which use for \code{x, y, fill, group} in \code{\link{aes}} in \code{\link{ggplot}}.
-#' @param x.facet.id, y.facet.id The string of column names in \code{df.melt},
+#' @param x.facet.id, y.facet.id The string of column names in \code{df},
 #' which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.
 #' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
 #' or the result of a call to a position adjustment function. Default to "dodge". 
@@ -161,47 +161,47 @@ ggHeatmap <- function(df, melt.id, title="Heatmap", x.lab="", y.lab="", low="whi
 #' @export
 #' @examples
 #' # log-scale y
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
+#' bar.chart <- ggBarChart(df, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
 #' # percentage bars without grouping in one bar each
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", y.trans="per")
+#' bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", y.trans="per")
 #' # percentage bars one group in one bar
-#' bar.chart <- ggBarChart(df.melt, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
+#' bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
 #' 
 #' # the number of OTUs (y-axis) across the number of samples (x-axis)
 #' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 #' cm.aggre <- cmYAcrossX(communityMatrix)
 #' require(reshape2)
-#' df.melt <- melt(cm.aggre, id="samples")
-#' bar.chart <- ggBarChart(df.melt, x.id="samples", y.id="value", fill.id="variable", y.trans="log", 
+#' df <- melt(cm.aggre, id="samples")
+#' bar.chart <- ggBarChart(df, x.id="samples", y.id="value", fill.id="variable", y.trans="log", 
 #'                         y.lab="", legend.title="", x.interval=1)
 #' 
 #' @rdname ggPlot
-ggBarChart <- function(df.melt, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="identity", 
+ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="identity", 
                        x.facet.id=NULL, y.facet.id=NULL, y.trans="identity", auto.scale.y=FALSE, 
                        x.interval=0, x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                        legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
                        title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id") {
-  p <- ggInit(df.melt=df.melt, x.id=x.id, y.id=y.id, fill.id=fill.id)
+  p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id)
   p <- p + geom_bar(position=bar.pos, stat=bar.stat) 
   
-  col.names <- colnames(df.melt)
+  col.names <- colnames(df)
   p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, y.facet.id=y.facet.id)
   
   if (auto.scale.y) {
-    y.max <- max(df.melt[,y.id])
+    y.max <- max(df[,y.id])
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, auto.scale.max=y.max)
   } else {
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
   }
   
   if (x.interval > 0) {
-    x.breaks <- seq(min(df.melt[,x.id]), max(df.melt[,x.id]), x.interval)
+    x.breaks <- seq(min(df[,x.id]), max(df[,x.id]), x.interval)
     p <- ggOptScaleAxis(p, axis="x", scale="discrete", breaks=x.breaks)
   }
   
-  p <- ggOptCoordCartesian(p, df.melt, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
   
-  p <- ggOptPalette(p, palette=palette)
+  p <- ggOptPalette(p, scale.to="fill", palette=palette)
   
   p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
   
@@ -225,17 +225,17 @@ ggBarChart <- function(df.melt, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.s
 #' @keywords graph
 #' @export
 #' @examples
-#' box.plot <- ggBoxWhiskersPlot(df.melt, x.id="test", y.id="performance")
+#' box.plot <- ggBoxWhiskersPlot(df, x.id="test", y.id="performance")
 #' 
 #' @rdname ggPlot
-ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id=NULL, 
+ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, 
                               outlier.colour=alpha("black", 0.3), dodge.width=0.8,
                               x.facet.id=NULL, y.facet.id=NULL, 
                               y.trans="identity", auto.scale.y=FALSE, 
                               x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                               legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
                               title="Box Whiskers Plot", title.size = 10, x.lab="x.id", y.lab="y.id") {
-  p <- ggInit(df.melt=df.melt, x.id=x.id, y.id=y.id, fill.id=fill.id)
+  p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id)
   if (! is.null(fill.id)) 
     p <- p + geom_boxplot(outlier.colour=outlier.colour, position=position_dodge(width=dodge.width))
   else 
@@ -243,19 +243,19 @@ ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id=NULL,
   
   p <- p + scale_shape(solid = FALSE) #+ geom_jitter(alpha = 0.5) 
   
-  col.names <- colnames(df.melt)
+  col.names <- colnames(df)
   p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, y.facet.id=y.facet.id)
   
   if (auto.scale.y) {
-    y.max <- max(df.melt[,y.id])
+    y.max <- max(df[,y.id])
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, auto.scale.max=y.max)
   } else {
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
   }
   
-  p <- ggOptCoordCartesian(p, df.melt, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
   
-  p <- ggOptPalette(p, palette=palette)
+  p <- ggOptPalette(p, scale.to="fill", palette=palette)
   
   p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
   
@@ -275,9 +275,9 @@ ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id=NULL,
 #' such as "Row.names" column after \code{\link{merge}}.
 #' @param text.size,text.hjust,text.vjust,text.alpha 
 #' The parameters to adjust text in \code{\link{geom_text}}.
-#' @param colour.id,shape.id,linke.id The column name in \code{df.melt} to 
+#' @param colour.id,shape.id,link.id The column name in \code{df} to 
 #' define how the data points are coloured, shaped, or linked according their values.
-#' @param ellipsed.id The column name in \code{df.melt} to define 
+#' @param ellipsed.id The column name in \code{df} to define 
 #' how to draw ellipse over data points, which is normally same as 
 #' \code{colour.id} to show clusters.
 #' @param shapes Manually define the shapes of points. Refer to \code{\link{scale_shape_manual}}, 
@@ -302,21 +302,21 @@ ggBoxWhiskersPlot <- function(df.melt, x.id, y.id, fill.id=NULL,
 #' pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
 #' 
 #' @rdname ggPlot
-gtScatterPlot <- function(df.melt, x.id, y.id, colour.id=NULL, shape.id=NULL, 
+gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL, 
                           shapes=NULL, point.size=3, x.facet.id=NULL, y.facet.id=NULL, 
-                          linke.id=NULL, ellipsed.id=NULL, text.id=NULL, 
+                          link.id=NULL, ellipsed.id=NULL, text.id=NULL, 
                           text.data = NULL, text.size = 3, text.hjust=-0.1, 
                           text.vjust = -0.2, text.alpha = 0.5,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                           legend.title=NULL, legend.col=1, legend.nrow=0, 
                           title="Scatter Plot", title.size = 10, x.lab="x.id", y.lab="y.id") {
-  p <- ggInit(df.melt=df.melt, x.id=x.id, y.id=y.id, colour.id=colour.id)
-  col.names <- colnames(df.melt)
+  p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id)
+  col.names <- colnames(df)
   
   if (! is.null(shape.id) && is.null(shapes)) {
     # The shape palette can deal with a maximum of 6 discrete values
-    n_shape <- length(unique(df.melt[,shape.id]))
+    n_shape <- length(unique(df[,shape.id]))
     shapes <- seq(1, (1 + n_shape-1))
   }
   p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, shapes=shapes, point.size=point.size)
@@ -325,14 +325,17 @@ gtScatterPlot <- function(df.melt, x.id, y.id, colour.id=NULL, shape.id=NULL,
   
   p <- ggOptEllipse(p, col.names, ellipsed.id=ellipsed.id)
   
-  if (! is.null(linke.id)) {
+  if (! is.null(link.id)) {
+    require(data.table)
     # Convex hull http://stackoverflow.com/questions/16428962/convex-hull-ggplot-using-data-tables-in-r
-    df.melt <- data.table(df.melt, key = linke.id)
-    chull.cmd <- parse(text = paste0('df.melt[, .SD[chull(', x.id, ',', y.id, ')], by = "', linke.id, '"')) 
-    # hulls <- pts.mds.dt[, .SD[chull(MDS1, MDS2)], by = linke.id]
+    df.dt <- data.table(df, key = link.id)
+    chull.txt <- paste0('df.dt[, .SD[chull(x.id, y.id)], by = link.id ]')
+    cat("chull.cmd : ", chull.txt, "\n")
+    # hulls <- df.dt[, .SD[chull(MDS1, MDS2)], by = link.id]
+    chull.cmd <- parse(text = chull.txt) 
     hulls <- eval(chull.cmd)
     
-    p <- p + geom_polygon(data = hulls, aes_string(mapping=linke.id), fill = NA, alpha = 0.5)
+    p <- p + geom_polygon(data = hulls, aes_string(mapping=link.id), fill = NA, alpha = 0.5)
   }
   
   p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, text.size=text.size, 
@@ -343,7 +346,7 @@ gtScatterPlot <- function(df.melt, x.id, y.id, colour.id=NULL, shape.id=NULL,
   if (! is.null(yintercept))
     p <- p + geom_hline(yintercept=yintercept,linetype=line.type) 
   
-  p <- ggOptCoordCartesian(p, df.melt, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
   
   p <- ggOptPalette(p, palette=palette)
   
@@ -367,7 +370,7 @@ gtScatterPlot <- function(df.melt, x.id, y.id, colour.id=NULL, shape.id=NULL,
 #' 
 #' 
 #' @rdname ggPlot
-gtLine <- function(df.melt, x.id, y.id, group.id=NULL, colour.id=NULL,  
+gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,  
                    line.size=0.5, line.type = 2, line.alpha=0.75, 
                    shape.id=NULL, shapes=NULL, point.size=3, 
                    x.facet.id=NULL, y.facet.id=NULL, y.trans="identity", auto.scale.y=FALSE,
@@ -376,20 +379,20 @@ gtLine <- function(df.melt, x.id, y.id, group.id=NULL, colour.id=NULL,
                    x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                    legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
                    title="", title.size = 10, x.lab="x.id", y.lab="y.id") {
-  p <- ggInit(df.melt=df.melt, x.id=x.id, y.id=y.id, group.id=group.id, colour.id=colour.id)
-  col.names <- colnames(df.melt)
+  p <- ggInit(df=df, x.id=x.id, y.id=y.id, group.id=group.id, colour.id=colour.id)
+  col.names <- colnames(df)
   
   p <- p + geom_line(size=line.size, linetype=line.type, alpha=line.alpha) 
   
   if (! is.null(shape.id) && is.null(shapes)) {
     # The shape palette can deal with a maximum of 6 discrete values
-    n_shape <- length(unique(df.melt[,shape.id]))
+    n_shape <- length(unique(df[,shape.id]))
     shapes <- seq(1, (1 + n_shape-1))
   }
   p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, shapes=shapes, point.size=point.size)
   
   if (auto.scale.y) {
-    y.max <- max(df.melt[,y.id])
+    y.max <- max(df[,y.id])
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, auto.scale.max=y.max)
   } else {
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
@@ -398,7 +401,7 @@ gtLine <- function(df.melt, x.id, y.id, group.id=NULL, colour.id=NULL,
   p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, text.size=text.size, 
                  text.hjust=text.hjust, text.vjust=text.vjust, text.alpha=text.alpha)
   
-  p <- ggOptCoordCartesian(p, df.melt, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
   
   p <- ggOptPalette(p, palette=palette)
   

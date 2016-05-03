@@ -4,11 +4,11 @@
 \alias{ggPercentageBarChart}
 \title{Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}.}
 \usage{
-ggPercentageBarChart(df, melt.id, title = "Percent Bar Chart", x.lab = "",
-  y.lab = "", autoWidth = TRUE)
+ggPercentageBarChart(df.to.melt, melt.id, title = "Percentage Bar Chart",
+  x.lab = "", y.lab = "", x.text.angle = 0, autoWidth = TRUE)
 }
 \arguments{
-\item{df}{A data frame to \code{\link{melt}} and then make a percent bar chart. 
+\item{df.to.melt}{A data frame required to \code{\link{melt}} before making a percent bar chart. 
 For example,
 \tabular{rrrrr}{
   Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr

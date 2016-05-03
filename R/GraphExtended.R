@@ -24,8 +24,8 @@
 #' nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
 #' require(grid)
 #' grid.draw(nmds.plot)
-gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NULL, 
-                       add.text=TRUE, text.data = NULL, text.size=3, 
+gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
+                       add.text=TRUE, text.data = NULL, text.size=3, palette=NULL,
                        distance="bray", title="MDS", verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
@@ -50,9 +50,9 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NU
       if (! colour.id %in% colnames(attr.df))
         stop("Invalid colour.id,", colour.id,  "not exsit in column names !\n")
     } 
-    if (! is.null(linke.id)) { 
-      if (! linke.id %in% colnames(attr.df) )
-        stop("Invalid linke.id,", linke.id,  "not exsit in column names !\n")
+    if (! is.null(link.id)) { 
+      if (! link.id %in% colnames(attr.df) )
+        stop("Invalid link.id,", link.id,  "not exsit in column names !\n")
     } 
     if (! is.null(shape.id)) { 
       if (! shape.id %in% colnames(attr.df) )
@@ -74,7 +74,7 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NU
 
   # Plot MDS ordination
   gt <- ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", colour.id=colour.id, 
-                             shape.id=shape.id, linke.id=linke.id, text.id=text.id, 
+                             shape.id=shape.id, link.id=link.id, text.id=text.id, palette=palette,
                              text.data=text.data, text.size=text.size, title=title, ...)
   
   return(gt)
@@ -101,8 +101,8 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, linke.id=NU
 #' pca.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
 #' require(grid)
 #' grid.draw(pca.plot)
-gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL, linke.id=NULL, 
-                       add.text=TRUE, text.data = NULL, text.size=3, 
+gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL, link.id=NULL, 
+                       add.text=TRUE, text.data = NULL, text.size=3, palette=NULL,
                        title="PCA", verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
@@ -126,9 +126,9 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
       if (! colour.id %in% colnames(attr.df))
         stop("Invalid colour.id,", colour.id,  "not exsit in column names !\n")
     } 
-    if (! is.null(linke.id)) { 
-      if (! linke.id %in% colnames(attr.df) )
-        stop("Invalid linke.id,", linke.id,  "not exsit in column names !\n")
+    if (! is.null(link.id)) { 
+      if (! link.id %in% colnames(attr.df) )
+        stop("Invalid link.id,", link.id,  "not exsit in column names !\n")
     } 
     if (! is.null(shape.id)) { 
       if (! shape.id %in% colnames(attr.df) )
@@ -152,7 +152,7 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
   y.id <- paste0("PC", y.i)
   # Plot MDS ordination
   gt <- ComMA::gtScatterPlot(pts.pca.merge, x.id="PC1", y.id="PC2", colour.id=colour.id, 
-                             shape.id=shape.id, linke.id=linke.id, text.id=text.id, 
+                             shape.id=shape.id, link.id=link.id, text.id=text.id, palette=palette,
                              text.data=text.data, text.size=text.size, title=title, ...)
   
   return(gt)
@@ -160,7 +160,7 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 
 #' Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}. 
 #' 
-#' @param df A data frame to \code{\link{melt}} and then make a percent bar chart. 
+#' @param df.to.melt A data frame required to \code{\link{melt}} before making a percent bar chart. 
 #' For example,
 #' \tabular{rrrrr}{
 #'   Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr
@@ -182,16 +182,17 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' bar.chart <- ggPercentageBarChart(taxa.phyla, melt.id="TaxaGroup")
 #' bar.chart$gg.plot
 #' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
-ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="", y.lab="", autoWidth=TRUE) {
-  if (!is.element(tolower(melt.id), tolower(colnames(df))))
+ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", x.lab="", y.lab="", 
+                                 x.text.angle=0, autoWidth=TRUE) {
+  if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
   require(reshape2)
-  df.melt <- melt(df, id=c(melt.id))
+  df.melt <- melt(df.to.melt, id=c(melt.id))
   #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
   
   # move unclassified group to the last of legend 
-  legend.ord <- as.character(unique(df[,melt.id]))
+  legend.ord <- as.character(sort(unique(df.to.melt[,melt.id]), decreasing = TRUE))
   id.match <- grep("unclassified", legend.ord, ignore.case = TRUE)
   if (length(id.match) > 0)
     legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
@@ -205,7 +206,7 @@ ggPercentageBarChart <- function(df, melt.id, title="Percent Bar Chart", x.lab="
   # number of columns for legend
   legend.col = ceiling(length(legend.ord) / 25)
   
-  p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, bar.pos="fill", 
+  p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, bar.pos="fill", x.text.angle=x.text.angle,
                          y.trans="per", title=title, x.lab=x.lab, y.lab=y.lab, palette=pale, legend.col=legend.col)
   
   if (autoWidth)
