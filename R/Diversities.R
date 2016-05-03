@@ -92,6 +92,7 @@ shannonPerSample <- function(t.community.matrix, digits = 2) {
   #  gamma1 <- function(r) d(r,lev="gamma",q=1)
   #  perSample <- data.frame(Shannon=apply(t.community.matrix, 1, gamma1), stringsAsFactors=FALSE)
   perSample <- data.frame(row.names=rownames(t.community.matrix), stringsAsFactors=FALSE)
+  require(vegetarian)
   for (i in 1:nrow(t.community.matrix)) 
     perSample[i,1] <- d(t.community.matrix[i,],lev="gamma",q=1)
   
@@ -132,6 +133,8 @@ calculateDissimilarityMatrix <- function(t.community.matrix, diss.fun="beta1-1",
     pb <- txtProgressBar(min=1, max=nrow(row.pairs), style = 3)
   }
   
+  require(vegan)
+  require(vegetarian)
   for (n in 1:nrow(row.pairs)) {
     if (printProgressBar) setTxtProgressBar(pb, n)
     if (diss.fun=="jaccard") {
