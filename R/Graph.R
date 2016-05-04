@@ -85,8 +85,7 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low,high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
-#' @return
-#' A \code{\link{ggplot}} object of heatmap.
+#' @param no.panel.border Add panel border or not. Default to FALSE.
 #' @keywords graph
 #' @export
 #' @examples 

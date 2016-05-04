@@ -103,7 +103,8 @@ phylo.beta.dist <- function(t.community.matrix, phylo.tree, verbose=TRUE) {
     cat("Analysis: MPD phylogenetic beta diversity.\n")
     cat("t.community.matrix has", nrow(t.community.matrix), "samples,", 
         ncol(t.community.matrix), "OTUs/taxa,", ".\n")
-    cat(phylo.tree, ".\n")
+    cat("phylo.tree has ", length(phylo.tree$tip.label), " tips and ", 
+        phylo.tree$Nnode, " internal nodes.\n")
   }
   require(picante)
 
@@ -126,7 +127,8 @@ phylo.unifrac.dist <- function(t.community.matrix, phylo.tree, verbose=TRUE) {
     cat("Analysis: calculates unweighted UniFrac.\n")
     cat("t.community.matrix has", nrow(t.community.matrix), "samples,", 
         ncol(t.community.matrix), "OTUs/taxa,", ".\n")
-    cat("phylo.tree has ", length(phylo.tree$tip.label), " tips and ", phylo.tree$Nnode, " internal nodes.\n")
+    cat("phylo.tree has ", length(phylo.tree$tip.label), " tips and ", 
+        phylo.tree$Nnode, " internal nodes.\n")
   }
   require(picante)
   

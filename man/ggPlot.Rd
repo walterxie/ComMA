@@ -100,6 +100,8 @@ For example,
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
 
+\item{no.panel.border}{Add panel border or not. Default to FALSE.}
+
 \item{df}{A data frame used for plot.}
 
 \item{x.id, y.id, fill.id, group.id}{The string of column names in \code{df},
@@ -184,8 +186,6 @@ If the function returns a \code{\link{ggplot}} object, then its name starts with
 It needs to use \code{\link{pdfGgplot}} to create pdf. 
 If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
 It needs to use \code{\link{pdfGtplot}} to create pdf.
-
-A \code{\link{ggplot}} object of heatmap.
 }
 \description{
 Simplify \pkg{ggplot} codes into functions that can get a chart from one-line command.
