@@ -62,16 +62,16 @@ ggOptFacetGrid <- function(p, col.names, x.facet.id=NULL, y.facet.id=NULL) {
 }
 
 # if shape.id not NULL, no shape for points
-ggOptPointAndShape <- function(p, col.names, shape.id=NULL, shapes=NULL, point.size=3) {
+ggOptPointAndShape <- function(p, col.names, shape.id=NULL, data=NULL, shapes=NULL, point.size=3) {
   if (! is.null(shape.id)) {
     if (!is.element(tolower(shape.id), tolower(col.names)))
       stop("Data frame do NOT have column name \"", shape.id, "\" !")
     
-    p <- p + geom_point(aes_string(shape=shape.id), size = point.size) 
+    p <- p + geom_point(data=data, aes_string(shape=shape.id), size = point.size) 
     if (! is.null(shapes)) 
       p <- p + scale_shape_manual(values=shapes) 
   } else {
-    p <- p + geom_point(size = point.size)
+    p <- p + geom_point(data=data, size = point.size)
   }
   return(p)
 }
@@ -196,30 +196,34 @@ ggOptLegend <- function(p, legend.title=NULL, legend.col=1, legend.nrow=0) {
   return(p)
 }
 
+ggLabTitle <- function(p, x.id, y.id, title, x.lab="x.id", y.lab="y.id") {
+  if (x.lab=="x.id") 
+    x.lab = x.id
+  if (y.lab=="y.id") 
+    y.lab = y.id
+  
+  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title)
+  
+  return(p)
+}
+
 ggThemeRotateXText <- function(p, x.text.angle=0) {
   if (x.text.angle > 0) 
     p <- p + theme(axis.text.x = element_text(angle = x.text.angle, hjust = 1, vjust = 0.3))
   return(p)
 }
 
-ggThemePanelBorder <- function(p, x.id, y.id, title, title.size=10, x.lab="x.id", y.lab="y.id") {
-  if (x.lab=="x.id") 
-    x.lab = x.id
-  if (y.lab=="y.id") 
-    y.lab = y.id
-  
-  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
-    theme(plot.title = element_text(size = title.size), panel.grid.major = element_blank(), 
+ggThemePanelBorder <- function(p, title.size=10) {
+  p <- p + theme(plot.title = element_text(size = title.size), panel.grid.major = element_blank(), 
           panel.grid.minor = element_blank(), panel.background = element_blank()) 
   return(p)
 }
 
-ggThemeAxis <- function(p, x.id, y.id, title, title.size=10, x.lab="x.id", y.lab="y.id") {
-  p <- ggOptThemePanelBorder(p, x.id, y.id, title, title.size=title.size, x.lab=x.lab, y.lab=y.lab) +
-    theme(axis.line = element_line(colour = "black"), panel.border = element_blank()) 
+ggThemeAxis <- function(p, title.size=10) {
+  p <- p + theme(plot.title = element_text(size = title.size), panel.grid.major = element_blank(), 
+                 panel.grid.minor = element_blank(), panel.background = element_blank(),
+                 axis.line = element_line(size = 3, colour = "black"), panel.border = element_blank()) 
   return(p)
 }
-
-
 
 

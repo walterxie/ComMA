@@ -47,7 +47,7 @@ getPhylorareDF <- function(t.community.matrix, phylo.tree, min.size=100, sample.
   #require(PDcalc) # seem not working. change back to phylorare 
   for (ss in sample.sizes) {
     if (verbose)
-      cat("Subsampling size =", ss, "...\n") 
+      cat("Subsampling size =", ss, "\n") 
     
     # individual (default), site or species
     #phylo.rare <- PDcalc::phylocurve(t.community.matrix, phylo.tree, ss, subsampling = "individual", replace =F)

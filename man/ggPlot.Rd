@@ -17,8 +17,9 @@ ggAddLine(gg.plot, linetype = 1, xintercept, yintercept, intercept, slope,
 ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
   digits = 2, dodge.width = 0.8, text.size = 3, text.colour = "black")
 
-ggHeatmap(df.to.melt, melt.id, title = "Heatmap", x.lab = "", y.lab = "",
-  low = "white", high = "steelblue")
+ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
+  title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
+  x.text.angle = 45, no.panel.border = FALSE)
 
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
@@ -26,7 +27,7 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.nrow = 0,
   x.text.angle = 0, title = "Bar Chart", title.size = 10,
-  x.lab = "x.id", y.lab = "y.id")
+  x.lab = "x.id", y.lab = "y.id", no.panel.border = FALSE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
@@ -34,7 +35,7 @@ ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
   auto.scale.y = FALSE, x.lim.cart = NULL, y.lim.cart = NULL,
   palette = NULL, legend.title = NULL, legend.col = 1, legend.nrow = 0,
   x.text.angle = 0, title = "Box Whiskers Plot", title.size = 10,
-  x.lab = "x.id", y.lab = "y.id")
+  x.lab = "x.id", y.lab = "y.id", no.panel.border = FALSE)
 
 gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
@@ -43,18 +44,19 @@ gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   xintercept = NULL, yintercept = NULL, line.type = 2,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.nrow = 0,
-  title = "Scatter Plot", title.size = 10, x.lab = "x.id",
-  y.lab = "y.id")
+  no.panel.border = FALSE, title = "Scatter Plot", title.size = 10,
+  x.lab = "x.id", y.lab = "y.id")
 
 gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
   line.type = 2, line.alpha = 0.75, shape.id = NULL, shapes = NULL,
-  point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
+  point.size = 3, point.data = NULL, x.facet.id = NULL,
+  y.facet.id = NULL, x.trans = "identity", auto.scale.x = FALSE,
   y.trans = "identity", auto.scale.y = FALSE, text.id = NULL,
   text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
   text.alpha = 0.5, x.lim.cart = NULL, y.lim.cart = NULL,
   palette = NULL, legend.title = NULL, legend.col = 1, legend.nrow = 0,
   x.text.angle = 0, title = "", title.size = 10, x.lab = "x.id",
-  y.lab = "y.id")
+  y.lab = "y.id", no.panel.border = FALSE)
 }
 \arguments{
 \item{linetype}{\code{\link{linetype}} 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash.}
@@ -92,11 +94,11 @@ For example,
 
 \item{melt.id}{A column name to \code{\link{melt}} and used as a \code{\link{factor}}.}
 
+\item{low, high}{Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".}
+
 \item{title}{Graph title}
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
-
-\item{low, high}{Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".}
 
 \item{df}{A data frame used for plot.}
 

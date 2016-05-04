@@ -96,7 +96,9 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
 #' 
 #' @rdname ggPlot
-ggHeatmap <- function(df.to.melt, melt.id, title="Heatmap", x.lab="", y.lab="", low="white", high="steelblue") {
+ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", 
+                      title="Heatmap", title.size = 10, x.lab="", y.lab="", 
+                      x.text.angle=45, no.panel.border=FALSE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop("Data frame column names do NOT have \"", melt.id, "\" for melt function !")
   
@@ -109,10 +111,15 @@ ggHeatmap <- function(df.to.melt, melt.id, title="Heatmap", x.lab="", y.lab="", 
   # variable is all group names, such as "16S" or "FUNGI"
   # value is ranks for each group
   p <- ggplot(ranks.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) + 
-    scale_fill_gradient(na.value="transparent", low=low, high=high, name="rank", breaks=breaks.rank) +
-    xlab(x.lab) + ylab(y.lab) + ggtitle(title) +
-    theme(axis.title.x=element_blank(), axis.text.x=element_text(angle=45, hjust=1), 
-          panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank())
+    scale_fill_gradient(na.value="transparent", low=low, high=high, name="rank", breaks=breaks.rank) 
+    
+  p <- ggLabTitle(p, "", "", title=title, x.lab=x.lab, y.lab=y.lab)
+  if (no.panel.border)
+    p <- ggThemeAxis(p, title.size=title.size)
+  else 
+    p <- ggThemePanelBorder(p, title.size=title.size)
+  
+  p <- ggThemeRotateXText(p, x.text.angle=x.text.angle)
   
   return(p) 
 }
@@ -180,7 +187,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
                        x.facet.id=NULL, y.facet.id=NULL, y.trans="identity", auto.scale.y=FALSE, 
                        x.interval=0, x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                        legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
-                       title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id") {
+                       title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id", no.panel.border=FALSE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id)
   p <- p + geom_bar(position=bar.pos, stat=bar.stat) 
   
@@ -205,7 +212,11 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   
   p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
   
-  p <- ggThemePanelBorder(p, x.id, y.id, title=title, title.size=title.size, x.lab=x.lab, y.lab=y.lab)
+  p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
+  if (no.panel.border)
+    p <- ggThemeAxis(p, title.size=title.size)
+  else 
+    p <- ggThemePanelBorder(p, title.size=title.size)
   
   p <- ggThemeRotateXText(p, x.text.angle=x.text.angle)
   
@@ -234,7 +245,8 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
                               y.trans="identity", auto.scale.y=FALSE, 
                               x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                               legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
-                              title="Box Whiskers Plot", title.size = 10, x.lab="x.id", y.lab="y.id") {
+                              title="Box Whiskers Plot", title.size = 10, 
+                              x.lab="x.id", y.lab="y.id", no.panel.border=FALSE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id)
   if (! is.null(fill.id)) 
     p <- p + geom_boxplot(outlier.colour=outlier.colour, position=position_dodge(width=dodge.width))
@@ -259,7 +271,11 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
   
   p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
   
-  p <- ggThemePanelBorder(p, x.id, y.id, title=title, title.size=title.size, x.lab=x.lab, y.lab=y.lab)
+  p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
+  if (no.panel.border)
+    p <- ggThemeAxis(p, title.size=title.size)
+  else 
+    p <- ggThemePanelBorder(p, title.size=title.size)
   
   p <- ggThemeRotateXText(p, x.text.angle=x.text.angle)
   
@@ -309,7 +325,7 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           text.vjust = -0.2, text.alpha = 0.5,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
-                          legend.title=NULL, legend.col=1, legend.nrow=0, 
+                          legend.title=NULL, legend.col=1, legend.nrow=0, no.panel.border=FALSE, 
                           title="Scatter Plot", title.size = 10, x.lab="x.id", y.lab="y.id") {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id)
   col.names <- colnames(df)
@@ -352,7 +368,11 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
   
   p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
   
-  p <- ggThemePanelBorder(p, x.id, y.id, title=title, title.size=title.size, x.lab=x.lab, y.lab=y.lab)
+  p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
+  if (no.panel.border)
+    p <- ggThemeAxis(p, title.size=title.size)
+  else 
+    p <- ggThemePanelBorder(p, title.size=title.size)
   
   gt <- ggplot_gtable(ggplot_build(p))
   gt$layout$clip[gt$layout$name == "panel"] <- "off"
@@ -372,13 +392,14 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
 #' @rdname ggPlot
 gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,  
                    line.size=0.5, line.type = 2, line.alpha=0.75, 
-                   shape.id=NULL, shapes=NULL, point.size=3, 
-                   x.facet.id=NULL, y.facet.id=NULL, y.trans="identity", auto.scale.y=FALSE,
+                   shape.id=NULL, shapes=NULL, point.size=3, point.data=NULL,
+                   x.facet.id=NULL, y.facet.id=NULL, 
+                   x.trans="identity", auto.scale.x=FALSE, y.trans="identity", auto.scale.y=FALSE,
                    text.id=NULL, text.data = NULL, text.size = 3, 
                    text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
                    x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                    legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
-                   title="", title.size = 10, x.lab="x.id", y.lab="y.id") {
+                   title="", title.size = 10, x.lab="x.id", y.lab="y.id", no.panel.border=FALSE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, group.id=group.id, colour.id=colour.id)
   col.names <- colnames(df)
   
@@ -389,8 +410,15 @@ gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
     n_shape <- length(unique(df[,shape.id]))
     shapes <- seq(1, (1 + n_shape-1))
   }
-  p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, shapes=shapes, point.size=point.size)
+  p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, data=point.data, 
+                          shapes=shapes, point.size=point.size)
   
+  if (auto.scale.x) {
+    x.max <- max(df[,x.id])
+    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans, auto.scale.max=x.max)
+  } else {
+    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans)
+  }
   if (auto.scale.y) {
     y.max <- max(df[,y.id])
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, auto.scale.max=y.max)
@@ -407,7 +435,11 @@ gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
   
   p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
   
-  p <- ggThemeAxis(p, x.id, y.id, title=title, title.size=title.size, x.lab=x.lab, y.lab=y.lab)
+  p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
+  if (no.panel.border)
+    p <- ggThemeAxis(p, title.size=title.size)
+  else 
+    p <- ggThemePanelBorder(p, title.size=title.size)
   
   gt <- ggplot_gtable(ggplot_build(p))
   gt$layout$clip[gt$layout$name == "panel"] <- "off"
