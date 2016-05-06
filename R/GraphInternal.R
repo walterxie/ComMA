@@ -12,7 +12,7 @@ ggInit <- function(df, x.id, y.id, fill.id=NULL, group.id=NULL, colour.id=NULL, 
   if (!is.element(tolower(y.id), tolower(col.names)))
     stop("Data frame do NOT have column name \"", y.id, "\" !")
   
-  suppressMessages(require(ggplot2))
+  suppressMessages(suppressWarnings(require(ggplot2)))
   aes.string <- paste0("aes(x=", x.id, ", y=", y.id)
   if (! is.null(fill.id)) {
     if (!is.element(tolower(fill.id), tolower(col.names)))
