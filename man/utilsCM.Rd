@@ -104,7 +104,7 @@ to the values of given columns.
 }
 \examples{
 # remove singletons 
-rmMinAbundance(community.matrix, minAbund=2)
+ComMA::rmMinAbundance(community.matrix, minAbund=2)
 
 t.community.matrix <- transpose.df(community.matrix)
 

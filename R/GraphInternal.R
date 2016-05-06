@@ -12,7 +12,7 @@ ggInit <- function(df, x.id, y.id, fill.id=NULL, group.id=NULL, colour.id=NULL, 
   if (!is.element(tolower(y.id), tolower(col.names)))
     stop("Data frame do NOT have column name \"", y.id, "\" !")
   
-  require(ggplot2)
+  suppressMessages(require(ggplot2))
   aes.string <- paste0("aes(x=", x.id, ", y=", y.id)
   if (! is.null(fill.id)) {
     if (!is.element(tolower(fill.id), tolower(col.names)))
@@ -138,7 +138,7 @@ ggOptScaleAxis <- function(p, axis="y", scale="continuous", trans="identity",
     scale.string <- paste0(scale.string, ", labels=ComMA::scientific_10)") 
   } else {
     if (trans=="per") {
-      require(scales)
+      suppressMessages(require(scales))
       trans="identity"
       scale.string <- paste0(scale.string, ", labels=percent_format())") 
     } else {

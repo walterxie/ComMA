@@ -33,8 +33,9 @@ Default to low="white", high="steelblue".}
 Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}.
 }
 \examples{
-taxa.phyla <- readFile("./data/examples/taxonomy97phyla.txt")
-bar.chart <- ggPercentageBarChart(taxa.phyla, melt.id="TaxaGroup")
+data(reads.phyla)
+reads.phyla
+bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 bar.chart$gg.plot
 pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 }

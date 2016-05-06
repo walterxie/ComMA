@@ -96,7 +96,7 @@ getCombPlotPriorByJostDiversity <- function(t.communityMatrix, m_comb) {
         if (length(plotId) != m_comb) 
 			stop(paste("Cannot find plot index from community matrix", plots))
     
-		diversity.table <- diversityTable(t.communityMatrix[plotId,])
+		diversity.table <- ComMA::diversityTable(t.communityMatrix[plotId,])
 
 		for (j in  1:9) {
 		   d.comb[j,i] <- unlist(diversity.table)[j]

@@ -8,8 +8,8 @@
 #' @export
 #' @examples 
 #' figDir <- file.path(workingPath, "figures")
-#' mkdir(figDir) 
-mkdir <- function(dir.path) {
+#' ComMA::mkdir(figDir) 
+mkDir <- function(dir.path) {
   require(tools)
   if (!file.exists(dir.path)) {    
     dir.create(dir.path)    
@@ -30,7 +30,7 @@ mkdir <- function(dir.path) {
 #' [1] "index.html" "stats"      "foo"        "home"      
 #' split_path("C:\\Windows\\System32")
 #' [1] "System32" "Windows"  "C:"      
-split_path <- function(path) {
+splitPath <- function(path) {
   rev(setdiff(strsplit(path,"/|\\\\")[[1]], ""))
 }
 

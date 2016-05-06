@@ -55,7 +55,7 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
   }
   
   # Run metaMDS, get points and stress
-  require(vegan)
+  suppressMessages(require(vegan))
   mds <- metaMDS(comm, distance = distance)
   pts.mds <- as.data.frame(mds$points)
   pts.mds <- pts.mds[order(rownames(pts.mds)),]
@@ -179,8 +179,9 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' @keywords graph
 #' @export
 #' @examples 
-#' taxa.phyla <- readFile("./data/examples/taxonomy97phyla.txt")
-#' bar.chart <- ggPercentageBarChart(taxa.phyla, melt.id="TaxaGroup")
+#' data(reads.phyla)
+#' reads.phyla
+#' bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 #' bar.chart$gg.plot
 #' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", x.lab="", y.lab="", 
@@ -188,7 +189,7 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
-  require(reshape2)
+  suppressMessages(require(reshape2))
   df.melt <- melt(df.to.melt, id=c(melt.id))
   #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
   
@@ -201,7 +202,7 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   
   pale <- ComMA::getMyPalette(length(legend.ord))
   if (length(legend.ord) > length(pale)) {
-    require(colorspace)
+    suppressMessages(require(colorspace))
     pale <- rainbow_hcl(length(legend.ord))
   }
   # number of columns for legend
@@ -278,7 +279,7 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
   if (verbose)
     cat("colnames(merge.df) = ", paste(colnames(merge.df), collapse = ","), "\n")
   
-  require(reshape2)
+  suppressMessages(require(reshape2))
   if (verbose)
     cat("melt id = ", paste(c(group.id, attr.v), collapse = ","), "\n")
   # melt by group.id + attr.v

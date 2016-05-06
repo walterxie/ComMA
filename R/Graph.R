@@ -101,12 +101,12 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop("Data frame column names do NOT have \"", melt.id, "\" for melt function !")
   
-  require(reshape2)
+  suppressMessages(require(reshape2))
   breaks.rank <- round(seq(1, nrow(df.to.melt), length.out = 5), digits = 0)
   ranks.melt <- melt(df.to.melt, id=c(melt.id))
   ranks.melt[,melt.id] <- factor(ranks.melt[,melt.id], levels=unique(ranks.melt[,melt.id]))
   
-  require(ggplot2)
+  suppressMessages(require(ggplot2))
   # variable is all group names, such as "16S" or "FUNGI"
   # value is ranks for each group
   p <- ggplot(ranks.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) + 
@@ -341,7 +341,7 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
   p <- ggOptEllipse(p, col.names, ellipsed.id=ellipsed.id)
   
   if (! is.null(link.id)) {
-    require(data.table)
+    suppressMessages(require(data.table))
     # Convex hull http://stackoverflow.com/questions/16428962/convex-hull-ggplot-using-data-tables-in-r
     df.dt <- data.table(df, key = link.id)
     chull.txt <- paste0('df.dt[, .SD[chull(x.id, y.id)], by = link.id ]')

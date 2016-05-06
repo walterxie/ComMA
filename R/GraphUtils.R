@@ -192,9 +192,9 @@ getMyPalette<-function(n, add.grey=0){
 #' @examples 
 #' library(ggplot2); library(grid)
 #' my_hist<-ggplot(diamonds, aes(clarity, fill=cut)) + geom_bar() 
-#' legend <- g_legend(my_hist) 
+#' legend <- gLegend(my_hist) 
 #' grid.draw(legend) 
-g_legend<-function(a.gplot){
+gLegend<-function(a.gplot){
   require(ggplot2)
   tmp <- ggplot_gtable(ggplot_build(a.gplot))
   leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")

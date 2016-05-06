@@ -24,7 +24,7 @@
 #' @export
 #' @examples 
 #' # remove singletons 
-#' rmMinAbundance(community.matrix, minAbund=2)
+#' ComMA::rmMinAbundance(community.matrix, minAbund=2)
 #'
 #' @rdname utilsCM
 rmMinAbundance <- function(community.matrix, minAbund=2, MARGIN=1, verbose=TRUE) {
