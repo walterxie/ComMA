@@ -27,15 +27,17 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.nrow = 0,
   x.text.angle = 0, title = "Bar Chart", title.size = 10,
-  x.lab = "x.id", y.lab = "y.id", no.panel.border = FALSE)
+  x.lab = "x.id", y.lab = "y.id", no.panel.border = FALSE,
+  verbose = TRUE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
   x.facet.id = NULL, y.facet.id = NULL, y.trans = "identity",
   auto.scale.y = FALSE, x.lim.cart = NULL, y.lim.cart = NULL,
   palette = NULL, legend.title = NULL, legend.col = 1, legend.nrow = 0,
-  x.text.angle = 0, title = "Box Whiskers Plot", title.size = 10,
-  x.lab = "x.id", y.lab = "y.id", no.panel.border = FALSE)
+  title = "Box Whiskers Plot", title.size = 10, x.lab = "x.id",
+  y.lab = "y.id", x.text.angle = 0, no.panel.border = FALSE,
+  verbose = TRUE)
 
 gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
@@ -44,8 +46,8 @@ gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   xintercept = NULL, yintercept = NULL, line.type = 2,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.nrow = 0,
-  no.panel.border = FALSE, title = "Scatter Plot", title.size = 10,
-  x.lab = "x.id", y.lab = "y.id")
+  title = "Scatter Plot", title.size = 10, x.lab = "x.id",
+  y.lab = "y.id", no.panel.border = FALSE, verbose = TRUE)
 
 gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
   line.type = 2, line.alpha = 0.75, shape.id = NULL, shapes = NULL,
@@ -56,7 +58,7 @@ gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
   text.alpha = 0.5, x.lim.cart = NULL, y.lim.cart = NULL,
   palette = NULL, legend.title = NULL, legend.col = 1, legend.nrow = 0,
   x.text.angle = 0, title = "", title.size = 10, x.lab = "x.id",
-  y.lab = "y.id", no.panel.border = FALSE)
+  y.lab = "y.id", no.panel.border = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{linetype}{\code{\link{linetype}} 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash.}

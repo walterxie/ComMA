@@ -186,8 +186,9 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
                        x.facet.id=NULL, y.facet.id=NULL, y.trans="identity", auto.scale.y=FALSE, 
                        x.interval=0, x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                        legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
-                       title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id", no.panel.border=FALSE) {
-  p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id)
+                       title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id", 
+                       no.panel.border=FALSE, verbose=TRUE) {
+  p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, verbose=verbose)
   p <- p + geom_bar(position=bar.pos, stat=bar.stat) 
   
   col.names <- colnames(df)
@@ -195,14 +196,17 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   
   if (auto.scale.y) {
     y.max <- max(df[,y.id])
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, auto.scale.max=y.max)
+    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
+                        auto.scale.max=y.max, verbose=verbose)
   } else {
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
+    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
+                        verbose=verbose)
   }
   
   if (x.interval > 0) {
     x.breaks <- seq(min(df[,x.id]), max(df[,x.id]), x.interval)
-    p <- ggOptScaleAxis(p, axis="x", scale="discrete", breaks=x.breaks)
+    p <- ggOptScaleAxis(p, axis="x", scale="discrete", trans=trans, 
+                        breaks=x.breaks, verbose=verbose)
   }
   
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
@@ -243,9 +247,10 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
                               x.facet.id=NULL, y.facet.id=NULL, 
                               y.trans="identity", auto.scale.y=FALSE, 
                               x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
-                              legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
+                              legend.title=NULL, legend.col=1, legend.nrow=0, 
                               title="Box Whiskers Plot", title.size = 10, 
-                              x.lab="x.id", y.lab="y.id", no.panel.border=FALSE) {
+                              x.lab="x.id", y.lab="y.id", x.text.angle=0, 
+                              no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id)
   if (! is.null(fill.id)) 
     p <- p + geom_boxplot(outlier.colour=outlier.colour, position=position_dodge(width=dodge.width))
@@ -324,8 +329,9 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           text.vjust = -0.2, text.alpha = 0.5,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
-                          legend.title=NULL, legend.col=1, legend.nrow=0, no.panel.border=FALSE, 
-                          title="Scatter Plot", title.size = 10, x.lab="x.id", y.lab="y.id") {
+                          legend.title=NULL, legend.col=1, legend.nrow=0,  
+                          title="Scatter Plot", title.size = 10, x.lab="x.id", y.lab="y.id", 
+                          no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id)
   col.names <- colnames(df)
   
@@ -398,7 +404,8 @@ gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
                    text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
                    x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                    legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
-                   title="", title.size = 10, x.lab="x.id", y.lab="y.id", no.panel.border=FALSE) {
+                   title="", title.size = 10, x.lab="x.id", y.lab="y.id", 
+                   no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, group.id=group.id, colour.id=colour.id)
   col.names <- colnames(df)
   

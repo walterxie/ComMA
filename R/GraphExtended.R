@@ -185,7 +185,7 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' bar.chart$gg.plot
 #' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", x.lab="", y.lab="", 
-                                 x.text.angle=0, autoWidth=TRUE) {
+                                 x.text.angle=0, autoWidth=TRUE, verbose=TRUE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
@@ -208,8 +208,9 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   # number of columns for legend
   legend.col = ceiling(length(legend.ord) / 25)
   
-  p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, bar.pos="fill", x.text.angle=x.text.angle,
-                         y.trans="per", title=title, x.lab=x.lab, y.lab=y.lab, palette=pale, legend.col=legend.col)
+  p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, bar.pos="fill", 
+                         x.text.angle=x.text.angle, y.trans="per", title=title, x.lab=x.lab, y.lab=y.lab, 
+                         palette=pale, legend.col=legend.col, verbose=verbose)
   
   if (autoWidth)
     pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
