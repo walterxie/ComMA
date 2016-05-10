@@ -97,21 +97,39 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' @rdname ggPlot
 ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", 
                       title="Heatmap", title.size = 10, x.lab="", y.lab="", 
+                      log.scale.colour=FALSE, legend.title="rank", 
                       x.text.angle=45, no.panel.border=FALSE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop("Data frame column names do NOT have \"", melt.id, "\" for melt function !")
   
   suppressMessages(require(reshape2))
-  breaks.rank <- round(seq(1, nrow(df.to.melt), length.out = 5), digits = 0)
   ranks.melt <- melt(df.to.melt, id=c(melt.id))
   ranks.melt[,melt.id] <- factor(ranks.melt[,melt.id], levels=unique(ranks.melt[,melt.id]))
   
   suppressMessages(require(ggplot2))
   # variable is all group names, such as "16S" or "FUNGI"
   # value is ranks for each group
-  p <- ggplot(ranks.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) + 
-    scale_fill_gradient(na.value="transparent", low=low, high=high, name="rank", breaks=breaks.rank) 
+  p <- ggplot(ranks.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) 
+  
+  if (log.scale.colour) {
+    if (min(ranks.melt$value) == 0)
+      min.log <- 0
+    else 
+      min.log <- log(min(ranks.melt$value))
+    if (max(ranks.melt$value) == 0)
+      max.log <- 0
+    else 
+      max.log <- log(max(ranks.melt$value))
     
+    breaks.rank <- round(exp(seq(min.log, max.log, length.out = 5)), digits = 0)
+    p <- p + scale_fill_gradient(trans='log', na.value="transparent", low=low, high=high, 
+                                 name=legend.title, breaks=breaks.rank) 
+  } else {
+    breaks.rank <- round(seq(min(ranks.melt$value), max(ranks.melt$value), length.out = 5), digits = 0)
+    p <- p + scale_fill_gradient(na.value="transparent", low=low, high=high, 
+                                 name=legend.title, breaks=breaks.rank) 
+  }
+  
   p <- ggLabTitle(p, "", "", title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
     p <- ggThemeAxis(p, title.size=title.size)
@@ -175,9 +193,10 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
 #' 
 #' @rdname ggPlot
 ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="identity", 
-                       x.facet.id=NULL, y.facet.id=NULL, y.trans="identity", auto.scale.y=FALSE, 
-                       x.scale="discrete", x.interval=0, x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
-                       legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
+                       x.facet.id=NULL, y.facet.id=NULL, x.lim.cart=NULL, y.lim.cart=NULL,   
+                       y.trans="identity", auto.scale.y=FALSE, x.scale="discrete", 
+                       x.interval=0, x.text.angle=0, palette=NULL, 
+                       legend.title=NULL, legend.col=1, legend.nrow=0, 
                        title="Bar Chart", title.size=10, x.lab="x.id", y.lab="y.id", 
                        legend.position="right", no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, verbose=verbose)

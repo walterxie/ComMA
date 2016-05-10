@@ -19,16 +19,17 @@ ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
 
 ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
   title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
-  x.text.angle = 45, no.panel.border = FALSE)
+  log.scale.colour = FALSE, legend.title = "rank", x.text.angle = 45,
+  no.panel.border = FALSE)
 
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
-  y.trans = "identity", auto.scale.y = FALSE, x.scale = "discrete",
-  x.interval = 0, x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
-  legend.title = NULL, legend.col = 1, legend.nrow = 0,
-  x.text.angle = 0, title = "Bar Chart", title.size = 10,
-  x.lab = "x.id", y.lab = "y.id", legend.position = "right",
-  no.panel.border = FALSE, verbose = TRUE)
+  x.lim.cart = NULL, y.lim.cart = NULL, y.trans = "identity",
+  auto.scale.y = FALSE, x.scale = "discrete", x.interval = 0,
+  x.text.angle = 0, palette = NULL, legend.title = NULL, legend.col = 1,
+  legend.nrow = 0, title = "Bar Chart", title.size = 10, x.lab = "x.id",
+  y.lab = "y.id", legend.position = "right", no.panel.border = FALSE,
+  verbose = TRUE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
@@ -102,6 +103,8 @@ For example,
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
 
+\item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
+
 \item{no.panel.border}{Add panel border or not. Default to FALSE.}
 
 \item{df}{A data frame used for plot.}
@@ -131,8 +134,6 @@ If 1 != length <= 3, then use \code{\link{scale_colour_gradientn}},
 such as c("blue", "orange").
 Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
 Default NULL to use \code{\link{ggplot}} default colours.}
-
-\item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
 
 \item{legend.col, legend.nrow}{Customize the number of columns or rows for legend in bar chart. 
 They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0.}
