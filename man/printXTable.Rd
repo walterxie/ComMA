@@ -2,10 +2,12 @@
 % Please edit documentation in R/IO.R
 \name{printXTable}
 \alias{printXTable}
-\title{Print data fram (table) as Latex format to either file or console.}
+\title{Print data fram (table) as Latex format to either file or console, 
+which is extened from \code{\link{xtable}}.}
 \usage{
-printXTable(df, caption, label, include.rownames = TRUE, file = NULL,
-  align = NULL, digits = NULL)
+printXTable(df, caption = "The table of", label = "tab:label",
+  file = NULL, invalid.char = TRUE, include.rownames = TRUE,
+  caption.placement = "top", ...)
 }
 \arguments{
 \item{df}{A data frame.}
@@ -14,14 +16,19 @@ printXTable(df, caption, label, include.rownames = TRUE, file = NULL,
 
 \item{label}{Latex table label.}
 
-\item{file}{If NULL, then print the results to console, otherwise print them to the file. Default to NULL.}
+\item{file}{If NULL, then print the results to console, 
+otherwise print them to the file. Default to NULL.}
 
-\item{align}{Refer to \code{\link{xtable}}.}
+\item{invalid.char}{If it is TRUE, then add \\\\ to all 
+_ or % for Latex. Default to TRUE.}
 
-\item{digits}{Refer to \code{\link{xtable}}.}
+\item{include.rownames, caption.placement}{Refer to \code{\link{print.xtable}}.}
+
+\item{...}{More at \code{\link{xtable}}.}
 }
 \description{
-Print data fram (table) as Latex format to either file or console.
+Print data fram (table) as Latex format to either file or console, 
+which is extened from \code{\link{xtable}}.
 }
 \examples{
 tableFile <- file.path(workingPath, "report.tex")

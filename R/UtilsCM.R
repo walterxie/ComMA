@@ -62,6 +62,53 @@ transpose.df <- function(community.matrix) {
   t.community.matrix <- as.data.frame(t(as.matrix(community.matrix))) # transpose  
 }
 
+#' @details \code{spilt.df} spilt a data frame into chunks of data frames 
+#' having equal rows/columns.
+#' 
+#' @param spilt.to The number of sub-data-frame to spilt. It must >= 2.
+#' Default to 2.
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' cm.list <- spiltCM(community.matrix)
+#'
+#' @rdname utilsCM
+spilt.df <- function(community.matrix, spilt.to=2, MARGIN=1, verbose=TRUE) {
+  if (spilt.to < 2)
+    stop("Invalid spilt.to", spilt.to, "!")
+  
+  if (MARGIN != 1) {
+    size <- ceiling(ncol(community.matrix) / 2)
+    msg <- "columns"
+  } else { 
+    size <- ceiling(nrow(community.matrix) / 2)
+    msg <- "rows"
+  }
+  if (verbose)
+    cat("Split a data frame into", spilt.to, ", roughly", size, msg, "each.")
+  
+  if (size < 2) 
+    return(community.matrix)
+  
+  cm.list <- list()
+  i = 1
+  if (MARGIN != 1) {
+    cm.cols.list <- split(1:ncol(community.matrix), ceiling(seq_along(1:ncol(community.matrix))/size))
+    for (cm.cols in cm.cols.list) {
+      cm.list[[i]] <- community.matrix[,cm.cols]
+      i=i+1
+    }
+  } else {
+    cm.rows.list <- split(1:nrow(community.matrix), ceiling(seq_along(1:nrow(community.matrix))/size))
+    for (cm.rows in cm.rows.list) {
+      cm.list[[i]] <- community.matrix[cm.rows,]
+      i=i+1
+    }
+  }
+  
+  return(cm.list)
+}
+
 #' @details \code{summaryCM.Vector} return a vector of summary of the 
 #' community matrix, where \code{community.matrix} can be one column only.
 #' The vector is c("reads","OTUs","Shannon","samples","singletons","doubletons").
@@ -124,11 +171,6 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2) {
   return(summary.cm)
 }
 
-
-subsetCM <- function(cm.taxa, unclassified=0) {
-  
-}
-
 #' @details \code{mostAbundantRows} trims data frame 
 #' to the rows having most abundance given a threshold. 
 #' The trimmed data frame having most abundant rows, 
@@ -140,7 +182,7 @@ subsetCM <- function(cm.taxa, unclassified=0) {
 #' @export
 #' @examples 
 #' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' OTU100 <- mostAbundantRows(community.matrix, mostAbundant=100)
+#' OTU100 <- mostAbundantRows(community.matrix, most.abund=100)
 #'
 #' @rdname utilsCM
 mostAbundantRows <- function(community.matrix, most.abund=150) {

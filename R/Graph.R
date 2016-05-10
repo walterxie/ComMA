@@ -118,7 +118,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
   else 
     p <- ggThemePanelBorder(p, title.size=title.size)
   
-  p <- ggThemeRotateXText(p, x.text.angle=x.text.angle)
+  p <- ggThemeOthers(p, x.text.angle=x.text.angle)
   
   return(p) 
 }
@@ -173,21 +173,13 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
 #' # percentage bars one group in one bar
 #' bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
 #' 
-#' # the number of OTUs (y-axis) across the number of samples (x-axis)
-#' communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' cm.aggre <- cmYAcrossX(communityMatrix)
-#' require(reshape2)
-#' df <- melt(cm.aggre, id="samples")
-#' bar.chart <- ggBarChart(df, x.id="samples", y.id="value", fill.id="variable", y.trans="log", 
-#'                         y.lab="", legend.title="", x.interval=1)
-#' 
 #' @rdname ggPlot
 ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="identity", 
                        x.facet.id=NULL, y.facet.id=NULL, y.trans="identity", auto.scale.y=FALSE, 
-                       x.interval=0, x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
+                       x.scale="discrete", x.interval=0, x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                        legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
-                       title="Bar Chart", title.size = 10, x.lab="x.id", y.lab="y.id", 
-                       no.panel.border=FALSE, verbose=TRUE) {
+                       title="Bar Chart", title.size=10, x.lab="x.id", y.lab="y.id", 
+                       legend.position="right", no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, verbose=verbose)
   p <- p + geom_bar(position=bar.pos, stat=bar.stat) 
   
@@ -204,9 +196,10 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   }
   
   if (x.interval > 0) {
-    x.breaks <- seq(min(df[,x.id]), max(df[,x.id]), x.interval)
-    p <- ggOptScaleAxis(p, axis="x", scale="discrete", trans=trans, 
-                        breaks=x.breaks, verbose=verbose)
+    #x.breaks <- seq(min(df[,x.id]), max(df[,x.id]), x.interval)
+    x.breaks <- window(unique(df[,x.id]), deltat=x.interval)
+    # no x.trans
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, breaks=x.breaks, verbose=verbose)
   }
   
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
@@ -221,7 +214,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   else 
     p <- ggThemePanelBorder(p, title.size=title.size)
   
-  p <- ggThemeRotateXText(p, x.text.angle=x.text.angle)
+  p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position)
   
   return(p)
 }
@@ -281,7 +274,7 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
   else 
     p <- ggThemePanelBorder(p, title.size=title.size)
   
-  p <- ggThemeRotateXText(p, x.text.angle=x.text.angle)
+  p <- ggThemeOthers(p, x.text.angle=x.text.angle)
   
   return(p)
 }

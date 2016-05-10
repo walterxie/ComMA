@@ -131,8 +131,14 @@ ggOptScaleAxis <- function(p, axis="y", scale="continuous", trans="identity",
   
   # scale_y_continuous(trans=trans, expand=expand, breaks=breaks, labels=labels)
   scale.string <- paste0("scale_", axis, "_", scale, "(expand=expand, breaks=breaks")
-  if (scale=="continuous")
-    scale.string <- paste0(scale.string, ", trans=trans") 
+  if (scale=="continuous") {
+    if (trans=="log")
+      # show 1 at log scale
+      scale.string <- paste0(scale.string, ", trans=ComMA::mylog_trans(base=10, from=-0.3)")  
+    else
+      scale.string <- paste0(scale.string, ", trans=trans")     
+  }
+  
   if (! is.null(auto.scale.max)) {
     breaks <- ComMA::get_breaks_positive_values(auto.scale.max, start=breaks.start)
     scale.string <- paste0(scale.string, ", labels=ComMA::scientific_10)") 
@@ -147,8 +153,8 @@ ggOptScaleAxis <- function(p, axis="y", scale="continuous", trans="identity",
   }
   
   if (verbose) {
-    cat("Axis", axis, "scale :", scale.string, ".\n")
-    cat("Axis", axis, "breaks :", paste(breaks, collapse = ","), ".\n")
+    cat("Axis", axis, "scale :", scale.string, "\n")
+    cat("Axis", axis, "breaks :", paste(breaks, collapse = ","), "\n")
   }
   
   p <- p + eval(parse(text = scale.string))
@@ -207,9 +213,11 @@ ggLabTitle <- function(p, x.id, y.id, title, x.lab="x.id", y.lab="y.id") {
   return(p)
 }
 
-ggThemeRotateXText <- function(p, x.text.angle=0) {
+ggThemeOthers <- function(p, x.text.angle=0, legend.position="right") {
+  p <- p + theme(legend.position=legend.position)
   if (x.text.angle > 0) 
-    p <- p + theme(axis.text.x = element_text(angle = x.text.angle, hjust = 1, vjust = 0.3))
+    p <- p + theme(axis.text.x = element_text(angle = x.text.angle, hjust = 1, vjust = 0.3),
+                   legend.position=legend.position)
   return(p)
 }
 

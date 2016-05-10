@@ -5,9 +5,13 @@
 \alias{TurnoverDist}
 \alias{calculateDissimilarityMatrix}
 \alias{diversityTable}
+\alias{summaryCMPerSample}
 \title{Jost diversity from \pkg{vegetarian} Package}
 \usage{
 diversityTable(t.community.matrix)
+
+summaryCMPerSample(t.community.matrix, hasTotal = TRUE, digits = 2,
+  sort = "descending", comma.in.number = TRUE)
 
 calculateDissimilarityMatrix(t.community.matrix, diss.fun = "beta1-1",
   printProgressBar)
@@ -19,19 +23,40 @@ TurnoverDist(t.community.matrix)
 which is a transposed matrix of community matrix, 
 where rows are plots (Use plots instead of subplots.), columns are OTUs.}
 
+\item{hasTotal}{If TRUE, then display the Total. Default to TRUE.}
+
+\item{sort}{Sort abundance column by "descending", "ascending", 
+or do nothing for any other string.}
+
+\item{comma.in.number}{If TRUE, then add comma to bug numbers. 
+Default to TRUE.}
+
 \item{diss.fun}{Similarity/dissimilarity index, values are jaccard, horn.morisita, 
 bray.curtis, and beta1-1. Default to beta1-1, but it is slower than other indices.}
 
 \item{printProgressBar}{Whether to print progress bar, if missing, it will be nrow(row.pairs)>100}
+
+\item{digit}{The digits of Shannon index. Default to 2.}
 }
 \value{
-\code{diversityTable} returns a 3x3 data frame: columns are levels of diversity c("gamma", "alpha", "beta"), 
+\code{diversityTable} returns a 3x3 data frame: 
+columns are levels of diversity c("gamma", "alpha", "beta"), 
 rows are orders of the diversity measure c(0, 1, 2). For example,
 \tabular{rrrr}{
    \tab $q=0$ \tab $q=1$ \tab $q=1$\cr
   $D_\\gamma(q)$ \tab 13922.000000 \tab 2501.693162 \tab 601.509610\cr
   $D_\\alpha(q)$ \tab 2238.392857 \tab 880.944977 \tab 251.127187\cr
   $D_\\beta(q)$ \tab 6.219641 \tab 2.839784 \tab 2.395239 
+}
+
+\code{summaryCMPerSample} returns a summary data frame: 
+columns are types of diversity c("abundance", "richness", "shannon"), 
+rows are samples. For example,
+\tabular{rrrr}{
+   \tab $q=0$ \tab $q=1$ \tab $q=1$\cr
+  Total \tab 688,733 \tab 16,860 \tab NA\cr
+  sample1 \tab 32,837 \tab 508 \tab 23.02\cr
+  sample2 \tab 25,023 \tab 181 \tab 7.9 
 }
 
 \code{calculateDissimilarityMatrix} returns a \code{\link{matrix}} of similarity/dissimilarity, 
@@ -45,12 +70,16 @@ a transposed matrix of community matrix we defined in \pkg{ComMA}.
 Community matrix from file is a matrix where rows are OTUs or individual species 
 and columns are sites or samples. See \code{\link{ComMA}}.
 
+A brief summary table of diversities per sample.
+
 Calculate similarity/dissimilarity distance matrix between samples.
 
 Calculate pair-wise turnovers between samples.
 }
 \examples{
 diversity.table <- diversityTable(t.community.matrix)
+
+summary.t.cm <- summaryCMPerSample(t.community.matrix)
 
 diss.matrix <- calculateDissimilarityMatrix(t.community.matrix, diss.fun="jaccard")
 

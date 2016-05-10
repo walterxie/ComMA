@@ -5,6 +5,7 @@
 \alias{mergeRowsByColumnValue}
 \alias{mostAbundantRows}
 \alias{rmMinAbundance}
+\alias{spilt.df}
 \alias{sumColumns}
 \alias{summaryCM}
 \alias{summaryCM.Vector}
@@ -15,6 +16,8 @@
 rmMinAbundance(community.matrix, minAbund = 2, MARGIN = 1, verbose = TRUE)
 
 transpose.df(community.matrix)
+
+spilt.df(community.matrix, spilt.to = 2, MARGIN = 1, verbose = TRUE)
 
 summaryCM.Vector(community.matrix, digits = 2)
 
@@ -40,6 +43,9 @@ then remove all empty rows/columns. Default to 2 (singletons).}
 \item{MARGIN}{1 indicates rows, 2 indicates columns. Default to 1.}
 
 \item{verbose}{More details. Default to TRUE.}
+
+\item{spilt.to}{The number of sub-data-frame to spilt. It must >= 2.
+Default to 2.}
 
 \item{digits}{The digits to \code{\link{round}} decimal places 
 if number is not interger. Default to 2.}
@@ -79,6 +85,9 @@ by removing rows or colums whose sum of abundance is less than the minimum abund
 \code{transpose.df} returns a transposed data frame, 
 such as transposed community matrix for \pkg{vegan} package.
 
+\code{spilt.df} spilt a data frame into chunks of data frames 
+having equal rows/columns.
+
 \code{summaryCM.Vector} return a vector of summary of the 
 community matrix, where \code{community.matrix} can be one column only.
 The vector is c("reads","OTUs","Shannon","samples","singletons","doubletons").
@@ -108,12 +117,14 @@ ComMA::rmMinAbundance(community.matrix, minAbund=2)
 
 t.community.matrix <- transpose.df(community.matrix)
 
+cm.list <- spiltCM(community.matrix)
+
 summary.cm.vector <- summaryCM.Vector(community.matrix)
 
 summary.cm <- summaryCM(community.matrix)
 
 community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-OTU100 <- mostAbundantRows(community.matrix, mostAbundant=100)
+OTU100 <- mostAbundantRows(community.matrix, most.abund=100)
 
 community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 cm.aggre <- cmYAcrossX(community.matrix)

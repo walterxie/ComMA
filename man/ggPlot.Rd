@@ -23,12 +23,12 @@ ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
 
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
-  y.trans = "identity", auto.scale.y = FALSE, x.interval = 0,
-  x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
+  y.trans = "identity", auto.scale.y = FALSE, x.scale = "discrete",
+  x.interval = 0, x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.nrow = 0,
   x.text.angle = 0, title = "Bar Chart", title.size = 10,
-  x.lab = "x.id", y.lab = "y.id", no.panel.border = FALSE,
-  verbose = TRUE)
+  x.lab = "x.id", y.lab = "y.id", legend.position = "right",
+  no.panel.border = FALSE, verbose = TRUE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
@@ -227,14 +227,6 @@ bar.chart <- ggBarChart(df, x.id="test", y.id="seconds", fill.id="version", y.tr
 bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", y.trans="per")
 # percentage bars one group in one bar
 bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
-
-# the number of OTUs (y-axis) across the number of samples (x-axis)
-communityMatrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-cm.aggre <- cmYAcrossX(communityMatrix)
-require(reshape2)
-df <- melt(cm.aggre, id="samples")
-bar.chart <- ggBarChart(df, x.id="samples", y.id="value", fill.id="variable", y.trans="log", 
-                        y.lab="", legend.title="", x.interval=1)
 
 box.plot <- ggBoxWhiskersPlot(df, x.id="test", y.id="performance")
 

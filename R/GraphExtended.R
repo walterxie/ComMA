@@ -37,6 +37,7 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
 #' @param distance Dissimilarity index used in \code{\link{vegdist}}.
 #' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
 #' where its row names have to match row names of community data \code{comm}.
+#' @param ... More from \code{\link{gtScatterPlot}}.
 #' @keywords graph
 #' @export
 #' @examples
@@ -86,7 +87,8 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
   gt <- ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", colour.id=colour.id, 
                              shape.id=shape.id, link.id=link.id, text.id=text.id, 
                              palette=palette, xintercept=xintercept, yintercept=yintercept,
-                             text.data=text.data, text.size=text.size, title=title, ...)
+                             text.data=text.data, text.size=text.size, title=title, 
+                             verbose=verbose, ...)
   
   return(gt)
 }
@@ -105,6 +107,7 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
 #' Detail to \code{\link{prcomp}}.
 #' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
 #' where its row names have to match row names of community data \code{comm}.
+#' @param ... More from \code{\link{gtScatterPlot}}.
 #' @keywords graph
 #' @export
 #' @examples
@@ -154,7 +157,8 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
   gt <- ComMA::gtScatterPlot(pts.pca.merge, x.id="PC1", y.id="PC2", colour.id=colour.id, 
                              shape.id=shape.id, link.id=link.id, text.id=text.id, 
                              palette=palette, xintercept=xintercept, yintercept=yintercept,
-                             text.data=text.data, text.size=text.size, title=title, ...)
+                             text.data=text.data, text.size=text.size, title=title, 
+                             verbose=verbose, ...)
   
   return(gt)
 }
@@ -176,6 +180,7 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' Default to low="white", high="steelblue".
 #' @param autoWidth If TRUE, then use number of bars and legend columns 
 #' to estimate pdf width automatically. Default to TRUE.
+#' @param ... More from \code{\link{ggBarChart}}.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -184,7 +189,8 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 #' bar.chart$gg.plot
 #' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
-ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", x.lab="", y.lab="", 
+ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", 
+                                 x.lab="", y.lab="", palette=NULL, 
                                  x.text.angle=0, autoWidth=TRUE, verbose=TRUE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
@@ -200,17 +206,23 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
     legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
   df.melt[,melt.id] <- factor(df.melt[,melt.id], levels = rev(legend.ord))
   
-  pale <- ComMA::getMyPalette(length(legend.ord))
-  if (length(legend.ord) > length(pale)) {
-    suppressMessages(require(colorspace))
-    pale <- rainbow_hcl(length(legend.ord))
+  if (! is.null(palette)) {
+    pale <- palette
+  } else {
+    pale <- ComMA::getMyPalette(length(legend.ord))
+    if (length(legend.ord) > length(pale)) {
+      suppressMessages(require(colorspace))
+      pale <- rainbow_hcl(length(legend.ord))
+    }
   }
   # number of columns for legend
   legend.col = ceiling(length(legend.ord) / 25)
   
-  p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, bar.pos="fill", 
-                         x.text.angle=x.text.angle, y.trans="per", title=title, x.lab=x.lab, y.lab=y.lab, 
-                         palette=pale, legend.col=legend.col, verbose=verbose)
+  p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, 
+                         bar.pos="fill", palette=pale, 
+                         x.text.angle=x.text.angle, y.trans="per", 
+                         title=title, x.lab=x.lab, y.lab=y.lab, 
+                         legend.col=legend.col, verbose=verbose, ...)
   
   if (autoWidth)
     pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
@@ -224,6 +236,44 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   )
 }
 
+#' The bar chart shows the number of OTUs in the bar across the number of samples in the value of x-axis, 
+#' which is extended from \code{\link{ggBarChart}}. 
+#' 
+#' @param community.matrix Community matrix (OTU table), where rows are 
+#' OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.
+#' @param title Graph title
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
+#' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
+#' Default to low="white", high="steelblue".
+#' @param autoWidth If TRUE, then use number of bars and legend columns 
+#' to estimate pdf width automatically. Default to TRUE.
+#' @param ... More from \code{\link{ggBarChart}}.
+#' @keywords graph
+#' @export
+#' @examples  
+#' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+#' bar.yx <- ComMA::ggBarYAcrossX(community.matrix)
+ggBarYAcrossX <- function(community.matrix, title="The number of OTUs/reads across the number of samples", 
+                          title.size = 10, x.lab="Number of samples crossed", y.lab="Number of OTUs/reads",
+                          y.trans="log", auto.scale.y=TRUE, x.scale="discrete", x.interval=1, 
+                          x.text.angle=0, legend.title="", verbose=TRUE, ...) {
+  cm.aggre <- ComMA::cmYAcrossX(community.matrix)
+  suppressMessages(require(reshape2))
+  df <- melt(cm.aggre, id="samples")
+  
+  if (x.scale=="discrete") {
+    df[,"samples"] <- as.character(df[,"samples"])
+    df[,"samples"] <- factor(df[,"samples"], unique(df[,"samples"]))
+  }
+  
+  p <- ComMA::ggBarChart(df, x.id="samples", y.id="value", fill.id="variable", 
+                         y.trans=y.trans, auto.scale.y=auto.scale.y, 
+                         title=title, title.size=title.size, x.lab=x.lab, y.lab=y.lab, 
+                         x.text.angle=x.text.angle, x.scale=x.scale, x.interval=x.interval, 
+                         legend.title=legend.title, verbose=verbose, ...)
+  
+  return(p)
+}
 
 
 #' Rarefaction curves for multi-sample, which is extended from \code{\link{gtLine}}. 
@@ -246,6 +296,7 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #' subsampled data points, which is copied from merged "row.names".
 #' @param x.prefix The regular expression to remove prefix from column names in 
 #' \code{df.to.melt} (e.g. size.100). Default to "^.*?\\\\.".
+#' @param ... More from \code{\link{gtLine}}.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -257,10 +308,7 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
                                shape.id=NULL, point.size, palette=NULL, 
                                x.prefix="^.*?\\.", end.point.only=TRUE,
                                title="Rarefaction Curves", x.lab="Reads", y.lab="Diversity", 
-                               x.trans="identity", auto.scale.x=FALSE, 
-                               y.trans="identity", auto.scale.y=FALSE,
-                               text.id=NULL, text.data = NULL, text.size = 3, 
-                               no.panel.border=FALSE, verbose=TRUE, ...) {
+                               text.id=NULL, text.data = NULL, text.size = 3, verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(df.size) %in% rownames(attr.df)) )
       stop("Invalid attr.df,", paste(rownames(df.size), collapse = ","), 
@@ -314,12 +362,9 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
   gt <- ComMA::gtLine(melt.df, x.id="variable", y.id="value", group.id=group.id, 
                       colour.id=colour.id, shape.id=shape.id, 
                       point.data=point.data, point.size=point.size,
-                      x.trans=x.trans, auto.scale.x=auto.scale.x, 
-                      y.trans=y.trans, auto.scale.y=auto.scale.y,
                       text.id=text.id, text.data=text.data, text.size=text.size, 
                       title=title, x.lab=x.lab, y.lab=y.lab, palette=palette, 
-                      no.panel.border=no.panel.border)
+                      verbose=verbose, ...)
   return(gt)
 }
-
 

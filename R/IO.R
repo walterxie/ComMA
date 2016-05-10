@@ -123,29 +123,39 @@ writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t", eol 
   }
 }
 
-#' Print data fram (table) as Latex format to either file or console.
+#' Print data fram (table) as Latex format to either file or console, 
+#' which is extened from \code{\link{xtable}}.
 #' 
 #' @param df A data frame.
 #' @param caption Latex table caption.
 #' @param label Latex table label.
-#' @param file If NULL, then print the results to console, otherwise print them to the file. Default to NULL. 
-#' @param align Refer to \code{\link{xtable}}.
-#' @param digits Refer to \code{\link{xtable}}. 
+#' @param file If NULL, then print the results to console, 
+#' otherwise print them to the file. Default to NULL. 
+#' @param invalid.char If it is TRUE, then add \\\\ to all 
+#' _ or % for Latex. Default to TRUE.
+#' @param include.rownames,caption.placement 
+#' Refer to \code{\link{print.xtable}}.
+#' @param ... More at \code{\link{xtable}}. 
 #' @export
 #' @keywords IO
 #' @examples 
 #' tableFile <- file.path(workingPath, "report.tex")
 #' printXTable(data.frame, caption = "Phylogenetic beta diversity", 
 #'             label = "tab:pd:beta", file=tableFile)
-printXTable <- function(df, caption, label, include.rownames=TRUE, file=NULL, align = NULL, digits = NULL) {
+printXTable <- function(df, caption="The table of", label="tab:label", file=NULL, 
+                        invalid.char=TRUE, include.rownames=TRUE, caption.placement="top", ...) {
+  if (invalid.char) {
+    rownames(df) <- gsub("_", "\\\\_", rownames(df))
+    colnames(df) <- gsub("_", "\\\\_", colnames(df))
+    df <- as.data.frame(gsub("%|_", "\\\\%|\\\\_", as.matrix(df)))
+  }
+    
   require(xtable)
   if (is.null(file)) {
-    print(xtable(df, caption = caption, label = label, caption.placement = "top", 
-                 align = align, digits = digits),
+    print(xtable(df, caption = caption, label = label, caption.placement = caption.placement, ...),
           sanitize.text.function = function(x){x}, include.rownames=include.rownames)
   } else {
-    print(xtable(df, caption = caption, label = label, caption.placement = "top", 
-                 align = align, digits = digits),
+    print(xtable(df, caption = caption, label = label, caption.placement = caption.placement, ...),
           sanitize.text.function = function(x){x}, include.rownames=include.rownames, 
           file=file, append=TRUE)
   }

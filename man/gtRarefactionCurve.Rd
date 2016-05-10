@@ -7,9 +7,7 @@
 gtRarefactionCurve(df.size, attr.df, group.id = "Samples", colour.id = NULL,
   shape.id = NULL, point.size, palette = NULL, x.prefix = "^.*?\\\\.",
   end.point.only = TRUE, title = "Rarefaction Curves", x.lab = "Reads",
-  y.lab = "Diversity", x.trans = "identity", auto.scale.x = FALSE,
-  y.trans = "identity", auto.scale.y = FALSE, text.id = NULL,
-  text.data = NULL, text.size = 3, no.panel.border = FALSE,
+  y.lab = "Diversity", text.id = NULL, text.data = NULL, text.size = 3,
   verbose = TRUE, ...)
 }
 \arguments{
@@ -34,6 +32,8 @@ subsampled data points, which is copied from merged "row.names".}
 
 \item{x.prefix}{The regular expression to remove prefix from column names in 
 \code{df.to.melt} (e.g. size.100). Default to "^.*?\\\\.".}
+
+\item{...}{More from \code{\link{gtLine}}.}
 }
 \description{
 Rarefaction curves for multi-sample, which is extended from \code{\link{gtLine}}.

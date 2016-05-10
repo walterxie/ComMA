@@ -19,6 +19,8 @@ Detail to \code{\link{prcomp}}.}
 
 \item{attr.df}{A data frame to define how NMDS plot is coloured, shaped, or linked.
 where its row names have to match row names of community data \code{comm}.}
+
+\item{...}{More from \code{\link{gtScatterPlot}}.}
 }
 \description{
 Use \code{\link{prcomp}} to create Principal Components Analysis (PCA) plot.

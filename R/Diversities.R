@@ -16,7 +16,8 @@
 #' which is a transposed matrix of community matrix, 
 #' where rows are plots (Use plots instead of subplots.), columns are OTUs.
 #' @return 
-#' \code{diversityTable} returns a 3x3 data frame: columns are levels of diversity c("gamma", "alpha", "beta"), 
+#' \code{diversityTable} returns a 3x3 data frame: 
+#' columns are levels of diversity c("gamma", "alpha", "beta"), 
 #' rows are orders of the diversity measure c(0, 1, 2). For example,
 #' \tabular{rrrr}{
 #'    \tab $q=0$ \tab $q=1$ \tab $q=1$\cr
@@ -100,6 +101,63 @@ shannonPerSample <- function(t.community.matrix, digits = 2) {
   
   return(round(perSample, digits))
 }
+
+#' @description A brief summary table of diversities per sample. 
+#' 
+#' @param hasTotal If TRUE, then display the Total. Default to TRUE.
+#' @param digit The digits of Shannon index. Default to 2.
+#' @param sort Sort abundance column by "descending", "ascending", 
+#' or do nothing for any other string.
+#' @param comma.in.number If TRUE, then add comma to bug numbers. 
+#' Default to TRUE.
+#' @return 
+#' \code{summaryCMPerSample} returns a summary data frame: 
+#' columns are types of diversity c("abundance", "richness", "shannon"), 
+#' rows are samples. For example,
+#' \tabular{rrrr}{
+#'    \tab $q=0$ \tab $q=1$ \tab $q=1$\cr
+#'   Total \tab 688,733 \tab 16,860 \tab NA\cr
+#'   sample1 \tab 32,837 \tab 508 \tab 23.02\cr
+#'   sample2 \tab 25,023 \tab 181 \tab 7.9 
+#' }
+#' @export
+#' @keywords diversity
+#' @examples 
+#' summary.t.cm <- summaryCMPerSample(t.community.matrix)
+#' 
+#' @rdname JostDiversity
+summaryCMPerSample <- function(t.community.matrix, hasTotal=TRUE, digits=2, 
+                               sort="descending", comma.in.number=TRUE) {
+  # gamme0
+  abundance <- abundancePerSample(t.community.matrix, hasTotal) 
+  # richness
+  richness <- richnessPerSample(t.community.matrix, hasTotal)
+  # gamme1
+  shannon <- shannonPerSample(t.community.matrix, digits=digits)
+  
+  if (!all( tolower(rownames(abundance)) == tolower(rownames(richness)) )) 
+    stop("data frame rownames do not match !")
+  if (!any( tolower(rownames(abundance)[! rownames(abundance) %in% "Total"]) 
+            == tolower(rownames(shannon)) )) 
+    stop("data frame rownames do not match !")
+  
+  summary <- data.frame(abundance=abundance, richness=richness, stringsAsFactors=FALSE)
+  
+  if (hasTotal)
+    shannon <- rbind(shannon, c("NA"))
+  
+  summary<- cbind(summary, shannon)
+  if (sort=="descending") {
+    summary <- summary[order(summary$abundance, decreasing = TRUE), ]
+  } else if (sort=="ascending") {
+    summary <- summary[order(summary$abundance), ]
+  }# sort=="no"
+  if (comma.in.number)
+    summary <- format(summary, big.mark=",", scientific=F)
+  
+  return(summary)
+}
+
 
 ######## Pair-wise turnovers #######
 
