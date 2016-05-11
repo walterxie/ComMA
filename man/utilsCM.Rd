@@ -57,9 +57,9 @@ if number is not interger. Default to 2.}
 If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
 Default to 1.}
 
-\item{row.decreasing, col.decreasing}{Should the sort order of be \code{rowSums} or 
-\code{colSums} increasing or decreasing?
-Refer to \code{\link{order}}. If NULL, do nothing.
+\item{row.decreasing, col.decreasing}{Should the sort 
+decreasing order of \code{colnames} or \code{colSums}
+be TRUE? Refer to \code{\link{order}}. If NULL, do nothing.
 Default to TRUE.}
 
 \item{terms}{The terms to be used in names of the data frame, 

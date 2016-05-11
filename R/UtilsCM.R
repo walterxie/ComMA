@@ -178,10 +178,9 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2) {
 #' 
 #' @param most.abund The threshold to define the number 
 #' of the most abundent OTUs. Default to 150.
-#' @param row.decreasing,col.decreasing 
-#' Should the sort order of be \code{rowSums} or 
-#' \code{colSums} increasing or decreasing?
-#' Refer to \code{\link{order}}. If NULL, do nothing.
+#' @param row.decreasing,col.decreasing Should the sort 
+#' decreasing order of \code{colnames} or \code{colSums}
+#' be TRUE? Refer to \code{\link{order}}. If NULL, do nothing.
 #' Default to TRUE.
 #' @keywords community matrix
 #' @export

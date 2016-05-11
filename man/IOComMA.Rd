@@ -10,8 +10,8 @@
 \title{IO functions in \pkg{ComMA}}
 \usage{
 readCommunityMatrix(file, matrix.name = NULL, minAbund = 2,
-  verbose = TRUE, regex1 = "(\\\\|[0-9]+)", regex2 = "",
-  ignore.case = TRUE)
+  regex1 = "(\\\\|[0-9]+)", regex2 = "", ignore.case = TRUE,
+  col.name.decreasing = FALSE, verbose = TRUE)
 
 writeCommunityMatrix(community.matrix, file, msg.file = "file",
   msg.col = "columns", msg.row = "rows", regex1 = NULL, regex2 = "",
@@ -47,6 +47,10 @@ Default to \code{regex1="(\\|[0-9]+)", regex2=""} for read??? but NULL to write?
 which removes size annotation seperated by "|".}
 
 \item{ignore.case}{Refer to \code{\link{gsub}}.}
+
+\item{col.name.decreasing}{Should the sort decreasing order of \code{colnames} 
+be TRUE? Refer to \code{\link{order}}. If NULL, do nothing.
+Default to FALSE.}
 
 \item{taxa.group}{The taxonomic group, the values can be 'all', 'assigned', or 
 Group 'all' includes everything.

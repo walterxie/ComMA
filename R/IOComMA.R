@@ -27,14 +27,18 @@
 #' Default to \code{regex1="(\\|[0-9]+)", regex2=""} for read??? but NULL to write???, 
 #' which removes size annotation seperated by "|".
 #' @param ignore.case Refer to \code{\link{gsub}}.
+#' @param col.name.decreasing Should the sort decreasing order of \code{colnames} 
+#' be TRUE? Refer to \code{\link{order}}. If NULL, do nothing.
+#' Default to FALSE.
 #' @keywords IO
 #' @export
 #' @examples 
 #' cm <- readCommunityMatrix("16S.txt", "16S")
 #' 
 #' @rdname IOComMA
-readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, verbose=TRUE,
-                                regex1="(\\|[0-9]+)", regex2="", ignore.case=TRUE) { 
+readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, 
+                                regex1="(\\|[0-9]+)", regex2="", ignore.case=TRUE,
+                                col.name.decreasing=FALSE, verbose=TRUE) { 
   community.matrix <- ComMA::readFile(file, verbose=verbose, msg.file=paste(matrix.name, "community matrix"), 
                                      msg.col="samples", msg.row="OTUs")
   community.matrix <- ComMA::rmMinAbundance(community.matrix, minAbund)
@@ -42,6 +46,10 @@ readCommunityMatrix <- function(file, matrix.name=NULL, minAbund=2, verbose=TRUE
   # remove/replace annotation
   if (! is.null(regex1)) 
     rownames(community.matrix) <- gsub(regex1, regex2, rownames(community.matrix), ignore.case = ignore.case)
+  
+  if (! is.null(col.name.decreasing)) {
+    community.matrix <- community.matrix[,order(colnames(community.matrix), decreasing=col.name.decreasing)]   
+  } 
   
   attr(community.matrix,"name") <- matrix.name
   return(community.matrix)
