@@ -171,13 +171,18 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2) {
   return(summary.cm)
 }
 
-#' @details \code{mostAbundantRows} trims data frame 
-#' to the rows having most abundance given a threshold. 
-#' The trimmed data frame having most abundant rows, 
-#' such as community matrix of 150 most abundant OTUs.
+#' @details \code{mostAbundantRows} takes the given number of 
+#' most abundant rows (OTUs) from original community matrix 
+#' to form a new matrix. The new matrix will sort by both 
+#' \code{rowSums} and \code{colSums} in decreasing by default.
 #' 
 #' @param most.abund The threshold to define the number 
 #' of the most abundent OTUs. Default to 150.
+#' @param row.decreasing,col.decreasing 
+#' Should the sort order of be \code{rowSums} or 
+#' \code{colSums} increasing or decreasing?
+#' Refer to \code{\link{order}}. If NULL, do nothing.
+#' Default to TRUE.
 #' @keywords community matrix
 #' @export
 #' @examples 
@@ -185,17 +190,23 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2) {
 #' OTU100 <- mostAbundantRows(community.matrix, most.abund=100)
 #'
 #' @rdname utilsCM
-mostAbundantRows <- function(community.matrix, most.abund=150) {
+mostAbundantRows <- function(community.matrix, most.abund=150, 
+                             row.decreasing=TRUE, col.decreasing=TRUE) {
   if (nrow(community.matrix) < most.abund) 
     most.abund <- nrow(community.matrix)
   
-  cat("Trim matrix to", most.abund, "rows having most abundance.\n") 
+  cat("Take", most.abund, "most abundant rows.\n") 
   
   rs <- rowSums(community.matrix)
-  # order row sums decreasing
-  ord<-order(rs, decreasing=TRUE) 
-  community.matrix <- community.matrix[ord,]    
-  
+  cs <- colSums(community.matrix)
+  if (! is.null(row.decreasing)) {
+    # order row sums decreasing
+    community.matrix <- community.matrix[order(rs, decreasing=row.decreasing),]   
+  } 
+  if (! is.null(col.decreasing)) {
+    community.matrix <- community.matrix[,order(cs, decreasing=col.decreasing)]   
+  } 
+
   return(community.matrix[1:most.abund,])
 }
 

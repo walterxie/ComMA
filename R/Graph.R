@@ -15,12 +15,16 @@
 #' 
 
 #' @details 
-#' \code{ggAddLine} adds a line to the given \code{\link{ggplot}} object.
+#' \code{ggAddLine} adds a line \code{\link{geom_line}} to 
+#' a given \code{\link{ggplot}} object.
 #' 
-#' @param xintercept,yintercept,intercept,slope,smooth.method Refer to \pkg{ggplot2} 
-#' \code{\link{geom_vline}}, \code{\link{geom_hline}}, \code{\link{geom_abline}}, 
-#' \code{\link{geom_smooth}}. They cannot be used at the same time.
-#' @param linetype \code{\link{linetype}} 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash.
+#' @param xintercept,yintercept,intercept,slope,smooth.method 
+#' Refer to \code{\link{geom_vline}}, \code{\link{geom_hline}}, 
+#' \code{\link{geom_abline}}, \code{\link{geom_smooth}}. 
+#' They cannot be used at the same time.
+#' @param linetype Refer to \code{\link{linetype}}: 
+#' 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 
+#' 4 = dotdash, 5 = longdash, 6 = twodash.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -28,18 +32,19 @@
 #' p <- ggAddLine(p, smooth.method = "lm")
 #' 
 #' @rdname ggPlot
-ggAddLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope, smooth.method) {
+ggAddLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope, smooth.method, ...) {
   if (!missing(xintercept)) {
-    p <- gg.plot + geom_vline(linetype=linetype, xintercept = xintercept)
+    p <- gg.plot + geom_vline(linetype=linetype, xintercept = xintercept, ...)
   } else if (!missing(yintercept)) {
-    p <- gg.plot + geom_hline(linetype=linetype, yintercept = yintercept)
+    p <- gg.plot + geom_hline(linetype=linetype, yintercept = yintercept, ...)
   } else if (!missing(intercept) && !missing(slope)){
-    p <- gg.plot + geom_abline(linetype=linetype, intercept = intercept, slope = slope)
+    p <- gg.plot + geom_abline(linetype=linetype, intercept = intercept, slope = slope, ...)
   } else if (!missing(smooth.method)){  
-    p <- p + geom_smooth(linetype=linetype, method = smooth.method, se = FALSE)
+    p <- p + geom_smooth(linetype=linetype, method = smooth.method, se = FALSE, ...)
   } else {
     stop("Invalid input !")
   }
+  return(p)
 }
 
 #' @details 
@@ -73,7 +78,8 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' @details 
 #' \code{ggHeatmap} creates a heat map using ggplot. 
 #' 
-#' @param df.to.melt A data frame required to \code{\link{melt}} before making a heat map. 
+#' @param df.to.melt A data frame required to \code{\link{melt}} 
+#' before making a \pkg{ggplot} object, such as input of \code{ggHeatmap}. 
 #' For example,
 #' \tabular{rrrr}{
 #'   plot \tab 16s \tab 18s \tab ITS\cr
@@ -81,15 +87,21 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #'   CM30c44 \tab 10 \tab 26 \tab 15\cr
 #'   Plot01 \tab 6 \tab 5 \tab 6 
 #' } 
-#' @param melt.id A column name to \code{\link{melt}} and used as a \code{\link{factor}}.
+#' @param melt.id A column name to \code{\link{melt}} 
+#' and used as a \code{\link{factor}}, such as "plot" column.
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
-#' @param low,high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".
+#' @param low,high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
+#' Default to low="white", high="steelblue".
 #' @param no.panel.border Add panel border or not. Default to FALSE.
+#' @param log.scale.colour If TRUE, then use log scale to the colour of heat map.
+#' Default to FALSE.
+#' @param x.text,y.text If FALSE, then hide x or y axis labels. Default to TRUE.
 #' @keywords graph
 #' @export
 #' @examples 
-#' ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
+#' ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), 
+#'                              `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
 #' ranks.by.group
 #' gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
 #' pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
@@ -97,7 +109,8 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' @rdname ggPlot
 ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", 
                       title="Heatmap", title.size = 10, x.lab="", y.lab="", 
-                      log.scale.colour=FALSE, legend.title="rank", 
+                      log.scale.colour=FALSE, legend.title="Counts",
+                      x.text=TRUE, y.text=TRUE,
                       x.text.angle=45, no.panel.border=FALSE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop("Data frame column names do NOT have \"", melt.id, "\" for melt function !")
@@ -136,7 +149,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
   else 
     p <- ggThemePanelBorder(p, title.size=title.size)
   
-  p <- ggThemeOthers(p, x.text.angle=x.text.angle)
+  p <- ggThemeOthers(p, x.text.angle=x.text.angle, x.text=x.text, y.text=y.text)
   
   return(p) 
 }

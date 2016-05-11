@@ -137,7 +137,7 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
     warning("Cannot find ", taxa.group, " at ", rank, " from taxa path file ", file, " !")
   
   if(verbose && nrow(taxa.table) < n.taxa) {
-    cat("\nSelect", nrow(taxa.table), "classifications, by given taxa.group =", taxa.group, 
+    cat("Select", nrow(taxa.table), "classifications, by given taxa.group =", taxa.group, 
         ", rank =", rank, ", include =", include, ".\n") 
   }
   

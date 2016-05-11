@@ -81,15 +81,16 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 #' @export
 #' @rdname utilsTaxa
 mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.conf=0.8, 
-                        has.total=1, sort=TRUE,
+                        has.total=1, sort=TRUE, verbose=TRUE, 
                         col.ranks=c("kingdom", "phylum", "class", "order", "family", "genus")) {
   ranks <- getRanks()
   if (length(col.ranks) < 1 || !all(col.ranks %in% ranks)) 
-    stop(cat("Invaild column names for ranks !\nUse one element or a subset of", 
-             paste(ranks, collapse = ",")))
+    stop("Invaild column names for ranks !\nUse one element or a subset of", 
+             paste(ranks, collapse = ","))
   if (!all(col.ranks %in% colnames(taxa.table))) 
-    stop(cat("Column names in taxa.table do not have", 
-             paste(col.ranks, collapse = ",")))
+    stop("Column names in taxa.table do not have", paste(col.ranks, collapse = ","))
+  if (! "kingdom" %in% colnames(taxa.table))
+    stop("Column names in taxa.table must have 'kingdom' column !")
   if ("confidence" %in% colnames(taxa.table) && classifier != "RDP")
     stop("Find 'confidence' column, please define classifier = 'RDP' !")
   
@@ -105,12 +106,21 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.co
     if (! "confidence" %in% colnames(taxa.table))
       stop("Invaild file format from RDP: column 'confidence' is required !")
     
+    ### grep all "Unclassified" in kingdom from greengenes, and overwrite to "unclassified"
+    id.match <- grep("^Unclassified$", taxa.table[, "kingdom"], ignore.case = TRUE)
+    if (length(id.match) > 0) {
+      taxa.table[id.match, col.ranks] <- "unclassified"
+      if (verbose)
+        cat("Find", length(id.match), "rows marked as 'unclassified' from taxa table.\n")
+    }
+    
     ### drop rows < min.conf
     n.row.un <- nrow(taxa.table[taxa.table[,"confidence"] < min.conf, ])
     taxa.table[taxa.table[,"confidence"] < min.conf, col.ranks] <- "unclassified"
     
-    cat("Set", n.row.un, "rows as unclassified from the total of", nrow(taxa.table), 
-        "in RDP taxa table, whose confidence <", min.conf, ".\n")
+    if (verbose)
+      cat("Set", n.row.un, "rows as 'unclassified' from the total of", nrow(taxa.table), 
+          "in RDP taxa table, whose confidence <", min.conf, ".\n")
   } else {
     # BLAST + MEGAN
     for (ra in col.ranks) {
@@ -130,8 +140,9 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.co
     cm.taxa <- eval(ord.cmd)
   }
   
-  cat("Merge", nrow(cm), "rows in community matrix with", nrow(taxa.table), "rows in taxa table, get", 
-      nrow(cm.taxa), "classifications.\n")
+  if (verbose)
+    cat("Merge", nrow(cm), "rows in community matrix with", nrow(taxa.table), "rows in taxa table, get", 
+        nrow(cm.taxa), "classifications.\n")
   
   attr(cm.taxa, "ncol.cm") <- ncol.cm
   attr(cm.taxa, "col.ranks") <- col.ranks
@@ -193,7 +204,7 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
       # replace repeated high rank taxa to unclassified high rank
       # MEGAN unclassified
       id.match <- intersect(!grep("unclassified", cm.taxa[, pre.ra.col], ignore.case = T), 
-                            which(cm.taxa[, pre.ra.col]==cm.taxa[, ra.col]))
+                            which(tolower(cm.taxa[, pre.ra.col])==tolower(cm.taxa[, ra.col])))
       # MEGAN environmental samples
       id.match <- c(id.match, grep("environmental samples", cm.taxa[, ra.col], ignore.case = T))
       # RDP unclassified
@@ -231,8 +242,8 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
       if (nrow(ta.un.tmp) > 0) {
         # rank + colnames(cm)
         if (ncol(ta.un.tmp) != ncol.cm + 1)
-          stop(cat("Invalid index, unclassified =", unclassified, ", where ncol", 
-                   ncol(ta.un.tmp), "should ==", ncol.cm + 1, "!"))
+          stop("Invalid index, unclassified =", unclassified, ", where ncol", 
+                   ncol(ta.un.tmp), "should ==", ncol.cm + 1, "!")
         
         if (ncol(ta.un.tmp) > 2)
           ra.un <- c(paste("unclassified", ra), colSums(ta.un.tmp[,-1]))
@@ -288,7 +299,8 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
 #' 
 #' @rdname utilsTaxa
 groupsTaxaMembers <- function(taxa.assign, cm.taxa, rank="phylum", rm.unclassified=TRUE,
-                              regex1="(\\|[0-9]+)", regex2="", ignore.case=TRUE) {
+                              regex1="(\\|[0-9]+)", regex2="", ignore.case=TRUE, 
+                              verbose=TRUE) {
   if (!is.element("Row.names", colnames(cm.taxa)))
     stop("Invalid cm.taxa, which needs the column \"Row.names\" !")
   rownames(cm.taxa) <- cm.taxa[,"Row.names"]
@@ -320,7 +332,8 @@ groupsTaxaMembers <- function(taxa.assign, cm.taxa, rank="phylum", rm.unclassifi
   if (!rm.unclassified && length(id.unclassified) > 0) {
     uncl.members <- setdiff(rownames(cm.taxa), unlist(taxa.members)) 
     taxa.members[["unclassified"]] <- uncl.members
-    cat("Add", length(uncl.members), "OTUs into unclassified.\n")
+    if (verbose)
+      cat("Add", length(uncl.members), "OTUs into unclassified.\n")
   }
   
   if (!all(lapply(taxa.members,length)>0)) {

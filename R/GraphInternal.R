@@ -87,7 +87,7 @@ ggOptEllipse <- function(p, col.names, ellipsed.id=NULL) {
 }
 
 # scale_*_brewer, * has "colour", "fill" 
-ggOptPalette <- function(p, scale.to="colour", palette=NULL) {
+ggOptPalette <- function(p, scale.to="colour", palette=NULL, verbose=TRUE) {
   if (! is.null(palette)) {
     if (length(palette) == 1)
       scale.string <- paste0("scale_", scale.to, "_brewer(palette=palette)")
@@ -95,6 +95,9 @@ ggOptPalette <- function(p, scale.to="colour", palette=NULL) {
       scale.string <- paste0("scale_", scale.to, "_gradientn(colours=palette)")
     else 
       scale.string <- paste0("scale_", scale.to, "_manual(values=palette)")
+    
+    if (verbose)
+      cat("colour scale : ", scale.string, "\n")
     
     p <- p + eval(parse(text = scale.string))
   }
@@ -213,11 +216,30 @@ ggLabTitle <- function(p, x.id, y.id, title, x.lab="x.id", y.lab="y.id") {
   return(p)
 }
 
-ggThemeOthers <- function(p, x.text.angle=0, legend.position="right") {
-  p <- p + theme(legend.position=legend.position)
+ggThemeOthers <- function(p, x.text=TRUE, y.text=TRUE, x.ticks=TRUE, y.ticks=TRUE, 
+                          x.text.angle=0, legend.position="right", verbose=TRUE) {
+  theme.string <- "theme(legend.position=legend.position"
+  # hide x or y axis labels
+  if (!x.text)
+    theme.string <- paste(theme.string, "axis.text.x = element_blank()", sep = ",")
+  if (!y.text)
+    theme.string <- paste(theme.string, "axis.text.y = element_blank()", sep = ",")
+  # rotate x labels
   if (x.text.angle > 0) 
     p <- p + theme(axis.text.x = element_text(angle = x.text.angle, hjust = 1, vjust = 0.3),
                    legend.position=legend.position)
+  # hide x or y axis ticks
+  if (!x.ticks)
+    theme.string <- paste(theme.string, "axis.ticks.x = element_blank()", sep = ",")
+  if (!y.ticks)
+    theme.string <- paste(theme.string, "axis.ticks.y = element_blank()", sep = ",")
+
+  theme.string <- paste0(theme.string, ")")
+  
+  if (verbose)
+    cat("theme : ", theme.string, "\n")
+  
+  p <- p + eval(parse(text = theme.string))
   return(p)
 }
 

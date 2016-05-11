@@ -12,15 +12,15 @@
 \title{One-line command to get \pkg{ggplot}}
 \usage{
 ggAddLine(gg.plot, linetype = 1, xintercept, yintercept, intercept, slope,
-  smooth.method)
+  smooth.method, ...)
 
 ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
   digits = 2, dodge.width = 0.8, text.size = 3, text.colour = "black")
 
 ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
   title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
-  log.scale.colour = FALSE, legend.title = "rank", x.text.angle = 45,
-  no.panel.border = FALSE)
+  log.scale.colour = FALSE, legend.title = "Counts", x.text = TRUE,
+  y.text = TRUE, x.text.angle = 45, no.panel.border = FALSE)
 
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
@@ -62,11 +62,13 @@ gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
   y.lab = "y.id", no.panel.border = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{linetype}{\code{\link{linetype}} 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash.}
+\item{linetype}{Refer to \code{\link{linetype}}: 
+0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 
+4 = dotdash, 5 = longdash, 6 = twodash.}
 
-\item{xintercept, yintercept, intercept, slope, smooth.method}{Refer to \pkg{ggplot2} 
-\code{\link{geom_vline}}, \code{\link{geom_hline}}, \code{\link{geom_abline}}, 
-\code{\link{geom_smooth}}. They cannot be used at the same time.}
+\item{xintercept, yintercept, intercept, slope, smooth.method}{Refer to \code{\link{geom_vline}}, \code{\link{geom_hline}}, 
+\code{\link{geom_abline}}, \code{\link{geom_smooth}}. 
+They cannot be used at the same time.}
 
 \item{fun.y.lab}{A function to calculate numbers displayed in the figure.
 Default to function \code{\link{mean}}. Ues \code{\link{length}} to show number of observations.}
@@ -86,7 +88,8 @@ Default to 0.8. Refer to \code{\link{position_dodge}}.}
 
 \item{text.colour}{The text colour. Default to black.}
 
-\item{df.to.melt}{A data frame required to \code{\link{melt}} before making a heat map. 
+\item{df.to.melt}{A data frame required to \code{\link{melt}} 
+before making a \pkg{ggplot} object, such as input of \code{ggHeatmap}. 
 For example,
 \tabular{rrrr}{
   plot \tab 16s \tab 18s \tab ITS\cr
@@ -95,15 +98,22 @@ For example,
   Plot01 \tab 6 \tab 5 \tab 6 
 }}
 
-\item{melt.id}{A column name to \code{\link{melt}} and used as a \code{\link{factor}}.}
+\item{melt.id}{A column name to \code{\link{melt}} 
+and used as a \code{\link{factor}}, such as "plot" column.}
 
-\item{low, high}{Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. Default to low="white", high="steelblue".}
+\item{low, high}{Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
+Default to low="white", high="steelblue".}
 
 \item{title}{Graph title}
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
 
+\item{log.scale.colour}{If TRUE, then use log scale to the colour of heat map.
+Default to FALSE.}
+
 \item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
+
+\item{x.text, y.text}{If FALSE, then hide x or y axis labels. Default to TRUE.}
 
 \item{no.panel.border}{Add panel border or not. Default to FALSE.}
 
@@ -194,7 +204,8 @@ It needs to use \code{\link{pdfGtplot}} to create pdf.
 Simplify \pkg{ggplot} codes into functions that can get a chart from one-line command.
 }
 \details{
-\code{ggAddLine} adds a line to the given \code{\link{ggplot}} object.
+\code{ggAddLine} adds a line \code{\link{geom_line}} to 
+a given \code{\link{ggplot}} object.
 
 \code{ggAddNumbers} adds numbers as text in a \code{\link{ggplot}} object, such as mean of box plot. 
 Refer to \code{\link{stat_summary}}.
@@ -217,7 +228,8 @@ p <- ggAddLine(p, smooth.method = "lm")
 p <- ggAddNumbers(p, fun.y.lab=mean)
 p <- ggAddNumbers(p, fun.y.lab=length, y.adj=1.02)
 
-ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
+ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), 
+                             `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
 ranks.by.group
 gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
 pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 

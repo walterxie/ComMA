@@ -23,7 +23,8 @@ summaryCM.Vector(community.matrix, digits = 2)
 
 summaryCM(community.matrix, most.abund, has.total = 1, digits = 2)
 
-mostAbundantRows(community.matrix, most.abund = 150)
+mostAbundantRows(community.matrix, most.abund = 150, row.decreasing = TRUE,
+  col.decreasing = TRUE)
 
 cmYAcrossX(community.matrix, terms = c("OTUs", "samples", "reads"))
 
@@ -55,6 +56,11 @@ if number is not interger. Default to 2.}
 \item{has.total}{If 0, then only return abudence by samples (columns) of community matrix. 
 If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
 Default to 1.}
+
+\item{row.decreasing, col.decreasing}{Should the sort order of be \code{rowSums} or 
+\code{colSums} increasing or decreasing?
+Refer to \code{\link{order}}. If NULL, do nothing.
+Default to TRUE.}
 
 \item{terms}{The terms to be used in names of the data frame, 
 which will be shown in the graph if using \code{\link{ggBarYAcrossX}}. 
@@ -94,10 +100,10 @@ The vector is c("reads","OTUs","Shannon","samples","singletons","doubletons").
 
 \code{summaryCM} summarizes the community matrix.
 
-\code{mostAbundantRows} trims data frame 
-to the rows having most abundance given a threshold. 
-The trimmed data frame having most abundant rows, 
-such as community matrix of 150 most abundant OTUs.
+\code{mostAbundantRows} takes the given number of 
+most abundant rows (OTUs) from original community matrix 
+to form a new matrix. The new matrix will sort by both 
+\code{rowSums} and \code{colSums} in decreasing by default.
 
 \code{cmYAcrossX} aggregates a community matrix to a data frame 
 to show the number of OTUs (y-axis) across the number of samples (x-axis). 

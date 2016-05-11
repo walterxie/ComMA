@@ -12,14 +12,14 @@ subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE, verbose = TRUE)
 
 mergeCMTaxa(community.matrix, taxa.table, classifier = "MEGAN",
-  min.conf = 0.8, has.total = 1, sort = TRUE, col.ranks = c("kingdom",
-  "phylum", "class", "order", "family", "genus"))
+  min.conf = 0.8, has.total = 1, sort = TRUE, verbose = TRUE,
+  col.ranks = c("kingdom", "phylum", "class", "order", "family", "genus"))
 
 assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum)
 
 groupsTaxaMembers(taxa.assign, cm.taxa, rank = "phylum",
   rm.unclassified = TRUE, regex1 = "(\\\\|[0-9]+)", regex2 = "",
-  ignore.case = TRUE)
+  ignore.case = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{taxa.table}{A data frame to contain taxonomic classifications of OTUs. 

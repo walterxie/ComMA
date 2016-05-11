@@ -27,6 +27,8 @@ library("ComMA")
 
 ##Tutorial
 
+It may take time to load the page from GitHub.
+
 1. [One-line plotting] (https://github.com/walterxie/ComMA/blob/master/OneCommandLinePlot.ipynb)
 
 
