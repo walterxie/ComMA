@@ -7,10 +7,9 @@ which is extended from \code{\link{ggBarChart}}.}
 \usage{
 ggBarYAcrossX(community.matrix,
   title = "The number of OTUs/reads across the number of samples",
-  title.size = 10, x.lab = "Number of samples crossed",
-  y.lab = "Number of OTUs/reads", y.trans = "log", auto.scale.y = TRUE,
-  x.scale = "discrete", x.interval = 1, x.text.angle = 0,
-  legend.title = "", verbose = TRUE, ...)
+  x.lab = "Number of samples crossed", y.lab = "Number of OTUs/reads",
+  y.trans = "log", auto.scale.y = TRUE, x.scale = "discrete",
+  x.interval = 1, x.text.angle = 0, legend.title = "", ...)
 }
 \arguments{
 \item{community.matrix}{Community matrix (OTU table), where rows are 

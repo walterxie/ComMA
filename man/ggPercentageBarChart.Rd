@@ -5,8 +5,8 @@
 \title{Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}.}
 \usage{
 ggPercentageBarChart(df.to.melt, melt.id, title = "Percentage Bar Chart",
-  x.lab = "", y.lab = "", palette = NULL, x.text.angle = 0,
-  autoWidth = TRUE, verbose = TRUE)
+  x.lab = "", y.lab = "", palette = NULL, x.text.angle = 90,
+  autoWidth = TRUE, ...)
 }
 \arguments{
 \item{df.to.melt}{A data frame required to \code{\link{melt}} before making a percent bar chart. 
@@ -27,10 +27,10 @@ For example,
 \item{autoWidth}{If TRUE, then use number of bars and legend columns 
 to estimate pdf width automatically. Default to TRUE.}
 
+\item{...}{More from \code{\link{ggBarChart}}.}
+
 \item{low, }{high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
 Default to low="white", high="steelblue".}
-
-\item{...}{More from \code{\link{ggBarChart}}.}
 }
 \description{
 Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}.

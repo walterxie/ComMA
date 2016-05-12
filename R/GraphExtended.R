@@ -191,7 +191,7 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", 
                                  x.lab="", y.lab="", palette=NULL, 
-                                 x.text.angle=0, autoWidth=TRUE, verbose=TRUE) {
+                                 x.text.angle=90, autoWidth=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
@@ -199,12 +199,13 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   df.melt <- melt(df.to.melt, id=c(melt.id))
   #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
   
+  # sort legend
+  legend.ord <- as.character(sort(unique(df.to.melt[,melt.id])))
   # move unclassified group to the last of legend 
-  legend.ord <- as.character(sort(unique(df.to.melt[,melt.id]), decreasing = TRUE))
   id.match <- grep("unclassified", legend.ord, ignore.case = TRUE)
   if (length(id.match) > 0)
     legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
-  df.melt[,melt.id] <- factor(df.melt[,melt.id], levels = rev(legend.ord))
+  df.melt[,melt.id] <- factor(df.melt[,melt.id], levels = legend.ord)
   
   if (! is.null(palette)) {
     pale <- palette
@@ -222,7 +223,7 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
                          bar.pos="fill", palette=pale, 
                          x.text.angle=x.text.angle, y.trans="per", 
                          title=title, x.lab=x.lab, y.lab=y.lab, 
-                         legend.col=legend.col, verbose=verbose, ...)
+                         legend.col=legend.col, ...)
   
   if (autoWidth)
     pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
@@ -254,9 +255,9 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 #' bar.yx <- ComMA::ggBarYAcrossX(community.matrix)
 ggBarYAcrossX <- function(community.matrix, title="The number of OTUs/reads across the number of samples", 
-                          title.size = 10, x.lab="Number of samples crossed", y.lab="Number of OTUs/reads",
+                          x.lab="Number of samples crossed", y.lab="Number of OTUs/reads",
                           y.trans="log", auto.scale.y=TRUE, x.scale="discrete", x.interval=1, 
-                          x.text.angle=0, legend.title="", verbose=TRUE, ...) {
+                          x.text.angle=0, legend.title="", ...) {
   cm.aggre <- ComMA::cmYAcrossX(community.matrix)
   suppressMessages(require(reshape2))
   df <- melt(cm.aggre, id="samples")
@@ -268,9 +269,9 @@ ggBarYAcrossX <- function(community.matrix, title="The number of OTUs/reads acro
   
   p <- ComMA::ggBarChart(df, x.id="samples", y.id="value", fill.id="variable", 
                          y.trans=y.trans, auto.scale.y=auto.scale.y, 
-                         title=title, title.size=title.size, x.lab=x.lab, y.lab=y.lab, 
+                         title=title, x.lab=x.lab, y.lab=y.lab, 
                          x.text.angle=x.text.angle, x.scale=x.scale, x.interval=x.interval, 
-                         legend.title=legend.title, verbose=verbose, ...)
+                         legend.title=legend.title, ...)
   
   return(p)
 }
@@ -304,11 +305,9 @@ ggBarYAcrossX <- function(community.matrix, title="The number of OTUs/reads acro
 #'              point.size=2, x.trans="log", auto.scale.x=T)
 #' require(grid)
 #' grid.draw(rare.curv)
-gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=NULL, 
-                               shape.id=NULL, point.size, palette=NULL, 
+gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=NULL,
                                x.prefix="^.*?\\.", end.point.only=TRUE,
-                               title="Rarefaction Curves", x.lab="Reads", y.lab="Diversity", 
-                               text.id=NULL, text.data = NULL, text.size = 3, verbose=TRUE, ...) {
+                               title="Rarefaction Curves", x.lab="Reads", y.lab="Diversity", ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(df.size) %in% rownames(attr.df)) )
       stop("Invalid attr.df,", paste(rownames(df.size), collapse = ","), 
@@ -361,10 +360,7 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
   
   gt <- ComMA::gtLine(melt.df, x.id="variable", y.id="value", group.id=group.id, 
                       colour.id=colour.id, shape.id=shape.id, 
-                      point.data=point.data, point.size=point.size,
-                      text.id=text.id, text.data=text.data, text.size=text.size, 
-                      title=title, x.lab=x.lab, y.lab=y.lab, palette=palette, 
-                      verbose=verbose, ...)
+                      title=title, x.lab=x.lab, y.lab=y.lab, ...)
   return(gt)
 }
 

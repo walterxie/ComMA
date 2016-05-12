@@ -5,10 +5,8 @@
 \title{Rarefaction curves for multi-sample, which is extended from \code{\link{gtLine}}.}
 \usage{
 gtRarefactionCurve(df.size, attr.df, group.id = "Samples", colour.id = NULL,
-  shape.id = NULL, point.size, palette = NULL, x.prefix = "^.*?\\\\.",
-  end.point.only = TRUE, title = "Rarefaction Curves", x.lab = "Reads",
-  y.lab = "Diversity", text.id = NULL, text.data = NULL, text.size = 3,
-  verbose = TRUE, ...)
+  x.prefix = "^.*?\\\\.", end.point.only = TRUE,
+  title = "Rarefaction Curves", x.lab = "Reads", y.lab = "Diversity", ...)
 }
 \arguments{
 \item{df.size}{A data frame required to \code{\link{merge}} with \code{attr.df} 

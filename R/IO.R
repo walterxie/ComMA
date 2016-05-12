@@ -147,7 +147,8 @@ printXTable <- function(df, caption="The table of", label="tab:label", file=NULL
   if (invalid.char) {
     rownames(df) <- gsub("_", "\\\\_", rownames(df))
     colnames(df) <- gsub("_", "\\\\_", colnames(df))
-    df <- as.data.frame(gsub("%|_", "\\\\%|\\\\_", as.matrix(df)))
+    df <- apply(df, 2, function(x) as.numeric(gsub("_", "\\\\_", x)))
+    df <- apply(df, 2, function(x) as.numeric(gsub("%", "\\\\%", x)))
   }
     
   require(xtable)
