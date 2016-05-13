@@ -5,7 +5,7 @@
 #' @name pdf
 #' @title Create pdf 
 #'
-#' @details \code{pdfGgplot} creates pdf for ggplot object.
+#' @details \code{pdf.ggplot} creates pdf for ggplot object.
 #' 
 #' @param gg.plot A \code{\link{ggplot}} object.
 #' @param fig.path fig.path The full path of pdf file.
@@ -16,25 +16,25 @@
 #' @keywords utils
 #' @export
 #' @examples 
-#' pdfGgplot(gg.plot, fig.path="fig.pdf", width=8, height=8)  
+#' pdf.ggplot(gg.plot, fig.path="fig.pdf", width=8, height=8)  
 #' 
 #' @rdname pdf
-pdfGgplot <- function(gg.plot, fig.path, width=6, height=6, useDingbats=TRUE) {
+pdf.ggplot <- function(gg.plot, fig.path, width=6, height=6, useDingbats=TRUE) {
   pdf(fig.path, width=width, height=height, useDingbats=useDingbats)	
   print(gg.plot)
   invisible(dev.off()) 
 }
 
-#' @details \code{pdfGtable} creates pdf for gtable object.
+#' @details \code{pdf.gtable} creates pdf for gtable object.
 #' 
 #' @param gtable A \code{\link{gtable}} object.
 #' @keywords utils
 #' @export
 #' @examples 
-#' pdfGtable(g.table, fig.path="fig.pdf", width=8, height=8)  
+#' pdf.gtable(g.table, fig.path="fig.pdf", width=8, height=8)  
 #' 
 #' @rdname pdf
-pdfGtable <- function(g.table, fig.path, width=8, height=8, useDingbats=TRUE) {
+pdf.gtable <- function(g.table, fig.path, width=6, height=6, useDingbats=TRUE) {
   require(grid)
   pdf(fig.path, width=width, height=height, useDingbats=useDingbats)	
   print(grid.draw(g.table))

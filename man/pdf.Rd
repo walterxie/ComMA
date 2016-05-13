@@ -3,17 +3,17 @@
 \name{pdf}
 \alias{grid_arrange_shared_legend}
 \alias{pdf}
-\alias{pdfGgplot}
-\alias{pdfGtable}
+\alias{pdf.ggplot}
+\alias{pdf.gtable}
 \title{Create pdf}
 \source{
 \code{grid_arrange_shared_legend} is derived from 
 \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}
 }
 \usage{
-pdfGgplot(gg.plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
+pdf.ggplot(gg.plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
-pdfGtable(g.table, fig.path, width = 8, height = 8, useDingbats = TRUE)
+pdf.gtable(g.table, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
 grid_arrange_shared_legend(...)
 }
@@ -33,18 +33,18 @@ Refer to \code{\link{pdf}}.}
 \item{gtable}{A \code{\link{gtable}} object.}
 }
 \details{
-\code{pdfGgplot} creates pdf for ggplot object.
+\code{pdf.ggplot} creates pdf for ggplot object.
 
-\code{pdfGtable} creates pdf for gtable object.
+\code{pdf.gtable} creates pdf for gtable object.
 
 \code{grid_arrange_shared_legend} shares a legend 
 between multiple plots using \code{\link{grid.arrange}}. 
 Return a \code{\link{gtable}} object.
 }
 \examples{
-pdfGgplot(gg.plot, fig.path="fig.pdf", width=8, height=8)  
+pdf.ggplot(gg.plot, fig.path="fig.pdf", width=8, height=8)  
 
-pdfGtable(g.table, fig.path="fig.pdf", width=8, height=8)  
+pdf.gtable(g.table, fig.path="fig.pdf", width=8, height=8)  
 
 library(ggplot2); library(grid); library(gridExtra)
 dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
