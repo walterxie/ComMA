@@ -28,16 +28,17 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   x.lim.cart = NULL, y.lim.cart = NULL, y.trans = "identity",
   auto.scale.y = FALSE, x.scale = "discrete", x.interval = 0,
   x.text.angle = 0, palette = NULL, coord.flip = FALSE,
-  legend.title = NULL, legend.col = 1, legend.nrow = 0,
+  legend.title = NULL, legend.col = 1, legend.row = 0,
   title = "Bar Chart", title.size = 10, x.lab = "x.id", y.lab = "y.id",
-  legend.position = "right", no.panel.border = FALSE, verbose = TRUE)
+  legend.position = "right", legend.direction = "vertical",
+  no.panel.border = FALSE, verbose = TRUE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
   x.facet.id = NULL, y.facet.id = NULL, coord.flip = FALSE,
   y.trans = "identity", auto.scale.y = FALSE, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title = NULL,
-  legend.col = 1, legend.nrow = 0, title = "Box Whiskers Plot",
+  legend.col = 1, legend.row = 0, title = "Box Whiskers Plot",
   title.size = 10, x.lab = "x.id", y.lab = "y.id", x.text.angle = 0,
   no.panel.border = FALSE, verbose = TRUE)
 
@@ -47,7 +48,7 @@ gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   text.size = 3, text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
   coord.flip = FALSE, xintercept = NULL, yintercept = NULL,
   line.type = 2, x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
-  legend.title = NULL, legend.col = 1, legend.nrow = 0,
+  legend.title = NULL, legend.col = 1, legend.row = 0,
   title = "Scatter Plot", title.size = 10, x.lab = "x.id",
   y.lab = "y.id", no.panel.border = FALSE, verbose = TRUE)
 
@@ -59,7 +60,7 @@ gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
   text.id = NULL, text.data = NULL, text.size = 3, text.hjust = -0.1,
   text.vjust = -0.2, text.alpha = 0.5, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title = NULL,
-  legend.col = 1, legend.nrow = 0, x.text.angle = 0, title = "",
+  legend.col = 1, legend.row = 0, x.text.angle = 0, title = "",
   title.size = 10, x.lab = "x.id", y.lab = "y.id",
   no.panel.border = FALSE, verbose = TRUE)
 }
@@ -92,6 +93,8 @@ Default to 0.8. Refer to \code{\link{position_dodge}}.}
 
 \item{df.to.melt}{A data frame required to \code{\link{melt}} 
 before making a \pkg{ggplot} object, such as input of \code{ggHeatmap}. 
+At least one column should be \code{melt.id}. If using row.names, 
+then it should be inserted into data frame before this function. 
 For example,
 \tabular{rrrr}{
   plot \tab 16s \tab 18s \tab ITS\cr
@@ -151,8 +154,8 @@ such as c("blue", "orange").
 Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
 Default NULL to use \code{\link{ggplot}} default colours.}
 
-\item{legend.col, legend.nrow}{Customize the number of columns or rows for legend in bar chart. 
-They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0.}
+\item{legend.col, legend.row}{Customize the number of columns or rows for legend in bar chart. 
+They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0.}
 
 \item{outlier.colour}{The colour of outliers in box whiskers plot 
 used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 

@@ -80,6 +80,8 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' 
 #' @param df.to.melt A data frame required to \code{\link{melt}} 
 #' before making a \pkg{ggplot} object, such as input of \code{ggHeatmap}. 
+#' At least one column should be \code{melt.id}. If using row.names, 
+#' then it should be inserted into data frame before this function. 
 #' For example,
 #' \tabular{rrrr}{
 #'   plot \tab 16s \tab 18s \tab ITS\cr
@@ -199,8 +201,8 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
 #' such as c("blue", "orange").
 #' Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
 #' Default NULL to use \code{\link{ggplot}} default colours.  
-#' @param legend.col,legend.nrow Customize the number of columns or rows for legend in bar chart. 
-#' They cannot be used at the same time. Default not to use them, legend.col=1, legend.nrow=0. 
+#' @param legend.col,legend.row Customize the number of columns or rows for legend in bar chart. 
+#' They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0. 
 #' @keywords graph
 #' @export
 #' @examples
@@ -216,9 +218,10 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
                        x.facet.id=NULL, y.facet.id=NULL, x.lim.cart=NULL, y.lim.cart=NULL,   
                        y.trans="identity", auto.scale.y=FALSE, x.scale="discrete", 
                        x.interval=0, x.text.angle=0, palette=NULL, coord.flip=FALSE,
-                       legend.title=NULL, legend.col=1, legend.nrow=0, 
+                       legend.title=NULL, legend.col=1, legend.row=0, 
                        title="Bar Chart", title.size=10, x.lab="x.id", y.lab="y.id", 
-                       legend.position="right", no.panel.border=FALSE, verbose=TRUE) {
+                       legend.position="right", legend.direction="vertical",
+                       no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, verbose=verbose)
   p <- p + geom_bar(position=bar.pos, stat=bar.stat) 
   
@@ -246,7 +249,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   
   p <- ggOptPalette(p, scale.to="fill", palette=palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
+  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
   
   p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
@@ -254,7 +257,8 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   else 
     p <- ggThemePanelBorder(p, title.size=title.size)
   
-  p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position)
+  p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
+                     legend.direction=legend.direction)
   
   return(p)
 }
@@ -280,7 +284,7 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
                               x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                               y.trans="identity", auto.scale.y=FALSE, 
                               x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
-                              legend.title=NULL, legend.col=1, legend.nrow=0, 
+                              legend.title=NULL, legend.col=1, legend.row=0, 
                               title="Box Whiskers Plot", title.size = 10, 
                               x.lab="x.id", y.lab="y.id", x.text.angle=0, 
                               no.panel.border=FALSE, verbose=TRUE) {
@@ -307,7 +311,7 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
   
   p <- ggOptPalette(p, scale.to="fill", palette=palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
+  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
   
   p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
@@ -363,7 +367,7 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           text.vjust = -0.2, text.alpha = 0.5, coord.flip=FALSE,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
-                          legend.title=NULL, legend.col=1, legend.nrow=0,  
+                          legend.title=NULL, legend.col=1, legend.row=0,  
                           title="Scatter Plot", title.size = 10, x.lab="x.id", y.lab="y.id", 
                           no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id)
@@ -407,7 +411,7 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
   
   p <- ggOptPalette(p, palette=palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
+  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
   
   p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
@@ -439,7 +443,7 @@ gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
                    text.id=NULL, text.data = NULL, text.size = 3, 
                    text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
                    x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
-                   legend.title=NULL, legend.col=1, legend.nrow=0, x.text.angle=0, 
+                   legend.title=NULL, legend.col=1, legend.row=0, x.text.angle=0, 
                    title="", title.size = 10, x.lab="x.id", y.lab="y.id", 
                    no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, group.id=group.id, colour.id=colour.id)
@@ -477,7 +481,7 @@ gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
   
   p <- ggOptPalette(p, palette=palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.nrow=legend.nrow)
+  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
   
   p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)

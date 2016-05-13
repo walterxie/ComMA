@@ -27,7 +27,6 @@
 #' reads.phyla
 #' bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 #' bar.chart$gg.plot
-#' pdf.ggplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", 
                                  x.lab="", y.lab="", palette=NULL, 
                                  x.text.angle=90, autoWidth=TRUE, ...) {
@@ -76,52 +75,166 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   )
 }
 
-
-ggAbundanceBar <- function(df.to.melt, melt.id, title="Abundance Bar Chart", 
-                                 x.lab="", y.lab="", palette=NULL, 
-                                 x.text.angle=90, autoWidth=TRUE, ...) {
+#' Abundance bar chart for mulit-sample or mulit-dataset and coloured by groups, 
+#' which is extended from \code{\link{ggBarChart}}. 
+#' 
+#' @param df.to.melt A data frame required to \code{\link{melt}} before making a percent bar chart. 
+#' For example,
+#' \tabular{rrrrr}{
+#'   Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr
+#'   Actinobacteria \tab 958 \tab 1 \tab 3 \tab Bacteria\cr
+#'   Crenarchaeota \tab 1 \tab 0 \tab 0 \tab Archaea\cr
+#'   Ascomycota \tab 2 \tab 765 \tab 971 \tab Fungi 
+#' } 
+#' @param melt.id A column name to \code{\link{melt}} and used to label axis.
+#' @param colour.id The column name to give colours.
+#' @param prop.thre Make "Others" for any row total abundence < 
+#' proportion threshold of the total of matrix abundence. 
+#' Recommend 0.001 (0.1%) if too many rows. Default to 0.
+#' @param title Graph title
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
+#' @param autoSize If TRUE, then use number of bars and legend columns 
+#' to estimate pdf width  and height automatically. Default to TRUE.
+#' @param ... More from \code{\link{ggBarChart}}.
+#' @keywords graph
+#' @export
+#' @examples 
+#' data(reads.phyla)
+#' reads.phyla$phylum <- rownames(reads.phyla)
+#' bar.chart <- ggAbundanceBar(reads.phyla, melt.id="phylum", colour.id="TaxaGroup")
+#' bar.chart$gg.plot
+ggAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0, 
+                           y.trans="log", legend.row=0,
+                           title="Abundance Bar Chart", x.lab="", y.lab="Reads", 
+                           palette=NULL, autoSize=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
-  suppressMessages(require(reshape2))
-  df.melt <- melt(df.to.melt, id=c(melt.id))
-  #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
+  #####  extract abundence matrix #####
+  melt.col.ind <- match(tolower(melt.id), tolower(colnames(df.to.melt)))
+  abun.col.ind <- setdiff(1:ncol(df.to.melt), melt.col.ind)
+  total.col.ind <- match("total", tolower(colnames(df.to.melt)))
+  if (! is.na(total.col.ind))
+    abun.col.ind <- setdiff(abun.col.ind, total.col.ind)
+  
+  if (! is.null(colour.id)) {
+    colour.col.ind <- match(tolower(colour.id), tolower(colnames(df.to.melt)))
+    if (is.na(colour.col.ind))
+      stop("Invalid colour.id,", colour.id,  "not exsit in column names !\n")
+    abun.col.ind <- setdiff(abun.col.ind, colour.col.ind)
+  } 
+  
+  if (verbose)
+    cat("The abundence data columns (exclude total) are ", 
+        paste(colnames(df.to.melt)[abun.col.ind], collapse = ","), "\n")
   
   #####  make "Others" category #####
-  # make "Others" by percThr: percentage threshold of total reads in taxaAssg[ ,total_string]
-  if (percThr > 0) {
-    totalThr <- sum(taxaAssg[ ,total_string]) * percThr
-    Others <- colSums(taxaAssg[which(taxaAssg[ ,total_string]<=totalThr),2:colTotal])
-    Others <- c("Others",Others,rep("Others", ncol(taxaAssg)-colTotal),"")	
-    taxaAssgId <- which(taxaAssg[ ,total_string]>totalThr)
+  # make "Others" for any row total abundence < proportion threshold of the total of matrix abundence
+  if (prop.thre > 0) {
+    if (prop.thre >= 1)
+      stop("Invalid proportion threshold", prop.thre,  ", it must > 0 and < 1 !\n")
+    total.thre <- sum(df.to.melt[ ,abun.col.ind]) * prop.thre
+    if (verbose)
+      cat("The total of matrix abundence = ", sum(df.to.melt[ ,abun.col.ind]), 
+          ", proportion threshold = ", prop.thre, "\n")
     
-    cat("Filter out", nrow(taxaAssg)-length(taxaAssgId), "taxa to Others category whose total <=", 
-        percThr, "of the total of whole matrix.\n")  
+    other.row.ind <- which(rowSums(df.to.melt[ ,abun.col.ind]) < total.thre)
+    if (verbose)
+      cat("Move", length(other.row.ind), "rows to 'Others'.\n")
+    others <- colSums(df.to.melt[other.row.ind, abun.col.ind])
+    if (length(others) != length(abun.col.ind))
+      stop("'Others'", length(others),  "elements do not match", length(abun.col.ind), 
+           "columns in abundence matrix !\n")
     
-    xlab <- xlab( paste(length(taxaAssgId), " of ", nrow(taxaAssg), rankLevel, " (", tolower(y_string), 
-                        " > ", percThr*100, "% of total) ", sep = "") )		
+    df.to.melt <- df.to.melt[-other.row.ind,]
+    # replicate last row
+    df.to.melt <- rbind(df.to.melt, df.to.melt[nrow(df.to.melt),])
+    # fill in "Others"
+    rownames(df.to.melt)[nrow(df.to.melt)] <- "Others"
+    df.to.melt[nrow(df.to.melt),melt.col.ind] <- "Others"
+    df.to.melt[nrow(df.to.melt),abun.col.ind] <- others
+    if (! is.na(total.col.ind)) {
+      others.total <- sum(others)
+      df.to.melt[nrow(df.to.melt),total.col.ind] <- others.total
+    }
+    if (! is.null(colour.id)) {
+      df.to.melt[nrow(df.to.melt),colour.col.ind] <- "Others"
+    }   
     
-    # avoid error: invalid factor level, NA generated
-    taxaAssg <- data.frame(lapply(taxaAssg, as.character), check.names=FALSE, stringsAsFactors=FALSE)
-    taxaAssg <- rbind(taxaAssg[taxaAssgId,], Others)
-    
-    group = unique(taxaAssg[,groupLevel]) # include Other
-    # -1 to consider "Others" category in the last row
-    cat("Select", nrow(taxaAssg)-1, rankLevel, "by percThr = ", percThr, ", assigned to", length(group), groupLevel, 
-        ", total", y_string, "=",  sum(taxaAssg[ ,total_string]), ".\n")  
+    if (length(x.lab) < 1)
+      x.lab <- paste(nrow(df.to.melt)-1, "of", nrow(df.to.melt)-1+length(other.row.ind), 
+                    "taxa at", melt.id[1], "or higher-level ( >", prop.thre*100, "% of total)")	
   }
   
+  suppressMessages(require(reshape2))
+  # colour.id == NULL still works
+  df.melt <- melt(df.to.melt, id=c(melt.id, colour.id))
+  df.melt[,"value"] <- as.numeric(df.melt[,"value"])
+  #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
   
+  x.labels <- sort(unique(df.melt[,melt.id]), decreasing = T)
+  # move unclassified group to the last of legend 
+  id.match <- grep("unclassified", x.labels, ignore.case = TRUE)
+  if (length(id.match) > 0)
+    x.labels <- x.labels[c(id.match, setdiff(1:length(x.labels), id.match))]
+  df.melt[,melt.id] <- factor(df.melt[,melt.id], levels = x.labels)
   
+  # legend
+  legend.ord <- c()
+  if (! is.null(colour.id)) {
+    # sort legend
+    legend.ord <- sort(unique(df.melt[,colour.id]))
+    if (verbose)
+      cat("Find", length(legend.ord), "unique groups for colouring.\n")
+    
+    # move unclassified group to the last of legend 
+    id.match <- grep("unclassified", legend.ord, ignore.case = TRUE)
+    if (length(id.match) > 0)
+      legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
+    df.melt[,colour.id] <- factor(df.melt[,colour.id], levels = legend.ord)
+  }
+  # number of columns for legend
+  if (legend.row == 0)
+    legend.row = ceiling(length(legend.ord) / 7)
   
-  if (autoWidth)
-    pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
+  if (prop.thre == 0 && length(x.lab) < 1)
+    x.lab <- paste(nrow(df.to.melt), "taxa at", melt.id[1], "or higher-level")	
+  
+  if (! is.null(palette)) {
+    pale <- palette
+  } else {
+    pale <- ComMA::getMyPalette(length(legend.ord))
+    if (length(legend.ord) > length(pale)) {
+      suppressMessages(require(colorspace))
+      pale <- rainbow_hcl(length(legend.ord))
+    }
+  }
+  
+  p <- ComMA::ggBarChart(df.melt, x.id=melt.id[1], y.id="value", fill.id=colour.id, 
+                         y.facet.id="variable", bar.pos="identity", coord.flip=T,
+                         y.trans=y.trans, title=title, x.lab=x.lab, y.lab=y.lab, 
+                         palette=pale, legend.row=legend.row, 
+                         legend.position="top", legend.direction="horizontal", ...)
+  
+  n.row = nrow(df.to.melt)
+  n.col = length(abun.col.ind)
+  if (! is.na(total.col.ind))
+    n.col = n.col + 1
+  
+  if (autoSize) {
+    maxLabelLen= max(nchar( as.character(df.to.melt[,melt.id]) )) 
+    pdf.width = 0.1 + maxLabelLen / 10 + (n.col-2) * 1.5
+    pdf.height = 1 + legend.row * 1 + n.row * 0.12
+  }
   
   # Return a list containing the filename
   list(
     pdf.width = pdf.width,
-    legend.len = length(legend.ord), # the length of legend
+    pdf.height = pdf.height,
+    legend.row = legend.row, # the length of legend
     legend.ord = legend.ord, # the legend in the order
+    n.row = n.row, # number of taxa
+    n.col = n.col, # include 'taxa' and 'group' col
     gg.plot = p # ggplot
   )
 }

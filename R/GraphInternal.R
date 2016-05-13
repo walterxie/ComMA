@@ -41,6 +41,7 @@ ggInit <- function(df, x.id, y.id, fill.id=NULL, group.id=NULL, colour.id=NULL, 
   return(p)
 }
 
+# reformulate(fac2,fac1) => fac1 ~ fac2
 ggOptFacetGrid <- function(p, col.names, x.facet.id=NULL, y.facet.id=NULL) {
   if (! is.null(x.facet.id) || ! is.null(y.facet.id)) {
     fac1 <- "."
@@ -198,17 +199,19 @@ ggOptCoordCartesian <- function(p, df, x.id, y.id, x.lim.cart=NULL, y.lim.cart=N
   return(p)
 }
 
-ggOptLegend <- function(p, legend.title=NULL, legend.col=1, legend.nrow=0) {
+ggOptLegend <- function(p, legend.title=NULL, legend.col=1, legend.row=0) {
   if (!is.null(legend.title))
     p <- p + labs(fill=legend.title)
   
-  if (legend.col > 1 && legend.nrow > 0)
-    warning("Cannot change legend.col and legend.nrow at the same time ! Skip both changes !")
+  if (legend.col > 1 && legend.row > 0)
+    warning("Cannot change legend.col and legend.row at the same time ! Skip both changes !")
   
-  if (legend.col > 1 && legend.nrow == 0)
+  if (legend.col > 1 && legend.row == 0)
     p <- p + guides(fill=guide_legend(ncol=legend.col))
-  if (legend.nrow > 0 && legend.col == 1)
-    p <- p + guides(fill=guide_legend(nrow=legend.nrow,byrow=TRUE))
+  if (legend.row > 0 && legend.col == 1) {
+    p <- p + guides(fill=guide_legend(nrow=legend.row,byrow=TRUE))
+  }
+    
   return(p)
 }
 
@@ -224,8 +227,9 @@ ggLabTitle <- function(p, x.id, y.id, title, x.lab="x.id", y.lab="y.id") {
 }
 
 ggThemeOthers <- function(p, x.text=TRUE, y.text=TRUE, x.ticks=TRUE, y.ticks=TRUE, 
-                          x.text.angle=0, legend.position="right", verbose=TRUE) {
-  theme.string <- "theme(legend.position=legend.position"
+                          x.text.angle=0, verbose=TRUE, 
+                          legend.position="right", legend.direction="vertical") {
+  theme.string <- "theme(legend.position=legend.position, legend.direction=legend.direction"
   # hide x or y axis labels
   if (!x.text)
     theme.string <- paste(theme.string, "axis.text.x = element_blank()", sep = ",")
@@ -233,8 +237,7 @@ ggThemeOthers <- function(p, x.text=TRUE, y.text=TRUE, x.ticks=TRUE, y.ticks=TRU
     theme.string <- paste(theme.string, "axis.text.y = element_blank()", sep = ",")
   # rotate x labels
   if (x.text.angle > 0) 
-    p <- p + theme(axis.text.x = element_text(angle = x.text.angle, hjust = 1, vjust = 0.3),
-                   legend.position=legend.position)
+    theme.string <- paste(theme.string, "axis.text.x = element_text(angle = x.text.angle, hjust = 1, vjust = 0.3)", sep = ",")
   # hide x or y axis ticks
   if (!x.ticks)
     theme.string <- paste(theme.string, "axis.ticks.x = element_blank()", sep = ",")

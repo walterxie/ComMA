@@ -40,7 +40,6 @@ data(reads.phyla)
 reads.phyla
 bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 bar.chart$gg.plot
-pdf.ggplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 }
 \keyword{graph}
 
