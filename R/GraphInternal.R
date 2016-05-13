@@ -167,7 +167,8 @@ ggOptScaleAxis <- function(p, axis="y", scale="continuous", trans="identity",
 
 # Setting limits on the coordinate system will zoom the plot, 
 # but will not change the underlying data like setting limits on a scale will
-ggOptCoordCartesian <- function(p, df, x.id, y.id, x.lim.cart=NULL, y.lim.cart=NULL) {
+ggOptCoordCartesian <- function(p, df, x.id, y.id, x.lim.cart=NULL, y.lim.cart=NULL, 
+                                coord.flip=FALSE, verbose=TRUE) {
   if (! is.null(x.lim.cart)) {
     if (length(x.lim.cart) != 2)
       stop("Invalid format, use x.lim.cart = c(1000,NA) !")
@@ -188,6 +189,12 @@ ggOptCoordCartesian <- function(p, df, x.id, y.id, x.lim.cart=NULL, y.lim.cart=N
     }
     p <- p + coord_cartesian(ylim=y.lim.cart)
   } 
+  
+  if (coord.flip) {
+    p <- p + coord_flip()
+    if (verbose)
+      cat("Flip cartesian coordinates.\n")
+  }
   return(p)
 }
 

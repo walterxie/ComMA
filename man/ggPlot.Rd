@@ -19,33 +19,34 @@ ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
 
 ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
   title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
-  log.scale.colour = FALSE, legend.title = "Counts", x.text = TRUE,
-  y.text = TRUE, x.text.angle = 45, no.panel.border = FALSE)
+  log.scale.colour = FALSE, legend.title = "Counts", x.lim.cart = NULL,
+  y.lim.cart = NULL, coord.flip = FALSE, x.text = TRUE, y.text = TRUE,
+  x.text.angle = 45, no.panel.border = FALSE, verbose = TRUE)
 
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
   x.lim.cart = NULL, y.lim.cart = NULL, y.trans = "identity",
   auto.scale.y = FALSE, x.scale = "discrete", x.interval = 0,
-  x.text.angle = 0, palette = NULL, legend.title = NULL, legend.col = 1,
-  legend.nrow = 0, title = "Bar Chart", title.size = 10, x.lab = "x.id",
-  y.lab = "y.id", legend.position = "right", no.panel.border = FALSE,
-  verbose = TRUE)
+  x.text.angle = 0, palette = NULL, coord.flip = FALSE,
+  legend.title = NULL, legend.col = 1, legend.nrow = 0,
+  title = "Bar Chart", title.size = 10, x.lab = "x.id", y.lab = "y.id",
+  legend.position = "right", no.panel.border = FALSE, verbose = TRUE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
-  x.facet.id = NULL, y.facet.id = NULL, y.trans = "identity",
-  auto.scale.y = FALSE, x.lim.cart = NULL, y.lim.cart = NULL,
-  palette = NULL, legend.title = NULL, legend.col = 1, legend.nrow = 0,
-  title = "Box Whiskers Plot", title.size = 10, x.lab = "x.id",
-  y.lab = "y.id", x.text.angle = 0, no.panel.border = FALSE,
-  verbose = TRUE)
+  x.facet.id = NULL, y.facet.id = NULL, coord.flip = FALSE,
+  y.trans = "identity", auto.scale.y = FALSE, x.lim.cart = NULL,
+  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
+  legend.col = 1, legend.nrow = 0, title = "Box Whiskers Plot",
+  title.size = 10, x.lab = "x.id", y.lab = "y.id", x.text.angle = 0,
+  no.panel.border = FALSE, verbose = TRUE)
 
 gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
   link.id = NULL, ellipsed.id = NULL, text.id = NULL, text.data = NULL,
   text.size = 3, text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
-  xintercept = NULL, yintercept = NULL, line.type = 2,
-  x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
+  coord.flip = FALSE, xintercept = NULL, yintercept = NULL,
+  line.type = 2, x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.nrow = 0,
   title = "Scatter Plot", title.size = 10, x.lab = "x.id",
   y.lab = "y.id", no.panel.border = FALSE, verbose = TRUE)
@@ -53,13 +54,14 @@ gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
 gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
   line.type = 2, line.alpha = 0.75, shape.id = NULL, shapes = NULL,
   point.size = 3, point.data = NULL, x.facet.id = NULL,
-  y.facet.id = NULL, x.trans = "identity", auto.scale.x = FALSE,
-  y.trans = "identity", auto.scale.y = FALSE, text.id = NULL,
-  text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
-  text.alpha = 0.5, x.lim.cart = NULL, y.lim.cart = NULL,
-  palette = NULL, legend.title = NULL, legend.col = 1, legend.nrow = 0,
-  x.text.angle = 0, title = "", title.size = 10, x.lab = "x.id",
-  y.lab = "y.id", no.panel.border = FALSE, verbose = TRUE)
+  y.facet.id = NULL, coord.flip = FALSE, x.trans = "identity",
+  auto.scale.x = FALSE, y.trans = "identity", auto.scale.y = FALSE,
+  text.id = NULL, text.data = NULL, text.size = 3, text.hjust = -0.1,
+  text.vjust = -0.2, text.alpha = 0.5, x.lim.cart = NULL,
+  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
+  legend.col = 1, legend.nrow = 0, x.text.angle = 0, title = "",
+  title.size = 10, x.lab = "x.id", y.lab = "y.id",
+  no.panel.border = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{linetype}{Refer to \code{\link{linetype}}: 
@@ -113,6 +115,15 @@ Default to FALSE.}
 
 \item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
 
+\item{x.lim.cart, y.lim.cart}{Setting limits on the coordinate system will zoom the plot, 
+and will not change the underlying data like setting limits on a scale will. 
+Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
+Default NULL.}
+
+\item{coord.flip}{If TRUE, then flip cartesian coordinates so that horizontal 
+becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
+\code{\link{coord_flip}}.}
+
 \item{x.text, y.text}{If FALSE, then hide x or y axis labels. Default to TRUE.}
 
 \item{no.panel.border}{Add panel border or not. Default to FALSE.}
@@ -131,11 +142,6 @@ Default to "identity", which define the heights of the bars to represent values 
 
 \item{x.facet.id, }{y.facet.id The string of column names in \code{df},
 which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.}
-
-\item{x.lim.cart, y.lim.cart}{Setting limits on the coordinate system will zoom the plot, 
-and will not change the underlying data like setting limits on a scale will. 
-Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
-Default NULL.}
 
 \item{palette}{The colour palette for bar, box, scatter plot, etc. 
 If length == 1, then use \code{\link{scale_colour_brewer}} 

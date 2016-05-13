@@ -19,7 +19,7 @@ printXTable(df, caption = "The table of", label = "tab:label",
 \item{file}{If NULL, then print the results to console, 
 otherwise print them to the file. Default to NULL.}
 
-\item{invalid.char}{If it is TRUE, then add \\\\ to all 
+\item{invalid.char}{If it is TRUE, then add \\ to all 
 _ or % for Latex. Default to TRUE.}
 
 \item{include.rownames, caption.placement}{Refer to \code{\link{print.xtable}}.}

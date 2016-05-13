@@ -131,7 +131,7 @@ writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t", eol 
 #' @param label Latex table label.
 #' @param file If NULL, then print the results to console, 
 #' otherwise print them to the file. Default to NULL. 
-#' @param invalid.char If it is TRUE, then add \\\\ to all 
+#' @param invalid.char If it is TRUE, then add \\ to all 
 #' _ or % for Latex. Default to TRUE.
 #' @param include.rownames,caption.placement 
 #' Refer to \code{\link{print.xtable}}.

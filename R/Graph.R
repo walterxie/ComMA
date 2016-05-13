@@ -97,6 +97,9 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' @param log.scale.colour If TRUE, then use log scale to the colour of heat map.
 #' Default to FALSE.
 #' @param x.text,y.text If FALSE, then hide x or y axis labels. Default to TRUE.
+#' @param coord.flip If TRUE, then flip cartesian coordinates so that horizontal 
+#' becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
+#' \code{\link{coord_flip}}.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -110,38 +113,42 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", 
                       title="Heatmap", title.size = 10, x.lab="", y.lab="", 
                       log.scale.colour=FALSE, legend.title="Counts",
-                      x.text=TRUE, y.text=TRUE,
-                      x.text.angle=45, no.panel.border=FALSE) {
+                      x.lim.cart=NULL, y.lim.cart=NULL, coord.flip=FALSE,
+                      x.text=TRUE, y.text=TRUE, x.text.angle=45, 
+                      no.panel.border=FALSE, verbose=TRUE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop("Data frame column names do NOT have \"", melt.id, "\" for melt function !")
   
   suppressMessages(require(reshape2))
-  ranks.melt <- melt(df.to.melt, id=c(melt.id))
-  ranks.melt[,melt.id] <- factor(ranks.melt[,melt.id], levels=unique(ranks.melt[,melt.id]))
+  df.melt <- melt(df.to.melt, id=c(melt.id))
+  df.melt[,melt.id] <- factor(df.melt[,melt.id], levels=unique(df.melt[,melt.id]))
   
   suppressMessages(require(ggplot2))
   # variable is all group names, such as "16S" or "FUNGI"
   # value is ranks for each group
-  p <- ggplot(ranks.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) 
+  p <- ggplot(df.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) 
   
   if (log.scale.colour) {
-    if (min(ranks.melt$value) == 0)
+    if (min(df.melt$value) == 0)
       min.log <- 0
     else 
-      min.log <- log(min(ranks.melt$value))
-    if (max(ranks.melt$value) == 0)
+      min.log <- log(min(df.melt$value))
+    if (max(df.melt$value) == 0)
       max.log <- 0
     else 
-      max.log <- log(max(ranks.melt$value))
+      max.log <- log(max(df.melt$value))
     
     breaks.rank <- round(exp(seq(min.log, max.log, length.out = 5)), digits = 0)
     p <- p + scale_fill_gradient(trans='log', na.value="transparent", low=low, high=high, 
                                  name=legend.title, breaks=breaks.rank) 
   } else {
-    breaks.rank <- round(seq(min(ranks.melt$value), max(ranks.melt$value), length.out = 5), digits = 0)
+    breaks.rank <- round(seq(min(df.melt$value), max(df.melt$value), length.out = 5), digits = 0)
     p <- p + scale_fill_gradient(na.value="transparent", low=low, high=high, 
                                  name=legend.title, breaks=breaks.rank) 
   }
+  
+  p <- ggOptCoordCartesian(p, df.melt, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
+                           coord.flip=coord.flip, verbose=verbose)
   
   p <- ggLabTitle(p, "", "", title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
@@ -208,7 +215,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
 ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="identity", 
                        x.facet.id=NULL, y.facet.id=NULL, x.lim.cart=NULL, y.lim.cart=NULL,   
                        y.trans="identity", auto.scale.y=FALSE, x.scale="discrete", 
-                       x.interval=0, x.text.angle=0, palette=NULL, 
+                       x.interval=0, x.text.angle=0, palette=NULL, coord.flip=FALSE,
                        legend.title=NULL, legend.col=1, legend.nrow=0, 
                        title="Bar Chart", title.size=10, x.lab="x.id", y.lab="y.id", 
                        legend.position="right", no.panel.border=FALSE, verbose=TRUE) {
@@ -234,7 +241,8 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
     p <- ggOptScaleAxis(p, axis="x", scale=x.scale, breaks=x.breaks, verbose=verbose)
   }
   
-  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
+                           coord.flip=coord.flip, verbose=verbose)
   
   p <- ggOptPalette(p, scale.to="fill", palette=palette)
   
@@ -269,7 +277,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
 #' @rdname ggPlot
 ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, 
                               outlier.colour=alpha("black", 0.3), dodge.width=0.8,
-                              x.facet.id=NULL, y.facet.id=NULL, 
+                              x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                               y.trans="identity", auto.scale.y=FALSE, 
                               x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                               legend.title=NULL, legend.col=1, legend.nrow=0, 
@@ -294,7 +302,8 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
   }
   
-  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
+                           coord.flip=coord.flip, verbose=verbose)
   
   p <- ggOptPalette(p, scale.to="fill", palette=palette)
   
@@ -351,7 +360,7 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           shapes=NULL, point.size=3, x.facet.id=NULL, y.facet.id=NULL, 
                           link.id=NULL, ellipsed.id=NULL, text.id=NULL, 
                           text.data = NULL, text.size = 3, text.hjust=-0.1, 
-                          text.vjust = -0.2, text.alpha = 0.5,
+                          text.vjust = -0.2, text.alpha = 0.5, coord.flip=FALSE,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                           legend.title=NULL, legend.col=1, legend.nrow=0,  
@@ -384,15 +393,17 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
     p <- p + geom_polygon(data = hulls, aes_string(mapping=link.id), fill = NA, alpha = 0.5)
   }
   
-  p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, text.size=text.size, 
-                 text.hjust=text.hjust, text.vjust=text.vjust, text.alpha=text.alpha)
+  p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
+                 text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
+                 text.alpha=text.alpha)
   
   if (! is.null(xintercept))
     p <- p + geom_vline(xintercept=xintercept,linetype=line.type)
   if (! is.null(yintercept))
     p <- p + geom_hline(yintercept=yintercept,linetype=line.type) 
   
-  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
+                           coord.flip=coord.flip, verbose=verbose)
   
   p <- ggOptPalette(p, palette=palette)
   
@@ -423,7 +434,7 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
 gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,  
                    line.size=0.5, line.type = 2, line.alpha=0.75, 
                    shape.id=NULL, shapes=NULL, point.size=3, point.data=NULL,
-                   x.facet.id=NULL, y.facet.id=NULL, 
+                   x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                    x.trans="identity", auto.scale.x=FALSE, y.trans="identity", auto.scale.y=FALSE,
                    text.id=NULL, text.data = NULL, text.size = 3, 
                    text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
@@ -457,10 +468,12 @@ gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
     p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
   }
   
-  p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, text.size=text.size, 
-                 text.hjust=text.hjust, text.vjust=text.vjust, text.alpha=text.alpha)
+  p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
+                 text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
+                 text.alpha=text.alpha)
   
-  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart)
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
+                           coord.flip=coord.flip, verbose=verbose)
   
   p <- ggOptPalette(p, palette=palette)
   
