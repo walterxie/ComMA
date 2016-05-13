@@ -25,5 +25,5 @@ get_breaks_positive_values(68759)
 scale_y_continuous(trans = "log", labels = ComMA::scientific_10, 
 breaks = ComMA::get_breaks_positive_values(max(df, start=c(0))))
 }
-\keyword{utils}
+\keyword{graph}
 

@@ -5,6 +5,7 @@
 \alias{pdf}
 \alias{pdf.ggplot}
 \alias{pdf.gtable}
+\alias{pdf.plot}
 \title{Create pdf}
 \source{
 \code{grid_arrange_shared_legend} is derived from 
@@ -14,6 +15,8 @@
 pdf.ggplot(gg.plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
 pdf.gtable(g.table, fig.path, width = 6, height = 6, useDingbats = TRUE)
+
+pdf.plot(plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
 grid_arrange_shared_legend(...)
 }
@@ -28,6 +31,8 @@ grid_arrange_shared_legend(...)
 Setting this to FALSE can work around font display problems in broken PDF viewers.
 Refer to \code{\link{pdf}}.}
 
+\item{plot}{The list returned from \code{\link{plot}}.}
+
 \item{...}{The list of \code{\link{ggplot}} objects.}
 
 \item{gtable}{A \code{\link{gtable}} object.}
@@ -36,6 +41,8 @@ Refer to \code{\link{pdf}}.}
 \code{pdf.ggplot} creates pdf for ggplot object.
 
 \code{pdf.gtable} creates pdf for gtable object.
+
+\code{pdf.plot} creates pdf for the list returned from \code{\link{plot}}.
 
 \code{grid_arrange_shared_legend} shares a legend 
 between multiple plots using \code{\link{grid.arrange}}. 
@@ -46,6 +53,8 @@ pdf.ggplot(gg.plot, fig.path="fig.pdf", width=8, height=8)
 
 pdf.gtable(g.table, fig.path="fig.pdf", width=8, height=8)  
 
+pdf.plot(plot, fig.path="fig.pdf", width=8, height=8)  
+
 library(ggplot2); library(grid); library(gridExtra)
 dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
 p1 <- qplot(carat, price, data=dsamp, colour=clarity)
@@ -55,5 +64,5 @@ p4 <- qplot(depth, price, data=dsamp, colour=clarity)
 grid_arrange_shared_legend(p1, p2, p3, p4)
 
 }
-\keyword{utils}
+\keyword{graph}
 

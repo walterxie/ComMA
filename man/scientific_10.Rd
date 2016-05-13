@@ -19,5 +19,5 @@ Scientific notation
 #expression(10^04)
 scientific_10(10000)
 }
-\keyword{utils}
+\keyword{graph}
 

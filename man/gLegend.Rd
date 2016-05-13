@@ -24,5 +24,5 @@ my_hist<-ggplot(diamonds, aes(clarity, fill=cut)) + geom_bar()
 legend <- gLegend(my_hist) 
 grid.draw(legend) 
 }
-\keyword{utils}
+\keyword{graph}
 

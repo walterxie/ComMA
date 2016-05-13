@@ -26,5 +26,5 @@ It is mostly used to force bars to start from a lower value than 0 in \pkg{ggplo
 # starts from 1e-2
 scale_y_continuous(trans = mylog_trans(base=10, from=-2))
 }
-\keyword{utils}
+\keyword{graph}
 

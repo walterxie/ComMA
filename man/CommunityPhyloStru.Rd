@@ -27,7 +27,8 @@ phylo.unifrac.dist(t.community.matrix, phylo.tree, verbose = TRUE)
 printResult(pd.alpha = NULL, pd.mpd = NULL, pd.mntd = NULL,
   pd.beta.dist = NULL, filePath, fileStem, tableFile = NULL)
 
-plotPDBeta(pd.beta.dist, filePath, fileStem)
+plotPDBeta(pd.beta.dist, title = "Phylogenetic beta diversity", xlab = "",
+  sub = "", ...)
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, where rows are samples, columns are OTUs}
@@ -104,9 +105,8 @@ mkdir(pdFilePath)
 fileStem <- paste("16S", postfix(taxa.group, isPlot, sep="-"), sep = "-")
 printResult(pd.alpha, pd.mpd, pd.mntd, pd.beta.dist, pdFilePath, fileStem, tableFile)
 
-figDir <- file.path(workingPath, "figures")
-fileStem <- paste("16S", postfix(taxa.group, isPlot, sep="-"), sep = "-")
-plotPDBeta(pd.beta.dist, figDir, fileStem)
+plotPDBeta(pd.beta.dist)
+pdf.plot(plot, fig.path="pd-beta.pdf", width=10, height=5)  
 
 }
 

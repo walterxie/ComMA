@@ -13,7 +13,7 @@
 #' @param useDingbats Defaults to TRUE, which produces smaller and better output. 
 #' Setting this to FALSE can work around font display problems in broken PDF viewers.
 #' Refer to \code{\link{pdf}}.
-#' @keywords utils
+#' @keywords graph
 #' @export
 #' @examples 
 #' pdf.ggplot(gg.plot, fig.path="fig.pdf", width=8, height=8)  
@@ -28,7 +28,7 @@ pdf.ggplot <- function(gg.plot, fig.path, width=6, height=6, useDingbats=TRUE) {
 #' @details \code{pdf.gtable} creates pdf for gtable object.
 #' 
 #' @param gtable A \code{\link{gtable}} object.
-#' @keywords utils
+#' @keywords graph
 #' @export
 #' @examples 
 #' pdf.gtable(g.table, fig.path="fig.pdf", width=8, height=8)  
@@ -41,6 +41,20 @@ pdf.gtable <- function(g.table, fig.path, width=6, height=6, useDingbats=TRUE) {
   invisible(dev.off()) 
 }
 
+#' @details \code{pdf.plot} creates pdf for the list returned from \code{\link{plot}}.
+#' 
+#' @param plot The list returned from \code{\link{plot}}.
+#' @keywords graph
+#' @export
+#' @examples 
+#' pdf.plot(plot, fig.path="fig.pdf", width=8, height=8)  
+#' 
+#' @rdname pdf
+pdf.plot <- function(plot, fig.path, width=6, height=6, useDingbats=TRUE) {
+  pdf(fig.path, width=width, height=height, useDingbats=useDingbats)	
+  plot
+  invisible(dev.off()) 
+}
 
 #' @details \code{grid_arrange_shared_legend} shares a legend 
 #' between multiple plots using \code{\link{grid.arrange}}. 
@@ -49,7 +63,7 @@ pdf.gtable <- function(g.table, fig.path, width=6, height=6, useDingbats=TRUE) {
 #' \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}
 #' 
 #' @param ... The list of \code{\link{ggplot}} objects.
-#' @keywords utils
+#' @keywords graph
 #' @export
 #' @examples 
 #' library(ggplot2); library(grid); library(gridExtra)
@@ -86,7 +100,7 @@ grid_arrange_shared_legend <- function(...) {
 #' @param from The value to start from. Default to 0.
 #' @return
 #' The scale.
-#' @keywords utils
+#' @keywords graph
 #' @export
 #' @examples 
 #' # starts from 1e-2
@@ -103,7 +117,7 @@ mylog_trans <- function(base=exp(1), from=0) {
 #' @param x The number (not string type).
 #' @return
 #' The mathematical \code{\link{expression}} in scientific notation of a given number.
-#' @keywords utils
+#' @keywords graph
 #' @export
 #' @examples 
 #' #expression(10^04)
@@ -125,7 +139,7 @@ scientific_10 <- function(x) {
 #' @return
 #' The vector of multiples of 10 used for breaks. 
 #' Mostly used with \code{\link{scientific_10}} together.
-#' @keywords utils
+#' @keywords graph
 #' @export
 #' @examples 
 #' get_breaks_positive_values(68759)
@@ -158,7 +172,7 @@ get_breaks_positive_values <- function(max.v, start=c(0.1, 1)) {
 #' @param n The number of colors (>= 1) to be in the palette. If missing, then return the whole palette.
 #' @return
 #' The customised palette with about 70 colours.
-#' @keywords utils
+#' @keywords graph
 #' @export
 #' @examples 
 #' myPalette <- getMyPalette() 
@@ -187,7 +201,7 @@ getMyPalette<-function(n, add.grey=0){
 #' @param a.gplot The \code{\link{ggplot}} object.
 #' @return
 #' The legend.
-#' @keywords utils
+#' @keywords graph
 #' @export
 #' @examples 
 #' library(ggplot2); library(grid)

@@ -201,16 +201,12 @@ printResult <- function(pd.alpha=NULL, pd.mpd=NULL, pd.mntd=NULL, pd.beta.dist=N
 #' @details \code{plotPDBeta} plots the dendrogram of phylogenetic beta diversity (Steven Kembel)
 #' @export
 #' @examples 
-#' figDir <- file.path(workingPath, "figures")
-#' fileStem <- paste("16S", postfix(taxa.group, isPlot, sep="-"), sep = "-")
-#' plotPDBeta(pd.beta.dist, figDir, fileStem)
+#' plotPDBeta(pd.beta.dist)
+#' pdf.plot(plot, fig.path="pd-beta.pdf", width=10, height=5)  
 #' 
 #' @rdname CommunityPhyloStru
-plotPDBeta <- function(pd.beta.dist, filePath, fileStem) {
+plotPDBeta <- function(pd.beta.dist, title="Phylogenetic beta diversity", xlab="", sub ="", ...) {
   comdist.clusters <- hclust(pd.beta.dist)
-  
-  fname <- file.path(filePath, fileStem)
-  pdf(paste(fname, "pdf", sep = "."), width=10, height=5)
-  plot(comdist.clusters, xlab="", sub ="", main=paste("Phylogenetic beta diversity"))
-  invisible(dev.off())
+  p <- plot(comdist.clusters, xlab=xlab, sub=sub, main=title, ...)
+  return(p)
 }
