@@ -196,7 +196,7 @@ Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
 }
 \value{
 If the function returns a \code{\link{ggplot}} object, then its name starts with "gg". 
-It needs to use \code{\link{pdfGgplot}} to create pdf. 
+It needs to use \code{\link{pdf.ggplot}} to create pdf. 
 If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
 It needs to use \code{\link{pdfGtplot}} to create pdf.
 }
@@ -232,7 +232,7 @@ ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1),
                              `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
 ranks.by.group
 gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
-pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
+pdf.ggplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
 
 # log-scale y
 bar.chart <- ggBarChart(df, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
@@ -255,7 +255,7 @@ g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ell
                          text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
 grid.draw(g.table)
-pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
+pdf.gtable(g.table, fig.path="clusters-scatter-plot.pdf") 
 
 
 

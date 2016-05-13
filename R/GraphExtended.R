@@ -188,7 +188,7 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' reads.phyla
 #' bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 #' bar.chart$gg.plot
-#' pdfGgplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
+#' pdf.ggplot(bar.chart$gg.plot, fig.path="taxa-percentage-bar.pdf", width=bar.chart$pdf.width, height=8) 
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", 
                                  x.lab="", y.lab="", palette=NULL, 
                                  x.text.angle=90, autoWidth=TRUE, ...) {

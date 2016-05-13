@@ -9,7 +9,7 @@
 #'
 #' @return 
 #' If the function returns a \code{\link{ggplot}} object, then its name starts with "gg". 
-#' It needs to use \code{\link{pdfGgplot}} to create pdf. 
+#' It needs to use \code{\link{pdf.ggplot}} to create pdf. 
 #' If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
 #' It needs to use \code{\link{pdfGtplot}} to create pdf. 
 #' 
@@ -104,7 +104,7 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #'                              `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
 #' ranks.by.group
 #' gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
-#' pdfGgplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
+#' pdf.ggplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
 #' 
 #' @rdname ggPlot
 ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", 
@@ -344,7 +344,7 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
 #'                          text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
 #'                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
 #' grid.draw(g.table)
-#' pdfGtable(g.table, fig.path="clusters-scatter-plot.pdf") 
+#' pdf.gtable(g.table, fig.path="clusters-scatter-plot.pdf") 
 #' 
 #' @rdname ggPlot
 gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL, 
