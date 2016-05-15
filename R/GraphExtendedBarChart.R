@@ -91,6 +91,11 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #' @param prop.thre Make "Others" for any row total abundence < 
 #' proportion threshold of the total of matrix abundence. 
 #' Recommend 0.001 (0.1%) if too many rows. Default to 0.
+#' @param melt.levels,colour.levels The \code{\link{levels}} encode 
+#' \code{\link{factor}} on melt.id and colour.id, which make data frame 
+#' grouped for plotting. The default is a function to \code{\link{sort}}. 
+#' Note: do not use \code{sort(,decreasing = T)}, it will ruin \code{factor}. 
+#' Use \code{\link{rev}} instead.
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param autoSize If TRUE, then use number of bars and legend columns 
@@ -101,12 +106,14 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #' @examples 
 #' data(reads.phyla)
 #' reads.phyla$phylum <- rownames(reads.phyla)
-#' bar.chart <- ggGroupAbundanceBar(reads.phyla, melt.id="phylum", colour.id="TaxaGroup")
+#' bar.chart <- ggGroupAbundanceBar(reads.phyla, melt.id="phylum", colour.id="TaxaGroup", legend.row=1)
 #' bar.chart$gg.plot
 ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0, 
-                           y.trans="log", legend.row=0, palette=NULL, autoSize=TRUE,
-                           title="Abundance Bar Chart", x.lab="", y.lab="Reads", 
-                           verbose=TRUE, ...) {
+                                melt.levels=function(x) rev(unique(x)), 
+                                colour.levels=function(x) sort(unique(x)),
+                                y.trans="log", legend.row=0, palette=NULL, autoSize=TRUE,
+                                title="Abundance Bar Chart", x.lab="", y.lab="Reads", 
+                                verbose=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
@@ -163,7 +170,7 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
     
     if (nchar(x.lab) < 1)
       x.lab <- paste(nrow(df.to.melt)-1, "of", nrow(df.to.melt)-1+length(other.row.ind), 
-                    "taxa at", melt.id[1], "or higher-level ( >", prop.thre*100, "% of total)")	
+                     "taxa at", melt.id[1], "or higher-level ( >", prop.thre*100, "% of total)")	
   }
   
   suppressMessages(require(reshape2))
@@ -172,27 +179,20 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
   #df.melt[,"value"] <- as.numeric(df.melt[,"value"])
   #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
   
-  x.labels <- sort(unique(df.melt[,melt.id]), decreasing = TRUE)
-  # move unclassified group to the last of legend 
-  id.match <- grep("unclassified", x.labels, ignore.case = TRUE)
-  if (length(id.match) > 0)
-    x.labels <- x.labels[c(id.match, setdiff(1:length(x.labels), id.match))]
-  df.melt[,melt.id] <- factor(df.melt[,melt.id], ordered = TRUE, levels = x.labels)
-  
   # legend
   legend.ord <- c()
   if (! is.null(colour.id)) {
     # sort legend
-    legend.ord <- sort(unique(df.melt[,colour.id]))
+    legend.ord <- colour.levels(df.melt[,colour.id])
     if (verbose)
       cat("Find", length(legend.ord), "unique groups for colouring.\n")
     
-    # move unclassified group to the last of legend 
-    id.match <- grep("unclassified", legend.ord, ignore.case = TRUE)
-    if (length(id.match) > 0)
-      legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
-    df.melt[,colour.id] <- factor(df.melt[,colour.id], ordered = TRUE, levels = legend.ord)
+    df.melt[,colour.id] <- factor(df.melt[,colour.id], levels = legend.ord)
   }
+  
+  # default rev(df.melt[,melt.id]), note sort(,decreasing = T) will ruin factor 
+  df.melt[,melt.id] <- factor(df.melt[,melt.id], levels = melt.levels(df.melt[,melt.id]))
+  
   # number of columns for legend
   if (legend.row == 0)
     legend.row = ceiling(length(legend.ord) / 7)
