@@ -101,12 +101,12 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #' @examples 
 #' data(reads.phyla)
 #' reads.phyla$phylum <- rownames(reads.phyla)
-#' bar.chart <- ggAbundanceBar(reads.phyla, melt.id="phylum", colour.id="TaxaGroup")
+#' bar.chart <- ggGroupAbundanceBar(reads.phyla, melt.id="phylum", colour.id="TaxaGroup")
 #' bar.chart$gg.plot
-ggAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0, 
-                           y.trans="log", legend.row=0,
+ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0, 
+                           y.trans="log", legend.row=0, palette=NULL, autoSize=TRUE,
                            title="Abundance Bar Chart", x.lab="", y.lab="Reads", 
-                           palette=NULL, autoSize=TRUE, ...) {
+                           verbose=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
@@ -161,7 +161,7 @@ ggAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0,
       df.to.melt[nrow(df.to.melt),colour.col.ind] <- "Others"
     }   
     
-    if (length(x.lab) < 1)
+    if (nchar(x.lab) < 1)
       x.lab <- paste(nrow(df.to.melt)-1, "of", nrow(df.to.melt)-1+length(other.row.ind), 
                     "taxa at", melt.id[1], "or higher-level ( >", prop.thre*100, "% of total)")	
   }
@@ -169,15 +169,15 @@ ggAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0,
   suppressMessages(require(reshape2))
   # colour.id == NULL still works
   df.melt <- melt(df.to.melt, id=c(melt.id, colour.id))
-  df.melt[,"value"] <- as.numeric(df.melt[,"value"])
+  #df.melt[,"value"] <- as.numeric(df.melt[,"value"])
   #df.melt[,"variable"] <- factor(df.melt[,"variable"], levels = sort(unique(df.melt[,"variable"])))
   
-  x.labels <- sort(unique(df.melt[,melt.id]), decreasing = T)
+  x.labels <- sort(unique(df.melt[,melt.id]), decreasing = TRUE)
   # move unclassified group to the last of legend 
   id.match <- grep("unclassified", x.labels, ignore.case = TRUE)
   if (length(id.match) > 0)
     x.labels <- x.labels[c(id.match, setdiff(1:length(x.labels), id.match))]
-  df.melt[,melt.id] <- factor(df.melt[,melt.id], levels = x.labels)
+  df.melt[,melt.id] <- factor(df.melt[,melt.id], ordered = TRUE, levels = x.labels)
   
   # legend
   legend.ord <- c()
@@ -191,13 +191,13 @@ ggAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0,
     id.match <- grep("unclassified", legend.ord, ignore.case = TRUE)
     if (length(id.match) > 0)
       legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
-    df.melt[,colour.id] <- factor(df.melt[,colour.id], levels = legend.ord)
+    df.melt[,colour.id] <- factor(df.melt[,colour.id], ordered = TRUE, levels = legend.ord)
   }
   # number of columns for legend
   if (legend.row == 0)
     legend.row = ceiling(length(legend.ord) / 7)
   
-  if (prop.thre == 0 && length(x.lab) < 1)
+  if (prop.thre == 0 && nchar(x.lab) < 1)
     x.lab <- paste(nrow(df.to.melt), "taxa at", melt.id[1], "or higher-level")	
   
   if (! is.null(palette)) {
