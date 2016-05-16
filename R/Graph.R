@@ -11,7 +11,7 @@
 #' If the function returns a \code{\link{ggplot}} object, then its name starts with "gg". 
 #' It needs to use \code{\link{pdf.ggplot}} to create pdf. 
 #' If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
-#' It needs to use \code{\link{pdfGtplot}} to create pdf. 
+#' It needs to use \code{\link{pdf.gtplot}} to create pdf. 
 #' 
 
 #' @details 

@@ -30,7 +30,7 @@
 #' @export
 #' @keywords plot prioritisation
 #' @examples 
-#' t.communityMatrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=1, taxa.group=""BACTERIA"")
+#' t.communityMatrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=1, taxa.group="BACTERIA")
 #' priorPlots <- getPlotPriorByJostDiversity(t.communityMatrix, lev="gamma", q=1)
 getPlotPriorByJostDiversity <- function(t.communityMatrix, lev, q){
 	tmpCM <- t.communityMatrix

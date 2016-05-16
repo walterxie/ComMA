@@ -35,7 +35,7 @@ Rank 1 is the most important plot and removed at the last,
 \emph{n} is the least important and removed in the beginning.
 }
 \examples{
-t.communityMatrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=1, taxa.group=""BACTERIA"")
+t.communityMatrix <- getCommunityMatrixT("16S", isPlot=TRUE, minAbund=1, taxa.group="BACTERIA")
 priorPlots <- getPlotPriorByJostDiversity(t.communityMatrix, lev="gamma", q=1)
 }
 \keyword{plot}

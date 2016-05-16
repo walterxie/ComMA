@@ -93,7 +93,8 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #' Recommend 0.001 (0.1%) if too many rows. Default to 0.
 #' @param melt.levels,colour.levels The \code{\link{levels}} encode 
 #' \code{\link{factor}} on melt.id and colour.id, which make data frame 
-#' grouped for plotting. The default is a function to \code{\link{sort}}. 
+#' grouped for plotting. The default is a function to \code{\link{sort}}.
+#' It can also use \code{\link{unique}} only for no sorting. 
 #' Note: do not use \code{sort(,decreasing = T)}, it will ruin \code{factor}. 
 #' Use \code{\link{rev}} instead.
 #' @param title Graph title
