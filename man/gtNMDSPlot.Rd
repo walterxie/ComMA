@@ -22,7 +22,7 @@ where its row names have to match row names of community data \code{comm}.}
 
 \item{distance}{Dissimilarity index used in \code{\link{vegdist}}.}
 
-\item{...}{More from \code{\link{gtScatterPlot}}.}
+\item{...}{Other arguments passed to \code{\link{gtScatterPlot}}.}
 }
 \description{
 Use \code{\link{metaMDS}} in \code{\link{vegan}}

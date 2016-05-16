@@ -13,71 +13,7 @@
 #' If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
 #' It needs to use \code{\link{pdf.gtplot}} to create pdf. 
 #' 
-
-#' @details 
-#' \code{ggAddLine} adds a line \code{\link{geom_line}} to 
-#' a given \code{\link{ggplot}} object.
-#' 
-#' @param xintercept,yintercept,intercept,slope,smooth.method 
-#' Refer to \code{\link{geom_vline}}, \code{\link{geom_hline}}, 
-#' \code{\link{geom_abline}}, \code{\link{geom_smooth}}. 
-#' They cannot be used at the same time.
-#' @param linetype Refer to \code{\link{linetype}}: 
-#' 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 
-#' 4 = dotdash, 5 = longdash, 6 = twodash.
-#' @keywords graph
-#' @export
-#' @examples 
-#' p <- ggAddLine(p, linetype = 2, yintercept = 1)
-#' p <- ggAddLine(p, smooth.method = "lm")
-#' 
-#' @rdname ggPlot
-ggAddLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, slope, smooth.method, ...) {
-  if (!missing(xintercept)) {
-    p <- gg.plot + geom_vline(linetype=linetype, xintercept = xintercept, ...)
-  } else if (!missing(yintercept)) {
-    p <- gg.plot + geom_hline(linetype=linetype, yintercept = yintercept, ...)
-  } else if (!missing(intercept) && !missing(slope)){
-    p <- gg.plot + geom_abline(linetype=linetype, intercept = intercept, slope = slope, ...)
-  } else if (!missing(smooth.method)){  
-    p <- p + geom_smooth(linetype=linetype, method = smooth.method, se = FALSE, ...)
-  } else {
-    stop("Invalid input !")
-  }
-  return(p)
-}
-
-#' @details 
-#' \code{ggAddNumbers} adds numbers as text in a \code{\link{ggplot}} object, such as mean of box plot. 
-#' Refer to \code{\link{stat_summary}}.
-#' 
-#' @param fun.y.lab A function to calculate numbers displayed in the figure.  
-#' Default to function \code{\link{mean}}. Ues \code{\link{length}} to show number of observations.
-#' @param fun.y.pos A function to calculate the initial poistion of text on y-value. 
-#' Default to \code{\link{median}}.
-#' @param y.adj The propotion of the initial poistion of text on y-value. 
-#' > 1 will raises the text, and < 1 will sinks the text. Default to 0.98.
-#' @param digits Integer indicating the number of decimal places for \code{\link{round}}.
-#' @param dodge.width Dodging width, when different to the width of the individual elements. 
-#' Default to 0.8. Refer to \code{\link{position_dodge}}.
-#' @param text.size The text size of labels. Default to 3.
-#' @param text.colour The text colour. Default to black.
-#' @keywords graph
-#' @export
-#' @examples 
-#' p <- ggAddNumbers(p, fun.y.lab=mean)
-#' p <- ggAddNumbers(p, fun.y.lab=length, y.adj=1.02)
-#' 
-#' @rdname ggPlot
-ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, digits=2, 
-                         dodge.width=0.8, text.size=3, text.colour="black") {
-  p <- gg.plot + stat_summary(fun.data = function(y) {return( c(y = fun.y.pos(y)*y.adj, label = round(fun.y.lab(y),digits)) )}, 
-                              geom = "text", position = position_dodge(width=dodge.width), colour = text.colour, size = text.size)
-}
-
-#' @details 
-#' \code{ggHeatmap} creates a heat map using ggplot. 
-#' 
+#' @param df A data frame used for plot. 
 #' @param df.to.melt A data frame required to \code{\link{melt}} 
 #' before making a \pkg{ggplot} object, such as input of \code{ggHeatmap}. 
 #' At least one column should be \code{melt.id}. If using row.names, 
@@ -91,17 +27,56 @@ ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, 
 #' } 
 #' @param melt.id A column name to \code{\link{melt}} 
 #' and used as a \code{\link{factor}}, such as "plot" column.
-#' @param title Graph title
-#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
-#' @param low,high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
-#' Default to low="white", high="steelblue".
-#' @param no.panel.border Add panel border or not. Default to FALSE.
-#' @param log.scale.colour If TRUE, then use log scale to the colour of heat map.
-#' Default to FALSE.
-#' @param x.text,y.text If FALSE, then hide x or y axis labels. Default to TRUE.
+#' @param x.id,y.id,fill.id,group.id The string of column names in \code{df},
+#' which use for \code{x, y, fill, group} in \code{\link{aes}} in \code{\link{ggplot}}.
+#' @param x.facet.id, y.facet.id The string of column names in \code{df},
+#' which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.
+#' @param x.trans,y.trans The string defines the data scale used in either x-axis or y-axis, 
+#' which can be "identity" standing for normal, or "per" standing for percentage, 
+#' moreover either the name of a transformation object for \code{\link{scale_x_continuous}}
+#' or \code{\link{scale_y_continuous}} (e.g. \code{trans="log"}), or the object itself. 
+#' Built-in transformations include "asn", "atanh", "boxcox", "exp", "identity", 
+#' "log", "log10", "log1p", "log2", "logit", "probability", "probit", "reciprocal", 
+#' "reverse" and "sqrt". Default to "identity". 
+#' @param x.lim.cart,y.lim.cart Setting limits on the coordinate system will zoom the plot, 
+#' and will not change the underlying data like setting limits on a scale will. 
+#' Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
+#' Default NULL. 
+#' @param title Graph title, set title="" to remove it from the plot.
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names. 
+#' Set x.lab="" to remove x-axis label from the plot.
 #' @param coord.flip If TRUE, then flip cartesian coordinates so that horizontal 
 #' becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
 #' \code{\link{coord_flip}}.
+#' @param x.lab.interval The interval to display x values in axis. 
+#' Assume x values are discrete for each bar. Default to 0 to do nothing.
+#' @param palette The colour palette for bar, box, scatter plot, etc. 
+#' If length == 1, then use \code{\link{scale_colour_brewer}} 
+#' (\url{http://www.datavis.ca/sasmac/brewerpal.html}), such as "Set1" (max 8 colours).
+#' If 1 != length <= 3, then use \code{\link{scale_colour_gradientn}}, 
+#' such as c("blue", "orange").
+#' Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
+#' Default NULL to use \code{\link{ggplot}} default colours.  
+#' @param text.id Label the data points according \code{text.id} column, 
+#' such as "Row.names" column after \code{\link{merge}}.
+#' @param text.size,text.hjust,text.vjust,text.alpha 
+#' The parameters to adjust text in \code{\link{geom_text}}.
+#' @param legend.title The title of legend. Set legend.title="" to remove legend.
+#' @param legend.col,legend.row Customize the number of columns or rows for legend in bar chart. 
+#' They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0. 
+#' @param no.panel.border Add panel border or not. Default to FALSE.
+
+
+
+
+#' @details 
+#' \code{ggHeatmap} creates a heat map using ggplot. 
+#' 
+#' @param low,high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
+#' Default to low="white", high="steelblue".
+#' @param log.scale.colour If TRUE, then use log scale to the colour of heat map.
+#' Default to FALSE.
+#' @param x.text,y.text If FALSE, then hide x or y axis labels. Default to TRUE.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -167,42 +142,11 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
 #' \code{ggBarChart} is an one-line function to plot many types of bar chart, 
 #' such as normal bars, log-scaled bars, percentage bars, and also grouping.
 #' 
-#' @param df A data frame used for plot. 
-#' @param x.id,y.id,fill.id,group.id The string of column names in \code{df},
-#' which use for \code{x, y, fill, group} in \code{\link{aes}} in \code{\link{ggplot}}.
-#' @param x.facet.id, y.facet.id The string of column names in \code{df},
-#' which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.
 #' @param bar.pos Position adjustment for \code{\link{geom_bar}}, either as a string, 
 #' or the result of a call to a position adjustment function. Default to "dodge". 
 #' Use \code{fill} to generate group percentage bars.
 #' @param bar.stat Determine what is mapped to bar height. Refer to \code{\link{geom_bar}}. 
 #' Default to "identity", which define the heights of the bars to represent values in the data.
-#' @param x.trans,y.trans The string defines the data scale used in either x-axis or y-axis, 
-#' which can be "identity" standing for normal, or "per" standing for percentage, 
-#' moreover either the name of a transformation object for \code{\link{scale_x_continuous}}
-#' or \code{\link{scale_y_continuous}} (e.g. \code{trans="log"}), or the object itself. 
-#' Built-in transformations include "asn", "atanh", "boxcox", "exp", "identity", 
-#' "log", "log10", "log1p", "log2", "logit", "probability", "probit", "reciprocal", 
-#' "reverse" and "sqrt". Default to "identity". 
-#' @param x.lim.cart,y.lim.cart Setting limits on the coordinate system will zoom the plot, 
-#' and will not change the underlying data like setting limits on a scale will. 
-#' Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
-#' Default NULL. 
-#' @param title Graph title, set title="" to remove it from the plot.
-#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names. 
-#' Set x.lab="" to remove x-axis label from the plot.
-#' @param x.lab.interval The interval to display x values in axis. 
-#' Assume x values are discrete for each bar. Default to 0 to do nothing.
-#' @param legend.title The title of legend. Set legend.title="" to remove legend.
-#' @param palette The colour palette for bar, box, scatter plot, etc. 
-#' If length == 1, then use \code{\link{scale_colour_brewer}} 
-#' (\url{http://www.datavis.ca/sasmac/brewerpal.html}), such as "Set1" (max 8 colours).
-#' If 1 != length <= 3, then use \code{\link{scale_colour_gradientn}}, 
-#' such as c("blue", "orange").
-#' Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
-#' Default NULL to use \code{\link{ggplot}} default colours.  
-#' @param legend.col,legend.row Customize the number of columns or rows for legend in bar chart. 
-#' They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0. 
 #' @keywords graph
 #' @export
 #' @examples
@@ -329,10 +273,6 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL,
 #' \code{gtScatterPlot} uses one-line function to plot many types of scatter chart.
 #' 
 #' @param point.size The size of points from \code{\link{point.size}}. Default to 3.
-#' @param text.id Label the data points according \code{text.id} column, 
-#' such as "Row.names" column after \code{\link{merge}}.
-#' @param text.size,text.hjust,text.vjust,text.alpha 
-#' The parameters to adjust text in \code{\link{geom_text}}.
 #' @param colour.id,shape.id,link.id The column name in \code{df} to 
 #' define how the data points are coloured, shaped, or linked according their values.
 #' @param ellipsed.id The column name in \code{df} to define 

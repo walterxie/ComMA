@@ -5,26 +5,26 @@
 \title{Print data fram (table) as Latex format to either file or console, 
 which is extened from \code{\link{xtable}}.}
 \usage{
-printXTable(df, caption = "The table of", label = "tab:label",
-  file = NULL, invalid.char = TRUE, include.rownames = TRUE,
+printXTable(df, file = NULL, caption = "The table of",
+  label = "tab:label", invalid.char = TRUE, include.rownames = TRUE,
   caption.placement = "top", ...)
 }
 \arguments{
 \item{df}{A data frame.}
 
+\item{file}{If NULL, then print the results to console, 
+otherwise print them to the file. Default to NULL.}
+
 \item{caption}{Latex table caption.}
 
 \item{label}{Latex table label.}
 
-\item{file}{If NULL, then print the results to console, 
-otherwise print them to the file. Default to NULL.}
-
 \item{invalid.char}{If it is TRUE, then add \\ to all 
-_ or % for Latex. Default to TRUE.}
+_ or \% for Latex. Default to TRUE.}
 
 \item{include.rownames, caption.placement}{Refer to \code{\link{print.xtable}}.}
 
-\item{...}{More at \code{\link{xtable}}.}
+\item{...}{Other arguments passed to \code{\link{xtable}}.}
 }
 \description{
 Print data fram (table) as Latex format to either file or console, 

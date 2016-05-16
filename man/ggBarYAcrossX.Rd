@@ -2,8 +2,7 @@
 % Please edit documentation in R/GraphExtendedBarChart.R
 \name{ggBarYAcrossX}
 \alias{ggBarYAcrossX}
-\title{The bar chart shows the number of OTUs in the bar across the number of samples in the value of x-axis, 
-which is extended from \code{\link{ggBarChart}}.}
+\title{Bar Y Across X}
 \usage{
 ggBarYAcrossX(community.matrix,
   title = "The number of OTUs/reads across the number of samples",
@@ -19,7 +18,7 @@ OTUs or individual species and columns are sites or samples. See \code{\link{Com
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
 
-\item{...}{More from \code{\link{ggBarChart}}.}
+\item{...}{Other arguments passed to \code{\link{ggBarChart}}.}
 
 \item{low, }{high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
 Default to low="white", high="steelblue".}

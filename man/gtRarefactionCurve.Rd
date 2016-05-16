@@ -31,7 +31,7 @@ subsampled data points, which is copied from merged "row.names".}
 \item{x.prefix}{The regular expression to remove prefix from column names in 
 \code{df.to.melt} (e.g. size.100). Default to "^.*?\\\\.".}
 
-\item{...}{More from \code{\link{gtLine}}.}
+\item{...}{Other arguments passed to \code{\link{gtLine}}.}
 }
 \description{
 Rarefaction curves for multi-sample, which is extended from \code{\link{gtLine}}.

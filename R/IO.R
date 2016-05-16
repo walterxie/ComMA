@@ -132,18 +132,19 @@ writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t", eol 
 #' @param file If NULL, then print the results to console, 
 #' otherwise print them to the file. Default to NULL. 
 #' @param invalid.char If it is TRUE, then add \\ to all 
-#' _ or % for Latex. Default to TRUE.
+#' _ or \% for Latex. Default to TRUE.
 #' @param include.rownames,caption.placement 
 #' Refer to \code{\link{print.xtable}}.
-#' @param ... More at \code{\link{xtable}}. 
+#' @param ... Other arguments passed to \code{\link{xtable}}. 
 #' @export
 #' @keywords IO
 #' @examples 
 #' tableFile <- file.path(workingPath, "report.tex")
 #' printXTable(data.frame, caption = "Phylogenetic beta diversity", 
 #'             label = "tab:pd:beta", file=tableFile)
-printXTable <- function(df, caption="The table of", label="tab:label", file=NULL, 
-                        invalid.char=TRUE, include.rownames=TRUE, caption.placement="top", ...) {
+printXTable <- function(df, file=NULL, caption="The table of", label="tab:label",  
+                        invalid.char=TRUE, include.rownames=TRUE, 
+                        caption.placement="top", ...) {
   if (invalid.char) {
     rownames(df) <- gsub("_", "\\\\_", rownames(df))
     colnames(df) <- gsub("_", "\\\\_", colnames(df))

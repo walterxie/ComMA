@@ -2,6 +2,8 @@
 # Author: Walter Xie
 # Accessed on 15 May 2016
 
+#' Percentage Bar
+#' 
 #' Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}. 
 #' 
 #' @param df.to.melt A data frame required to \code{\link{melt}} before making a percent bar chart. 
@@ -19,7 +21,7 @@
 #' Default to low="white", high="steelblue".
 #' @param autoWidth If TRUE, then use number of bars and legend columns 
 #' to estimate pdf width automatically. Default to TRUE.
-#' @param ... More from \code{\link{ggBarChart}}.
+#' @param ... Other arguments passed to \code{\link{ggBarChart}}.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -75,10 +77,17 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   )
 }
 
+#' Group Abundance Bar
+#' 
 #' Abundance bar chart for mulit-sample or mulit-dataset and coloured by groups, 
 #' which is extended from \code{\link{ggBarChart}}. 
 #' 
-#' @param df.to.melt A data frame required to \code{\link{melt}} before making a percent bar chart. 
+#' \strong{Note:} the coordinate is flipped in this chart. 
+#' please make sure you recognise which is x or y,  
+#' when defining the related arguments.   
+#' 
+#' @param df.to.melt A data frame required to \code{\link{melt}} 
+#' before making a percent bar chart. 
 #' For example,
 #' \tabular{rrrrr}{
 #'   Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr
@@ -87,10 +96,10 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #'   Ascomycota \tab 2 \tab 765 \tab 971 \tab Fungi 
 #' } 
 #' @param melt.id A column name to \code{\link{melt}} and used to label axis.
-#' @param colour.id The column name to give colours.
+#' @param colour.id The column name to give colours. Default to NULL.
 #' @param prop.thre Make "Others" for any row total abundence < 
 #' proportion threshold of the total of matrix abundence. 
-#' Recommend 0.001 (0.1%) if too many rows. Default to 0.
+#' Recommend 0.001 (0.1\%) if too many rows. Default to 0.
 #' @param melt.levels,colour.levels The \code{\link{levels}} encode 
 #' \code{\link{factor}} on melt.id and colour.id, which make data frame 
 #' grouped for plotting. The default is a function to \code{\link{sort}}.
@@ -101,7 +110,7 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param autoSize If TRUE, then use number of bars and legend columns 
 #' to estimate pdf width  and height automatically. Default to TRUE.
-#' @param ... More from \code{\link{ggBarChart}}.
+#' @param ... Other arguments passed to \code{\link{ggBarChart}}.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -241,6 +250,8 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
 }
 
 
+#' Bar Y Across X
+#' 
 #' The bar chart shows the number of OTUs in the bar across the number of samples in the value of x-axis, 
 #' which is extended from \code{\link{ggBarChart}}. 
 #' 
@@ -252,7 +263,7 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
 #' Default to low="white", high="steelblue".
 #' @param autoWidth If TRUE, then use number of bars and legend columns 
 #' to estimate pdf width automatically. Default to TRUE.
-#' @param ... More from \code{\link{ggBarChart}}.
+#' @param ... Other arguments passed to \code{\link{ggBarChart}}.
 #' @keywords graph
 #' @export
 #' @examples  

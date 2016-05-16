@@ -2,7 +2,7 @@
 % Please edit documentation in R/GraphExtendedBarChart.R
 \name{ggPercentageBarChart}
 \alias{ggPercentageBarChart}
-\title{Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}.}
+\title{Percentage Bar}
 \usage{
 ggPercentageBarChart(df.to.melt, melt.id, title = "Percentage Bar Chart",
   x.lab = "", y.lab = "", palette = NULL, x.text.angle = 90,
@@ -27,7 +27,7 @@ For example,
 \item{autoWidth}{If TRUE, then use number of bars and legend columns 
 to estimate pdf width automatically. Default to TRUE.}
 
-\item{...}{More from \code{\link{ggBarChart}}.}
+\item{...}{Other arguments passed to \code{\link{ggBarChart}}.}
 
 \item{low, }{high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
 Default to low="white", high="steelblue".}

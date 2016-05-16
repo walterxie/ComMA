@@ -37,7 +37,7 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
 #' @param distance Dissimilarity index used in \code{\link{vegdist}}.
 #' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
 #' where its row names have to match row names of community data \code{comm}.
-#' @param ... More from \code{\link{gtScatterPlot}}.
+#' @param ... Other arguments passed to \code{\link{gtScatterPlot}}.
 #' @keywords graph
 #' @export
 #' @examples
@@ -107,7 +107,7 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
 #' Detail to \code{\link{prcomp}}.
 #' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
 #' where its row names have to match row names of community data \code{comm}.
-#' @param ... More from \code{\link{gtScatterPlot}}.
+#' @param ... Other arguments passed to \code{\link{gtScatterPlot}}.
 #' @keywords graph
 #' @export
 #' @examples
@@ -183,7 +183,7 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' subsampled data points, which is copied from merged "row.names".
 #' @param x.prefix The regular expression to remove prefix from column names in 
 #' \code{df.to.melt} (e.g. size.100). Default to "^.*?\\\\.".
-#' @param ... More from \code{\link{gtLine}}.
+#' @param ... Other arguments passed to \code{\link{gtLine}}.
 #' @keywords graph
 #' @export
 #' @examples 

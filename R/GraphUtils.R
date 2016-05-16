@@ -165,6 +165,26 @@ get_breaks_positive_values <- function(max.v, start=c(0.1, 1)) {
   return(breaks)
 }
 
+#' Extract legend in \pkg{ggplot2}
+#' @source \url{http://stackoverflow.com/questions/12041042/how-to-plot-just-the-legends-in-ggplot2}
+#' 
+#' @param a.gplot The \code{\link{ggplot}} object.
+#' @return
+#' The legend.
+#' @keywords graph
+#' @export
+#' @examples 
+#' library(ggplot2); library(grid)
+#' my_hist<-ggplot(diamonds, aes(clarity, fill=cut)) + geom_bar() 
+#' legend <- gLegend(my_hist) 
+#' grid.draw(legend) 
+gLegend<-function(a.gplot){
+  require(ggplot2)
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
 
 #' Customised palette with about 70 colours.
 #' 
@@ -195,23 +215,3 @@ getMyPalette<-function(n, add.grey=0){
   return(myPalette[1:n])
 }
 
-#' Extract legend in \pkg{ggplot2}
-#' @source \url{http://stackoverflow.com/questions/12041042/how-to-plot-just-the-legends-in-ggplot2}
-#' 
-#' @param a.gplot The \code{\link{ggplot}} object.
-#' @return
-#' The legend.
-#' @keywords graph
-#' @export
-#' @examples 
-#' library(ggplot2); library(grid)
-#' my_hist<-ggplot(diamonds, aes(clarity, fill=cut)) + geom_bar() 
-#' legend <- gLegend(my_hist) 
-#' grid.draw(legend) 
-gLegend<-function(a.gplot){
-  require(ggplot2)
-  tmp <- ggplot_gtable(ggplot_build(a.gplot))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)
-}
