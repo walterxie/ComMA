@@ -6,14 +6,10 @@
 #' 
 #' Percentage bar chart coloured by groups, which is extended from \code{\link{ggBarChart}}. 
 #' 
-#' @param df.to.melt A data frame required to \code{\link{melt}} before making a percent bar chart. 
-#' For example,
-#' \tabular{rrrrr}{
-#'   Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr
-#'   Actinobacteria \tab 958 \tab 1 \tab 3 \tab Bacteria\cr
-#'   Crenarchaeota \tab 1 \tab 0 \tab 0 \tab Archaea\cr
-#'   Ascomycota \tab 2 \tab 765 \tab 971 \tab Fungi 
-#' } 
+#' @param df.to.melt A data frame required to \code{\link{melt}} before making a percent bar chart,
+#' where Phyla have to be in row.names, otherwise it will be melted into values in y-axis to cause 
+#' "Error: Discrete value supplied to continuous scale". 
+#' For example, \url{https://github.com/walterxie/ComMA/blob/master/data-raw/reads.phyla.txt}.
 #' @param melt.id A column name to \code{\link{melt}} and used to assign the colours.
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
@@ -26,7 +22,6 @@
 #' @export
 #' @examples 
 #' data(reads.phyla)
-#' reads.phyla
 #' bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 #' bar.chart$gg.plot
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", 
@@ -60,10 +55,9 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   legend.col = ceiling(length(legend.ord) / 25)
   
   p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, 
-                         bar.pos="fill", palette=pale, 
-                         x.text.angle=x.text.angle, y.trans="per", 
+                         bar.pos="fill", y.trans="per", palette=pale, 
                          title=title, x.lab=x.lab, y.lab=y.lab, 
-                         legend.col=legend.col, ...)
+                         x.text.angle=x.text.angle, legend.col=legend.col, ...)
   
   if (autoWidth)
     pdf.width = 1 + legend.col*2.5 + length(unique(df.melt[,"variable"])) * 0.2
@@ -79,24 +73,20 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 
 #' Group Abundance Bar
 #' 
-#' Abundance bar chart for mulit-sample or mulit-dataset and coloured by groups, 
+#' Group abundance bar chart for mulit-sample or mulit-dataset and coloured by groups, 
 #' which is extended from \code{\link{ggBarChart}}. 
 #' 
 #' \strong{Note:} the coordinate is flipped in this chart. 
 #' please make sure you recognise which is x or y,  
 #' when defining the related arguments.   
 #' 
-#' @param df.to.melt A data frame required to \code{\link{melt}} 
-#' before making a percent bar chart. 
-#' For example,
-#' \tabular{rrrrr}{
-#'   Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr
-#'   Actinobacteria \tab 958 \tab 1 \tab 3 \tab Bacteria\cr
-#'   Crenarchaeota \tab 1 \tab 0 \tab 0 \tab Archaea\cr
-#'   Ascomycota \tab 2 \tab 765 \tab 971 \tab Fungi 
-#' } 
+#' @param df.to.melt A data frame required to \code{\link{melt}} before making the chart,
+#' where Phyla have to be in row.names, otherwise it will be melted into values in y-axis to cause 
+#' "Error: Discrete value supplied to continuous scale". But it  
+#' For example, \url{https://github.com/walterxie/ComMA/blob/master/data-raw/reads.phyla.txt}.
 #' @param melt.id A column name to \code{\link{melt}} and used to label axis.
-#' @param colour.id The column name to give colours. Default to NULL.
+#' @param colour.id The column name to give colours, and it will join 
+#' \code{melt.id} as id to \code{\link{melt}}. Default to NULL.
 #' @param prop.thre Make "Others" for any row total abundence < 
 #' proportion threshold of the total of matrix abundence. 
 #' Recommend 0.001 (0.1\%) if too many rows. Default to 0.
@@ -121,9 +111,9 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0, 
                                 melt.levels=function(x) rev(unique(x)), 
                                 colour.levels=function(x) sort(unique(x)),
-                                y.trans="log", legend.row=0, palette=NULL, autoSize=TRUE,
+                                y.trans="log", legend.row=0, palette=NULL, 
                                 title="Abundance Bar Chart", x.lab="", y.lab="Reads", 
-                                verbose=TRUE, ...) {
+                                autoSize=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
@@ -250,13 +240,16 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
 }
 
 
-#' Bar Y Across X
+#' Y Across X Bar Chart
 #' 
-#' The bar chart shows the number of OTUs in the bar across the number of samples in the value of x-axis, 
-#' which is extended from \code{\link{ggBarChart}}. 
+#' The bar chart shows the number of OTUs/reads in the bar, 
+#' which simultaneously appeared at the number of samples in the value of x-axis. 
+#' Given a data matrix whose structure is same as community matrix defined in \code{\link{ComMA}}, 
+#' this function uses \code{\link{cmYAcrossX}} to aggregate it into another abundance matrix, 
+#' and uses \code{\link{ggBarChart}} to plot.
 #' 
 #' @param community.matrix Community matrix (OTU table), where rows are 
-#' OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.
+#' OTUs or individual species and columns are sites or samples. 
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
@@ -268,8 +261,8 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
 #' @export
 #' @examples  
 #' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' bar.yx <- ComMA::ggBarYAcrossX(community.matrix)
-ggBarYAcrossX <- function(community.matrix, title="The number of OTUs/reads across the number of samples", 
+#' bar.yx <- ComMA::ggYAcrossXBar(community.matrix)
+ggYAcrossXBar <- function(community.matrix, title="The number of OTUs/reads across the number of samples", 
                           x.lab="Number of samples crossed", y.lab="Number of OTUs/reads",
                           y.trans="log", auto.scale.y=TRUE, x.scale="discrete", x.interval=1, 
                           x.text.angle=0, legend.title="", ...) {

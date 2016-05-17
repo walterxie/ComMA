@@ -210,10 +210,10 @@ mostAbundantRows <- function(community.matrix, most.abund=150,
 }
 
 
-#' @details \code{cmYAcrossX} aggregates a community matrix to a data frame 
-#' to show the number of OTUs (y-axis) across the number of samples (x-axis). 
-#' The 'samples' is the number of samlpes in sequence,
-#' the 'OTUs' is the number of OTUs appeared only in that number of samlpes, 
+#' @details \code{cmYAcrossX} aggregates a community matrix to another abundance matrix 
+#' to show the number of OTUs (y-axis) simultaneously appeared at the number of samples (x-axis). 
+#' The 'samples' is the number of samlpes listed in sequence,
+#' the 'OTUs' is the number of OTUs simultaneously appeared only in that number of samlpes, 
 #' and the 'reads' is the number of reads assigned to those OTUs.
 #' 
 #' @param terms The terms to be used in names of the data frame, 

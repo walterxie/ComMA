@@ -5,31 +5,31 @@
 
 # df, x.id, y.id are compulsory, 
 # fill.id, group.id, colour.id are optional
-ggInit <- function(df, x.id, y.id, fill.id=NULL, group.id=NULL, colour.id=NULL, verbose=TRUE) {
+ggInit <- function(df, x.id, y.id=NULL, fill.id=NULL, group.id=NULL, colour.id=NULL, verbose=TRUE) {
   col.names <- colnames(df)
   if (!is.element(tolower(x.id), tolower(col.names)))
     stop("Data frame do NOT have column name \"", x.id, "\" !")
-  if (!is.element(tolower(y.id), tolower(col.names)))
-    stop("Data frame do NOT have column name \"", y.id, "\" !")
-  
+
   suppressMessages(suppressWarnings(require(ggplot2)))
-  aes.string <- paste0("aes(x=", x.id, ", y=", y.id)
+  aes.string <- paste0("aes(x=", x.id)
+  if (! is.null(y.id)) {
+    if (substring(y.id, 0, 2) != ".." && !is.element(tolower(y.id), tolower(col.names)))
+      stop("Data frame do NOT have column name \"", y.id, "\" !")
+    aes.string <- paste0(aes.string, ", y=", y.id)
+  } 
   if (! is.null(fill.id)) {
     if (!is.element(tolower(fill.id), tolower(col.names)))
       stop("Data frame do NOT have column name \"", fill.id, "\" !")
-    
     aes.string <- paste0(aes.string, ", fill=", fill.id)
   } 
   if (! is.null(group.id)) {
     if (!is.element(tolower(group.id), tolower(col.names)))
       stop("Data frame do NOT have column name \"", group.id, "\" !")
-    
     aes.string <- paste0(aes.string, ", group=", group.id)
   } 
   if (! is.null(colour.id))  {
     if (!is.element(tolower(colour.id), tolower(col.names)))
       stop("Data frame do NOT have column name \"", colour.id, "\" !")
-    
     aes.string <- paste0(aes.string, ", colour=", colour.id)
   } 
   aes.string <- paste0(aes.string, ")")
@@ -218,13 +218,14 @@ ggOptLegend <- function(p, legend.title=NULL, legend.col=1, legend.row=0) {
   return(p)
 }
 
-ggLabTitle <- function(p, x.id, y.id, title, x.lab="x.id", y.lab="y.id") {
-  if (x.lab=="x.id") 
-    x.lab = x.id
-  if (y.lab=="y.id") 
-    y.lab = y.id
+ggLabTitle <- function(p, x.id, y.id, title, x.lab=NULL, y.lab=NULL) {
+  p <- p + theme_bw() + ggtitle(title)
   
-  p <- p + theme_bw() + xlab(x.lab) + ylab(y.lab) + ggtitle(title)
+  if (! is.null(x.lab)) 
+    p <- p + xlab(x.lab) 
+  
+  if (! is.null(y.lab)) 
+    p <- p + ylab(y.lab)
   
   return(p)
 }

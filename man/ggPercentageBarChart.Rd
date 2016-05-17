@@ -9,14 +9,10 @@ ggPercentageBarChart(df.to.melt, melt.id, title = "Percentage Bar Chart",
   autoWidth = TRUE, ...)
 }
 \arguments{
-\item{df.to.melt}{A data frame required to \code{\link{melt}} before making a percent bar chart. 
-For example,
-\tabular{rrrrr}{
-  Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr
-  Actinobacteria \tab 958 \tab 1 \tab 3 \tab Bacteria\cr
-  Crenarchaeota \tab 1 \tab 0 \tab 0 \tab Archaea\cr
-  Ascomycota \tab 2 \tab 765 \tab 971 \tab Fungi 
-}}
+\item{df.to.melt}{A data frame required to \code{\link{melt}} before making a percent bar chart,
+where Phyla have to be in row.names, otherwise it will be melted into values in y-axis to cause 
+"Error: Discrete value supplied to continuous scale". 
+For example, \url{https://github.com/walterxie/ComMA/blob/master/data-raw/reads.phyla.txt}.}
 
 \item{melt.id}{A column name to \code{\link{melt}} and used to assign the colours.}
 
@@ -37,7 +33,6 @@ Percentage bar chart coloured by groups, which is extended from \code{\link{ggBa
 }
 \examples{
 data(reads.phyla)
-reads.phyla
 bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 bar.chart$gg.plot
 }

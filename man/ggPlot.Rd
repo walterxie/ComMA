@@ -3,36 +3,22 @@
 \name{ggPlot}
 \alias{ggBarChart}
 \alias{ggBoxWhiskersPlot}
+\alias{ggDensityEstimate}
 \alias{ggHeatmap}
 \alias{ggPlot}
 \alias{gtLine}
 \alias{gtScatterPlot}
-\title{One-line command to get \pkg{ggplot}}
+\title{One-line Function to Get \pkg{ggplot}}
 \usage{
-ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
-  title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
-  log.scale.colour = FALSE, legend.title = "Counts", x.lim.cart = NULL,
-  y.lim.cart = NULL, coord.flip = FALSE, x.text = TRUE, y.text = TRUE,
-  x.text.angle = 45, no.panel.border = FALSE, verbose = TRUE)
-
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
   x.lim.cart = NULL, y.lim.cart = NULL, y.trans = "identity",
   auto.scale.y = FALSE, x.scale = "discrete", x.interval = 0,
-  x.text.angle = 0, palette = NULL, coord.flip = FALSE,
-  legend.title = NULL, legend.col = 1, legend.row = 0,
-  title = "Bar Chart", title.size = 10, x.lab = "x.id", y.lab = "y.id",
-  legend.position = "right", legend.direction = "vertical",
-  no.panel.border = FALSE, verbose = TRUE)
-
-ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL,
-  outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
-  x.facet.id = NULL, y.facet.id = NULL, coord.flip = FALSE,
-  y.trans = "identity", auto.scale.y = FALSE, x.lim.cart = NULL,
-  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
-  legend.col = 1, legend.row = 0, title = "Box Whiskers Plot",
-  title.size = 10, x.lab = "x.id", y.lab = "y.id", x.text.angle = 0,
-  no.panel.border = FALSE, verbose = TRUE)
+  palette = NULL, coord.flip = FALSE, legend.title = NULL,
+  legend.col = 1, legend.row = 0, title = "Bar Chart", title.size = 10,
+  x.lab = NULL, y.lab = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
+  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
@@ -41,8 +27,10 @@ gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   coord.flip = FALSE, xintercept = NULL, yintercept = NULL,
   line.type = 2, x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.row = 0,
-  title = "Scatter Plot", title.size = 10, x.lab = "x.id",
-  y.lab = "y.id", no.panel.border = FALSE, verbose = TRUE)
+  title = "Scatter Plot", title.size = 10, x.lab = NULL, y.lab = NULL,
+  legend.position = "right", legend.direction = "vertical",
+  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
+  no.panel.border = FALSE, verbose = TRUE)
 
 gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
   line.type = 2, line.alpha = 0.75, shape.id = NULL, shapes = NULL,
@@ -52,66 +40,62 @@ gtLine(df, x.id, y.id, group.id = NULL, colour.id = NULL, line.size = 0.5,
   text.id = NULL, text.data = NULL, text.size = 3, text.hjust = -0.1,
   text.vjust = -0.2, text.alpha = 0.5, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title = NULL,
-  legend.col = 1, legend.row = 0, x.text.angle = 0, title = "",
-  title.size = 10, x.lab = "x.id", y.lab = "y.id",
+  legend.col = 1, legend.row = 0, title = "", title.size = 10,
+  x.lab = NULL, y.lab = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
+  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
+
+ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
+  title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
+  log.scale.colour = FALSE, legend.title = "Counts", x.lim.cart = NULL,
+  y.lim.cart = NULL, coord.flip = FALSE, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 45, x.text = TRUE,
+  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
+
+ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,
+  outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
+  x.facet.id = NULL, y.facet.id = NULL, coord.flip = FALSE,
+  y.trans = "identity", auto.scale.y = FALSE, x.lim.cart = NULL,
+  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
+  legend.col = 1, legend.row = 0, title = "Box Whiskers Plot",
+  title.size = 10, x.lab = NULL, y.lab = NULL,
+  legend.position = "right", legend.direction = "vertical",
+  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
+
+ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
+  density.pos = "identity", density.alpha = 0.1, x.facet.id = NULL,
+  y.facet.id = NULL, x.lim.cart = NULL, y.lim.cart = NULL,
+  x.trans = "identity", auto.scale.x = FALSE, y.trans = "identity",
+  auto.scale.y = FALSE, fill.palette = NULL, colour.palette = NULL,
+  coord.flip = FALSE, legend.title = NULL, legend.col = 1,
+  legend.row = 0, title = "Kernel Density Estimate", title.size = 10,
+  x.lab = NULL, y.lab = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
+  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{df.to.melt}{A data frame required to \code{\link{melt}} 
-before making a \pkg{ggplot} object, such as input of \code{ggHeatmap}. 
-At least one column should be \code{melt.id}. If using row.names, 
-then it should be inserted into data frame before this function. 
-For example,
-\tabular{rrrr}{
-  plot \tab 16s \tab 18s \tab ITS\cr
-  CM30c39 \tab 2 \tab 1 \tab 3\cr
-  CM30c44 \tab 10 \tab 26 \tab 15\cr
-  Plot01 \tab 6 \tab 5 \tab 6 
-}}
+\item{df}{A data frame used for plot.}
 
-\item{melt.id}{A column name to \code{\link{melt}} 
-and used as a \code{\link{factor}}, such as "plot" column.}
+\item{x.id, y.id, fill.id, group.id}{The string of column names in \code{df} or 
+\code{df.to.melt}, which use for \code{x, y, fill, group} in \code{\link{aes}}.}
 
-\item{low, high}{Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
-Default to low="white", high="steelblue".}
+\item{bar.pos}{Position adjustment for \code{ggBarChart}, either as a string, 
+or the result of a call to a position adjustment function. Default to "dodge". 
+Use \code{fill} to generate group percentage bars.}
 
-\item{title}{Graph title, set title="" to remove it from the plot.}
+\item{bar.stat}{Determine what is mapped to bar height in \code{ggBarChart}. 
+Default to "identity", 
+which defines the heights of the bars to represent values in the data.
+Refer to \code{\link{geom_bar}}.}
 
-\item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names. 
-Set x.lab="" to remove x-axis label from the plot.}
-
-\item{log.scale.colour}{If TRUE, then use log scale to the colour of heat map.
-Default to FALSE.}
-
-\item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
+\item{x.facet.id, }{y.facet.id The string of column names in \code{df},
+which creates facets (a formula) in \code{\link{facet_grid}}.}
 
 \item{x.lim.cart, y.lim.cart}{Setting limits on the coordinate system will zoom the plot, 
 and will not change the underlying data like setting limits on a scale will. 
 Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
 Default NULL.}
-
-\item{coord.flip}{If TRUE, then flip cartesian coordinates so that horizontal 
-becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
-\code{\link{coord_flip}}.}
-
-\item{x.text, y.text}{If FALSE, then hide x or y axis labels. Default to TRUE.}
-
-\item{no.panel.border}{Add panel border or not. Default to FALSE.}
-
-\item{df}{A data frame used for plot.}
-
-\item{x.id, y.id, fill.id, group.id}{The string of column names in \code{df},
-which use for \code{x, y, fill, group} in \code{\link{aes}} in \code{\link{ggplot}}.}
-
-\item{bar.pos}{Position adjustment for \code{\link{geom_bar}}, either as a string, 
-or the result of a call to a position adjustment function. Default to "dodge". 
-Use \code{fill} to generate group percentage bars.}
-
-\item{bar.stat}{Determine what is mapped to bar height. Refer to \code{\link{geom_bar}}. 
-Default to "identity", which define the heights of the bars to represent values in the data.}
-
-\item{x.facet.id, }{y.facet.id The string of column names in \code{df},
-which creates facets (a formula) in \code{\link{facet_grid}} in \code{\link{ggplot}}.}
 
 \item{palette}{The colour palette for bar, box, scatter plot, etc. 
 If length == 1, then use \code{\link{scale_colour_brewer}} 
@@ -121,16 +105,24 @@ such as c("blue", "orange").
 Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
 Default NULL to use \code{\link{ggplot}} default colours.}
 
+\item{coord.flip}{If TRUE, then flip cartesian coordinates so that horizontal 
+becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
+\code{\link{coord_flip}}.}
+
+\item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
+
 \item{legend.col, legend.row}{Customize the number of columns or rows for legend in bar chart. 
 They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0.}
 
-\item{outlier.colour}{The colour of outliers in box whiskers plot 
-used for \code{outlier.colour} in \code{\link{geom_boxplot}} in \code{\link{ggplot}}. 
-Default to alpha("black", 0.3).}
+\item{title}{Graph title, set title="" to remove it from the plot.}
 
-\item{dodge.width}{Dodging width, when different to the width of the individual elements. 
-This is useful when you want to align narrow geoms with wider geoms. 
-Refer to \code{\link{position_dodge}}.}
+\item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names. 
+Set x.lab="" to remove x-axis label from the plot. Default to NULL to do nothing.}
+
+\item{x.text, y.text}{If FALSE, then hide x or y axis labels in plot. 
+Default to TRUE.}
+
+\item{no.panel.border}{Add panel border or not. Default to FALSE.}
 
 \item{colour.id, shape.id, link.id}{The column name in \code{df} to 
 define how the data points are coloured, shaped, or linked according their values.}
@@ -147,7 +139,7 @@ how to draw ellipse over data points, which is normally same as
 \item{text.id}{Label the data points according \code{text.id} column, 
 such as "Row.names" column after \code{\link{merge}}.}
 
-\item{text.size, text.hjust, text.vjust, text.alpha}{The parameters to adjust text in \code{\link{geom_text}}.}
+\item{text.size, text.hjust, text.vjust, text.alpha}{The arguments to adjust text in \code{\link{geom_text}} in the line or scatter plot.}
 
 \item{xintercept, yintercept, linetype}{Add horizontal or vertical line. 
 Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
@@ -162,6 +154,50 @@ Built-in transformations include "asn", "atanh", "boxcox", "exp", "identity",
 "log", "log10", "log1p", "log2", "logit", "probability", "probit", "reciprocal", 
 "reverse" and "sqrt". Default to "identity".}
 
+\item{df.to.melt}{A data frame required to \code{\link{melt}} 
+before making a \pkg{ggplot} object, such as input of \code{ggHeatmap}. 
+At least one column should be \code{melt.id}, and the other columns should be values, 
+unless they are fill.id, group.id, colour.id, etc. 
+\strong{Note:} any extra column will disturb the result of \code{\link{melt}} function.
+ 
+If row.names is going to be \code{melt.id}, 
+then it can be inserted into the data frame before the plot. 
+
+The data example 
+\url{https://github.com/walterxie/ComMA/blob/master/data-raw/reads.phyla.txt}:
+\tabular{rrrrr}{
+  Phyla \tab 16s \tab 18s \tab ITS \tab TaxaGroup\cr
+  Actinobacteria \tab 958 \tab 1 \tab 3 \tab Bacteria\cr
+  Crenarchaeota \tab 1 \tab 0 \tab 0 \tab Archaea\cr
+  Ascomycota \tab 2 \tab 765 \tab 971 \tab Fungi 
+}}
+
+\item{melt.id}{A column name to \code{\link{melt}} 
+and used as a \code{\link{factor}}, such as "plot" column.}
+
+\item{low, high}{The colour range of heatmap. Refer to \code{\link{scale_fill_gradient}}. 
+Default to low="white", high="steelblue".}
+
+\item{log.scale.colour}{If TRUE, then use log scale to the colour of heat map.
+Default to FALSE.}
+
+\item{outlier.colour}{The colour of outliers in box whiskers plot 
+used for \code{outlier.colour} in \code{\link{geom_boxplot}}. 
+Default to alpha("black", 0.3).}
+
+\item{dodge.width}{Dodging width, when different to the width of 
+the individual elements in box Whiskers plot. 
+This is useful when you want to align narrow geoms with wider geoms. 
+Refer to \code{\link{position_dodge}}.}
+
+\item{density.pos}{Position adjustment for \code{ggDensityEstimate}, either as a string, 
+or the result of a call to a position adjustment function. Default to "identity". 
+Use "stack" to produce stacked density plots, 
+and "fill" to plot density estimate in percentage scale.}
+
+\item{density.alpha}{Modify colour transparency when \code{fill.id} is assigned to 
+\code{ggDensityEstimate}. Default to 0.1. Refer to \code{\link{alpha}}.}
+
 \item{x.lab.interval}{The interval to display x values in axis. 
 Assume x values are discrete for each bar. Default to 0 to do nothing.}
 }
@@ -172,27 +208,45 @@ If the function returns a \code{\link{gtable}} object, then its name starts with
 It needs to use \code{\link{pdf.gtplot}} to create pdf.
 }
 \description{
-Simplify \pkg{ggplot} codes into functions that can get a chart from one-line command.
+Simplify \pkg{ggplot} graphic coding into one-line functions that provides frequently 
+used graphies in a convenient way. They are very basic charts here, and can be used or 
+extended into various common charts, 
+such as percentage bar chart \code{\link{ggPercentageBarChart}}, 
+nonmetric multidimensional scaling plot \code{\link{gtNMDSPlot}}, 
+PCA plot \code{\link{gtPCAPlot}}, 
+rarefaction curves \code{\link{gtRarefactionCurve}}.
+And also some useful charts that we derived from our publications, 
+such as group abundance bar chart \code{\link{ggGroupAbundanceBar}},
+and Y across X bar chart \code{\link{ggGroupAbundanceBar}}. 
+Both refer to \url{http://dx.doi.org/10.1186/s13742-015-0086-1}.
 }
 \details{
-\code{ggHeatmap} creates a heat map using ggplot.
-
 \code{ggBarChart} is an one-line function to plot many types of bar chart, 
 such as normal bars, log-scaled bars, percentage bars, and also grouping.
-
-\code{ggBoxWhiskersPlot} creates box Whiskers plot.
+Refer to \code{\link{geom_bar}}.
 
 \code{gtScatterPlot} uses one-line function to plot many types of scatter chart.
+Refer to \code{\link{geom_point}}.
 
 \code{gtLine} uses one-line function to plot a line or group of lines.
+Refer to \code{\link{geom_line}}.
+
+\code{ggHeatmap} creates a heat map using ggplot. It is devried and improved 
+from the code  
+\url{https://learnr.wordpress.com/2010/01/26/ggplot2-quick-heatmap-plotting/}.
+
+\code{ggBoxWhiskersPlot} creates box Whiskers plot. 
+Refer to \code{\link{geom_boxplot}}.
+
+\code{ggDensityEstimate} is an one-line function to plot a kernel density estimate, 
+useful for display the distribution of variables with underlying smoothness. 
+Give a column name \code{fill.id} to colour the filled area, and \code{colour.id} 
+to colour the curve. Use \code{density.pos} to produce different types of density. 
+Use \code{y.id="..count.."} to produce a conditional density estimate, 
+which counts (density * n) variable instead of the default density.
+Refer to \code{\link{geom_density}}.
 }
 \examples{
-ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), 
-                             `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
-ranks.by.group
-gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
-pdf.ggplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
-
 # log-scale y
 bar.chart <- ggBarChart(df, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
 # percentage bars without grouping in one bar each
@@ -200,8 +254,7 @@ bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", y.t
 # percentage bars one group in one bar
 bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
 
-box.plot <- ggBoxWhiskersPlot(df, x.id="test", y.id="performance")
-
+# plot 2 clusters
 df.clusters <- random2Clusters()
 df.clusters$labels <- rownames(df.clusters)
 df.clusters
@@ -209,14 +262,36 @@ g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", sha
                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
 require(grid)
 grid.draw(g.table)
+
 # selective labeling for points x > 3 and y > 6
 g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
                          text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
 grid.draw(g.table)
-pdf.gtable(g.table, fig.path="clusters-scatter-plot.pdf") 
+ 
 
 
+ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), 
+                             `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
+ranks.by.group
+gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
+pdf.ggplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
+
+box.plot <- ggBoxWhiskersPlot(df, x.id="test", y.id="performance")
+
+# prepare log
+b.log <- ComMA::readFile("data-raw/star.beast.log", row.names=NULL)
+df.melt <- melt(b.log, id="Sample")
+df.TreeHeight <- df.melt[grep("TreeHeight", df.melt[,"variable"]),]
+
+ggDensityEstimate(df.TreeHeight, x.id="value", colour.id="variable")
+ggDensityEstimate(df.TreeHeight, x.id="value", fill.id="variable", colour.id="variable")
+# stacked density plot to lose marginal densities
+ggDensityEstimate(df.TreeHeight, x.id="value", fill.id="variable", density.pos="stack", density.alpha=1)
+# conditional density plot to preserve marginal densities
+ggDensityEstimate(df.TreeHeight, x.id="value", y.id="..count..", fill.id="variable", density.pos="stack", density.alpha=1)
+# percentage scale
+ggDensityEstimate(df.TreeHeight, x.id="value", fill.id="variable", density.pos="fill", density.alpha=1)
 
 }
 \keyword{graph}

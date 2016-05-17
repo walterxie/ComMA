@@ -105,10 +105,10 @@ most abundant rows (OTUs) from original community matrix
 to form a new matrix. The new matrix will sort by both 
 \code{rowSums} and \code{colSums} in decreasing by default.
 
-\code{cmYAcrossX} aggregates a community matrix to a data frame 
-to show the number of OTUs (y-axis) across the number of samples (x-axis). 
-The 'samples' is the number of samlpes in sequence,
-the 'OTUs' is the number of OTUs appeared only in that number of samlpes, 
+\code{cmYAcrossX} aggregates a community matrix to another abundance matrix 
+to show the number of OTUs (y-axis) simultaneously appeared at the number of samples (x-axis). 
+The 'samples' is the number of samlpes listed in sequence,
+the 'OTUs' is the number of OTUs simultaneously appeared only in that number of samlpes, 
 and the 'reads' is the number of reads assigned to those OTUs.
 
 \code{sumColumns} sums the columns by the \emph{n}th substring defined in column names.
