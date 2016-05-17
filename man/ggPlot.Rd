@@ -238,7 +238,7 @@ from the code
 \code{ggBoxWhiskersPlot} creates box Whiskers plot. 
 Refer to \code{\link{geom_boxplot}}.
 
-\code{ggDensityEstimate} is an one-line function to plot a kernel density estimate, 
+\code{ggDensityEstimate} is an one-line function to plot kernel density estimate (KDE), 
 useful for display the distribution of variables with underlying smoothness. 
 Give a column name \code{fill.id} to colour the filled area, and \code{colour.id} 
 to colour the curve. Use \code{density.pos} to produce different types of density. 
