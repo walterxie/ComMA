@@ -1,4 +1,5 @@
-# Author: Walter Xie
+# Author: Rambaut A, Suchard MA, Xie D & Drummond AJ (2014) Tracer v1.6
+# Modified by Walter Xie (D Xie)
 # Accessed on 18 May 2016
 
 
@@ -18,6 +19,8 @@
 #' of states at each sample.
 #' 
 #' @param file The file to read/write.
+#' @param rm.na.col If TRUE, then remove all columns with all 
+#' missing values (NA). Default to TRUE.
 #' @param ... Other arguments passed to \code{\link{readFile}}.
 #' @keywords Tracer
 #' @export
@@ -25,17 +28,19 @@
 #' mcmc.log <- readMCMCLog("data-raw/star.beast.log")
 #' 
 #' @rdname Tracer
-readMCMCLog <- function(file, ...) { 
+readMCMCLog <- function(file, rm.na.col=TRUE, ...) { 
   mcmc.log <- ComMA::readFile(file, comment.char = "#", msg.file="MCMC log", 
                               msg.col="parameters", msg.row="samples", ...)
   
-  col.names <- ComMA::trimAll(names(mcmc.log))
-  no.empty.col <- col.names[nchar(col.names)>0]
-  # rm strage empty columns, such as BEAST 2 log
-  if (length(col.names) != length(no.empty.col)) {
-    mcmc.log <- mcmc.log[,no.empty.col]
-    warning("Remove ", length(col.names) - length(no.empty.col), " empty column(s) !\n",
-            "There are ", length(no.empty.col), " parameters for analysis !\n")
+  if (rm.na.col) {
+    col.names <- ComMA::trimAll(names(mcmc.log))
+    # exclude all columns with all NA, such as BEAST (< 2.4.1) log
+    no.empty.col <- col.names[sapply( mcmc.log, function(x) !all(is.na(x)) )]
+    if (length(col.names) != length(no.empty.col)) {
+      mcmc.log <- mcmc.log[,no.empty.col]
+      warning("Remove ", length(col.names) - length(no.empty.col), " empty column(s) !\n",
+              "There are ", length(no.empty.col), " parameters for analysis !\n")
+    }
   }
   
   attr(mcmc.log,"file") <- file
@@ -71,7 +76,7 @@ getTraces <- function(mcmc.log, burn.in=NULL, burn.in.perc=0.1,
   
   if (is.null(burn.in)) 
     burn.in <- last.state * burn.in.perc
-
+  
   if (verbose)
     cat("Set burn in =", burn.in, "for", n.sample, "samples.\n", 
         "step.size =", step.size, ", last.state =", last.state, "\n")

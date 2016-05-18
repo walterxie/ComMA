@@ -6,12 +6,15 @@
 \alias{readMCMCLog}
 \title{Tracer in R}
 \usage{
-readMCMCLog(file, ...)
+readMCMCLog(file, rm.na.col = TRUE, ...)
 
 getTraces(mcmc.log, burn.in = NULL, burn.in.perc = 0.1, verbose = TRUE)
 }
 \arguments{
 \item{file}{The file to read/write.}
+
+\item{rm.na.col}{If TRUE, then remove all columns with all 
+missing values (NA). Default to TRUE.}
 
 \item{...}{Other arguments passed to \code{\link{readFile}}.}
 
