@@ -5,9 +5,8 @@
 \title{Write the data fram (table) to a file.}
 \usage{
 writeTable(df, file, append = FALSE, quote = FALSE, sep = "\\t",
-  eol = "\\n", na = "NA", dec = ".", row.names = TRUE,
-  col.names = TRUE, verbose = TRUE, msg.file = "file",
-  msg.col = "columns", msg.row = "rows")
+  row.names = TRUE, col.names = TRUE, verbose = TRUE, msg.file = "file",
+  msg.col = "columns", msg.row = "rows", ...)
 }
 \arguments{
 \item{df}{A data frame.}
@@ -16,7 +15,7 @@ writeTable(df, file, append = FALSE, quote = FALSE, sep = "\\t",
 then use \code{\link{write.csv}}, 
 otherwise use \code{\link{write.table}}.}
 
-\item{...}{More parameters, see \code{\link{write.table}}.}
+\item{...}{Other arguments passed to \code{\link{write.table}}.}
 }
 \description{
 Write the data fram (table) to a file.

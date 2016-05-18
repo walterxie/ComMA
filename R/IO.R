@@ -52,6 +52,7 @@ splitPath <- function(path) {
 #' @param sep Only used for non \emph{csv} file. Default to tab "\\t".
 #' @param msg.file,msg.col,msg.row The message regarding file, column and row, if verbose=TRUE.  
 #' @param verbose More details. Default to TRUE.
+#' @param ... Other arguments passed to \code{\link{read.table}}.
 #' @return 
 #' A data frame from the file, such as
 #' \tabular{rrrr}{
@@ -68,14 +69,16 @@ splitPath <- function(path) {
 #' env <- readFile("env_data.txt", msg.file="enviornmental data", msg.row="samples")
 #' taxa.phyla <- readFile("taxonomy97phyla.txt", row.names=NULL)
 readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE, 
-                     msg.file="file", msg.col="columns", msg.row="rows") { 
+                     msg.file="file", msg.col="columns", msg.row="rows", ...) { 
   require(tools)
   # sep="\t" only work for non csv file
   if (tolower(file_ext(file))=="csv") {
-    df <- read.csv(file, header=header, row.names=row.names, check.names=FALSE, stringsAsFactors=FALSE)
+    df <- read.csv(file, header=header, row.names=row.names, 
+                   check.names=FALSE, stringsAsFactors=FALSE, ...)
   } else {
     # be careful read.table bug   
-    df <- read.table(file, sep=sep, header=header, row.names=row.names, check.names=FALSE, stringsAsFactors=FALSE)  
+    df <- read.table(file, sep=sep, header=header, row.names=row.names, 
+                     check.names=FALSE, stringsAsFactors=FALSE, ...)  
   }	
   
   if (verbose) {
@@ -84,7 +87,8 @@ readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE,
     if (!is.null(row.names))
       msg.col <- paste(msg.col, "excluding row names from column", row.names)
     
-    cat("\nUpload", msg.file, ":", ncol(df), paste0(msg.col, ","), nrow(df), paste0(msg.row, ","), "from file", file, "\n") 
+    cat("\nUpload", msg.file, ":", ncol(df), paste0(msg.col, ","), 
+        nrow(df), paste0(msg.row, ","), "from file", file, "\n") 
   }
   
   return(df)
@@ -96,30 +100,31 @@ readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE,
 #' @param file If the file extension is \emph{csv}, 
 #' then use \code{\link{write.csv}}, 
 #' otherwise use \code{\link{write.table}}.
-#' @param ... More parameters, see \code{\link{write.table}}.
+#' @param ... Other arguments passed to \code{\link{write.table}}.
 #' @export
 #' @keywords IO
 #' @examples 
 #' writeTable(df, file.path)
-writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t", eol = "\n", 
-                       na = "NA", dec = ".", row.names = TRUE, col.names = TRUE, 
-                       verbose=TRUE, msg.file="file", msg.col="columns", msg.row="rows") {
+writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t",  
+                       row.names = TRUE, col.names = TRUE, verbose=TRUE, 
+                       msg.file="file", msg.col="columns", msg.row="rows", ...) {
   require(tools)
   if (tolower(file_ext(file))=="csv") {
-    write.csv(df, file, append = append, quote = quote, eol = eol, 
-              na = na, dec = dec, row.names = row.names, col.names = col.names)
+    write.csv(df, file, append = append, quote = quote,  
+              row.names = row.names, col.names = col.names, ...)
   } else if (row.names == TRUE && col.names == TRUE) {
     cat(paste(c("row.names", colnames(df)), collapse = sep), file = file, sep = "\n")
-    write.table(df, file, append = TRUE, quote = quote, eol = eol, sep = sep,
-                na = na, dec = dec, row.names = TRUE, col.names = FALSE)
+    write.table(df, file, append = TRUE, quote = quote, sep = sep,
+                row.names = TRUE, col.names = FALSE, ...)
   } else {# .tsv .txt
     #write.table bug: if row.names = TRUE, mistake to start col names from the 1st cell
-    write.table(df, file, append = append, quote = quote, eol = eol, sep = sep,
-                na = na, dec = dec, row.names = row.names, col.names = col.names)
+    write.table(df, file, append = append, quote = quote, sep = sep,
+                row.names = row.names, col.names = col.names, ...)
   }
   
   if (verbose) {
-    cat("\nWrite", msg.file, ":", ncol(df), paste0(msg.col, ","), nrow(df), paste0(msg.row, ","), "to file", file, "\n") 
+    cat("\nWrite", msg.file, ":", ncol(df), paste0(msg.col, ","), 
+        nrow(df), paste0(msg.row, ","), "to file", file, "\n") 
   }
 }
 

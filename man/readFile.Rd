@@ -6,7 +6,7 @@
 \usage{
 readFile(file, sep = "\\t", header = TRUE, row.names = 1,
   verbose = TRUE, msg.file = "file", msg.col = "columns",
-  msg.row = "rows")
+  msg.row = "rows", ...)
 }
 \arguments{
 \item{file}{The 1st row is column names, the 1st column is row names.}
@@ -27,6 +27,8 @@ Using row.names = NULL forces row numbering.}
 \item{verbose}{More details. Default to TRUE.}
 
 \item{msg.file, msg.col, msg.row}{The message regarding file, column and row, if verbose=TRUE.}
+
+\item{...}{Other arguments passed to \code{\link{read.table}}.}
 }
 \value{
 A data frame from the file, such as
