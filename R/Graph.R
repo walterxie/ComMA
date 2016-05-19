@@ -22,7 +22,8 @@
 #' If the function returns a \code{\link{ggplot}} object, then its name starts with "gg". 
 #' It needs to use \code{\link{pdf.ggplot}} to create pdf. 
 #' If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
-#' It needs to use \code{\link{pdf.gtplot}} to create pdf. 
+#' It needs to use \code{\link{pdf.gtplot}} to create pdf. And also \code{\link{plot.gtable}} 
+#' simplifies the code to plot gtable object in console.
 #' 
 #' @param df A data frame used for plot. 
 #' @param df.to.melt A data frame required to \code{\link{melt}} 
@@ -183,14 +184,12 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
 #' df.clusters
 #' g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", shape.id="group",   
 #'                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
-#' require(grid)
-#' grid.draw(g.table)
+#' plot(g.table)
 #' 
 #' # selective labeling for points x > 3 and y > 6
 #' g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
 #'                          text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
 #'                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
-#' grid.draw(g.table)
 #'  
 #' @rdname ggPlot
 gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL, 
@@ -266,42 +265,58 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
 }
 
 #' @details 
-#' \code{gtLine} uses one-line function to plot a line or group of lines.
+#' \code{gtLineWithPoints} uses one-line function to plot a line or group of lines.
 #' Refer to \code{\link{geom_line}}.
 #' 
 #' @param line.size,line.alpha The feature of lines for \code{\link{geom_line}}.
+#' @param line.or.point If 1, then only display the line; if 2, then only points; 
+#' if 3, the default, then both the line and points.
+#' @param point.data An option to add extra points in the plot, such as \code{gtLine}. 
+#' The data to be displayed as points in \code{\link{geom_point}}, which can be 
+#' the subset of points to draw the line. 
+#' If NULL, the default, the data is inherited from the plot data as specified in the call.
 #' @keywords graph
 #' @export
 #' @examples 
+#' mcmc.log <- readMCMCLog("data-raw/star.beast.log")
+#' mcmc.log$state <- as.double(rownames(mcmc.log))
+#' names(mcmc.log)
+#' gt <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species")
+#' plot(gt)
 #' 
+#' gt <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
+#' gt <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
 #' 
 #' @rdname ggPlot
-gtLine <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,  
-                   line.size=0.5, line.type = 2, line.alpha=0.75, 
-                   shape.id=NULL, shapes=NULL, point.size=3, point.data=NULL,
-                   x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
-                   x.trans="identity", auto.scale.x=FALSE, 
-                   y.trans="identity", auto.scale.y=FALSE,
-                   text.id=NULL, text.data = NULL, text.size = 3, 
-                   text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
-                   x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
-                   legend.title=NULL, legend.col=1, legend.row=0, 
-                   title="", title.size = 10, x.lab=NULL, y.lab=NULL, 
-                   legend.position="right", legend.direction="vertical",
-                   x.text.angle=0, x.text=TRUE, y.text=TRUE, 
-                   no.panel.border=FALSE, verbose=TRUE) {
+gtLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL, line.or.point=3, 
+                            line.size=0.5, line.type = 1, line.alpha=1, 
+                            shape.id=NULL, shapes=NULL, point.data=NULL, point.size=3, 
+                            x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
+                            x.trans="identity", auto.scale.x=FALSE, 
+                            y.trans="identity", auto.scale.y=FALSE,
+                            text.id=NULL, text.data = NULL, text.size = 3, 
+                            text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
+                            x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
+                            legend.title=NULL, legend.col=1, legend.row=0, 
+                            title="", title.size = 10, x.lab=NULL, y.lab=NULL, 
+                            legend.position="right", legend.direction="vertical",
+                            x.text.angle=0, x.text=TRUE, y.text=TRUE, 
+                            no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, group.id=group.id, colour.id=colour.id, verbose=verbose)
   col.names <- colnames(df)
   
-  p <- p + geom_line(size=line.size, linetype=line.type, alpha=line.alpha) 
+  if (line.or.point != 2)
+    p <- p + geom_line(size=line.size, linetype=line.type, alpha=line.alpha) 
   
-  if (! is.null(shape.id) && is.null(shapes)) {
-    # The shape palette can deal with a maximum of 6 discrete values
-    n_shape <- length(unique(df[,shape.id]))
-    shapes <- seq(1, (1 + n_shape-1))
+  if (line.or.point > 1) {
+    if (! is.null(shape.id) && is.null(shapes)) {
+      # The shape palette can deal with a maximum of 6 discrete values
+      n_shape <- length(unique(df[,shape.id]))
+      shapes <- seq(1, (1 + n_shape-1))
+    }
+    p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, data=point.data, 
+                            shapes=shapes, point.size=point.size)
   }
-  p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, data=point.data, 
-                          shapes=shapes, point.size=point.size)
   
   if (auto.scale.x) {
     x.max <- max(df[,x.id])
@@ -514,18 +529,18 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
 #' 
 #' @rdname ggPlot
 ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
-                           density.pos="identity", density.alpha=0.1,
-                           x.facet.id=NULL, y.facet.id=NULL, 
-                           x.lim.cart=NULL, y.lim.cart=NULL,   
-                           x.trans="identity", auto.scale.x=FALSE, 
-                           y.trans="identity", auto.scale.y=FALSE,
-                           fill.palette=NULL, colour.palette=NULL, coord.flip=FALSE,
-                           legend.title=NULL, legend.col=1, legend.row=0, 
-                           title="Kernel Density Estimate", title.size=10, 
-                           x.lab=NULL, y.lab=NULL, 
-                           legend.position="right", legend.direction="vertical",
-                           x.text.angle=0, x.text=TRUE, y.text=TRUE,
-                           no.panel.border=FALSE, verbose=TRUE) {
+                              density.pos="identity", density.alpha=0.1,
+                              x.facet.id=NULL, y.facet.id=NULL, 
+                              x.lim.cart=NULL, y.lim.cart=NULL,   
+                              x.trans="identity", auto.scale.x=FALSE, 
+                              y.trans="identity", auto.scale.y=FALSE,
+                              fill.palette=NULL, colour.palette=NULL, coord.flip=FALSE,
+                              legend.title=NULL, legend.col=1, legend.row=0, 
+                              title="Kernel Density Estimate", title.size=10, 
+                              x.lab=NULL, y.lab=NULL, 
+                              legend.position="right", legend.direction="vertical",
+                              x.text.angle=0, x.text=TRUE, y.text=TRUE,
+                              no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, colour.id=colour.id, verbose=verbose)
   p <- p + geom_density(position=density.pos, alpha=density.alpha) 
   

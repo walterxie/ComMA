@@ -32,8 +32,7 @@ It is extended from \code{\link{gtScatterPlot}}.
 \examples{
 
 nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
-require(grid)
-grid.draw(nmds.plot)
+plot(nmds.plot)
 }
 \keyword{graph}
 

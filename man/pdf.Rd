@@ -6,6 +6,7 @@
 \alias{pdf.ggplot}
 \alias{pdf.gtable}
 \alias{pdf.plot}
+\alias{plot.gtable}
 \title{Create pdf}
 \source{
 \code{grid_arrange_shared_legend} is derived from 
@@ -17,6 +18,8 @@ pdf.ggplot(gg.plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
 pdf.gtable(g.table, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
 pdf.plot(plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
+
+\method{plot}{gtable}(g.table)
 
 grid_arrange_shared_legend(...)
 }
@@ -44,6 +47,9 @@ Refer to \code{\link{pdf}}.}
 
 \code{pdf.plot} creates pdf for the list returned from \code{\link{plot}}.
 
+\code{plot.gtable} \code{\link{require}(\link{grid})} 
+and plot gtable object in console.
+
 \code{grid_arrange_shared_legend} shares a legend 
 between multiple plots using \code{\link{grid.arrange}}. 
 Return a \code{\link{gtable}} object.
@@ -54,6 +60,8 @@ pdf.ggplot(gg.plot, fig.path="fig.pdf", width=8, height=8)
 pdf.gtable(g.table, fig.path="fig.pdf", width=8, height=8)  
 
 pdf.plot(plot, fig.path="fig.pdf", width=8, height=8)  
+
+plot(g.table)  
 
 library(ggplot2); library(grid); library(gridExtra)
 dsamp <- diamonds[sample(nrow(diamonds), 1000), ]

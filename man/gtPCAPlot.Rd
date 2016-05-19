@@ -29,8 +29,7 @@ It is extended from \code{\link{gtScatterPlot}}.
 \examples{
 
 pca.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
-require(grid)
-grid.draw(pca.plot)
+plot(pca.plot)
 }
 \keyword{graph}
 

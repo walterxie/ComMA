@@ -43,8 +43,7 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
 #' @examples
 #' 
 #' nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
-#' require(grid)
-#' grid.draw(nmds.plot)
+#' plot(nmds.plot)
 gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
                        add.text=TRUE, text.data = NULL, text.size=3, palette=NULL,
                        xintercept=NULL, yintercept=NULL, 
@@ -113,8 +112,7 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
 #' @examples
 #' 
 #' pca.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
-#' require(grid)
-#' grid.draw(pca.plot)
+#' plot(pca.plot)
 gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL, link.id=NULL, 
                       add.text=TRUE, text.data=NULL, text.size=3, palette=NULL,
                       xintercept=NULL, yintercept=NULL, title="PCA", verbose=TRUE, ...) {
@@ -189,9 +187,9 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' @examples 
 #' rare.curv <- gtRarefactionCurve(df.size, attr.df, group.id="Samples", colour.id="Species", shape.id="GutSegment", 
 #'              point.size=2, x.trans="log", auto.scale.x=T)
-#' require(grid)
-#' grid.draw(rare.curv)
+#' plot(rare.curv)
 gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=NULL,
+                               line.type = 2, line.alpha=0.75,
                                x.prefix="^.*?\\.", end.point.only=TRUE,
                                title="Rarefaction Curves", x.lab="Reads", y.lab="Diversity", ...) {
   if (! missing(attr.df)) {
@@ -244,9 +242,10 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
     point.data <- aggregate(as.formula(aggr.formula), melt.df, max)
   } 
   
-  gt <- ComMA::gtLine(melt.df, x.id="variable", y.id="value", group.id=group.id, 
-                      colour.id=colour.id, shape.id=shape.id, 
-                      title=title, x.lab=x.lab, y.lab=y.lab, ...)
+  gt <- ComMA::gtLineWithPoints(melt.df, x.id="variable", y.id="value", group.id=group.id, 
+                                colour.id=colour.id, shape.id=shape.id, 
+                                line.type=line.type, line.alpha=line.alpha,
+                                title=title, x.lab=x.lab, y.lab=y.lab, ...)
   return(gt)
 }
 

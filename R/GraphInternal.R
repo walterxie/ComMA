@@ -66,6 +66,7 @@ ggOptFacetGrid <- function(p, col.names, x.facet.id=NULL, y.facet.id=NULL, verbo
 }
 
 # if shape.id not NULL, no shape for points
+# If NULL, the default, the data is inherited from the plot data.
 ggOptPointAndShape <- function(p, col.names, shape.id=NULL, data=NULL, shapes=NULL, point.size=3) {
   if (! is.null(shape.id)) {
     if (!is.element(tolower(shape.id), tolower(col.names)))

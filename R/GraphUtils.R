@@ -35,9 +35,8 @@ pdf.ggplot <- function(gg.plot, fig.path, width=6, height=6, useDingbats=TRUE) {
 #' 
 #' @rdname pdf
 pdf.gtable <- function(g.table, fig.path, width=6, height=6, useDingbats=TRUE) {
-  require(grid)
   pdf(fig.path, width=width, height=height, useDingbats=useDingbats)	
-  print(grid.draw(g.table))
+  plot.gt(grid.draw(g.table))
   invisible(dev.off()) 
 }
 
@@ -54,6 +53,20 @@ pdf.plot <- function(plot, fig.path, width=6, height=6, useDingbats=TRUE) {
   pdf(fig.path, width=width, height=height, useDingbats=useDingbats)	
   plot
   invisible(dev.off()) 
+}
+
+#' @details \code{plot.gtable} \code{\link{require}(\link{grid})} 
+#' and plot gtable object in console.
+#' 
+#' @keywords graph
+#' @export
+#' @examples 
+#' plot(g.table)  
+#' 
+#' @rdname pdf
+plot.gtable <- function(g.table) {
+  require(grid)
+  grid.draw(g.table)
 }
 
 #' @details \code{grid_arrange_shared_legend} shares a legend 
