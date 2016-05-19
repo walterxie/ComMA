@@ -7,6 +7,7 @@
 \alias{pdf.gtable}
 \alias{pdf.plot}
 \alias{plot.gtable}
+\alias{unclip.ggplot}
 \title{Create pdf}
 \source{
 \code{grid_arrange_shared_legend} is derived from 
@@ -20,6 +21,8 @@ pdf.gtable(g.table, fig.path, width = 6, height = 6, useDingbats = TRUE)
 pdf.plot(plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
 \method{plot}{gtable}(g.table)
+
+unclip.ggplot(gg.plot)
 
 grid_arrange_shared_legend(...)
 }
@@ -50,6 +53,11 @@ Refer to \code{\link{pdf}}.}
 \code{plot.gtable} \code{\link{require}(\link{grid})} 
 and plot gtable object in console.
 
+\code{unclip.ggplot} turns off clipping for a 
+\code{\link{ggplot}} object, but returns a 
+\code{\link{gtable}} object. 
+Refer to \url{http://stackoverflow.com/questions/9690648/point-clipped-on-x-axis-in-ggplot}.
+
 \code{grid_arrange_shared_legend} shares a legend 
 between multiple plots using \code{\link{grid.arrange}}. 
 Return a \code{\link{gtable}} object.
@@ -62,6 +70,8 @@ pdf.gtable(g.table, fig.path="fig.pdf", width=8, height=8)
 pdf.plot(plot, fig.path="fig.pdf", width=8, height=8)  
 
 plot(g.table)  
+
+gt <- unclip.ggplot(gg.plot)  
 
 library(ggplot2); library(grid); library(gridExtra)
 dsamp <- diamonds[sample(nrow(diamonds), 1000), ]

@@ -5,9 +5,9 @@
 \alias{ggBoxWhiskersPlot}
 \alias{ggDensityEstimate}
 \alias{ggHeatmap}
+\alias{ggLineWithPoints}
 \alias{ggPlot}
-\alias{gtLineWithPoints}
-\alias{gtScatterPlot}
+\alias{ggScatterPlot}
 \title{One-line Function to Get \pkg{ggplot}}
 \usage{
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
@@ -20,7 +20,7 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
   y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
-gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
+ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, point.alpha = 1, x.facet.id = NULL,
   y.facet.id = NULL, link.id = NULL, ellipsed.id = NULL, text.id = NULL,
   text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
@@ -33,7 +33,7 @@ gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
 
-gtLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
+ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   shape.id = NULL, shapes = NULL, line.or.point = 3, line.size = 0.5,
   line.type = 1, line.alpha = 1, point.data = NULL, point.size = 3,
   point.alpha = 1, x.facet.id = NULL, y.facet.id = NULL,
@@ -217,6 +217,8 @@ Assume x values are discrete for each bar. Default to 0 to do nothing.}
 If the function returns a \code{\link{ggplot}} object, then its name starts with "gg". 
 It needs to use \code{\link{pdf.ggplot}} to create pdf. 
 If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
+This kind of functions use \code{\link{unclip.ggplot}} to turns off clipping for a 
+\code{\link{ggplot}} object, but returns a \code{\link{gtable}} object.
 It needs to use \code{\link{pdf.gtplot}} to create pdf. And also \code{\link{plot.gtable}} 
 simplifies the code to plot gtable object in console.
 }
@@ -238,10 +240,10 @@ Both refer to \url{http://dx.doi.org/10.1186/s13742-015-0086-1}.
 such as normal bars, log-scaled bars, percentage bars, and also grouping.
 Refer to \code{\link{geom_bar}}.
 
-\code{gtScatterPlot} uses one-line function to plot many types of scatter chart.
+\code{ggScatterPlot} uses one-line function to plot many types of scatter chart.
 Refer to \code{\link{geom_point}}.
 
-\code{gtLineWithPoints} uses one-line function to plot a line or group of lines.
+\code{ggLineWithPoints} uses one-line function to plot a line or group of lines.
 Refer to \code{\link{geom_line}}.
 
 \code{ggHeatmap} creates a heat map using ggplot. It is devried and improved 
@@ -259,6 +261,11 @@ Use \code{y.id="..count.."} to produce a conditional density estimate,
 which counts (density * n) variable instead of the default density.
 Refer to \code{\link{geom_density}}.
 }
+\note{
+All basic charts are designed to return a \code{\link{ggplot}} object for easy 
+extension, you may need to turn off clipping after call, such as 
+\code{ggScatterPlot} and \code{ggLineWithPoints}.
+}
 \examples{
 # log-scale y
 bar.chart <- ggBarChart(df, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
@@ -271,23 +278,27 @@ bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", bar
 df.clusters <- random2Clusters()
 df.clusters$labels <- rownames(df.clusters)
 df.clusters
-g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", shape.id="group",   
+gg.plot <- ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", shape.id="group",   
                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
+# turns off clipping
+g.table <- unclip.ggplot(gg.plot) 
 plot(g.table)
 
 # selective labeling for points x > 3 and y > 6
-g.table <- gtScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
+gg.plot <- ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
                          text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
  
 mcmc.log <- readMCMCLog("data-raw/star.beast.log")
 mcmc.log$state <- as.double(rownames(mcmc.log))
 names(mcmc.log)
-gt <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species")
-plot(gt)
+gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species")
+# turns off clipping
+g.table <- unclip.ggplot(gg.plot) 
+plot(g.table)
 
-gt <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
-gt <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
+gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
+gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
 
 ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), 
                              `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)

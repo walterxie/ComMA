@@ -2,15 +2,11 @@
 # Modified by Walter Xie (D Xie)
 # Accessed on 18 May 2016
 
-#' @name Tracer Graph
+#' @name TracerGraph
 #' @title Tracer Graph in R 
 #'
 #' @description 
-#' A simplified implementation of Tracer \url{http://beast.bio.ed.ac.uk/tracer} in R.  
-#' It can read MCMC log files from BEAST 1 \url{http://beast.bio.ed.ac.uk},
-#' BEAST 2 \url{http://www.beast2.org}, or MrBayes \url{http://beast.bio.ed.ac.uk}.
-#' 
-#' It aims to make batch processing of multipe logs easier. 
+#' The visualization functions to understand the Bayesian MCMC result. 
 #' 
 #' @details 
 #' \code{gtTraces} returns a \code{\link{gtable}} object to plot 
@@ -41,7 +37,7 @@
 #' 
 #' gt <- gtTraces(mcmc.log, burn.in.stats$burn.in, trace.id=c("TreeHeight.Species", "TreeHeight.t:tree_0_0", "TreeHeight.t:tree_0_1"))
 #' 
-#' @rdname Tracer
+#' @rdname TracerGraph
 gtTraces <- function(mcmc.log, burn.in, trace.id=c("posterior"), drop.1st.row=TRUE,
                      line.or.point=1, point.size=1, point.alpha=1, line.alpha=0.8,
                      title="Trace", x.lab=NULL, y.lab=NULL, legend.title="parameters",

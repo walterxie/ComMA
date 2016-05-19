@@ -69,6 +69,25 @@ plot.gtable <- function(g.table) {
   grid.draw(g.table)
 }
 
+#' @details \code{unclip.ggplot} turns off clipping for a 
+#' \code{\link{ggplot}} object, but returns a 
+#' \code{\link{gtable}} object. 
+#' Refer to \url{http://stackoverflow.com/questions/9690648/point-clipped-on-x-axis-in-ggplot}.
+#' 
+#' @keywords graph
+#' @export
+#' @examples 
+#' gt <- unclip.ggplot(gg.plot)  
+#' 
+#' @rdname pdf
+unclip.ggplot <- function(gg.plot) {
+  gt <- ggplot_gtable(ggplot_build(gg.plot))
+  gt$layout$clip[gt$layout$name == "panel"] <- "off"
+  
+  return(gt)
+}
+
+
 #' @details \code{grid_arrange_shared_legend} shares a legend 
 #' between multiple plots using \code{\link{grid.arrange}}. 
 #' Return a \code{\link{gtable}} object.
@@ -224,7 +243,7 @@ getMyPalette<-function(n, add.grey=0){
   
   if (missing(n) || n < 1 || n > length(myPalette)) 
     n <- length(myPalette)
-    
+  
   return(myPalette[1:n])
 }
 

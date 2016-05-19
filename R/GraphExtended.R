@@ -83,11 +83,13 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
     text.id="Row.names"
   
   # Plot MDS ordination
-  gt <- ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", colour.id=colour.id, 
-                             shape.id=shape.id, link.id=link.id, text.id=text.id, 
-                             palette=palette, xintercept=xintercept, yintercept=yintercept,
-                             text.data=text.data, text.size=text.size, title=title, 
-                             verbose=verbose, ...)
+  gg.plot <- ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", colour.id=colour.id, 
+                                  shape.id=shape.id, link.id=link.id, text.id=text.id, 
+                                  palette=palette, xintercept=xintercept, yintercept=yintercept,
+                                  text.data=text.data, text.size=text.size, title=title, 
+                                  verbose=verbose, ...)
+  # turns off clipping
+  gt <- unclip.ggplot(gg.plot) 
   
   return(gt)
 }
@@ -152,11 +154,13 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
   x.id <- paste0("PC", x.i)
   y.id <- paste0("PC", y.i)
   # Plot MDS ordination
-  gt <- ComMA::gtScatterPlot(pts.pca.merge, x.id="PC1", y.id="PC2", colour.id=colour.id, 
-                             shape.id=shape.id, link.id=link.id, text.id=text.id, 
-                             palette=palette, xintercept=xintercept, yintercept=yintercept,
-                             text.data=text.data, text.size=text.size, title=title, 
-                             verbose=verbose, ...)
+  gg.plot <- ComMA::gtScatterPlot(pts.pca.merge, x.id="PC1", y.id="PC2", colour.id=colour.id, 
+                                  shape.id=shape.id, link.id=link.id, text.id=text.id, 
+                                  palette=palette, xintercept=xintercept, yintercept=yintercept,
+                                  text.data=text.data, text.size=text.size, title=title, 
+                                  verbose=verbose, ...)
+  # turns off clipping
+  gt <- unclip.ggplot(gg.plot) 
   
   return(gt)
 }
@@ -243,12 +247,15 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
     point.data <- aggregate(as.formula(aggr.formula), melt.df, max)
   } 
   
-  gt <- ComMA::gtLineWithPoints(melt.df, x.id="variable", y.id="value", group.id=group.id, 
-                                colour.id=colour.id, shape.id=shape.id, 
-                                point.data=point.data, line.or.point=line.or.point,
-                                line.type=line.type, line.alpha=line.alpha,
-                                title=title, x.lab=x.lab, y.lab=y.lab, 
-                                verbose=verbose, ...)
+  gg.plot <- ComMA::gtLineWithPoints(melt.df, x.id="variable", y.id="value", group.id=group.id, 
+                                     colour.id=colour.id, shape.id=shape.id, 
+                                     point.data=point.data, line.or.point=line.or.point,
+                                     line.type=line.type, line.alpha=line.alpha,
+                                     title=title, x.lab=x.lab, y.lab=y.lab, 
+                                     verbose=verbose, ...)
+  # turns off clipping
+  gt <- unclip.ggplot(gg.plot) 
+  
   return(gt)
 }
 

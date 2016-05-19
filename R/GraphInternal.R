@@ -268,8 +268,9 @@ ggThemePanelBorder <- function(p, title.size=10) {
 
 ggThemeAxis <- function(p, title.size=10) {
   p <- p + theme(plot.title = element_text(size = title.size), panel.grid.major = element_blank(), 
-                 panel.grid.minor = element_blank(), panel.background = element_blank(),
-                 axis.line = element_line(size = 3, colour = "black"), panel.border = element_blank()) 
+                 panel.grid.minor = element_blank(), panel.background = element_blank(), 
+                 panel.border = element_blank())
+  p <- p + theme(axis.line = element_line(size = 3, colour = "black")) 
   return(p)
 }
 
