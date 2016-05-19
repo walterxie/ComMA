@@ -21,27 +21,28 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 gtScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
-  shapes = NULL, point.size = 3, x.facet.id = NULL, y.facet.id = NULL,
-  link.id = NULL, ellipsed.id = NULL, text.id = NULL, text.data = NULL,
-  text.size = 3, text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
-  coord.flip = FALSE, xintercept = NULL, yintercept = NULL,
-  line.type = 2, x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
-  legend.title = NULL, legend.col = 1, legend.row = 0,
-  title = "Scatter Plot", title.size = 10, x.lab = NULL, y.lab = NULL,
+  shapes = NULL, point.size = 3, point.alpha = 1, x.facet.id = NULL,
+  y.facet.id = NULL, link.id = NULL, ellipsed.id = NULL, text.id = NULL,
+  text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
+  text.alpha = 0.5, coord.flip = FALSE, xintercept = NULL,
+  yintercept = NULL, line.type = 2, x.lim.cart = NULL,
+  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
+  legend.col = 1, legend.row = 0, title = "Scatter Plot",
+  title.size = 10, x.lab = NULL, y.lab = NULL,
   legend.position = "right", legend.direction = "vertical",
   x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
 
 gtLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
-  line.or.point = 3, line.size = 0.5, line.type = 1, line.alpha = 1,
-  shape.id = NULL, shapes = NULL, point.data = NULL, point.size = 3,
-  x.facet.id = NULL, y.facet.id = NULL, coord.flip = FALSE,
-  x.trans = "identity", auto.scale.x = FALSE, y.trans = "identity",
-  auto.scale.y = FALSE, text.id = NULL, text.data = NULL, text.size = 3,
-  text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
-  x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
-  legend.title = NULL, legend.col = 1, legend.row = 0, title = "",
-  title.size = 10, x.lab = NULL, y.lab = NULL,
+  shape.id = NULL, shapes = NULL, line.or.point = 3, line.size = 0.5,
+  line.type = 1, line.alpha = 1, point.data = NULL, point.size = 3,
+  point.alpha = 1, x.facet.id = NULL, y.facet.id = NULL,
+  coord.flip = FALSE, x.trans = "identity", auto.scale.x = FALSE,
+  y.trans = "identity", auto.scale.y = FALSE, text.id = NULL,
+  text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
+  text.alpha = 0.5, x.lim.cart = NULL, y.lim.cart = NULL,
+  palette = NULL, legend.title = NULL, legend.col = 1, legend.row = 0,
+  title = "", title.size = 10, x.lab = NULL, y.lab = NULL,
   legend.position = "right", legend.direction = "vertical",
   x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
@@ -131,7 +132,8 @@ define how the data points are coloured, shaped, or linked according their value
 \item{shapes}{Manually define the shapes of points. Refer to \code{\link{scale_shape_manual}}, 
 and \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}.}
 
-\item{point.size}{The size of points from \code{\link{point.size}}. Default to 3.}
+\item{point.size, point.alpha}{The feature of points for \code{\link{geom_point}}. 
+Default size to 3, alpha to 1.}
 
 \item{ellipsed.id}{The column name in \code{df} to define 
 how to draw ellipse over data points, which is normally same as 
@@ -145,10 +147,11 @@ such as "Row.names" column after \code{\link{merge}}.}
 \item{xintercept, yintercept, linetype}{Add horizontal or vertical line. 
 Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
 
-\item{line.or.point}{If 1, then only display the line; if 2, then only points; 
-if 3, the default, then both the line and points.}
+\item{line.type, line.size, line.alpha}{The feature of lines for \code{\link{geom_line}}.
+Default line.type to 1, size to 0.5, alpha to 1.}
 
-\item{line.size, line.alpha}{The feature of lines for \code{\link{geom_line}}.}
+\item{line.or.point}{If 1, then display the line only; if 2, then only points; 
+if 3, the default, then both the line and points.}
 
 \item{point.data}{An option to add extra points in the plot, such as \code{gtLine}. 
 The data to be displayed as points in \code{\link{geom_point}}, which can be 

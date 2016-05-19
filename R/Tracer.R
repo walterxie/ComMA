@@ -42,9 +42,46 @@ readMCMCLog <- function(file, rm.na.col=TRUE, ...) {
               "There are ", length(no.empty.col), " parameters for analysis !\n")
     }
   }
-  
+
   attr(mcmc.log,"file") <- file
   return(mcmc.log)
+}
+
+#' @details 
+#' \code{getBurnIn} returns a list of statistics inlcuding \code{burn.in} 
+#' and \code{step.size}, given the data frame read from \code{readMCMCLog}.
+#' It also calculate \code{burn.in} from \code{burn.in.perc}, if it is NULL.
+#' 
+#' @param burn.in The number of states of burn in. Default to NULL 
+#' to use \code{burn.in.perc}. Otherwise, use \code{burn.in}. 
+#' @param burn.in.perc The percentage of total chain length to be burn in. 
+#' Default to 0.1. Only used if \code{burn.in} is NULL.
+#' @keywords Tracer
+#' @export
+#' @examples 
+#' mcmc.traces <- getTraces(mcmc.log)
+#' 
+#' @rdname Tracer
+getBurnIn <- function(samples, burn.in=NULL, burn.in.perc=0.1, 
+                      verbose=TRUE) { 
+  samples <- as.double(samples)
+  n.sample <- length(samples)
+  last.state <- max(samples)
+  step.size <- samples[2] - samples[1]
+  
+  if (is.null(burn.in)) 
+    burn.in <- last.state * burn.in.perc
+  
+  if (verbose)
+    cat("Set burn in =", burn.in, "for", n.sample, "samples.\n", 
+        "step.size =", step.size, ", last.state =", last.state, "\n")
+  
+  list(
+    n.sample = n.sample,
+    last.state = last.state,
+    step.size = step.size,
+    burn.in = burn.in
+  )
 }
 
 #' @details 
@@ -56,10 +93,6 @@ readMCMCLog <- function(file, rm.na.col=TRUE, ...) {
 #' @param mcmc.log The data frame from MCMC log file whose 
 #' column names are parameters and row names are the number 
 #' of states at each sample.
-#' @param burn.in The number of states of burn in. Default to NULL 
-#' to use \code{burn.in.perc}. Otherwise, use \code{burn.in}. 
-#' @param burn.in.perc The percentage of total chain length to be burn in. 
-#' Default to 0.1. Only used if \code{burn.in} is NULL.
 #' @keywords Tracer
 #' @export
 #' @examples 
@@ -68,18 +101,15 @@ readMCMCLog <- function(file, rm.na.col=TRUE, ...) {
 #' @rdname Tracer
 getTraces <- function(mcmc.log, burn.in=NULL, burn.in.perc=0.1, 
                       verbose=TRUE) { 
-  n.sample <- nrow(mcmc.log)
-  # double from 2e-308 to 2e+308
+  # states in rownames, double from 2e-308 to 2e+308
   samples <- as.double(rownames(mcmc.log))
-  last.state <- max(samples)
-  step.size <- samples[2] - samples[1]
   
-  if (is.null(burn.in)) 
-    burn.in <- last.state * burn.in.perc
-  
-  if (verbose)
-    cat("Set burn in =", burn.in, "for", n.sample, "samples.\n", 
-        "step.size =", step.size, ", last.state =", last.state, "\n")
+  burn.in.stats <- getBurnIn(samples, burn.in=burn.in, 
+                            burn.in.perc=burn.in.perc, verbose=verbose)
+  burn.in <- burn.in.stats$burn.in
+  n.sample <- burn.in.stats$n.sample
+  last.state <- burn.in.stats$last.state
+  step.size <- burn.in.stats$step.size
   
   burn.in.ind <- match(burn.in, samples)
   if (is.na(burn.in.ind)) 

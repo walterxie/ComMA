@@ -165,7 +165,8 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
 #' \code{gtScatterPlot} uses one-line function to plot many types of scatter chart.
 #' Refer to \code{\link{geom_point}}.
 #' 
-#' @param point.size The size of points from \code{\link{point.size}}. Default to 3.
+#' @param point.size,point.alpha The feature of points for \code{\link{geom_point}}. 
+#' Default size to 3, alpha to 1.
 #' @param colour.id,shape.id,link.id The column name in \code{df} to 
 #' define how the data points are coloured, shaped, or linked according their values.
 #' @param ellipsed.id The column name in \code{df} to define 
@@ -193,7 +194,8 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
 #'  
 #' @rdname ggPlot
 gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL, 
-                          shapes=NULL, point.size=3, x.facet.id=NULL, y.facet.id=NULL, 
+                          shapes=NULL, point.size=3, point.alpha=1,
+                          x.facet.id=NULL, y.facet.id=NULL, 
                           link.id=NULL, ellipsed.id=NULL, text.id=NULL, 
                           text.data = NULL, text.size = 3, text.hjust=-0.1, 
                           text.vjust = -0.2, text.alpha = 0.5, coord.flip=FALSE,
@@ -212,8 +214,8 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
     n_shape <- length(unique(df[,shape.id]))
     shapes <- seq(1, (1 + n_shape-1))
   }
-  p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, 
-                          shapes=shapes, point.size=point.size)
+  p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, shapes=shapes, 
+                          point.size=point.size, point.alpha=point.alpha)
   
   p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, 
                       y.facet.id=y.facet.id, verbose=verbose)
@@ -268,8 +270,9 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
 #' \code{gtLineWithPoints} uses one-line function to plot a line or group of lines.
 #' Refer to \code{\link{geom_line}}.
 #' 
-#' @param line.size,line.alpha The feature of lines for \code{\link{geom_line}}.
-#' @param line.or.point If 1, then only display the line; if 2, then only points; 
+#' @param line.type,line.size,line.alpha The feature of lines for \code{\link{geom_line}}.
+#' Default line.type to 1, size to 0.5, alpha to 1.
+#' @param line.or.point If 1, then display the line only; if 2, then only points; 
 #' if 3, the default, then both the line and points.
 #' @param point.data An option to add extra points in the plot, such as \code{gtLine}. 
 #' The data to be displayed as points in \code{\link{geom_point}}, which can be 
@@ -288,9 +291,10 @@ gtScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
 #' gt <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
 #' 
 #' @rdname ggPlot
-gtLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL, line.or.point=3, 
+gtLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL, 
+                            shape.id=NULL, shapes=NULL, line.or.point=3, 
                             line.size=0.5, line.type = 1, line.alpha=1, 
-                            shape.id=NULL, shapes=NULL, point.data=NULL, point.size=3, 
+                            point.data=NULL, point.size=3, point.alpha=1,
                             x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                             x.trans="identity", auto.scale.x=FALSE, 
                             y.trans="identity", auto.scale.y=FALSE,
@@ -315,7 +319,7 @@ gtLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL, line
       shapes <- seq(1, (1 + n_shape-1))
     }
     p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, data=point.data, 
-                            shapes=shapes, point.size=point.size)
+                            shapes=shapes, point.size=point.size, point.alpha=point.alpha)
   }
   
   if (auto.scale.x) {

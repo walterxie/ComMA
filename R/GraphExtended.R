@@ -189,9 +189,10 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #'              point.size=2, x.trans="log", auto.scale.x=T)
 #' plot(rare.curv)
 gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=NULL,
-                               line.type = 2, line.alpha=0.75,
-                               x.prefix="^.*?\\.", end.point.only=TRUE,
-                               title="Rarefaction Curves", x.lab="Reads", y.lab="Diversity", ...) {
+                               line.type = 2, line.alpha=0.75, shape.id=NULL,
+                               x.prefix="^.*?\\.", line.or.point=3, end.point.only=TRUE,
+                               title="Rarefaction Curves", x.lab="Reads", y.lab="Diversity", 
+                               verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(df.size) %in% rownames(attr.df)) )
       stop("Invalid attr.df,", paste(rownames(df.size), collapse = ","), 
@@ -244,8 +245,10 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
   
   gt <- ComMA::gtLineWithPoints(melt.df, x.id="variable", y.id="value", group.id=group.id, 
                                 colour.id=colour.id, shape.id=shape.id, 
+                                point.data=point.data, line.or.point=line.or.point,
                                 line.type=line.type, line.alpha=line.alpha,
-                                title=title, x.lab=x.lab, y.lab=y.lab, ...)
+                                title=title, x.lab=x.lab, y.lab=y.lab, 
+                                verbose=verbose, ...)
   return(gt)
 }
 
