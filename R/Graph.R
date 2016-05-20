@@ -161,7 +161,8 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
     p <- ggThemePanelBorder(p, title.size=title.size)
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
-                     legend.direction=legend.direction, x.text=x.text, y.text=y.text)
+                     legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
+                     verbose=verbose)
   
   return(p)
 }
@@ -265,7 +266,8 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
     p <- ggThemePanelBorder(p, title.size=title.size)
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
-                     legend.direction=legend.direction, x.text=x.text, y.text=y.text)
+                     legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
+                     verbose=verbose)
   return(p)
 }
 
@@ -329,15 +331,19 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
   
   if (auto.scale.x) {
     x.max <- max(df[,x.id])
-    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans, auto.scale.max=x.max)
+    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans, 
+                        auto.scale.max=x.max, verbose=verbose)
   } else {
-    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans)
+    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans, 
+                        verbose=verbose)
   }
   if (auto.scale.y) {
     y.max <- max(df[,y.id])
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, auto.scale.max=y.max)
+    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
+                        auto.scale.max=y.max, verbose=verbose)
   } else {
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
+    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
+                        verbose=verbose)
   }
   
   p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
@@ -358,7 +364,8 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
     p <- ggThemePanelBorder(p, title.size=title.size)
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
-                     legend.direction=legend.direction, x.text=x.text, y.text=y.text)
+                     legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
+                     verbose=verbose)
   return(p)
 }
 
@@ -429,7 +436,8 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
     p <- ggThemePanelBorder(p, title.size=title.size)
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
-                     legend.direction=legend.direction, x.text=x.text, y.text=y.text)
+                     legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
+                     verbose=verbose)
   
   return(p) 
 }
@@ -495,7 +503,8 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
     p <- ggThemePanelBorder(p, title.size=title.size)
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
-                     legend.direction=legend.direction, x.text=x.text, y.text=y.text)
+                     legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
+                     verbose=verbose)
   
   return(p)
 }
@@ -583,7 +592,8 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
     p <- ggThemePanelBorder(p, title.size=title.size)
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
-                     legend.direction=legend.direction, x.text=x.text, y.text=y.text)
+                     legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
+                     verbose=verbose)
   
   return(p)
 }
