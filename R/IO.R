@@ -70,7 +70,7 @@ splitPath <- function(path) {
 #' taxa.phyla <- readFile("taxonomy97phyla.txt", row.names=NULL)
 readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE, 
                      msg.file="file", msg.col="columns", msg.row="rows", ...) { 
-  require(tools)
+  suppressMessages(require(tools))
   # sep="\t" only work for non csv file
   if (tolower(file_ext(file))=="csv") {
     df <- read.csv(file, header=header, row.names=row.names, 
@@ -108,7 +108,7 @@ readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE,
 writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t",  
                        row.names = TRUE, col.names = TRUE, verbose=TRUE, 
                        msg.file="file", msg.col="columns", msg.row="rows", ...) {
-  require(tools)
+  suppressMessages(require(tools))
   if (tolower(file_ext(file))=="csv") {
     write.csv(df, file, append = append, quote = quote,  
               row.names = row.names, col.names = col.names, ...)
@@ -157,7 +157,7 @@ printXTable <- function(df, file=NULL, caption="The table of", label="tab:label"
     df <- apply(df, 2, function(x) as.numeric(gsub("%", "\\\\%", x)))
   }
     
-  require(xtable)
+  suppressMessages(require(xtable))
   if (is.null(file)) {
     print(xtable(df, caption = caption, label = label, caption.placement = caption.placement, ...),
           sanitize.text.function = function(x){x}, include.rownames=include.rownames)
