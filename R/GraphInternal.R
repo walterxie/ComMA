@@ -266,11 +266,13 @@ ggThemePanelBorder <- function(p, title.size=10) {
   return(p)
 }
 
+# This funcion is broken in ggplot2, bug in axis.line
 ggThemeAxis <- function(p, title.size=10) {
   p <- p + theme(plot.title = element_text(size = title.size), panel.grid.major = element_blank(), 
                  panel.grid.minor = element_blank(), panel.background = element_blank(), 
                  panel.border = element_blank())
-  p <- p + theme(axis.line = element_line(size = 3, colour = "black")) 
+  #p <- p + theme(axis.line = element_line(size = 3, colour = "black")) 
+  p <- p + geom_vline(xintercept = 0) + geom_hline(yintercept = 0)
   return(p)
 }
 
