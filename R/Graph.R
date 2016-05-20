@@ -108,12 +108,11 @@
 #' @keywords graph
 #' @export
 #' @examples
-#' # log-scale y
-#' bar.chart <- ggBarChart(df, x.id="test", y.id="seconds", fill.id="version", y.trans="log")
-#' # percentage bars without grouping in one bar each
-#' bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", y.trans="per")
-#' # percentage bars one group in one bar
-#' bar.chart <- ggBarChart(df, x.id="test", y.id="percentage", fill.id="model", bar.pos="fill", y.trans="per")
+#' perf.df <- ComMA::readFile("data-raw/model.test.txt")
+#' perf.df.mac <- perf.df[perf.df$OS=="Mac",]
+#' bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90)
+#' bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")
+#' bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="fill", y.trans="per")
 #' 
 #' @rdname ggPlot
 ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="identity", 
