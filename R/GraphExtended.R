@@ -89,7 +89,7 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
                                   text.data=text.data, text.size=text.size, title=title, 
                                   verbose=verbose, ...)
   # turns off clipping
-  gt <- unclip.ggplot(gg.plot) 
+  gt <- ComMA::unclip.ggplot(gg.plot) 
   
   return(gt)
 }
@@ -160,7 +160,7 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
                                   text.data=text.data, text.size=text.size, title=title, 
                                   verbose=verbose, ...)
   # turns off clipping
-  gt <- unclip.ggplot(gg.plot) 
+  gt <- ComMA::unclip.ggplot(gg.plot) 
   
   return(gt)
 }
@@ -254,7 +254,7 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
                                      title=title, x.lab=x.lab, y.lab=y.lab, 
                                      verbose=verbose, ...)
   # turns off clipping
-  gt <- unclip.ggplot(gg.plot) 
+  gt <- ComMA::unclip.ggplot(gg.plot) 
   
   return(gt)
 }
