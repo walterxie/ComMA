@@ -5,7 +5,8 @@
 \title{Add numbers}
 \usage{
 ggAddNumbers(gg.plot, fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98,
-  digits = 2, dodge.width = 0.8, text.size = 3, text.colour = "black")
+  digits = 2, dodge.width = 0.8, text.size = 3, text.colour = "black",
+  ...)
 }
 \arguments{
 \item{gg.plot}{A \code{\link{ggplot}} object.}
@@ -27,6 +28,8 @@ Default to 0.8. Refer to \code{\link{position_dodge}}.}
 \item{text.size}{The text size of labels. Default to 3.}
 
 \item{text.colour}{The text colour. Default to black.}
+
+\item{...}{Other arguments passed to \code{\link{stat_summary}}.}
 }
 \description{
 Add numbers as text in a \code{\link{ggplot}} object, such as mean of box plot. 

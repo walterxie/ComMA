@@ -52,14 +52,52 @@ ggAddLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, sl
 #' Default to 0.8. Refer to \code{\link{position_dodge}}.
 #' @param text.size The text size of labels. Default to 3.
 #' @param text.colour The text colour. Default to black.
+#' @param ... Other arguments passed to \code{\link{stat_summary}}.
 #' @keywords graph
 #' @export
 #' @examples 
 #' p <- ggAddNumbers(p, fun.y.lab=mean)
 #' p <- ggAddNumbers(p, fun.y.lab=length, y.adj=1.02)
 ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, digits=2, 
-                         dodge.width=0.8, text.size=3, text.colour="black") {
+                         dodge.width=0.8, text.size=3, text.colour="black", ...) {
   p <- gg.plot + stat_summary(fun.data = function(y) {return( c(y = fun.y.pos(y)*y.adj, label = round(fun.y.lab(y),digits)) )}, 
-                              geom = "text", position = position_dodge(width=dodge.width), colour = text.colour, size = text.size)
+                              geom = "text", position = position_dodge(width=dodge.width), 
+                              colour = text.colour, size = text.size, ...)
 }
 
+#' Add error bars
+#' 
+#' Add error bars to a \code{\link{ggplot}} object, mostly points \code{\link{geom_point}}. 
+#' Refer to \code{\link{geom_errorbar}}.
+#' 
+#' @param gg.plot A \code{\link{ggplot}} object.
+#' @param lower,upper The vector of lower or upper plotted in error bars. May use formula 
+#' \code{lower = mean - standard error of mean}, \code{upper = mean + standard error of mean} 
+#' to calculate. \code{standard error of mean = sd(x) / sqrt(length(x))}. 
+#' @param err.bar.width The width input for \code{\link{geom_errorbar}}.
+#' @param dodge.width Dodging width, when different to the width of the individual elements. 
+#' Default to 0.9. Refer to \code{\link{position_dodge}}.
+#' @param ... Other arguments passed to \code{\link{geom_errorbar}}.
+#' @keywords graph
+#' @export
+#' @examples 
+#' # lower = mean - standard error of mean, upper = mean + standard error of mean
+#' p <- ggAddErrorBars(p, lower, upper)
+#' 
+#' # Replicate of http://www.r-bloggers.com/building-barplots-with-error-bars/
+#' perf.df <- ComMA::readFile("data-raw/model.test.txt")
+#' myData <- aggregate(perf.df$performance, by = list(model = perf.df$model, OS = perf.df$OS),
+#'     FUN = function(x) c(mean = mean(x), sd = sd(x), n = length(x)))
+#' myData <- do.call(data.frame, myData)
+#' myData$se <- myData$x.sd / sqrt(myData$x.n)
+#' colnames(myData) <- c("model", "OS", "mean", "sd", "n", "se")
+#' bar.chart <- ggBarChart(myData, x.id="model", y.id="mean", fill.id="OS", y.lab="performance")
+#' lower=myData$mean - myData$se
+#' upper=myData$mean + myData$se
+#' bar.chart <- ggAddErrorBars(bar.chart, lower=lower, upper=upper)
+#' bar.chart
+ggAddErrorBars <- function(gg.plot, lower, upper, dodge.width=0.9, err.bar.width=0.25, ...) {
+  p <- gg.plot + geom_errorbar(aes(ymin = lower, ymax = upper), 
+                               position = position_dodge(width=dodge.width), 
+                               width = err.bar.width, ...)
+}

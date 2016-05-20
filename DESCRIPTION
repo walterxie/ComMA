@@ -1,7 +1,7 @@
 Package: ComMA
 Type: Package
-Title: Community Matrix Analysis for eDNA data
-Date: 2016-02-29
+Title: Community Matrix Analysis
+Date: 2016-05-29
 Version: 0.0.0.9000
 Authors@R: c(person("Walter", "Xie", email = "walter@cs.auckland.ac.nz", role = c("aut", "cre", "cph")),
 			person("Andrew", "Dopheide", role = c("aut")),
