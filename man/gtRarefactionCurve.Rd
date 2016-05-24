@@ -45,8 +45,8 @@ the end of lines. Otherwise, display all the points.}
 Rarefaction curves for multi-sample, which is extended from \code{\link{gtLine}}.
 }
 \examples{
-rare.curv <- gtRarefactionCurve(df.size, attr.df, group.id="Samples", colour.id="Species", shape.id="GutSegment", 
-             point.size=2, x.trans="log", auto.scale.x=T)
+rare.curv <- gtRarefactionCurve(df.size, attr.df, group.id="Samples", colour.id="Species",  
+                       shape.id="GutSegment",point.size=2, x.trans="log", auto.scale.x=T)
 plot(rare.curv)
 }
 \keyword{graph}

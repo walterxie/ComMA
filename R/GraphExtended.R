@@ -2,22 +2,33 @@
 # Author: Walter Xie
 # Accessed on 15 May 2016
 
-validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
+validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL,
+                         text.id=NULL, text.size.id=NULL) {
   attr.v <- c()
   if (! is.null(colour.id)) {
     if (! colour.id %in% colnames(attr.df))
-      stop("Invalid colour.id,", colour.id,  "not exsit in column names !\n")
+      stop("Invalid colour.id,", colour.id,  "not exsit in meta data column names !\n")
     attr.v <- c(attr.v, colour.id)
   } 
   if (! is.null(link.id)) { 
     if (! link.id %in% colnames(attr.df) )
-      stop("Invalid link.id,", link.id,  "not exsit in column names !\n")
+      stop("Invalid link.id,", link.id,  "not exsit in meta data column names !\n")
     attr.v <- c(attr.v, link.id)
   } 
   if (! is.null(shape.id)) { 
     if (! shape.id %in% colnames(attr.df) )
-      stop("Invalid shape.id,", shape.id,  "not exsit in column names !\n")
+      stop("Invalid shape.id,", shape.id,  "not exsit in meta data column names !\n")
     attr.v <- c(attr.v, shape.id)
+  }
+  if (! is.null(text.id)) { 
+    if (! text.id %in% colnames(attr.df) )
+      stop("Invalid shape.id,", text.id,  "not exsit in meta data column names !\n")
+    attr.v <- c(attr.v, text.id)
+  }
+  if (! is.null(text.size.id)) { 
+    if (! text.size.id %in% colnames(attr.df) )
+      stop("Invalid text.size.id,", text.size.id,  "not exsit in meta data column names !\n")
+    attr.v <- c(attr.v, text.size.id)
   }
   return(attr.v)
 }
@@ -33,6 +44,10 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
 #' 
 #' A classical MDS is also known as principal coordinates analysis (Gower, 1966).
 #' 
+#' @note Because functions of computing NMDS \code{\link{metaMDS}}, 
+#' PCoA \code{\link{cmdscale}}, and PCA \code{\link{prcomp}} 
+#' take different input data, please make sure you give a valid input to plot. 
+#' 
 #' @return 
 #' A \code{\link{gtable}} object, which turns off clipping.
 #' It needs to use \code{\link{pdf.gtplot}} to create pdf, 
@@ -46,8 +61,8 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
 #' 
 #' This data frame will \code{\link{merge}} with data points generated 
 #' by PCA or MDS, so that the rows whose names are not matched are dropped. 
-#' @param colour.id,shape.id,link.id,text.id The column name in \code{attr.df} to 
-#' define how the data points are coloured, shaped, linked, or labelled.
+#' @param colour.id,shape.id,link.id The column name in \code{attr.df} to 
+#' define how the data points are coloured, shaped, or linked according to values.
 #' @param text.or.point If 1, then display the text only; if 2, then only points; 
 #' if 3, the default, then both the text and points.
 #' @param k The number of dimensions in \code{\link{metaMDS}}, 
@@ -76,9 +91,8 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
 #' 
 #' @rdname extScatterPlot
 gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
-                       text.id=NULL, text.or.point=3, text.data = NULL, 
-                       distance="bray", k = 2, 
-                       title="NMDS", title.add.stress=TRUE, 
+                       text.or.point=3, text.size.id=NULL, text.size=3,
+                       distance="bray", k = 2, title="NMDS", title.add.stress=TRUE, 
                        verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
@@ -90,7 +104,7 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
   suppressMessages(require(vegan))
   mds <- metaMDS(comm, distance = distance, k = k)
   
-  if (is.null(df.points))
+  if (is.null(mds))
     stop("No points returned from metaMDS, please check your input data !\n")
   
   df.points <- as.data.frame(mds$points)
@@ -103,7 +117,8 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
     #rownames(df.points) <- tolower(rownames(df.points))
     #rownames(attr.df) <- tolower(rownames(attr.df))
     
-    validateAttr(attr.df, colour.id=colour.id, shape.id=shape.id, link.id=shape.id)
+    validateAttr(attr.df, colour.id=colour.id, shape.id=shape.id, link.id=shape.id,
+                 text.size.id)
     
     df.points.merge <- merge(df.points, attr.df, by = "row.names")
     
@@ -116,14 +131,19 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
     df.points.merge[,"Row.names"] <- rownames(df.points) 
   }
   
-  if (text.or.point != 2)
-    text.id="Row.names"
-  
+  text.id="Row.names"
+  if (! is.null(text.size.id)) {
+    # renormalization min to 1
+    min.s=min(df.points.merge[,text.size.id])
+    max.s=max(df.points.merge[,text.size.id])
+    text.size=round(df.points.merge[,text.size.id]/min.s, 2)
+  }
+
   # Plot MDS ordination
   gg.plot <- ComMA::ggScatterPlot(df.points.merge, x.id="MDS1", y.id="MDS2", 
                                   colour.id=colour.id, shape.id=shape.id, link.id=link.id, 
                                   text.id=text.id, text.or.point=text.or.point, 
-                                  text.data=text.data, title=title, 
+                                  text.size=text.size, title=title, legend.title.size=text.size.id,
                                   verbose=verbose, ...)
   # turns off clipping
   gt <- ComMA::unclip.ggplot(gg.plot) 
@@ -139,20 +159,22 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
 #' @param dist.comm A distance structure such as that returned by \code{\link{dist}},  
 #' or a full symmetric matrix containing the dissimilarities for the classical 
 #' MDS \code{\link{cmdscale}}.
-#' @param eig Indicates whether eigenvalues should be returned. Default to TRUE.
-#' @param add.const Logical indicating if an additive constant c* should be computed, 
-#' and added to the non-diagonal dissimilarities such that the modified dissimilarities 
-#' are Euclidean. Default to FALSE.
+#' @param eig Indicates whether eigenvalues should be returned from \code{\link{cmdscale}}. 
+#' Default to TRUE.
+#' @param add.const Logical indicating in \code{\link{cmdscale}} if an additive 
+#' constant c* should be computed, and added to the non-diagonal dissimilarities 
+#' such that the modified dissimilarities are Euclidean. Default to FALSE.
 #' @keywords graph
 #' @export
 #' @examples
-#' cmds.plot <- gtClassicalMDSPlot(dist.comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+#' cmds.plot <- gtClassicalMDSPlot(dist.comm, env, colour.id="FishSpecies", shape.id="FeedingPattern")
 #' plot(cmds.plot)
 #' 
 #' @rdname extScatterPlot
 gtClassicalMDSPlot <- function(dist.comm, attr.df, 
                                colour.id=NULL, shape.id=NULL, link.id=NULL, 
-                               text.id=NULL, text.or.point=3, text.data = NULL, 
+                               text.id=NULL, text.or.point=3, 
+                               text.size.id=NULL, text.size=3,
                                eig=TRUE, k=2, add.const=FALSE, 
                                title="Classical MDS", verbose=TRUE, ...) {
   if (! missing(attr.df)) {
@@ -187,11 +209,23 @@ gtClassicalMDSPlot <- function(dist.comm, attr.df,
   if (text.or.point != 2)
     text.id="Row.names"
   
+  if (! is.null(text.size.id)) {
+    if (! text.size.id %in% colnames(attr.df))
+        stop("Invalid text.size.id,", text.size.id,  "not exsit in meta data column names !\n")
+    # ggplot2 sizes are measured in mm. 
+    # Therefore cex=1 would correspond to size=3.81 or size=5.08 
+    # depending on if it is being scaled by the width or height.
+    # renormalization min to 1
+    min.s=min(df.points.merge[,text.size.id])
+    max.s=max(df.points.merge[,text.size.id])
+    text.size=round(df.points.merge[,text.size.id]/min.s*3.81, 2)
+  }
+  
   # Plot MDS ordination
   gg.plot <- ComMA::ggScatterPlot(df.points.merge, x.id="MDS1", y.id="MDS2", 
                                   colour.id=colour.id, shape.id=shape.id, link.id=link.id, 
                                   text.id=text.id, text.or.point=text.or.point, 
-                                  text.data=text.data, title=title, 
+                                  text.size=text.size, title=title, 
                                   verbose=verbose, ...)
   # turns off clipping
   gt <- ComMA::unclip.ggplot(gg.plot) 
@@ -211,13 +245,13 @@ gtClassicalMDSPlot <- function(dist.comm, attr.df,
 #' For example, a community data defined by \code{\link{vegan}} which is 
 #' a transposed matrix of community matrix in \code{\link{ComMA}}.
 #' Use \code{\link{transpose.df}} to rotate the data frame.
-#' @param scale.pca Logical indicating whether the variables should be 
-#' scaled to have unit variance before the analysis takes place. 
-#' Default to TURE.
+#' @param scale.pca Logical indicating in \code{\link{prcomp}} 
+#' whether the variables should be scaled to have unit variance 
+#' before the analysis takes place. Default to TURE.
 #' @keywords graph
 #' @export
 #' @examples
-#' pca.plot <- gtPCAPlot(df.comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+#' pca.plot <- gtPCAPlot(df.comm, env, colour.id="FishSpecies", shape.id="FeedingPattern")
 #' plot(pca.plot)
 #' 
 #' @rdname extScatterPlot
@@ -302,8 +336,8 @@ gtPCAPlot <- function(df.comm, attr.df, x.i=1, y.i=2,
 #' @keywords graph
 #' @export
 #' @examples 
-#' rare.curv <- gtRarefactionCurve(df.size, attr.df, group.id="Samples", colour.id="Species", shape.id="GutSegment", 
-#'              point.size=2, x.trans="log", auto.scale.x=T)
+#' rare.curv <- gtRarefactionCurve(df.size, attr.df, group.id="Samples", colour.id="Species",  
+#'                        shape.id="GutSegment",point.size=2, x.trans="log", auto.scale.x=T)
 #' plot(rare.curv)
 gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=NULL,
                                line.type = 2, line.alpha=0.75, shape.id=NULL,

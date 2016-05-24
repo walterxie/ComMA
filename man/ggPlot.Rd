@@ -27,10 +27,10 @@ ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   text.or.point = 3, text.avoid.overlap = FALSE, x.facet.id = NULL,
   y.facet.id = NULL, coord.flip = FALSE, xintercept = NULL,
   yintercept = NULL, line.type = 2, x.lim.cart = NULL,
-  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
-  legend.col = 1, legend.row = 0, title = "Scatter Plot",
-  title.size = 10, x.lab = NULL, y.lab = NULL,
-  legend.position = "right", legend.direction = "vertical",
+  y.lim.cart = NULL, palette = NULL, legend.title.colour = NULL,
+  legend.title.shape = NULL, legend.title.size = NULL, legend.col = 1,
+  legend.row = 0, title = "Scatter Plot", title.size = 10, x.lab = NULL,
+  y.lab = NULL, legend.position = "right", legend.direction = "vertical",
   x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
 
@@ -42,8 +42,9 @@ ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   y.trans = "identity", auto.scale.y = FALSE, text.id = NULL,
   text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
   text.alpha = 0.5, x.lim.cart = NULL, y.lim.cart = NULL,
-  palette = NULL, legend.title = NULL, legend.col = 1, legend.row = 0,
-  title = "", title.size = 10, x.lab = NULL, y.lab = NULL,
+  palette = NULL, legend.title.group = NULL, legend.title.colour = NULL,
+  legend.title.shape = NULL, legend.col = 1, legend.row = 0, title = "",
+  title.size = 10, x.lab = NULL, y.lab = NULL,
   legend.position = "right", legend.direction = "vertical",
   x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
@@ -59,10 +60,10 @@ ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
   x.facet.id = NULL, y.facet.id = NULL, coord.flip = FALSE,
   y.trans = "identity", auto.scale.y = FALSE, x.lim.cart = NULL,
-  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
-  legend.col = 1, legend.row = 0, title = "Box Whiskers Plot",
-  title.size = 10, x.lab = NULL, y.lab = NULL,
-  legend.position = "right", legend.direction = "vertical",
+  y.lim.cart = NULL, palette = NULL, legend.title.fill = NULL,
+  legend.title.colour = NULL, legend.col = 1, legend.row = 0,
+  title = "Box Whiskers Plot", title.size = 10, x.lab = NULL,
+  y.lab = NULL, legend.position = "right", legend.direction = "vertical",
   x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
 
@@ -71,11 +72,12 @@ ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
   y.facet.id = NULL, x.lim.cart = NULL, y.lim.cart = NULL,
   x.trans = "identity", auto.scale.x = FALSE, y.trans = "identity",
   auto.scale.y = FALSE, fill.palette = NULL, colour.palette = NULL,
-  coord.flip = FALSE, legend.title = NULL, legend.col = 1,
-  legend.row = 0, title = "Kernel Density Estimate", title.size = 10,
-  x.lab = NULL, y.lab = NULL, legend.position = "right",
-  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
-  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
+  coord.flip = FALSE, legend.title.colour = NULL,
+  legend.title.fill = NULL, legend.col = 1, legend.row = 0,
+  title = "Kernel Density Estimate", title.size = 10, x.lab = NULL,
+  y.lab = NULL, legend.position = "right", legend.direction = "vertical",
+  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
+  no.panel.border = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{df}{A data frame used for plot.}
@@ -111,8 +113,6 @@ Default NULL to use \code{\link{ggplot}} default colours.}
 \item{coord.flip}{If TRUE, then flip cartesian coordinates so that horizontal 
 becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
 \code{\link{coord_flip}}.}
-
-\item{legend.title}{The title of legend. Set legend.title="" to remove legend.}
 
 \item{legend.col, legend.row}{Customize the number of columns or rows for legend in bar chart. 
 They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0.}
@@ -208,6 +208,9 @@ Default to alpha("black", 0.3).}
 the individual elements in box Whiskers plot. 
 This is useful when you want to align narrow geoms with wider geoms. 
 Refer to \code{\link{position_dodge}}.}
+
+\item{legend.title.fill, legend.title.colour, legend.title.shape, legend.title.group, }{legend.title.size The title of legend created by fill, colour, shape, group, or size. 
+Set legend.title.*="" to remove legend.}
 
 \item{density.pos}{Position adjustment for \code{ggDensityEstimate}, either as a string, 
 or the result of a call to a position adjustment function. Default to "identity". 

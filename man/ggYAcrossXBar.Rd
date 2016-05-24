@@ -36,7 +36,7 @@ and uses \code{\link{ggBarChart}} to plot.
 \examples{
  
 community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-bar.yx <- ComMA::ggYAcrossXBar(community.matrix)
+bar.yx <- ggYAcrossXBar(community.matrix)
 }
 \keyword{graph}
 

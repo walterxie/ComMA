@@ -85,7 +85,9 @@
 #' such as "Row.names" column after \code{\link{merge}}.
 #' @param text.size,text.hjust,text.vjust,text.alpha 
 #' The arguments to adjust text in \code{\link{geom_text}} in the line or scatter plot.
-#' @param legend.title The title of legend. Set legend.title="" to remove legend.
+#' @param legend.title.fill,legend.title.colour,legend.title.shape,legend.title.group,
+#' legend.title.size The title of legend created by fill, colour, shape, group, or size. 
+#' Set legend.title.*="" to remove legend.
 #' @param legend.col,legend.row Customize the number of columns or rows for legend in bar chart. 
 #' They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0. 
 #' @param x.text,y.text If FALSE, then hide x or y axis labels in plot. 
@@ -152,7 +154,8 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   
   p <- ggOptPalette(p, scale.to="fill", palette=palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
+  p <- ggOptLegend(p, legend.title.fill=legend.title, 
+                   legend.col=legend.col, legend.row=legend.row)
   
   p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
@@ -214,7 +217,8 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
-                          legend.title=NULL, legend.col=1, legend.row=0,  
+                          legend.title.colour=NULL, legend.title.shape=NULL,
+                          legend.title.size=NULL, legend.col=1, legend.row=0,  
                           title="Scatter Plot", title.size = 10, x.lab=NULL, y.lab=NULL, 
                           legend.position="right", legend.direction="vertical",
                           x.text.angle=0, x.text=TRUE, y.text=TRUE, 
@@ -236,6 +240,9 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
     if (is.null(text.id)) 
       stop("Please specify 'text.id' to display text !")
     if (text.or.point == 1) {
+      # prevent Error: Aesthetics must be either length 1 or the same as the data (5): size
+      if (is.null(text.data))
+        text.data=df
       if (text.hjust == -0.1)
         text.hjust=0 
       if (text.vjust == -0.2)
@@ -245,7 +252,7 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
     }
     p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
                    text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
-                   text.alpha=text.alpha, text.avoid.overlap=text.avoid.overlap)
+                   text.alpha=text.alpha, text.avoid.overlap=text.avoid.overlap, verbose=verbose)
   }
   
   p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, 
@@ -276,7 +283,9 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
   
   p <- ggOptPalette(p, palette=palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
+  p <- ggOptLegend(p, legend.title.colour=legend.title.colour, 
+                   legend.title.shape=legend.title.shape, legend.title.size=legend.title.size,
+                   legend.col=legend.col, legend.row=legend.row)
   
   p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
@@ -327,7 +336,8 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
                             text.id=NULL, text.data = NULL, text.size = 3, 
                             text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
                             x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
-                            legend.title=NULL, legend.col=1, legend.row=0, 
+                            legend.title.group=NULL, legend.title.colour=NULL, 
+                            legend.title.shape=NULL, legend.col=1, legend.row=0, 
                             title="", title.size = 10, x.lab=NULL, y.lab=NULL, 
                             legend.position="right", legend.direction="vertical",
                             x.text.angle=0, x.text=TRUE, y.text=TRUE, 
@@ -374,7 +384,9 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
   
   p <- ggOptPalette(p, palette=palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
+  p <- ggOptLegend(p, legend.title.group=legend.title.group,
+                   legend.title.colour=legend.title.colour, legend.title.shape=legend.title.shape, 
+                   legend.col=legend.col, legend.row=legend.row)
   
   p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
@@ -483,7 +495,8 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
                               x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                               y.trans="identity", auto.scale.y=FALSE, 
                               x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
-                              legend.title=NULL, legend.col=1, legend.row=0, 
+                              legend.title.fill=NULL, legend.title.colour=NULL, 
+                              legend.col=1, legend.row=0, 
                               title="Box Whiskers Plot", title.size = 10, 
                               x.lab=NULL, y.lab=NULL, 
                               legend.position="right", legend.direction="vertical",
@@ -513,7 +526,9 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
   
   p <- ggOptPalette(p, scale.to="fill", palette=palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
+  p <- ggOptLegend(p, legend.title.colour=legend.title.colour, 
+                   legend.title.fill=legend.title.fill, 
+                   legend.col=legend.col, legend.row=legend.row)
   
   p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
   if (no.panel.border)
@@ -568,7 +583,8 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
                               x.trans="identity", auto.scale.x=FALSE, 
                               y.trans="identity", auto.scale.y=FALSE,
                               fill.palette=NULL, colour.palette=NULL, coord.flip=FALSE,
-                              legend.title=NULL, legend.col=1, legend.row=0, 
+                              legend.title.colour=NULL, legend.title.fill=NULL,
+                              legend.col=1, legend.row=0, 
                               title="Kernel Density Estimate", title.size=10, 
                               x.lab=NULL, y.lab=NULL, 
                               legend.position="right", legend.direction="vertical",
@@ -600,7 +616,9 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
   p <- ggOptPalette(p, scale.to="fill", palette=fill.palette)
   p <- ggOptPalette(p, scale.to="colour", palette=colour.palette)
   
-  p <- ggOptLegend(p, legend.title=legend.title, legend.col=legend.col, legend.row=legend.row)
+  p <- ggOptLegend(p, legend.title.colour=legend.title.colour, 
+                   legend.title.fill=legend.title.fill, 
+                   legend.col=legend.col, legend.row=legend.row)
   
   if (density.pos=="stack" && title=="Kernel Density Estimate")
     title <- paste("Conditional", title)

@@ -261,7 +261,7 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
 #' @export
 #' @examples  
 #' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
-#' bar.yx <- ComMA::ggYAcrossXBar(community.matrix)
+#' bar.yx <- ggYAcrossXBar(community.matrix)
 ggYAcrossXBar <- function(community.matrix, title="The number of OTUs/reads across the number of samples", 
                           x.lab="Number of samples crossed", y.lab="Number of OTUs/reads",
                           y.trans="log", auto.scale.y=TRUE, x.scale="discrete", x.interval=1, 
