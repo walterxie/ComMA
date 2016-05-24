@@ -83,6 +83,26 @@ ggOptPointAndShape <- function(p, col.names, shape.id=NULL, data=NULL, shapes=NU
   return(p)
 }
 
+# add text.id before ggOptText, such as df$row.names <- rownames(df)
+# If check_overlap=TRUE, text that overlaps previous text in the same layer will not be plotted
+ggOptText <- function(p, col.names, text.id=NULL, text.data=NULL, colour.id=NULL, 
+                      text.size=3, text.hjust=-0.1, text.vjust=-0.2, 
+                      text.alpha=0.5, text.avoid.overlap=TRUE) {
+  if (! is.null(text.id)) {
+    if (!is.element(tolower(text.id), tolower(col.names)))
+      stop("Data frame do NOT have column name \"", text.id, "\" !")
+    
+    aes.string <- paste0("aes(label=", text.id)
+    if (! is.null(colour.id)) 
+      aes.string <- paste0(aes.string, ", colour=", colour.id)
+    aes.string <- paste0(aes.string, ")") 
+    p <- p + geom_text(data=text.data, eval(parse(text = aes.string)), size=text.size, 
+                       hjust=text.hjust, vjust=text.vjust, alpha=text.alpha, 
+                       check_overlap = text.avoid.overlap)
+  }
+  return(p)
+}
+
 # normally ellipsed.id == colour.id to show clusters
 ggOptEllipse <- function(p, col.names, ellipsed.id=NULL) {
   if (! is.null(ellipsed.id)) {
@@ -107,23 +127,6 @@ ggOptPalette <- function(p, scale.to="colour", palette=NULL, verbose=TRUE) {
       cat("colour scale : ", scale.string, "\n")
     
     p <- p + eval(parse(text = scale.string))
-  }
-  return(p)
-}
-
-# add text.id before ggOptText, such as df$row.names <- rownames(df)
-ggOptText <- function(p, col.names, text.id=NULL, text.data=NULL, colour.id=NULL, text.size=3, 
-                      text.hjust=-0.1, text.vjust=-0.2, text.alpha=0.5) {
-  if (! is.null(text.id)) {
-    if (!is.element(tolower(text.id), tolower(col.names)))
-      stop("Data frame do NOT have column name \"", text.id, "\" !")
-    
-    aes.string <- paste0("aes(label=", text.id)
-    if (! is.null(colour.id)) 
-      aes.string <- paste0(aes.string, ", colour=", colour.id)
-    aes.string <- paste0(aes.string, ")") 
-    p <- p + geom_text(data=text.data, eval(parse(text = aes.string)), size=text.size, 
-                       hjust=text.hjust, vjust=text.vjust, alpha=text.alpha)
   }
   return(p)
 }

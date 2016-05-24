@@ -173,6 +173,8 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
 #' 
 #' @param point.size,point.alpha The feature of points for \code{\link{geom_point}}. 
 #' Default size to 3, alpha to 1.
+#' @param text.or.point If 1, then display the text only; if 2, then only points; 
+#' if 3, the default, then both the text and points.
 #' @param colour.id,shape.id,link.id The column name in \code{df} to 
 #' define how the data points are coloured, shaped, or linked according their values.
 #' @param ellipsed.id The column name in \code{df} to define 
@@ -182,6 +184,8 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
 #' and \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}.
 #' @param xintercept,yintercept,linetype Add horizontal or vertical line. 
 #' Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.
+#' @param text.avoid.overlap If TRUE, text that overlaps previous text 
+#' in the same layer will not be plotted. Use it carefully. Default to FALSE.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -203,10 +207,11 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
 #' @rdname ggPlot
 ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL, 
                           shapes=NULL, point.size=3, point.alpha=1,
-                          x.facet.id=NULL, y.facet.id=NULL, 
                           link.id=NULL, ellipsed.id=NULL, text.id=NULL, 
                           text.data = NULL, text.size = 3, text.hjust=-0.1, 
-                          text.vjust = -0.2, text.alpha = 0.5, coord.flip=FALSE,
+                          text.vjust = -0.2, text.alpha = 0.5, 
+                          text.or.point=3, text.avoid.overlap = FALSE,
+                          x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                           legend.title=NULL, legend.col=1, legend.row=0,  
@@ -217,13 +222,31 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id, verbose=verbose)
   col.names <- colnames(df)
   
-  if (! is.null(shape.id) && is.null(shapes)) {
-    # The shape palette can deal with a maximum of 6 discrete values
-    n_shape <- length(unique(df[,shape.id]))
-    shapes <- seq(1, (1 + n_shape-1))
+  if (text.or.point > 1) {
+    if (! is.null(shape.id) && is.null(shapes)) {
+      # The shape palette can deal with a maximum of 6 discrete values
+      n_shape <- length(unique(df[,shape.id]))
+      shapes <- seq(1, (1 + n_shape-1))
+    }
+    p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, shapes=shapes, 
+                            point.size=point.size, point.alpha=point.alpha)
   }
-  p <- ggOptPointAndShape(p, col.names, shape.id=shape.id, shapes=shapes, 
-                          point.size=point.size, point.alpha=point.alpha)
+  
+  if (text.or.point != 2) {
+    if (is.null(text.id)) 
+      stop("Please specify 'text.id' to display text !")
+    if (text.or.point == 1) {
+      if (text.hjust == -0.1)
+        text.hjust=0 
+      if (text.vjust == -0.2)
+        text.vjust=0
+      if (text.alpha == 0.5)
+        text.alpha = 1
+    }
+    p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
+                   text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
+                   text.alpha=text.alpha, text.avoid.overlap=text.avoid.overlap)
+  }
   
   p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, 
                       y.facet.id=y.facet.id, verbose=verbose)
@@ -242,11 +265,7 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
     
     p <- p + geom_polygon(data = hulls, aes_string(mapping=link.id), fill = NA, alpha = 0.5)
   }
-  
-  p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
-                 text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
-                 text.alpha=text.alpha)
-  
+
   if (! is.null(xintercept))
     p <- p + geom_vline(xintercept=xintercept,linetype=line.type)
   if (! is.null(yintercept))
@@ -289,13 +308,13 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
 #' mcmc.log <- readMCMCLog("data-raw/star.beast.log")
 #' mcmc.log$state <- as.double(rownames(mcmc.log))
 #' names(mcmc.log)
-#' gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species")
+#' gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species")
 #' # turns off clipping
 #' g.table <- unclip.ggplot(gg.plot) 
 #' plot(g.table)
 #' 
-#' gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
-#' gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
+#' gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
+#' gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
 #' 
 #' @rdname ggPlot
 ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL, 

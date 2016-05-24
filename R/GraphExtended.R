@@ -22,11 +22,41 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
   return(attr.v)
 }
 
-#' NMDS Plot
+#' @name extScatterPlot
+#' @title The Graphs Extended From \code{\link{ggScatterPlot}}
+#'
+#' @description 
+#' The difference between principal components analysis (PCA) 
+#' and multidimensional scaling (MDS) is discussed in 
+#' \url{http://stats.stackexchange.com/questions/14002/
+#' whats-the-difference-between-principal-components-analysis-and-multidimensional}.
 #' 
-#' Use \code{\link{metaMDS}} in \code{\link{vegan}}
+#' A classical MDS is also known as principal coordinates analysis (Gower, 1966).
+#' 
+#' @return 
+#' A \code{\link{gtable}} object, which turns off clipping.
+#' It needs to use \code{\link{pdf.gtplot}} to create pdf, 
+#' or \code{\link{plot.gtable}} to plot in console. 
+#' 
+#' @param attr.df A data frame of meta data to define 
+#' how the plot is coloured, shaped, or linked.
+#' The row names have to match row names of the input data, 
+#' such as a matix or \code{\link{dist}} object.
+#' The column names have to contain the id of colour, shape, link, or text.
+#' 
+#' This data frame will \code{\link{merge}} with data points generated 
+#' by PCA or MDS, so that the rows whose names are not matched are dropped. 
+#' @param colour.id,shape.id,link.id,text.id The column name in \code{attr.df} to 
+#' define how the data points are coloured, shaped, linked, or labelled.
+#' @param text.or.point If 1, then display the text only; if 2, then only points; 
+#' if 3, the default, then both the text and points.
+#' @param k The number of dimensions in \code{\link{metaMDS}}, 
+#' or maximum dimension of the space in \code{\link{cmdscale}}. Default to 2.
+#' @param ... Other arguments passed to \code{\link{ggScatterPlot}}.
+
+#' @details 
+#' NMDS plot \code{gtNMDSPlot} uses \code{\link{metaMDS}} in \code{\link{vegan}}
 #' to create Nonmetric Multidimensional Scaling (NMDS) plot.
-#' It is extended from \code{\link{gtScatterPlot}}. 
 #' 
 #' @param comm Community data for NMDS plot. 
 #' It is dissimilarities either as a \code{\link{dist}} structure 
@@ -35,19 +65,21 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL) {
 #' Use \code{\link{transpose.df}} to rotate the data frame.
 #' Detail to \code{\link{metaMDS}}.
 #' @param distance Dissimilarity index used in \code{\link{vegdist}}.
-#' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
-#' where its row names have to match row names of community data \code{comm}.
-#' @param ... Other arguments passed to \code{\link{gtScatterPlot}}.
+#' Default to "bray".
+#' @param title.add.stress If TRUE, the default, then add stress from 
+#' \code{\link{metaMDS}} to the title.
 #' @keywords graph
 #' @export
 #' @examples
-#' 
 #' nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
 #' plot(nmds.plot)
+#' 
+#' @rdname extScatterPlot
 gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
-                       add.text=TRUE, text.data = NULL, text.size=3, palette=NULL,
-                       xintercept=NULL, yintercept=NULL, 
-                       distance="bray", title="MDS", verbose=TRUE, ...) {
+                       text.id=NULL, text.or.point=3, text.data = NULL, 
+                       distance="bray", k = 2, 
+                       title="NMDS", title.add.stress=TRUE, 
+                       verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
       stop("Invalid attr.df,", paste(rownames(as.matrix(comm)), collapse = ","), 
@@ -56,37 +88,110 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
   
   # Run metaMDS, get points and stress
   suppressMessages(require(vegan))
-  mds <- metaMDS(comm, distance = distance)
-  pts.mds <- as.data.frame(mds$points)
-  pts.mds <- pts.mds[order(rownames(pts.mds)),]
+  mds <- metaMDS(comm, distance = distance, k = k)
   
-  if (title != "")
+  if (is.null(df.points))
+    stop("No points returned from metaMDS, please check your input data !\n")
+  
+  df.points <- as.data.frame(mds$points)
+  df.points <- df.points[order(rownames(df.points)),]
+  
+  if (title != "" && title.add.stress)
     title <- paste0(title, " (stress ", round(mds$stress, 2), ")")
   
   if (! missing(attr.df)) {
-    #rownames(pts.mds) <- tolower(rownames(pts.mds))
+    #rownames(df.points) <- tolower(rownames(df.points))
     #rownames(attr.df) <- tolower(rownames(attr.df))
     
     validateAttr(attr.df, colour.id=colour.id, shape.id=shape.id, link.id=shape.id)
     
-    pts.mds.merge <- merge(pts.mds, attr.df, by = "row.names")
+    df.points.merge <- merge(df.points, attr.df, by = "row.names")
     
-    if (nrow(pts.mds.merge) != nrow(pts.mds) || nrow(pts.mds.merge) != nrow(attr.df)) 
-      warning(paste("Some data points are missing after merge ! nrow(pts.mds.merge) =", 
-                    nrow(pts.mds.merge), ", nrow(pts.mds) =", nrow(pts.mds), ", nrow(attr.df) =", nrow(attr.df) ))
+    if (nrow(df.points.merge) != nrow(df.points) || nrow(df.points.merge) != nrow(attr.df)) 
+      warning(paste("Some data points are missing after merge ! nrow(df.points.merge) =", 
+                    nrow(df.points.merge), ", nrow(df.points) =", nrow(df.points), 
+                    ", nrow(attr.df) =", nrow(attr.df) ))
   } else {
-    pts.mds.merge <- pts.mds
-    pts.mds.merge[,"Row.names"] <- rownames(pts.mds) 
+    df.points.merge <- df.points
+    df.points.merge[,"Row.names"] <- rownames(df.points) 
   }
   
-  if (add.text)
+  if (text.or.point != 2)
     text.id="Row.names"
   
   # Plot MDS ordination
-  gg.plot <- ComMA::gtScatterPlot(pts.mds.merge, x.id="MDS1", y.id="MDS2", colour.id=colour.id, 
-                                  shape.id=shape.id, link.id=link.id, text.id=text.id, 
-                                  palette=palette, xintercept=xintercept, yintercept=yintercept,
-                                  text.data=text.data, text.size=text.size, title=title, 
+  gg.plot <- ComMA::ggScatterPlot(df.points.merge, x.id="MDS1", y.id="MDS2", 
+                                  colour.id=colour.id, shape.id=shape.id, link.id=link.id, 
+                                  text.id=text.id, text.or.point=text.or.point, 
+                                  text.data=text.data, title=title, 
+                                  verbose=verbose, ...)
+  # turns off clipping
+  gt <- ComMA::unclip.ggplot(gg.plot) 
+  
+  return(gt)
+}
+
+#' @details
+#' Classical MDS \code{gtClassicalMDSPlot} uses \code{\link{cmdscale}} to  
+#' create a classical (metric) multidimensional scaling plot of a data matrix. 
+#' Also known as principal coordinates analysis (Gower, 1966).
+#' 
+#' @param dist.comm A distance structure such as that returned by \code{\link{dist}},  
+#' or a full symmetric matrix containing the dissimilarities for the classical 
+#' MDS \code{\link{cmdscale}}.
+#' @param eig Indicates whether eigenvalues should be returned. Default to TRUE.
+#' @param add.const Logical indicating if an additive constant c* should be computed, 
+#' and added to the non-diagonal dissimilarities such that the modified dissimilarities 
+#' are Euclidean. Default to FALSE.
+#' @keywords graph
+#' @export
+#' @examples
+#' cmds.plot <- gtClassicalMDSPlot(dist.comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+#' plot(cmds.plot)
+#' 
+#' @rdname extScatterPlot
+gtClassicalMDSPlot <- function(dist.comm, attr.df, 
+                               colour.id=NULL, shape.id=NULL, link.id=NULL, 
+                               text.id=NULL, text.or.point=3, text.data = NULL, 
+                               eig=TRUE, k=2, add.const=FALSE, 
+                               title="Classical MDS", verbose=TRUE, ...) {
+  if (! missing(attr.df)) {
+    if (! all(rownames(as.matrix(dist.comm)) %in% rownames(attr.df)) )
+      stop("Invalid attr.df,", paste(rownames(as.matrix(dist.comm)), collapse = ","), 
+           "should match", paste(rownames(attr.df), collapse = ","), "!\n")
+  }
+  
+  # Run cmdscale, get points, class(fit) == matrix
+  fit <- cmdscale(dist.comm, eig=TRUE, k=2, add = add.const) 
+  
+  df.points <- as.data.frame(fit$points)
+  colnames(df.points) <- c("MDS1", "MDS2")
+
+  if (! missing(attr.df)) {
+    #rownames(df.points) <- tolower(rownames(df.points))
+    #rownames(attr.df) <- tolower(rownames(attr.df))
+    
+    validateAttr(attr.df, colour.id=colour.id, shape.id=shape.id, link.id=shape.id)
+    
+    df.points.merge <- merge(df.points, attr.df, by = "row.names")
+    
+    if (nrow(df.points.merge) != nrow(df.points) || nrow(df.points.merge) != nrow(attr.df)) 
+      warning(paste("Some data points are missing after merge ! nrow(df.points.merge) =", 
+                    nrow(df.points.merge), ", nrow(df.points) =", nrow(df.points), 
+                    ", nrow(attr.df) =", nrow(attr.df) ))
+  } else {
+    df.points.merge <- df.points
+    df.points.merge[,"Row.names"] <- rownames(df.points) 
+  }
+  
+  if (text.or.point != 2)
+    text.id="Row.names"
+  
+  # Plot MDS ordination
+  gg.plot <- ComMA::ggScatterPlot(df.points.merge, x.id="MDS1", y.id="MDS2", 
+                                  colour.id=colour.id, shape.id=shape.id, link.id=link.id, 
+                                  text.id=text.id, text.or.point=text.or.point, 
+                                  text.data=text.data, title=title, 
                                   verbose=verbose, ...)
   # turns off clipping
   gt <- ComMA::unclip.ggplot(gg.plot) 
@@ -95,29 +200,33 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
 }
 
 
-#' PCA Plot
+
+#' @details
+#' PCA plot \code{gtPCAPlot} uses \code{\link{prcomp}} to create 
+#' a principal components analysis (PCA) plot.
 #' 
-#' Use \code{\link{prcomp}} to create Principal Components Analysis (PCA) plot.
-#' It is extended from \code{\link{gtScatterPlot}}. 
-#' 
-#' @param comm Community data for NMDS plot. 
-#' It is dissimilarities either as a \code{\link{dist}} structure 
-#' or as a community data defined by \code{\link{vegan}} which is 
+#' @param df.comm A numeric or complex matrix (or data frame), 
+#' which provides the data for the principal components analysis 
+#' \code{\link{prcomp}}.
+#' For example, a community data defined by \code{\link{vegan}} which is 
 #' a transposed matrix of community matrix in \code{\link{ComMA}}.
 #' Use \code{\link{transpose.df}} to rotate the data frame.
-#' Detail to \code{\link{prcomp}}.
-#' @param attr.df A data frame to define how NMDS plot is coloured, shaped, or linked.
-#' where its row names have to match row names of community data \code{comm}.
-#' @param ... Other arguments passed to \code{\link{gtScatterPlot}}.
+#' @param scale.pca Logical indicating whether the variables should be 
+#' scaled to have unit variance before the analysis takes place. 
+#' Default to TURE.
 #' @keywords graph
 #' @export
 #' @examples
-#' 
-#' pca.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+#' pca.plot <- gtPCAPlot(df.comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
 #' plot(pca.plot)
-gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL, link.id=NULL, 
-                      add.text=TRUE, text.data=NULL, text.size=3, palette=NULL,
-                      xintercept=NULL, yintercept=NULL, title="PCA", verbose=TRUE, ...) {
+#' 
+#' @rdname extScatterPlot
+gtPCAPlot <- function(df.comm, attr.df, x.i=1, y.i=2, 
+                      colour.id=NULL, shape.id=NULL, link.id=NULL, 
+                      text.id=NULL, text.or.point=3, text.data=NULL, 
+                      scale.pca=TRUE, title="PCA", 
+                      verbose=TRUE, ...) {
+  
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
       stop("Invalid attr.df,", paste(rownames(as.matrix(comm)), collapse = ","), 
@@ -125,39 +234,39 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
   }
   
   # Run prcomp, get points 
-  pca <- prcomp(comm, scale. = TRUE)
-  pts.pca <- as.data.frame(pca$rotation)
-  pts.pca <- pts.pca[order(rownames(pts.pca)),]
+  pca <- prcomp(comm, scale. = scale.pca)
+  df.points <- as.data.frame(pca$rotation)
+  df.points <- df.points[order(rownames(df.points)),]
   
-  if (x.i>=y.i || x.i < 1 || y.i > ncol(pts.pca))
+  if (x.i>=y.i || x.i < 1 || y.i > ncol(df.points))
     stop("Invalid x.i", x.i,  "or y.i", y.i, "for PCA dimension index !\n")
   
   if (! missing(attr.df)) {
-    #rownames(pts.pca) <- tolower(rownames(pts.pca))
+    #rownames(df.points) <- tolower(rownames(df.points))
     #rownames(attr.df) <- tolower(rownames(attr.df))
     
     validateAttr(attr.df, colour.id=colour.id, shape.id=shape.id, link.id=shape.id)
     
-    pts.pca.merge <- merge(pts.pca, attr.df, by = "row.names")
+    df.points.merge <- merge(df.points, attr.df, by = "row.names")
     
-    if (nrow(pts.pca.merge) != nrow(pts.pca) || nrow(pts.pca.merge) != nrow(attr.df)) 
+    if (nrow(df.points.merge) != nrow(df.points) || nrow(df.points.merge) != nrow(attr.df)) 
       warning(paste("Some data points are missing after merge !", 
-                    nrow(pts.pca.merge), "!=", nrow(pts.pca), "!=", nrow(attr.df) ))
+                    nrow(df.points.merge), "!=", nrow(df.points), "!=", nrow(attr.df) ))
   } else {
-    pts.pca.merge <- pts.pca
-    pts.pca.merge[,"Row.names"] <- rownames(pts.pca) 
+    df.points.merge <- df.points
+    df.points.merge[,"Row.names"] <- rownames(df.points) 
   }
   
-  if (add.text)
+  if (text.or.point != 2)
     text.id="Row.names"
   
   x.id <- paste0("PC", x.i)
   y.id <- paste0("PC", y.i)
   # Plot MDS ordination
-  gg.plot <- ComMA::gtScatterPlot(pts.pca.merge, x.id="PC1", y.id="PC2", colour.id=colour.id, 
-                                  shape.id=shape.id, link.id=link.id, text.id=text.id, 
-                                  palette=palette, xintercept=xintercept, yintercept=yintercept,
-                                  text.data=text.data, text.size=text.size, title=title, 
+  gg.plot <- ComMA::ggScatterPlot(df.points.merge, x.id="PC1", y.id="PC2", 
+                                  colour.id=colour.id, shape.id=shape.id, link.id=link.id, 
+                                  text.id=text.id, text.or.point=text.or.point, 
+                                  text.data=text.data, title=title, 
                                   verbose=verbose, ...)
   # turns off clipping
   gt <- ComMA::unclip.ggplot(gg.plot) 
@@ -183,6 +292,10 @@ gtPCAPlot <- function(comm, attr.df, x.i=1, y.i=2, colour.id=NULL, shape.id=NULL
 #' @param attr.df A data frame to define how rarefaction curves are coloured, shaped.
 #' @param group.id A column name from \code{df.to.melt} to \code{\link{melt}} 
 #' subsampled data points, which is copied from merged "row.names".
+#' @param line.or.point If 1, then display the line only; if 2, then only points; 
+#' if 3, the default, then both the line and points.
+#' @param end.point.only If TRUE, as default, then only display the points in 
+#' the end of lines. Otherwise, display all the points.
 #' @param x.prefix The regular expression to remove prefix from column names in 
 #' \code{df.to.melt} (e.g. size.100). Default to "^.*?\\\\.".
 #' @param ... Other arguments passed to \code{\link{gtLine}}.
@@ -247,7 +360,7 @@ gtRarefactionCurve <- function(df.size, attr.df, group.id="Samples", colour.id=N
     point.data <- aggregate(as.formula(aggr.formula), melt.df, max)
   } 
   
-  gg.plot <- ComMA::gtLineWithPoints(melt.df, x.id="variable", y.id="value", group.id=group.id, 
+  gg.plot <- ComMA::ggLineWithPoints(melt.df, x.id="variable", y.id="value", group.id=group.id, 
                                      colour.id=colour.id, shape.id=shape.id, 
                                      point.data=point.data, line.or.point=line.or.point,
                                      line.type=line.type, line.alpha=line.alpha,

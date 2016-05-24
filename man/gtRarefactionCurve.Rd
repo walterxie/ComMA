@@ -33,6 +33,12 @@ subsampled data points, which is copied from merged "row.names".}
 \item{x.prefix}{The regular expression to remove prefix from column names in 
 \code{df.to.melt} (e.g. size.100). Default to "^.*?\\\\.".}
 
+\item{line.or.point}{If 1, then display the line only; if 2, then only points; 
+if 3, the default, then both the line and points.}
+
+\item{end.point.only}{If TRUE, as default, then only display the points in 
+the end of lines. Otherwise, display all the points.}
+
 \item{...}{Other arguments passed to \code{\link{gtLine}}.}
 }
 \description{

@@ -21,10 +21,11 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
-  shapes = NULL, point.size = 3, point.alpha = 1, x.facet.id = NULL,
-  y.facet.id = NULL, link.id = NULL, ellipsed.id = NULL, text.id = NULL,
-  text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
-  text.alpha = 0.5, coord.flip = FALSE, xintercept = NULL,
+  shapes = NULL, point.size = 3, point.alpha = 1, link.id = NULL,
+  ellipsed.id = NULL, text.id = NULL, text.data = NULL, text.size = 3,
+  text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
+  text.or.point = 3, text.avoid.overlap = FALSE, x.facet.id = NULL,
+  y.facet.id = NULL, coord.flip = FALSE, xintercept = NULL,
   yintercept = NULL, line.type = 2, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title = NULL,
   legend.col = 1, legend.row = 0, title = "Scatter Plot",
@@ -143,6 +144,12 @@ how to draw ellipse over data points, which is normally same as
 such as "Row.names" column after \code{\link{merge}}.}
 
 \item{text.size, text.hjust, text.vjust, text.alpha}{The arguments to adjust text in \code{\link{geom_text}} in the line or scatter plot.}
+
+\item{text.or.point}{If 1, then display the text only; if 2, then only points; 
+if 3, the default, then both the text and points.}
+
+\item{text.avoid.overlap}{If TRUE, text that overlaps previous text 
+in the same layer will not be plotted. Use it carefully. Default to FALSE.}
 
 \item{xintercept, yintercept, linetype}{Add horizontal or vertical line. 
 Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
@@ -291,13 +298,13 @@ gg.plot <- ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ell
 mcmc.log <- readMCMCLog("data-raw/star.beast.log")
 mcmc.log$state <- as.double(rownames(mcmc.log))
 names(mcmc.log)
-gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species")
+gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species")
 # turns off clipping
 g.table <- unclip.ggplot(gg.plot) 
 plot(g.table)
 
-gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
-gg.plot <- gtLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
+gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
+gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
 
 ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), 
                              `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
