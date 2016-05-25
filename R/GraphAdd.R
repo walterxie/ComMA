@@ -41,28 +41,44 @@ ggAddLine <- function(gg.plot, linetype=1, xintercept, yintercept, intercept, sl
 #' Refer to \code{\link{stat_summary}}.
 #' 
 #' @param gg.plot A \code{\link{ggplot}} object.
-#' @param fun.y.lab A function to calculate numbers displayed in the figure.  
-#' Default to function \code{\link{mean}}. Ues \code{\link{length}} to show number of observations.
-#' @param fun.y.pos A function to calculate the initial poistion of text on y-value. 
-#' Default to \code{\link{median}}.
-#' @param y.adj The propotion of the initial poistion of text on y-value. 
+#' @param label.id A string of a data mapping (column name) provides labels. 
+#' If NULL, the default, then use \code{\link{stat_summary}} by given \code{fun.y.lab}. 
+#' Othewise, use \code{\link{geom_text}} by given \code{label.id}.
+#' @param hjust,vjust The adjustment of label positions. Only activated if label.id is not NULL.
+#' @param fun.y.lab A function to calculate numbers displayed in the figure. 
+#' Only activated if label.id is NULL. Default to function \code{\link{mean}}. 
+#' Ues \code{\link{length}} to show number of observations.
+#' @param fun.y.pos A function to calculate the initial position of text on y-value. 
+#' Only activated if label.id is NULL. Default to \code{\link{median}}.
+#' @param y.adj The propotion of the initial position of text on y-value. 
+#' Only activated if label.id is NULL.
 #' > 1 will raises the text, and < 1 will sinks the text. Default to 0.98.
 #' @param digits Integer indicating the number of decimal places for \code{\link{round}}.
+#' Only activated if label.id is NULL.
 #' @param dodge.width Dodging width, when different to the width of the individual elements. 
 #' Default to 0.8. Refer to \code{\link{position_dodge}}.
 #' @param text.size The text size of labels. Default to 3.
 #' @param text.colour The text colour. Default to black.
-#' @param ... Other arguments passed to \code{\link{stat_summary}}.
+#' @param ... Other arguments passed to \code{\link{geom_text}} or \code{\link{stat_summary}}.
 #' @keywords graph
 #' @export
 #' @examples 
-#' p <- ggAddNumbers(p, fun.y.lab=mean)
+#' # "total" have to exist in p$mapping
+#' p <- ggAddNumbers(p, label.id="total", hjust=ifelse(sign(total)>0, 1, 0))
 #' p <- ggAddNumbers(p, fun.y.lab=length, y.adj=1.02)
-ggAddNumbers <- function(gg.plot, fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, digits=2, 
-                         dodge.width=0.8, text.size=3, text.colour="black", ...) {
-  p <- gg.plot + stat_summary(fun.data = function(y) {return( c(y = fun.y.pos(y)*y.adj, label = round(fun.y.lab(y),digits)) )}, 
-                              geom = "text", position = position_dodge(width=dodge.width), 
-                              colour = text.colour, size = text.size, ...)
+ggAddNumbers <- function(gg.plot, label.id=NULL, hjust=0, vjust=0, 
+                         fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, digits=2, 
+                         dodge.width=0.9, text.size=4, text.colour="black", ...) {
+  if (! is.null(label.id)) {
+    if (! label.id %in% gg.plot$mapping)
+      stop("Cannot find label.id ", label.id, " from data$mapping in ggplot !")
+    p <- gg.plot + geom_text(aes_string(label=label.id, hjust=hjust, vjust=vjust), position = position_dodge(width=dodge.width), 
+                             colour = text.colour, size = text.size, ...)
+  } else {
+    p <- gg.plot + stat_summary(fun.data = function(y) {return( c(y = fun.y.pos(y)*y.adj, label = round(fun.y.lab(y),digits)) )}, 
+                                geom = "text", position = position_dodge(width=dodge.width), 
+                                colour = text.colour, size = text.size, ...)
+  }
 }
 
 #' Add error bars

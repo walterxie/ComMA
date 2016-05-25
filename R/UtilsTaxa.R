@@ -258,11 +258,11 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
     }
     # move taxa to rownames
     rownames(taxa.assign) <- taxa.assign[,1]
-    taxa.assign <- taxa.assign[,-1]
     # add rank attr
     attr(taxa.assign, "rank") <- ra
     
-    ta.list[[ra]] <- taxa.assign
+    # make sure 1-column data frame not converted to vector, see ?"[" 
+    ta.list[[ra]] <- taxa.assign[,-1, drop=FALSE]
     pre.ra.col <- ra.col
     pre.ra <- ra
   }

@@ -172,7 +172,7 @@ ggOptScaleAxis <- function(p, axis="y", scale="continuous", trans="identity",
     scale.string <- paste0(scale.string, ", labels=ComMA::scientific_10)") 
   } else {
     if (trans=="per") {
-      suppressMessages(require(scales))
+      suppressMessages(suppressWarnings(require(scales)))
       trans="identity"
       scale.string <- paste0(scale.string, ", labels=percent_format())") 
     } else {
@@ -263,7 +263,7 @@ ggLabTitle <- function(p, x.id, y.id, title, x.lab=NULL, y.lab=NULL) {
 }
 
 ggThemeOthers <- function(p, x.text=TRUE, y.text=TRUE, x.ticks=TRUE, y.ticks=TRUE, 
-                          x.text.angle=0, verbose=TRUE, 
+                          x.text.angle=0, verbose=TRUE, plot.margin.cm=NULL,
                           legend.position="right", legend.direction="vertical") {
   theme.string <- "theme(legend.position=legend.position, legend.direction=legend.direction"
   # hide x or y axis labels
@@ -286,6 +286,11 @@ ggThemeOthers <- function(p, x.text=TRUE, y.text=TRUE, x.ticks=TRUE, y.ticks=TRU
     cat("theme : ", theme.string, "\n")
   
   p <- p + eval(parse(text = theme.string))
+  
+  if (! is.null(plot.margin.cm)) {
+    suppressMessages(suppressWarnings(require(grid)))
+    p <- p + theme(plot.margin=unit(plot.margin.cm,"cm"))
+  }
   return(p)
 }
 

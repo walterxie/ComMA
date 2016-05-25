@@ -18,7 +18,8 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   legend.col = 1, legend.row = 0, title = "Bar Chart", title.size = 10,
   x.lab = NULL, y.lab = NULL, legend.position = "right",
   legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
-  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
+  y.text = TRUE, plot.margin.cm = NULL, no.panel.border = FALSE,
+  verbose = TRUE)
 
 ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, point.alpha = 1, link.id = NULL,

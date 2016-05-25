@@ -125,7 +125,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
                        title="Bar Chart", title.size=10, x.lab=NULL, y.lab=NULL, 
                        legend.position="right", legend.direction="vertical",
                        x.text.angle=0, x.text=TRUE, y.text=TRUE, 
-                       no.panel.border=FALSE, verbose=TRUE) {
+                       plot.margin.cm=NULL, no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, verbose=verbose)
   p <- p + geom_bar(position=bar.pos, stat=bar.stat) 
   
@@ -165,7 +165,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     verbose=verbose)
+                     plot.margin.cm=plot.margin.cm, verbose=verbose)
   
   return(p)
 }
