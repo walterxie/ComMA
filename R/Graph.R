@@ -152,7 +152,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
-  p <- ggOptPalette(p, scale.to="fill", palette=palette)
+  p <- ggOptPalette(p, scale.to="fill", palette=palette, verbose=verbose)
   
   p <- ggOptLegend(p, legend.title.fill=legend.title, 
                    legend.col=legend.col, legend.row=legend.row)
@@ -281,7 +281,7 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
-  p <- ggOptPalette(p, palette=palette)
+  p <- ggOptPalette(p, palette=palette, verbose=verbose)
   
   p <- ggOptLegend(p, legend.title.colour=legend.title.colour, 
                    legend.title.shape=legend.title.shape, legend.title.size=legend.title.size,
@@ -382,7 +382,7 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
-  p <- ggOptPalette(p, palette=palette)
+  p <- ggOptPalette(p, palette=palette, verbose=verbose)
   
   p <- ggOptLegend(p, legend.title.group=legend.title.group,
                    legend.title.colour=legend.title.colour, legend.title.shape=legend.title.shape, 
@@ -524,7 +524,7 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
-  p <- ggOptPalette(p, scale.to="fill", palette=palette)
+  p <- ggOptPalette(p, scale.to="fill", palette=palette, verbose=verbose)
   
   p <- ggOptLegend(p, legend.title.colour=legend.title.colour, 
                    legend.title.fill=legend.title.fill, 
@@ -613,8 +613,8 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
-  p <- ggOptPalette(p, scale.to="fill", palette=fill.palette)
-  p <- ggOptPalette(p, scale.to="colour", palette=colour.palette)
+  p <- ggOptPalette(p, scale.to="fill", palette=fill.palette, verbose=verbose)
+  p <- ggOptPalette(p, scale.to="colour", palette=colour.palette, verbose=verbose)
   
   p <- ggOptLegend(p, legend.title.colour=legend.title.colour, 
                    legend.title.fill=legend.title.fill, 
