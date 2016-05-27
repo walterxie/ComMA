@@ -204,16 +204,16 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL,
 #' @rdname ggPlot
 ggHistogram <- function(df, x.id, fill.id=NULL, 
                         bar.pos="stack", bins = NULL, binwidth = NULL, x.interval=0,
-                        x.trans="identity", x.scale="discrete", auto.scale.x=FALSE, 
-                        y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
+                        x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
+                        y.trans="identity",
                         x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                         xintercept=NULL, yintercept=NULL, line.type=2,
                         x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                         legend.title=NULL, legend.col=1, legend.row=0, 
-                       title="Histogram", title.size=10, x.lab=NULL, y.lab=NULL, 
-                       legend.position="right", legend.direction="vertical",
-                       x.text.angle=0, x.text=TRUE, y.text=TRUE, 
-                       plot.margin.cm=NULL, no.panel.border=FALSE, verbose=TRUE) {
+                        title="Histogram", title.size=10, x.lab=NULL, y.lab=NULL, 
+                        legend.position="right", legend.direction="vertical",
+                        x.text.angle=0, x.text=TRUE, y.text=TRUE, 
+                        plot.margin.cm=NULL, no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, fill.id=fill.id, verbose=verbose)
   p <- p + geom_histogram(stat="bin", position=bar.pos, bins=bins, binwidth=binwidth) 
   
@@ -234,15 +234,10 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
     p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
                         verbose=verbose)
   }
-  if (auto.scale.y) {
-    y.max <- max(df[,y.id])
-    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
-                        auto.scale.max=y.max, verbose=verbose)
-  } else {
-    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
-                        verbose=verbose)
-  }
-
+  
+  p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, verbose=verbose)
+ 
+  
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
@@ -440,21 +435,21 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
 #' 
 #' @rdname ggPlot
 ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL, 
-                            shape.id=NULL, shapes=NULL, line.or.point=3, 
-                            line.size=0.5, line.type = 1, line.alpha=1, 
-                            point.data=NULL, point.size=3, point.alpha=1,
-                            x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
-                            x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
-                            y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
-                            text.id=NULL, text.data = NULL, text.size = 3, 
-                            text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
-                            x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
-                            legend.title.group=NULL, legend.title.colour=NULL, 
-                            legend.title.shape=NULL, legend.col=1, legend.row=0, 
-                            title="", title.size = 10, x.lab=NULL, y.lab=NULL, 
-                            legend.position="right", legend.direction="vertical",
-                            x.text.angle=0, x.text=TRUE, y.text=TRUE, 
-                            no.panel.border=FALSE, verbose=TRUE) {
+                             shape.id=NULL, shapes=NULL, line.or.point=3, 
+                             line.size=0.5, line.type = 1, line.alpha=1, 
+                             point.data=NULL, point.size=3, point.alpha=1,
+                             x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
+                             x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
+                             y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
+                             text.id=NULL, text.data = NULL, text.size = 3, 
+                             text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
+                             x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
+                             legend.title.group=NULL, legend.title.colour=NULL, 
+                             legend.title.shape=NULL, legend.col=1, legend.row=0, 
+                             title="", title.size = 10, x.lab=NULL, y.lab=NULL, 
+                             legend.position="right", legend.direction="vertical",
+                             x.text.angle=0, x.text=TRUE, y.text=TRUE, 
+                             no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, group.id=group.id, colour.id=colour.id, verbose=verbose)
   col.names <- colnames(df)
   
