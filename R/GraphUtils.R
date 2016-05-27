@@ -187,13 +187,16 @@ get_breaks_positive_values <- function(max.v, start=c(0.1, 1)) {
     breaks=c(start, 10, 100)
   } else if (max.v < 5000) {
     breaks=c(start, 10, 100, 1000)
-  } else if (max.v < 50000) {
-    breaks=c(start, 10, 100, 1000, 10000)
-  } else if (max.v < 500000) {
-    breaks=c(start, 10, 100, 1000, 10000, 100000)
-  } else if (max.v < 5000000) {
-    breaks=c(start, 10, 100, 1000, 10000, 100000, 1000000)
+  } else if (max.v < 5e+04) {
+    breaks=c(start, 10, 100, 1000, 1e+04)
+  } else if (max.v < 5e+05) {
+    breaks=c(start, 10, 100, 1000, 1e+04, 1e+05)
+  } else if (max.v < 5e+06) {
+    breaks=c(start, 10, 100, 1000, 1e+04, 1e+05, 1e+06)
+  } else {
+    breaks=c(start, 10, 100, 1000, 1e+04, 1e+05, 1e+06, 1e+07)
   } 
+  
   return(breaks)
 }
 

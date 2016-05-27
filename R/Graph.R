@@ -100,9 +100,10 @@
 #' such as normal bars, log-scaled bars, percentage bars, and also grouping.
 #' Refer to \code{\link{geom_bar}}.
 #' 
-#' @param bar.pos Position adjustment for \code{ggBarChart}, either as a string, 
-#' or the result of a call to a position adjustment function. Default to "dodge". 
-#' Use \code{fill} to generate group percentage bars.
+#' @param bar.pos Position adjustment for bars, either as a string, 
+#' or the result of a call to a position adjustment function. 
+#' Default to "dodge" in \code{ggBarChart}, "stack" in \code{ggHistogram}. 
+#' Use \code{fill.id} to generate group percentage bars.
 #' @param bar.stat Determine what is mapped to bar height in \code{ggBarChart}. 
 #' Default to "identity", 
 #' which defines the heights of the bars to represent values in the data.
@@ -112,15 +113,18 @@
 #' @examples
 #' perf.df <- ComMA::readFile("data-raw/model.test.txt")
 #' perf.df.mac <- perf.df[perf.df$OS=="Mac",]
-#' bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90)
-#' bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")
-#' bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="fill", y.trans="per")
+#' ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90)
+#' ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")
+#' ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="fill", y.trans="per")
 #' 
 #' @rdname ggPlot
-ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="identity", 
-                       x.facet.id=NULL, y.facet.id=NULL, x.lim.cart=NULL, y.lim.cart=NULL,   
-                       y.trans="identity", auto.scale.y=FALSE, x.scale="discrete", 
-                       x.interval=0, palette=NULL, coord.flip=FALSE,
+ggBarChart <- function(df, x.id, y.id, fill.id=NULL, 
+                       bar.pos="dodge", bar.stat="identity", x.interval=0, 
+                       x.trans="identity", x.scale="discrete", auto.scale.x=FALSE, 
+                       y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
+                       x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
+                       xintercept=NULL, yintercept=NULL, line.type=2,
+                       x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                        legend.title=NULL, legend.col=1, legend.row=0, 
                        title="Bar Chart", title.size=10, x.lab=NULL, y.lab=NULL, 
                        legend.position="right", legend.direction="vertical",
@@ -133,22 +137,112 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
   p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, 
                       y.facet.id=y.facet.id, verbose=verbose)
   
-  if (auto.scale.y) {
-    y.max <- max(df[,y.id])
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
-                        auto.scale.max=y.max, verbose=verbose)
-  } else {
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
-                        verbose=verbose)
-  }
-  
-  if (x.interval > 0) {
+  if (auto.scale.x) {
+    x.max <- max(df[,x.id])
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
+                        auto.scale.max=x.max, verbose=verbose)
+  } else if (x.interval > 0) {
     #x.breaks <- seq(min(df[,x.id]), max(df[,x.id]), x.interval)
     x.breaks <- window(unique(df[,x.id]), deltat=x.interval)
     # no x.trans
     p <- ggOptScaleAxis(p, axis="x", scale=x.scale, breaks=x.breaks, verbose=verbose)
+  } else {
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
+                        verbose=verbose)
+  }
+  if (auto.scale.y) {
+    y.max <- max(df[,y.id])
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
+                        auto.scale.max=y.max, verbose=verbose)
+  } else {
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
+                        verbose=verbose)
   }
   
+  p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
+                           coord.flip=coord.flip, verbose=verbose)
+  
+  p <- ggOptPalette(p, scale.to="fill", palette=palette, verbose=verbose)
+  
+  p <- ggOptLegend(p, legend.title.fill=legend.title, 
+                   legend.col=legend.col, legend.row=legend.row)
+  
+  p <- ggLabTitle(p, x.id, y.id, title=title, x.lab=x.lab, y.lab=y.lab)
+  if (no.panel.border)
+    p <- ggThemeAxis(p, title.size=title.size)
+  else 
+    p <- ggThemePanelBorder(p, title.size=title.size)
+  
+  p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
+                     legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
+                     plot.margin.cm=plot.margin.cm, verbose=verbose)
+  
+  return(p)
+}
+
+#' @details 
+#' \code{ggHistogram} is an one-line function to plot a 1d distribution by dividing 
+#' into bins and counting the number of observations in each bin.
+#' Refer to \code{\link{geom_histogram}}.
+#' 
+#' @param bins Number of bins for \code{ggHistogram}. Overridden by \code{binwidth}. 
+#' Defaults to 30.
+#' or the result of a call to a position adjustment function. Default to "stack". 
+#' Use \code{fill.id} to generate group percentage bars.
+#' @param binwidth The width of the bins for \code{ggHistogram}. 
+#' The default is to use \code{bins} that cover the range of the data. 
+#' You should always override this value, exploring multiple widths to find 
+#' the best to illustrate the stories in your data. 
+#' The bin width of a date variable is the number of days in each time; 
+#' the bin width of a time variable is the number of seconds.
+#' Refer to \code{\link{geom_histogram}}.
+#' @keywords graph
+#' @export
+#' @examples
+#' ggHistogram(perf.df.mac, x.id="performance", fill.id="model", x.text.angle=90)
+#'  
+#' @rdname ggPlot
+ggHistogram <- function(df, x.id, fill.id=NULL, 
+                        bar.pos="stack", bins = NULL, binwidth = NULL, x.interval=0,
+                        x.trans="identity", x.scale="discrete", auto.scale.x=FALSE, 
+                        y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
+                        x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
+                        xintercept=NULL, yintercept=NULL, line.type=2,
+                        x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
+                        legend.title=NULL, legend.col=1, legend.row=0, 
+                       title="Histogram", title.size=10, x.lab=NULL, y.lab=NULL, 
+                       legend.position="right", legend.direction="vertical",
+                       x.text.angle=0, x.text=TRUE, y.text=TRUE, 
+                       plot.margin.cm=NULL, no.panel.border=FALSE, verbose=TRUE) {
+  p <- ggInit(df=df, x.id=x.id, fill.id=fill.id, verbose=verbose)
+  p <- p + geom_histogram(stat="bin", position=bar.pos, bins=bins, binwidth=binwidth) 
+  
+  col.names <- colnames(df)
+  p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, 
+                      y.facet.id=y.facet.id, verbose=verbose)
+  
+  if (auto.scale.x) {
+    x.max <- max(df[,x.id])
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
+                        auto.scale.max=x.max, verbose=verbose)
+  } else if (x.interval > 0) {
+    #x.breaks <- seq(min(df[,x.id]), max(df[,x.id]), x.interval)
+    x.breaks <- window(unique(df[,x.id]), deltat=x.interval)
+    # no x.trans
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, breaks=x.breaks, verbose=verbose)
+  } else {
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
+                        verbose=verbose)
+  }
+  if (auto.scale.y) {
+    y.max <- max(df[,y.id])
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
+                        auto.scale.max=y.max, verbose=verbose)
+  } else {
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
+                        verbose=verbose)
+  }
+
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
@@ -203,9 +297,9 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL, bar.pos="dodge", bar.stat="
 #' plot(g.table)
 #' 
 #' # selective labeling for points x > 3 and y > 6
-#' gg.plot <- ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
-#'                          text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
-#'                          xintercept=0, yintercept=0, title="Clusters", palette="Set1")
+#' ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
+#'               text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
+#'               xintercept=0, yintercept=0, title="Clusters", palette="Set1")
 #'  
 #' @rdname ggPlot
 ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL, 
@@ -214,6 +308,8 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           text.data = NULL, text.size = 3, text.hjust=-0.1, 
                           text.vjust = -0.2, text.alpha = 0.5, 
                           text.or.point=3, text.avoid.overlap = FALSE,
+                          x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
+                          y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
                           x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
@@ -272,7 +368,24 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
     
     p <- p + geom_polygon(data = hulls, aes_string(mapping=link.id), fill = NA, alpha = 0.5)
   }
-
+  
+  if (auto.scale.x) {
+    x.max <- max(df[,x.id])
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
+                        auto.scale.max=x.max, verbose=verbose)
+  } else {
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
+                        verbose=verbose)
+  }
+  if (auto.scale.y) {
+    y.max <- max(df[,y.id])
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
+                        auto.scale.max=y.max, verbose=verbose)
+  } else {
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
+                        verbose=verbose)
+  }
+  
   if (! is.null(xintercept))
     p <- p + geom_vline(xintercept=xintercept,linetype=line.type)
   if (! is.null(yintercept))
@@ -322,8 +435,8 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
 #' g.table <- unclip.ggplot(gg.plot) 
 #' plot(g.table)
 #' 
-#' gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
-#' gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
+#' ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
+#' ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
 #' 
 #' @rdname ggPlot
 ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL, 
@@ -331,8 +444,8 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
                             line.size=0.5, line.type = 1, line.alpha=1, 
                             point.data=NULL, point.size=3, point.alpha=1,
                             x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
-                            x.trans="identity", auto.scale.x=FALSE, 
-                            y.trans="identity", auto.scale.y=FALSE,
+                            x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
+                            y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
                             text.id=NULL, text.data = NULL, text.size = 3, 
                             text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
                             x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
@@ -360,18 +473,18 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
   
   if (auto.scale.x) {
     x.max <- max(df[,x.id])
-    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans, 
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
                         auto.scale.max=x.max, verbose=verbose)
   } else {
-    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans, 
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
                         verbose=verbose)
   }
   if (auto.scale.y) {
     y.max <- max(df[,y.id])
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
                         auto.scale.max=y.max, verbose=verbose)
   } else {
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
                         verbose=verbose)
   }
   
@@ -580,8 +693,8 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
                               density.pos="identity", density.alpha=0.1,
                               x.facet.id=NULL, y.facet.id=NULL, 
                               x.lim.cart=NULL, y.lim.cart=NULL,   
-                              x.trans="identity", auto.scale.x=FALSE, 
-                              y.trans="identity", auto.scale.y=FALSE,
+                              x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
+                              y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
                               fill.palette=NULL, colour.palette=NULL, coord.flip=FALSE,
                               legend.title.colour=NULL, legend.title.fill=NULL,
                               legend.col=1, legend.row=0, 
@@ -599,15 +712,15 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
   
   if (auto.scale.x) {
     x.max <- max(df[,x.id])
-    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans, auto.scale.max=x.max)
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, auto.scale.max=x.max)
   } else {
-    p <- ggOptScaleAxis(p, axis="x", scale="continuous", trans=x.trans)
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans)
   }
   if (auto.scale.y) {
     y.max <- max(df[,y.id])
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, auto.scale.max=y.max)
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, auto.scale.max=y.max)
   } else {
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans)
   }
   
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 

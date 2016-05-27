@@ -5,17 +5,33 @@
 \alias{ggBoxWhiskersPlot}
 \alias{ggDensityEstimate}
 \alias{ggHeatmap}
+\alias{ggHistogram}
 \alias{ggLineWithPoints}
 \alias{ggPlot}
 \alias{ggScatterPlot}
 \title{One-line Function to Get \pkg{ggplot}}
 \usage{
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
-  bar.stat = "identity", x.facet.id = NULL, y.facet.id = NULL,
-  x.lim.cart = NULL, y.lim.cart = NULL, y.trans = "identity",
-  auto.scale.y = FALSE, x.scale = "discrete", x.interval = 0,
-  palette = NULL, coord.flip = FALSE, legend.title = NULL,
+  bar.stat = "identity", x.interval = 0, x.trans = "identity",
+  x.scale = "discrete", auto.scale.x = FALSE, y.trans = "identity",
+  y.scale = "continuous", auto.scale.y = FALSE, x.facet.id = NULL,
+  y.facet.id = NULL, coord.flip = FALSE, xintercept = NULL,
+  yintercept = NULL, line.type = 2, x.lim.cart = NULL,
+  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
   legend.col = 1, legend.row = 0, title = "Bar Chart", title.size = 10,
+  x.lab = NULL, y.lab = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
+  y.text = TRUE, plot.margin.cm = NULL, no.panel.border = FALSE,
+  verbose = TRUE)
+
+ggHistogram(df, x.id, fill.id = NULL, bar.pos = "stack", bins = NULL,
+  binwidth = NULL, x.interval = 0, x.trans = "identity",
+  x.scale = "discrete", auto.scale.x = FALSE, y.trans = "identity",
+  y.scale = "continuous", auto.scale.y = FALSE, x.facet.id = NULL,
+  y.facet.id = NULL, coord.flip = FALSE, xintercept = NULL,
+  yintercept = NULL, line.type = 2, x.lim.cart = NULL,
+  y.lim.cart = NULL, palette = NULL, legend.title = NULL,
+  legend.col = 1, legend.row = 0, title = "Histogram", title.size = 10,
   x.lab = NULL, y.lab = NULL, legend.position = "right",
   legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
   y.text = TRUE, plot.margin.cm = NULL, no.panel.border = FALSE,
@@ -25,7 +41,9 @@ ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, point.alpha = 1, link.id = NULL,
   ellipsed.id = NULL, text.id = NULL, text.data = NULL, text.size = 3,
   text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
-  text.or.point = 3, text.avoid.overlap = FALSE, x.facet.id = NULL,
+  text.or.point = 3, text.avoid.overlap = FALSE, x.trans = "identity",
+  x.scale = "continuous", auto.scale.x = FALSE, y.trans = "identity",
+  y.scale = "continuous", auto.scale.y = FALSE, x.facet.id = NULL,
   y.facet.id = NULL, coord.flip = FALSE, xintercept = NULL,
   yintercept = NULL, line.type = 2, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title.colour = NULL,
@@ -39,11 +57,12 @@ ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   shape.id = NULL, shapes = NULL, line.or.point = 3, line.size = 0.5,
   line.type = 1, line.alpha = 1, point.data = NULL, point.size = 3,
   point.alpha = 1, x.facet.id = NULL, y.facet.id = NULL,
-  coord.flip = FALSE, x.trans = "identity", auto.scale.x = FALSE,
-  y.trans = "identity", auto.scale.y = FALSE, text.id = NULL,
-  text.data = NULL, text.size = 3, text.hjust = -0.1, text.vjust = -0.2,
-  text.alpha = 0.5, x.lim.cart = NULL, y.lim.cart = NULL,
-  palette = NULL, legend.title.group = NULL, legend.title.colour = NULL,
+  coord.flip = FALSE, x.trans = "identity", x.scale = "continuous",
+  auto.scale.x = FALSE, y.trans = "identity", y.scale = "continuous",
+  auto.scale.y = FALSE, text.id = NULL, text.data = NULL, text.size = 3,
+  text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
+  x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
+  legend.title.group = NULL, legend.title.colour = NULL,
   legend.title.shape = NULL, legend.col = 1, legend.row = 0, title = "",
   title.size = 10, x.lab = NULL, y.lab = NULL,
   legend.position = "right", legend.direction = "vertical",
@@ -71,14 +90,14 @@ ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,
 ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
   density.pos = "identity", density.alpha = 0.1, x.facet.id = NULL,
   y.facet.id = NULL, x.lim.cart = NULL, y.lim.cart = NULL,
-  x.trans = "identity", auto.scale.x = FALSE, y.trans = "identity",
-  auto.scale.y = FALSE, fill.palette = NULL, colour.palette = NULL,
-  coord.flip = FALSE, legend.title.colour = NULL,
-  legend.title.fill = NULL, legend.col = 1, legend.row = 0,
-  title = "Kernel Density Estimate", title.size = 10, x.lab = NULL,
-  y.lab = NULL, legend.position = "right", legend.direction = "vertical",
-  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
-  no.panel.border = FALSE, verbose = TRUE)
+  x.trans = "identity", x.scale = "continuous", auto.scale.x = FALSE,
+  y.trans = "identity", y.scale = "continuous", auto.scale.y = FALSE,
+  fill.palette = NULL, colour.palette = NULL, coord.flip = FALSE,
+  legend.title.colour = NULL, legend.title.fill = NULL, legend.col = 1,
+  legend.row = 0, title = "Kernel Density Estimate", title.size = 10,
+  x.lab = NULL, y.lab = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
+  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{df}{A data frame used for plot.}
@@ -86,17 +105,36 @@ ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
 \item{x.id, y.id, fill.id, group.id}{The string of column names in \code{df} or 
 \code{df.to.melt}, which use for \code{x, y, fill, group} in \code{\link{aes}}.}
 
-\item{bar.pos}{Position adjustment for \code{ggBarChart}, either as a string, 
-or the result of a call to a position adjustment function. Default to "dodge". 
-Use \code{fill} to generate group percentage bars.}
+\item{bar.pos}{Position adjustment for bars, either as a string, 
+or the result of a call to a position adjustment function. 
+Default to "dodge" in \code{ggBarChart}, "stack" in \code{ggHistogram}. 
+Use \code{fill.id} to generate group percentage bars.}
 
 \item{bar.stat}{Determine what is mapped to bar height in \code{ggBarChart}. 
 Default to "identity", 
 which defines the heights of the bars to represent values in the data.
 Refer to \code{\link{geom_bar}}.}
 
+\item{x.trans, y.trans}{The string defines the data scale used in either x-axis or y-axis, 
+which can be "identity" standing for normal, or "per" standing for percentage, 
+moreover either the name of a transformation object for \code{\link{scale_x_continuous}}
+or \code{\link{scale_y_continuous}} (e.g. \code{trans="log"}), or the object itself. 
+Built-in transformations include "asn", "atanh", "boxcox", "exp", "identity", 
+"log", "log10", "log1p", "log2", "logit", "probability", "probit", "reciprocal", 
+"reverse" and "sqrt". Default to "identity".}
+
 \item{x.facet.id, }{y.facet.id The string of column names in \code{df},
 which creates facets (a formula) in \code{\link{facet_grid}}.}
+
+\item{coord.flip}{If TRUE, then flip cartesian coordinates so that horizontal 
+becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
+\code{\link{coord_flip}}.}
+
+\item{xintercept, yintercept, linetype}{Add horizontal or vertical line. 
+Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
+
+\item{line.type, line.size, line.alpha}{The feature of lines for \code{\link{geom_line}}.
+Default line.type to 1, size to 0.5, alpha to 1.}
 
 \item{x.lim.cart, y.lim.cart}{Setting limits on the coordinate system will zoom the plot, 
 and will not change the underlying data like setting limits on a scale will. 
@@ -111,10 +149,6 @@ such as c("blue", "orange").
 Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
 Default NULL to use \code{\link{ggplot}} default colours.}
 
-\item{coord.flip}{If TRUE, then flip cartesian coordinates so that horizontal 
-becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
-\code{\link{coord_flip}}.}
-
 \item{legend.col, legend.row}{Customize the number of columns or rows for legend in bar chart. 
 They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0.}
 
@@ -127,6 +161,19 @@ Set x.lab="" to remove x-axis label from the plot. Default to NULL to do nothing
 Default to TRUE.}
 
 \item{no.panel.border}{Add panel border or not. Default to FALSE.}
+
+\item{bins}{Number of bins for \code{ggHistogram}. Overridden by \code{binwidth}. 
+Defaults to 30.
+or the result of a call to a position adjustment function. Default to "stack". 
+Use \code{fill.id} to generate group percentage bars.}
+
+\item{binwidth}{The width of the bins for \code{ggHistogram}. 
+The default is to use \code{bins} that cover the range of the data. 
+You should always override this value, exploring multiple widths to find 
+the best to illustrate the stories in your data. 
+The bin width of a date variable is the number of days in each time; 
+the bin width of a time variable is the number of seconds.
+Refer to \code{\link{geom_histogram}}.}
 
 \item{colour.id, shape.id, link.id}{The column name in \code{df} to 
 define how the data points are coloured, shaped, or linked according their values.}
@@ -152,12 +199,6 @@ if 3, the default, then both the text and points.}
 \item{text.avoid.overlap}{If TRUE, text that overlaps previous text 
 in the same layer will not be plotted. Use it carefully. Default to FALSE.}
 
-\item{xintercept, yintercept, linetype}{Add horizontal or vertical line. 
-Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
-
-\item{line.type, line.size, line.alpha}{The feature of lines for \code{\link{geom_line}}.
-Default line.type to 1, size to 0.5, alpha to 1.}
-
 \item{line.or.point}{If 1, then display the line only; if 2, then only points; 
 if 3, the default, then both the line and points.}
 
@@ -165,14 +206,6 @@ if 3, the default, then both the line and points.}
 The data to be displayed as points in \code{\link{geom_point}}, which can be 
 the subset of points to draw the line. 
 If NULL, the default, the data is inherited from the plot data as specified in the call.}
-
-\item{x.trans, y.trans}{The string defines the data scale used in either x-axis or y-axis, 
-which can be "identity" standing for normal, or "per" standing for percentage, 
-moreover either the name of a transformation object for \code{\link{scale_x_continuous}}
-or \code{\link{scale_y_continuous}} (e.g. \code{trans="log"}), or the object itself. 
-Built-in transformations include "asn", "atanh", "boxcox", "exp", "identity", 
-"log", "log10", "log1p", "log2", "logit", "probability", "probit", "reciprocal", 
-"reverse" and "sqrt". Default to "identity".}
 
 \item{df.to.melt}{A data frame required to \code{\link{melt}} 
 before making a \pkg{ggplot} object, such as input of \code{ggHeatmap}. 
@@ -251,6 +284,10 @@ Both refer to \url{http://dx.doi.org/10.1186/s13742-015-0086-1}.
 such as normal bars, log-scaled bars, percentage bars, and also grouping.
 Refer to \code{\link{geom_bar}}.
 
+\code{ggHistogram} is an one-line function to plot a 1d distribution by dividing 
+into bins and counting the number of observations in each bin.
+Refer to \code{\link{geom_histogram}}.
+
 \code{ggScatterPlot} uses one-line function to plot many types of scatter chart.
 Refer to \code{\link{geom_point}}.
 
@@ -280,10 +317,12 @@ extension, you may need to turn off clipping after call, such as
 \examples{
 perf.df <- ComMA::readFile("data-raw/model.test.txt")
 perf.df.mac <- perf.df[perf.df$OS=="Mac",]
-bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90)
-bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")
-bar.chart <- ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="fill", y.trans="per")
+ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90)
+ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")
+ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="fill", y.trans="per")
 
+ggHistogram(perf.df.mac, x.id="performance", fill.id="model", x.text.angle=90)
+ 
 # plot 2 clusters
 df.clusters <- random2Clusters()
 df.clusters$labels <- rownames(df.clusters)
@@ -295,9 +334,9 @@ g.table <- unclip.ggplot(gg.plot)
 plot(g.table)
 
 # selective labeling for points x > 3 and y > 6
-gg.plot <- ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
-                         text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
-                         xintercept=0, yintercept=0, title="Clusters", palette="Set1")
+ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="group",
+              text.id="labels", text.data=subset(df.clusters, x > 3 & y > 6), 
+              xintercept=0, yintercept=0, title="Clusters", palette="Set1")
  
 mcmc.log <- readMCMCLog("data-raw/star.beast.log")
 mcmc.log$state <- as.double(rownames(mcmc.log))
@@ -307,8 +346,8 @@ gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="s
 g.table <- unclip.ggplot(gg.plot) 
 plot(g.table)
 
-gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
-gg.plot <- ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
+ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=1)
+ggLineWithPoints(mcmc.log[,c("TreeHeight.Species", "state")], x.id="state", y.id="TreeHeight.Species", line.or.point=2, point.size=1)
 
 ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1), 
                              `18s`=c(1,2,3), ITS=c(2,1,3), check.names = F)
