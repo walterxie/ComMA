@@ -532,7 +532,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
                       log.scale.colour=FALSE, legend.title="Counts",
                       x.lim.cart=NULL, y.lim.cart=NULL, coord.flip=FALSE,
                       legend.position="right", legend.direction="vertical",
-                      x.text.angle=45, x.text=TRUE, y.text=TRUE,
+                      x.text.angle=90, x.text=TRUE, y.text=TRUE,
                       no.panel.border=FALSE, verbose=TRUE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop("Data frame column names do NOT have \"", melt.id, "\" for melt function !")
@@ -565,7 +565,8 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
                                  name=legend.title, breaks=breaks.rank) 
   }
   
-  p <- ggOptCoordCartesian(p, df.melt, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
+  p <- ggOptCoordCartesian(p, df.melt, x.id="variable", y.id=melt.id, 
+                           x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
   p <- ggLabTitle(p, "", "", title=title, x.lab=x.lab, y.lab=y.lab)

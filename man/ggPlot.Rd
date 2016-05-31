@@ -72,7 +72,7 @@ ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
   title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
   log.scale.colour = FALSE, legend.title = "Counts", x.lim.cart = NULL,
   y.lim.cart = NULL, coord.flip = FALSE, legend.position = "right",
-  legend.direction = "vertical", x.text.angle = 45, x.text = TRUE,
+  legend.direction = "vertical", x.text.angle = 90, x.text = TRUE,
   y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,
