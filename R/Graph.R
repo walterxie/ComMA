@@ -265,8 +265,8 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
 #' 
 #' @param point.size,point.alpha The feature of points for \code{\link{geom_point}}. 
 #' Default size to 3, alpha to 1.
-#' @param text.or.point If 1, then display the text only; if 2, then only points; 
-#' if 3, the default, then both the text and points.
+#' @param text.or.point If 1, then display the text only; if 2, the default, then only points; 
+#' if 3, then both the text and points.
 #' @param colour.id,shape.id,link.id The column name in \code{df} to 
 #' define how the data points are coloured, shaped, or linked according their values.
 #' @param ellipsed.id The column name in \code{df} to define 
@@ -302,7 +302,7 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           link.id=NULL, ellipsed.id=NULL, text.id=NULL, 
                           text.data = NULL, text.size = 3, text.hjust=-0.1, 
                           text.vjust = -0.2, text.alpha = 0.5, 
-                          text.or.point=3, text.avoid.overlap = FALSE,
+                          text.or.point=2, text.avoid.overlap = FALSE,
                           x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
                           y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
                           x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
@@ -316,6 +316,10 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id, verbose=verbose)
   col.names <- colnames(df)
+  
+  # if text.id not NULL, make default text.or.point inactived
+  if (!is.null(text.id) && text.or.point==2)
+    text.or.point=3
   
   if (text.or.point > 1) {
     if (! is.null(shape.id) && is.null(shapes)) {

@@ -111,7 +111,7 @@ spilt.df <- function(community.matrix, spilt.to=2, MARGIN=1, verbose=TRUE) {
 
 #' @details \code{summaryCM.Vector} return a vector of summary of the 
 #' community matrix, where \code{community.matrix} can be one column only.
-#' The vector is c("reads","OTUs","Shannon","samples","singletons","doubletons").
+#' The vector is c("reads","OTUs","samples","Shannon","singletons","doubletons").
 #' 
 #' @param digits The digits to \code{\link{round}} decimal places 
 #' if number is not interger. Default to 2.
@@ -131,8 +131,8 @@ summaryCM.Vector <- function(community.matrix, digits=2) {
   doubletons <- sum(rs==2)
   shannon <- d(community.matrix,lev="gamma",q=1)
   
-  return(prettyNum(c(reads, otus, round(shannon, digits), 
-           samples, singletons, doubletons)))
+  return(prettyNum(c(reads, otus, samples, round(shannon, digits), 
+           singletons, doubletons)))
 }
 
 #' @details \code{summaryCM} summarizes the community matrix.
@@ -147,8 +147,9 @@ summaryCM.Vector <- function(community.matrix, digits=2) {
 #' summary.cm <- summaryCM(community.matrix)
 #'
 #' @rdname utilsCM
-summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2) {
-  summary.cm <- data.frame(row.names = c("reads","OTUs","Shannon","samples","singletons","doubletons"))
+summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2, 
+                      x.lab="samples", y.lab="OTUs", abundance.lab="reads") {
+  summary.cm <- data.frame(row.names = c(abundance.lab,y.lab,x.lab,"Shannon","singletons","doubletons"))
   if (has.total!=1) {
     for (col.name in colnames(community.matrix)) 
       summary.cm[,col.name] <- summaryCM.Vector(community.matrix[,col.name], digits=digits)

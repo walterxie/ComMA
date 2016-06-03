@@ -40,7 +40,7 @@ ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, point.alpha = 1, link.id = NULL,
   ellipsed.id = NULL, text.id = NULL, text.data = NULL, text.size = 3,
   text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
-  text.or.point = 3, text.avoid.overlap = FALSE, x.trans = "identity",
+  text.or.point = 2, text.avoid.overlap = FALSE, x.trans = "identity",
   x.scale = "continuous", auto.scale.x = FALSE, y.trans = "identity",
   y.scale = "continuous", auto.scale.y = FALSE, x.facet.id = NULL,
   y.facet.id = NULL, coord.flip = FALSE, xintercept = NULL,
@@ -192,8 +192,8 @@ such as "Row.names" column after \code{\link{merge}}.}
 
 \item{text.size, text.hjust, text.vjust, text.alpha}{The arguments to adjust text in \code{\link{geom_text}} in the line or scatter plot.}
 
-\item{text.or.point}{If 1, then display the text only; if 2, then only points; 
-if 3, the default, then both the text and points.}
+\item{text.or.point}{If 1, then display the text only; if 2, the default, then only points; 
+if 3, then both the text and points.}
 
 \item{text.avoid.overlap}{If TRUE, text that overlaps previous text 
 in the same layer will not be plotted. Use it carefully. Default to FALSE.}

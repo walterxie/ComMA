@@ -21,7 +21,8 @@ spilt.df(community.matrix, spilt.to = 2, MARGIN = 1, verbose = TRUE)
 
 summaryCM.Vector(community.matrix, digits = 2)
 
-summaryCM(community.matrix, most.abund, has.total = 1, digits = 2)
+summaryCM(community.matrix, most.abund, has.total = 1, digits = 2,
+  x.lab = "samples", y.lab = "OTUs", abundance.lab = "reads")
 
 mostAbundantRows(community.matrix, most.abund = 150, row.decreasing = TRUE,
   col.decreasing = TRUE)
@@ -96,7 +97,7 @@ having equal rows/columns.
 
 \code{summaryCM.Vector} return a vector of summary of the 
 community matrix, where \code{community.matrix} can be one column only.
-The vector is c("reads","OTUs","Shannon","samples","singletons","doubletons").
+The vector is c("reads","OTUs","samples","Shannon","singletons","doubletons").
 
 \code{summaryCM} summarizes the community matrix.
 

@@ -36,7 +36,7 @@ pdf.ggplot <- function(gg.plot, fig.path, width=6, height=6, useDingbats=TRUE) {
 #' @rdname pdf
 pdf.gtable <- function(g.table, fig.path, width=6, height=6, useDingbats=TRUE) {
   pdf(fig.path, width=width, height=height, useDingbats=useDingbats)	
-  plot.gt(grid.draw(g.table))
+  plot.gtable(g.table)
   invisible(dev.off()) 
 }
 
