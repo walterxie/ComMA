@@ -225,7 +225,8 @@ ggOptCoordCartesian <- function(p, df, x.id, y.id, x.lim.cart=NULL, y.lim.cart=N
 
 ggOptLegend <- function(p, legend.title.fill=NULL, legend.title.colour=NULL, 
                         legend.title.shape=NULL, legend.title.group=NULL,
-                        legend.title.size=NULL, legend.col=1, legend.row=0) {
+                        legend.title.size=NULL, legend.col=1, legend.row=0, 
+                        no.legend=NULL, verbose=TRUE) {
   if (!is.null(legend.title.fill))
     p <- p + labs(fill=legend.title.fill)
   if (!is.null(legend.title.colour))
@@ -245,6 +246,13 @@ ggOptLegend <- function(p, legend.title.fill=NULL, legend.title.colour=NULL,
     p <- p + guides(fill=guide_legend(ncol=legend.col))
   if (legend.row > 0 && legend.col == 1) {
     p <- p + guides(fill=guide_legend(nrow=legend.row,byrow=TRUE))
+  }
+  
+  if (!is.null(no.legend)) {
+    guides.string <- paste0("guides(", no.legend, "=FALSE)")
+    p <- p + eval(parse(text = guides.string))
+    if (verbose) 
+      cat("no.legend = ", no.legend, "\n")
   }
     
   return(p)

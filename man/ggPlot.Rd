@@ -19,10 +19,10 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   yintercept = NULL, line.type = 2, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title = NULL,
   legend.col = 1, legend.row = 0, title = "Bar Chart", title.size = 10,
-  x.lab = NULL, y.lab = NULL, legend.position = "right",
-  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
-  y.text = TRUE, plot.margin.cm = NULL, no.panel.border = FALSE,
-  verbose = TRUE)
+  x.lab = NULL, y.lab = NULL, no.legend = NULL,
+  legend.position = "right", legend.direction = "vertical",
+  x.text.angle = 0, x.text = TRUE, y.text = TRUE, plot.margin.cm = NULL,
+  no.panel.border = FALSE, verbose = TRUE)
 
 ggHistogram(df, x.id, fill.id = NULL, bar.pos = "stack", bins = NULL,
   binwidth = NULL, x.interval = 0, x.trans = "identity",
@@ -32,9 +32,10 @@ ggHistogram(df, x.id, fill.id = NULL, bar.pos = "stack", bins = NULL,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.row = 0,
   title = "Histogram", title.size = 10, x.lab = NULL, y.lab = NULL,
-  legend.position = "right", legend.direction = "vertical",
-  x.text.angle = 0, x.text = TRUE, y.text = TRUE, plot.margin.cm = NULL,
-  no.panel.border = FALSE, verbose = TRUE)
+  no.legend = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
+  y.text = TRUE, plot.margin.cm = NULL, no.panel.border = FALSE,
+  verbose = TRUE)
 
 ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   shapes = NULL, point.size = 3, point.alpha = 1, link.id = NULL,
@@ -48,9 +49,9 @@ ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title.colour = NULL,
   legend.title.shape = NULL, legend.title.size = NULL, legend.col = 1,
   legend.row = 0, title = "Scatter Plot", title.size = 10, x.lab = NULL,
-  y.lab = NULL, legend.position = "right", legend.direction = "vertical",
-  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
-  no.panel.border = FALSE, verbose = TRUE)
+  y.lab = NULL, no.legend = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
+  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   shape.id = NULL, shapes = NULL, line.or.point = 3, line.size = 0.5,
@@ -63,7 +64,7 @@ ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title.group = NULL, legend.title.colour = NULL,
   legend.title.shape = NULL, legend.col = 1, legend.row = 0, title = "",
-  title.size = 10, x.lab = NULL, y.lab = NULL,
+  title.size = 10, x.lab = NULL, y.lab = NULL, no.legend = NULL,
   legend.position = "right", legend.direction = "vertical",
   x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
@@ -71,9 +72,10 @@ ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
 ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
   title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
   log.scale.colour = FALSE, legend.title = "Counts", x.lim.cart = NULL,
-  y.lim.cart = NULL, coord.flip = FALSE, legend.position = "right",
-  legend.direction = "vertical", x.text.angle = 90, x.text = TRUE,
-  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
+  y.lim.cart = NULL, coord.flip = FALSE, no.legend = NULL,
+  legend.position = "right", legend.direction = "vertical",
+  x.text.angle = 90, x.text = TRUE, y.text = TRUE,
+  no.panel.border = FALSE, verbose = TRUE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,
   outlier.colour = alpha("black", 0.3), dodge.width = 0.8,
@@ -82,9 +84,9 @@ ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title.fill = NULL,
   legend.title.colour = NULL, legend.col = 1, legend.row = 0,
   title = "Box Whiskers Plot", title.size = 10, x.lab = NULL,
-  y.lab = NULL, legend.position = "right", legend.direction = "vertical",
-  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
-  no.panel.border = FALSE, verbose = TRUE)
+  y.lab = NULL, no.legend = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
+  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
   density.pos = "identity", density.alpha = 0.1, x.facet.id = NULL,
@@ -94,9 +96,10 @@ ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
   fill.palette = NULL, colour.palette = NULL, coord.flip = FALSE,
   legend.title.colour = NULL, legend.title.fill = NULL, legend.col = 1,
   legend.row = 0, title = "Kernel Density Estimate", title.size = 10,
-  x.lab = NULL, y.lab = NULL, legend.position = "right",
-  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
-  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
+  x.lab = NULL, y.lab = NULL, no.legend = NULL,
+  legend.position = "right", legend.direction = "vertical",
+  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
+  no.panel.border = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{df}{A data frame used for plot.}
@@ -155,6 +158,9 @@ They cannot be used at the same time. Default not to use them, legend.col=1, leg
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names. 
 Set x.lab="" to remove x-axis label from the plot. Default to NULL to do nothing.}
+
+\item{no.legend}{Turning off some legends, such as, fill, shape, colour. 
+Default to NULL, which is to do nothing.}
 
 \item{x.text, y.text}{If FALSE, then hide x or y axis labels in plot. 
 Default to TRUE.}
