@@ -8,7 +8,7 @@ ggGroupAbundanceBar(df.to.melt, melt.id, colour.id = NULL, prop.thre = 0,
   melt.levels = function(x) rev(unique(x)), colour.levels = function(x)
   sort(unique(x)), y.trans = "log", legend.row = 0, palette = NULL,
   title = "Abundance Bar Chart", x.lab = "", y.lab = "Reads",
-  autoSize = TRUE, ...)
+  autoSize = TRUE, verbose = TRUE, ...)
 }
 \arguments{
 \item{df.to.melt}{A data frame required to \code{\link{melt}} before making the chart,

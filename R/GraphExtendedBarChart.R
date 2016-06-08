@@ -113,7 +113,7 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
                                 colour.levels=function(x) sort(unique(x)),
                                 y.trans="log", legend.row=0, palette=NULL, 
                                 title="Abundance Bar Chart", x.lab="", y.lab="Reads", 
-                                autoSize=TRUE, ...) {
+                                autoSize=TRUE, verbose=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
@@ -213,7 +213,7 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
   p <- ComMA::ggBarChart(df.melt, x.id=melt.id[1], y.id="value", fill.id=colour.id, 
                          y.facet.id="variable", bar.pos="identity", coord.flip=T,
                          y.trans=y.trans, title=title, x.lab=x.lab, y.lab=y.lab, 
-                         palette=pale, legend.row=legend.row, 
+                         palette=pale, legend.row=legend.row, verbose=verbose,
                          legend.position="top", legend.direction="horizontal", ...)
   
   n.row = nrow(df.to.melt)
