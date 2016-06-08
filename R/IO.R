@@ -100,20 +100,24 @@ readFile <- function(file, sep="\t", header=TRUE, row.names=1, verbose=TRUE,
 #' @param file If the file extension is \emph{csv}, 
 #' then use \code{\link{write.csv}}, 
 #' otherwise use \code{\link{write.table}}.
+#' @param first.col.name The 1st column name when 
+#' \code{row.names == TRUE && col.names == TRUE}. 
+#' Default to "row.names".
 #' @param ... Other arguments passed to \code{\link{write.table}}.
 #' @export
 #' @keywords IO
 #' @examples 
 #' writeTable(df, file.path)
 writeTable <- function(df, file, append = FALSE, quote = FALSE, sep = "\t",  
-                       row.names = TRUE, col.names = TRUE, verbose=TRUE, 
-                       msg.file="file", msg.col="columns", msg.row="rows", ...) {
+                       row.names = TRUE, col.names = TRUE, first.col.name="row.names", 
+                       msg.file="file", msg.col="columns", msg.row="rows", 
+                       verbose=TRUE, ...) {
   suppressMessages(require(tools))
   if (tolower(file_ext(file))=="csv") {
     write.csv(df, file, append = append, quote = quote,  
               row.names = row.names, col.names = col.names, ...)
   } else if (row.names == TRUE && col.names == TRUE) {
-    cat(paste(c("row.names", colnames(df)), collapse = sep), file = file, sep = "\n")
+    cat(paste(c(first.col.name, colnames(df)), collapse = sep), file = file, sep = "\n")
     write.table(df, file, append = TRUE, quote = quote, sep = sep,
                 row.names = TRUE, col.names = FALSE, ...)
   } else {# .tsv .txt

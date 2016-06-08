@@ -5,8 +5,9 @@
 \title{Write the data fram (table) to a file.}
 \usage{
 writeTable(df, file, append = FALSE, quote = FALSE, sep = "\\t",
-  row.names = TRUE, col.names = TRUE, verbose = TRUE, msg.file = "file",
-  msg.col = "columns", msg.row = "rows", ...)
+  row.names = TRUE, col.names = TRUE, first.col.name = "row.names",
+  msg.file = "file", msg.col = "columns", msg.row = "rows",
+  verbose = TRUE, ...)
 }
 \arguments{
 \item{df}{A data frame.}
@@ -14,6 +15,10 @@ writeTable(df, file, append = FALSE, quote = FALSE, sep = "\\t",
 \item{file}{If the file extension is \emph{csv}, 
 then use \code{\link{write.csv}}, 
 otherwise use \code{\link{write.table}}.}
+
+\item{first.col.name}{The 1st column name when 
+\code{row.names == TRUE && col.names == TRUE}. 
+Default to "row.names".}
 
 \item{...}{Other arguments passed to \code{\link{write.table}}.}
 }

@@ -246,3 +246,21 @@ random2Clusters <- function(n=100, seed=101) {
 normalize <- function(vec) {
   (vec - min(vec, na.rm=TRUE))/(max(vec,na.rm=TRUE) - min(vec, na.rm=TRUE))
 }
+
+
+#' Convert data frame columns to different type, 
+#' default to numeric type for columns. 
+#' 
+#' @source Modified from 
+#' \url{http://stackoverflow.com/questions/2288485/how-to-convert-a-data-frame-column-to-numeric-type}.
+#' 
+#' @param df A data frame.
+#' @param MARGIN,FUN Refer to \code{\link{apply}}.
+#' @keywords utils
+#' @export
+#' @examples 
+#' df <- as.type(df)
+#' df <- as.type(df, FUN=as.character)
+as.type <- function(df, FUN=as.numeric) {
+  df <- as.data.frame(lapply(df, FUN))
+}
