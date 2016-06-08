@@ -602,7 +602,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
 #' @keywords graph
 #' @export
 #' @examples
-#' box.plot <- ggBoxWhiskersPlot(df, x.id="test", y.id="performance")
+#' ggBoxWhiskersPlot(df, x.id="test", y.id="performance", colour.id="OS", x.text.angle=90)
 #' 
 #' @rdname ggPlot
 ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
@@ -631,9 +631,11 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
   
   if (auto.scale.y) {
     y.max <- max(df[,y.id])
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, auto.scale.max=y.max)
+    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
+                        auto.scale.max=y.max, verbose=verbose)
   } else {
-    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans)
+    p <- ggOptScaleAxis(p, axis="y", scale="continuous", trans=y.trans, 
+                        verbose=verbose)
   }
   
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
@@ -714,15 +716,19 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
   
   if (auto.scale.x) {
     x.max <- max(df[,x.id])
-    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, auto.scale.max=x.max)
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
+                        auto.scale.max=x.max, verbose=verbose)
   } else {
-    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans)
+    p <- ggOptScaleAxis(p, axis="x", scale=x.scale, trans=x.trans, 
+                        verbose=verbose)
   }
   if (auto.scale.y) {
     y.max <- max(df[,y.id])
-    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, auto.scale.max=y.max)
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
+                        auto.scale.max=y.max, verbose=verbose)
   } else {
-    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans)
+    p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
+                        verbose=verbose)
   }
   
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
