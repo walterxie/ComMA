@@ -4,7 +4,7 @@
 \alias{ggYAcrossXBar}
 \title{Y Across X Bar Chart}
 \usage{
-ggYAcrossXBar(community.matrix,
+ggYAcrossXBar(community.matrix, terms = c("OTUs", "samples", "reads"),
   title = "The number of OTUs/reads across the number of samples",
   x.lab = "Number of samples crossed", y.lab = "Number of OTUs/reads",
   y.trans = "log", auto.scale.y = TRUE, x.scale = "discrete",
@@ -13,6 +13,9 @@ ggYAcrossXBar(community.matrix,
 \arguments{
 \item{community.matrix}{Community matrix (OTU table), where rows are 
 OTUs or individual species and columns are sites or samples.}
+
+\item{terms}{The terms of matrix for x, y, and cells. 
+Default to \code{c("OTUs", "samples", "reads")}.}
 
 \item{title}{Graph title}
 

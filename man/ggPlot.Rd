@@ -360,7 +360,7 @@ ranks.by.group
 gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
 pdf.ggplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
 
-box.plot <- ggBoxWhiskersPlot(df, x.id="test", y.id="performance")
+ggBoxWhiskersPlot(df, x.id="test", y.id="performance", colour.id="OS", x.text.angle=90)
 
 # prepare log
 b.log <- ComMA::readFile("data-raw/star.beast.log", row.names=NULL)

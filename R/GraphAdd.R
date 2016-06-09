@@ -79,6 +79,7 @@ ggAddNumbers <- function(gg.plot, label.id=NULL, hjust=0, vjust=0,
                                 geom = "text", position = position_dodge(width=dodge.width), 
                                 colour = text.colour, size = text.size, ...)
   }
+  return(p)
 }
 
 #' Add error bars
@@ -116,4 +117,5 @@ ggAddErrorBars <- function(gg.plot, lower, upper, dodge.width=0.9, err.bar.width
   p <- gg.plot + geom_errorbar(aes(ymin = lower, ymax = upper), 
                                position = position_dodge(width=dodge.width), 
                                width = err.bar.width, ...)
+  return(p)
 }

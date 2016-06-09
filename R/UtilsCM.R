@@ -230,7 +230,7 @@ mostAbundantRows <- function(community.matrix, most.abund=150,
 #'
 #' @rdname utilsCM
 cmYAcrossX <- function(community.matrix, terms=c("OTUs", "samples", "reads")) {
-  suppressMessages(require(Matrix))
+  suppressMessages(suppressWarnings(require(Matrix)))
   row.count.sum <- data.frame(row.names = rownames(community.matrix))
   row.count.sum[, terms[2]] <- apply(community.matrix, MARGIN=1, function(x) sum(x>0))
   row.count.sum$reads <- apply(community.matrix, MARGIN=1, sum)

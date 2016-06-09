@@ -99,7 +99,7 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param autoSize If TRUE, then use number of bars and legend columns 
-#' to estimate pdf width  and height automatically. Default to TRUE.
+#' to estimate pdf width and height automatically. Default to TRUE.
 #' @param ... Other arguments passed to \code{\link{ggBarChart}}.
 #' @keywords graph
 #' @export
@@ -250,6 +250,8 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
 #' 
 #' @param community.matrix Community matrix (OTU table), where rows are 
 #' OTUs or individual species and columns are sites or samples. 
+#' @param terms The terms of matrix for x, y, and cells. 
+#' Default to \code{c("OTUs", "samples", "reads")}.
 #' @param title Graph title
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
@@ -262,20 +264,22 @@ ggGroupAbundanceBar <- function(df.to.melt, melt.id, colour.id=NULL, prop.thre=0
 #' @examples  
 #' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 #' bar.yx <- ggYAcrossXBar(community.matrix)
-ggYAcrossXBar <- function(community.matrix, title="The number of OTUs/reads across the number of samples", 
+ggYAcrossXBar <- function(community.matrix, terms=c("OTUs", "samples", "reads"),
+                          title="The number of OTUs/reads across the number of samples", 
                           x.lab="Number of samples crossed", y.lab="Number of OTUs/reads",
                           y.trans="log", auto.scale.y=TRUE, x.scale="discrete", x.interval=1, 
                           x.text.angle=0, legend.title="", ...) {
-  cm.aggre <- ComMA::cmYAcrossX(community.matrix)
-  suppressMessages(require(reshape2))
-  df <- melt(cm.aggre, id="samples")
+  cm.aggre <- ComMA::cmYAcrossX(community.matrix, terms=terms)
+  suppressMessages(suppressWarnings(require(reshape2)))
+  y.term <- terms[2]
+  df <- melt(cm.aggre, id=y.term)
   
   if (x.scale=="discrete") {
-    df[,"samples"] <- as.character(df[,"samples"])
-    df[,"samples"] <- factor(df[,"samples"], unique(df[,"samples"]))
+    df[,y.term] <- as.character(df[,y.term])
+    df[,y.term] <- factor(df[,y.term], unique(df[,y.term]))
   }
   
-  p <- ComMA::ggBarChart(df, x.id="samples", y.id="value", fill.id="variable", 
+  p <- ComMA::ggBarChart(df, x.id=y.term, y.id="value", fill.id="variable", 
                          y.trans=y.trans, auto.scale.y=auto.scale.y, 
                          title=title, x.lab=x.lab, y.lab=y.lab, 
                          x.text.angle=x.text.angle, x.scale=x.scale, x.interval=x.interval, 

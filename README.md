@@ -29,6 +29,6 @@ library("ComMA")
 
 It may take time to load the page from GitHub.
 
-1. [One-line plotting] (https://github.com/walterxie/ComMA/blob/master/OneCommandLinePlot.ipynb)
+1. [One-line plotting] (https://github.com/walterxie/ComMA/blob/master/tutorials/OneCommandLinePlot.ipynb)
 
-
+2. [RDP + Greengenes vs. BLAST + MEGAN] (https://github.com/walterxie/ComMA/blob/master/tutorials/GreengenesVsBLAST.ipynb)

@@ -37,7 +37,7 @@ Use \code{\link{rev}} instead.}
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
 
 \item{autoSize}{If TRUE, then use number of bars and legend columns 
-to estimate pdf width  and height automatically. Default to TRUE.}
+to estimate pdf width and height automatically. Default to TRUE.}
 
 \item{...}{Other arguments passed to \code{\link{ggBarChart}}.}
 }
