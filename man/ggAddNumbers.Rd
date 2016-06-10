@@ -4,32 +4,15 @@
 \alias{ggAddNumbers}
 \title{Add numbers}
 \usage{
-ggAddNumbers(gg.plot, label.id = NULL, hjust = 0, vjust = 0,
-  fun.y.lab = mean, fun.y.pos = median, y.adj = 0.98, digits = 2,
-  dodge.width = 0.9, text.size = 4, text.colour = "black", ...)
+ggAddNumbers(label.id = NULL, hjust = 0, vjust = 0, dodge.width = 0.9,
+  text.size = 4, text.colour = "black", ...)
 }
 \arguments{
-\item{gg.plot}{A \code{\link{ggplot}} object.}
-
 \item{label.id}{A string of a data mapping (column name) provides labels. 
 If NULL, the default, then use \code{\link{stat_summary}} by given \code{fun.y.lab}. 
 Othewise, use \code{\link{geom_text}} by given \code{label.id}.}
 
 \item{hjust, vjust}{The adjustment of label positions. Only activated if label.id is not NULL.}
-
-\item{fun.y.lab}{A function to calculate numbers displayed in the figure. 
-Only activated if label.id is NULL. Default to function \code{\link{mean}}. 
-Ues \code{\link{length}} to show number of observations.}
-
-\item{fun.y.pos}{A function to calculate the initial position of text on y-value. 
-Only activated if label.id is NULL. Default to \code{\link{median}}.}
-
-\item{y.adj}{The propotion of the initial position of text on y-value. 
-Only activated if label.id is NULL.
-> 1 will raises the text, and < 1 will sinks the text. Default to 0.98.}
-
-\item{digits}{Integer indicating the number of decimal places for \code{\link{round}}.
-Only activated if label.id is NULL.}
 
 \item{dodge.width}{Dodging width, when different to the width of the individual elements. 
 Default to 0.8. Refer to \code{\link{position_dodge}}.}
@@ -45,9 +28,8 @@ Add numbers as text in a \code{\link{ggplot}} object, such as mean of box plot.
 Refer to \code{\link{stat_summary}}.
 }
 \examples{
-# "total" have to exist in p$mapping
-p <- ggAddNumbers(p, label.id="total", hjust=ifelse(sign(total)>0, 1, 0))
-p <- ggAddNumbers(p, fun.y.lab=length, y.adj=1.02)
+p <- ggBarChart(myData, x.id="model", y.id="mean", fill.id="OS", y.lab="performance")
+p <- p + ggAddNumbers(fun.y.lab=length, y.adj=1.02)
 }
 \keyword{graph}
 

@@ -4,12 +4,9 @@
 \alias{ggAddErrorBars}
 \title{Add error bars}
 \usage{
-ggAddErrorBars(gg.plot, lower, upper, dodge.width = 0.9,
-  err.bar.width = 0.25, ...)
+ggAddErrorBars(lower, upper, dodge.width = 0.9, err.bar.width = 0.25, ...)
 }
 \arguments{
-\item{gg.plot}{A \code{\link{ggplot}} object.}
-
 \item{lower, upper}{The vector of lower or upper plotted in error bars. May use formula 
 \code{lower = mean - standard error of mean}, \code{upper = mean + standard error of mean} 
 to calculate. \code{standard error of mean = sd(x) / sqrt(length(x))}.}
@@ -27,7 +24,7 @@ Refer to \code{\link{geom_errorbar}}.
 }
 \examples{
 # lower = mean - standard error of mean, upper = mean + standard error of mean
-p <- ggAddErrorBars(p, lower, upper)
+p <- p + ggAddErrorBars(lower, upper)
 
 # Replicate of http://www.r-bloggers.com/building-barplots-with-error-bars/
 perf.df <- ComMA::readFile("data-raw/model.test.txt")
@@ -39,7 +36,7 @@ colnames(myData) <- c("model", "OS", "mean", "sd", "n", "se")
 bar.chart <- ggBarChart(myData, x.id="model", y.id="mean", fill.id="OS", y.lab="performance")
 lower=myData$mean - myData$se
 upper=myData$mean + myData$se
-bar.chart <- ggAddErrorBars(bar.chart, lower=lower, upper=upper)
+bar.chart <- bar.chart + ggAddErrorBars(lower=lower, upper=upper)
 bar.chart
 }
 \keyword{graph}

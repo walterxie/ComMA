@@ -4,12 +4,10 @@
 \alias{ggAddLine}
 \title{Add a line}
 \usage{
-ggAddLine(gg.plot, linetype = 1, xintercept, yintercept, intercept, slope,
+ggAddLine(linetype = 1, xintercept, yintercept, intercept, slope,
   smooth.method, ...)
 }
 \arguments{
-\item{gg.plot}{A \code{\link{ggplot}} object.}
-
 \item{linetype}{Refer to \code{\link{linetype}}: 
 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 
 4 = dotdash, 5 = longdash, 6 = twodash.}
@@ -24,8 +22,9 @@ They cannot be used at the same time.}
 Add a line \code{\link{geom_line}} to a given \code{\link{ggplot}} object.
 }
 \examples{
-p <- ggAddLine(p, linetype = 2, yintercept = 1)
-p <- ggAddLine(p, smooth.method = "lm")
+p <- ggHeatmap(ranks.by.group, melt.id="plot")
+p <- p + ggAddLine(linetype = 2, yintercept = 1)
+p <- p + ggAddLine(smooth.method = "lm")
 }
 \keyword{graph}
 
