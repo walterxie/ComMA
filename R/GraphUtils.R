@@ -231,6 +231,7 @@ gLegend<-function(a.gplot){
 #' @export
 #' @examples 
 #' myPalette <- getMyPalette() 
+#TODO: use http://tools.medialab.sciences-po.fr/iwanthue/
 getMyPalette<-function(n, add.grey=0){
   greyPalette <- c("#CCCCCC", "#999999")
   myPalette <- c("#A6CEE3", "#1F78B4", "#B2DF8A", "#33A02C", "#FB9A99", "#E31A1C", "#FDBF6F", "#FF7F00", "#AE22EC", "#FAF629",
