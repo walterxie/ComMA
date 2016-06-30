@@ -113,7 +113,7 @@
 #' @keywords graph
 #' @export
 #' @examples
-#' model.test <- data(model.test)
+#' data(model.test)
 #' model.test.mac <- model.test[model.test$OS=="Mac",]
 #' ggBarChart(model.test.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90)
 #' ggBarChart(model.test.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")

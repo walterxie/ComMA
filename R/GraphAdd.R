@@ -114,7 +114,7 @@ ggAddNumbersFun <- function(fun.y.lab=mean, fun.y.pos=median, y.adj=0.98, digits
 #' p <- p + ggAddErrorBars(lower, upper)
 #' 
 #' # Replicate of http://www.r-bloggers.com/building-barplots-with-error-bars/
-#' model.test <- data(model.test)
+#' data(model.test)
 #' myData <- aggregate(model.test$performance, by = list(model = model.test$model, OS = model.test$OS),
 #'     FUN = function(x) c(mean = mean(x), sd = sd(x), n = length(x)))
 #' myData <- do.call(data.frame, myData)
