@@ -27,8 +27,8 @@ Refer to \code{\link{geom_errorbar}}.
 p <- p + ggAddErrorBars(lower, upper)
 
 # Replicate of http://www.r-bloggers.com/building-barplots-with-error-bars/
-perf.df <- ComMA::readFile("data-raw/model.test.txt")
-myData <- aggregate(perf.df$performance, by = list(model = perf.df$model, OS = perf.df$OS),
+model.test <- data(model.test)
+myData <- aggregate(model.test$performance, by = list(model = model.test$model, OS = model.test$OS),
     FUN = function(x) c(mean = mean(x), sd = sd(x), n = length(x)))
 myData <- do.call(data.frame, myData)
 myData$se <- myData$x.sd / sqrt(myData$x.n)

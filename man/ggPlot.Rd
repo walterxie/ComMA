@@ -320,13 +320,13 @@ extension, you may need to turn off clipping after call, such as
 \code{ggScatterPlot} and \code{ggLineWithPoints}.
 }
 \examples{
-perf.df <- ComMA::readFile("data-raw/model.test.txt")
-perf.df.mac <- perf.df[perf.df$OS=="Mac",]
-ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90)
-ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")
-ggBarChart(perf.df.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="fill", y.trans="per")
+model.test <- data(model.test)
+model.test.mac <- model.test[model.test$OS=="Mac",]
+ggBarChart(model.test.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90)
+ggBarChart(model.test.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")
+ggBarChart(model.test.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="fill", y.trans="per")
 
-ggHistogram(perf.df.mac, x.id="performance", fill.id="model", x.text.angle=90)
+ggHistogram(model.test.mac, x.id="performance", fill.id="model", x.text.angle=90)
  
 # plot 2 clusters
 df.clusters <- random2Clusters()
