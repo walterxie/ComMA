@@ -140,7 +140,7 @@ grid_arrange_shared_legend <- function(...) {
 mylog_trans <- function(base=exp(1), from=0) {
   trans <- function(x) log(x, base)-from
   inv <- function(x) base^(x+from)
-  require(scales)
+  suppressMessages(suppressWarnings(require(scales)))
   trans_new("mylog", trans, inv, log_breaks(base=base), domain = c(base^from, Inf))
 }
 
@@ -155,7 +155,7 @@ mylog_trans <- function(base=exp(1), from=0) {
 #' #expression(10^04)
 #' scientific_10(10000)
 scientific_10 <- function(x) {
-  require(scales)
+  suppressMessages(suppressWarnings(require(scales)))
   text=gsub("1e\\+00", "1", scientific_format()(x))
   text=gsub("1e\\+01", "10", text)
   text=gsub("0e\\+00", "0", text)
