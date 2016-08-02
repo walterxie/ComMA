@@ -131,7 +131,9 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
     df.points.merge[,"Row.names"] <- rownames(df.points) 
   }
   
-  text.id="Row.names"
+  if (text.or.point != 2)
+    text.id="Row.names"
+  
   if (! is.null(text.size.id)) {
     # renormalization min to 1
     min.s=min(df.points.merge[,text.size.id])
