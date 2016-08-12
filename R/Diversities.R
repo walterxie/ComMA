@@ -176,42 +176,42 @@ summaryCMPerSample <- function(t.community.matrix, hasTotal=TRUE, digits=2,
 #' 
 #' @rdname JostDiversity
 calculateDissimilarityMatrix <- function(t.community.matrix, diss.fun="beta1-1", printProgressBar) {    
-  # including diagonal
-  diss.matrix <- matrix(0,nrow=nrow(t.community.matrix),ncol=nrow(t.community.matrix))
-  colnames(diss.matrix) <- c(rownames(t.community.matrix))
-  rownames(diss.matrix) <- c(rownames(t.community.matrix))
-  # row.pairs : each row is a pair of row number of t.community.matrix
-  row.pairs <- t(combn(nrow(t.community.matrix),2))
-  
-  cat("\nCalculating", diss.fun, "from", nrow(row.pairs), "pairs of samples.\n")
-  
-  if (missing(printProgressBar)) printProgressBar=nrow(row.pairs)>100
-  if (printProgressBar) {
-    flush.console()
-    pb <- txtProgressBar(min=1, max=nrow(row.pairs), style = 3)
-  }
-  
   require(vegan)
   require(vegetarian)
-  for (n in 1:nrow(row.pairs)) {
-    if (printProgressBar) setTxtProgressBar(pb, n)
-    if (diss.fun=="jaccard") {
-      # Jaccard
-      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.community.matrix[row.pairs[n,],], method="jaccard", binary=TRUE)
-    } else if (diss.fun=="horn.morisita") {
-      # Horn-Morisita
-      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.community.matrix[row.pairs[n,],], method="horn", binary=FALSE)
-    } else if (diss.fun=="bray.curtis") {
-      # Bray-Curtis
-      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- vegdist(t.community.matrix[row.pairs[n,],])
-    } else { # diss.fun="beta1-1"
+  if (diss.fun=="jaccard") {
+    # Jaccard
+    return(vegdist(t.community.matrix, method="jaccard", binary=TRUE))
+  } else if (diss.fun=="horn.morisita") {
+    # Horn-Morisita
+    return(vegdist(t.community.matrix, method="horn", binary=FALSE))
+  } else if (diss.fun=="bray.curtis") {
+    # Bray-Curtis
+    return(vegdist(t.community.matrix))
+  } else { # diss.fun="beta1-1"
+    # including diagonal
+    diss.matrix <- matrix(0,nrow=nrow(t.community.matrix),ncol=nrow(t.community.matrix))
+    colnames(diss.matrix) <- c(rownames(t.community.matrix))
+    rownames(diss.matrix) <- c(rownames(t.community.matrix))
+    # row.pairs : each row is a pair of row number of t.community.matrix
+    row.pairs <- t(combn(nrow(t.community.matrix),2))
+    
+    cat("\nCalculating", diss.fun, "from", nrow(row.pairs), "pairs of samples.\n")
+    
+    if (missing(printProgressBar)) printProgressBar=nrow(row.pairs)>100
+    if (printProgressBar) {
+      flush.console()
+      pb <- txtProgressBar(min=1, max=nrow(row.pairs), style = 3)
+    }
+    for (n in 1:nrow(row.pairs)) {
+      if (printProgressBar) setTxtProgressBar(pb, n)
+      
       # beta1-1
       diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- d(t.community.matrix[row.pairs[n,],],lev="beta",q=1)-1
     }
+    if (printProgressBar) close(pb)
+    return(diss.matrix)
   }
-  if (printProgressBar) close(pb)
-  
-  return (diss.matrix)
+  return (NULL)
 }
 
 #' Calculate pair-wise turnovers between samples.
@@ -246,7 +246,7 @@ TurnoverDist<-function(t.community.matrix){
 #' effective alpha per sample
 #' return one column matrix
 #alpha1 <- function(t.community.matrix) {    
-  # including diagonal
+# including diagonal
 #  m.alpha1 <- matrix(0,nrow=nrow(t.community.matrix),ncol=1)	
 #  rownames(m.alpha1) <- c(rownames(t.community.matrix))
 #  for(i in 1:nrow(t.community.matrix)){				
