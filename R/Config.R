@@ -1,7 +1,7 @@
 # Author: Walter Xie
 # Accessed on 10 Mar 2016
 
-#' Install all depdent packages.
+#' Install all dependent packages.
 #' 
 #' @export
 #' @examples 
