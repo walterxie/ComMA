@@ -208,7 +208,7 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
       # MEGAN environmental samples
       id.match <- c(id.match, grep("environmental samples", cm.taxa[, ra.col], ignore.case = T))
       # RDP unclassified
-      id.match <- c(id.match, which(trimAll(cm.taxa[, ra.col])==""))
+      id.match <- c(id.match, which(trimSpace(cm.taxa[, ra.col])==""))
       if (length(id.match) > 0)
         cm.taxa[id.match, ra.col] <- paste("unclassified", cm.taxa[id.match, pre.ra.col])
       

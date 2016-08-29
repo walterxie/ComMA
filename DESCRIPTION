@@ -7,9 +7,15 @@ Authors@R: c(person("Walter", "Xie", email = "walter@cs.auckland.ac.nz", role = 
 			person("Andrew", "Dopheide", role = c("aut")),
 			person("Alexei", "Drummond", role = c("aut", "cph")))
 Description: Community Matrix Analysis
-Depends: R (>= 3.2.3)
+Depends:
+    R (>= 3.2.3)
 License: GNU3
 LazyData: TRUE
 Imports:
-    tools, vegan, vegetarian, cluster, ape, picante
-RoxygenNote: 5.0.1.9000
+    tools,
+    vegan,
+    vegetarian,
+    cluster,
+    ape,
+    picante
+RoxygenNote: 5.0.1

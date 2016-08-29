@@ -8,9 +8,9 @@
 \title{The Graphs Extended From \code{\link{ggScatterPlot}}}
 \usage{
 gtNMDSPlot(comm, attr.df, colour.id = NULL, shape.id = NULL,
-  link.id = NULL, text.or.point = 3, text.size.id = NULL, text.size = 3,
-  distance = "bray", k = 2, title = "NMDS", title.add.stress = TRUE,
-  verbose = TRUE, ...)
+  link.id = NULL, text.id = NULL, text.or.point = 3,
+  text.size.id = NULL, text.size = 3, distance = "bray", k = 2,
+  title = "NMDS", title.add.stress = TRUE, verbose = TRUE, ...)
 
 gtClassicalMDSPlot(dist.comm, attr.df, colour.id = NULL, shape.id = NULL,
   link.id = NULL, text.id = NULL, text.or.point = 3,

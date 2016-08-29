@@ -19,7 +19,7 @@ readMCMCLog <- function(file, rm.na.col=TRUE, ...) {
                               msg.col="parameters", msg.row="samples", ...)
   
   if (rm.na.col) {
-    col.names <- ComMA::trimAll(names(mcmc.log))
+    col.names <- ComMA::trimSpace(names(mcmc.log))
     # exclude all columns with all NA, such as BEAST (< 2.4.1) log
     no.empty.col <- col.names[sapply( mcmc.log, function(x) !all(is.na(x)) )]
     if (length(col.names) != length(no.empty.col)) {

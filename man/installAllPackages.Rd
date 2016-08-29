@@ -2,12 +2,12 @@
 % Please edit documentation in R/Config.R
 \name{installAllPackages}
 \alias{installAllPackages}
-\title{Install all depdent packages.}
+\title{Install all dependent packages.}
 \usage{
 installAllPackages()
 }
 \description{
-Install all depdent packages.
+Install all dependent packages.
 }
 \examples{
 installAllPackages()

@@ -59,7 +59,7 @@ getCorrSignTable <- function(corr.sign.matrix, digits=3) {
 #' @description Useful function to manipulate strings and characters in \code{\link{ComMA}}.
 #' 
 #' @details 
-#' \code{trimStartEnd} trims the leading and trailing whitespace in a string.
+#' \code{trimStartEndSpace} trims the leading and trailing whitespace in a string.
 #' Refer to \url{http://stackoverflow.com/questions/2261079/how-to-trim-leading-and-trailing-whitespace-in-r}.
 #'  
 #' @param x The string.
@@ -67,25 +67,25 @@ getCorrSignTable <- function(corr.sign.matrix, digits=3) {
 #' @export
 #' @examples 
 #' text = "   foo bar  baz 3 "
-#' trimStartEnd(text)
+#' trimStartEndSpace(text)
 #' [1] "foo bar  baz 3"
 #'
 #' @rdname stringUtils
-trimStartEnd <- function (x) gsub("^\\s+|\\s+$", "", x)
+trimStartEndSpace <- function (x) gsub("^\\s+|\\s+$", "", x)
 
-#' @details \code{trimAll} removes all whitespace from a string.
+#' @details \code{trimSpace} removes all whitespace from a string.
 #' Refer to \url{http://stackoverflow.com/questions/5992082/how-to-remove-all-whitespace-from-a-string}.
 #' 
 #' @keywords utils
 #' @export
 #' @examples 
 #' text = "   foo bar  baz 3 "
-#' trimAll(text)
+#' trimSpace(text)
 #' [1] "foobarbaz3"
 #'
 #' @rdname stringUtils
-trimAll <- function (x) gsub("[[:space:]]", "", x)
-trimAll.old <- function (x) gsub("\\s", "", x)
+trimSpace <- function (x) gsub("[[:space:]]", "", x)
+trimSpace.old <- function (x) gsub("\\s", "", x)
 
 #' @details \code{substrLast} extracts the last n characters from a string x.
 #' Refer to \url{http://stackoverflow.com/questions/7963898/extracting-the-last-n-characters-from-a-string-in-r}.
