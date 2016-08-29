@@ -157,6 +157,20 @@ simpleCap <- function(x) {
   paste(toupper(substring(s, 1,1)), substring(s, 2), sep="", collapse=" ")
 }
 
+#' @details \code{countCharOccurrences} returns the occurrences of given charater 
+#' \code{char} in string \code{s}. Refere to 
+#' \url{https://techoverflow.net/blog/2012/11/10/r-count-occurrences-of-character-in-string/}.
+#' 
+#' @export
+#' @examples 
+#' countCharOccurrences("a", "application")
+#' 
+#' @rdname stringUtils
+countCharOccurrences <- function(char, s) {
+  s2 <- gsub(char,"",s)
+  return (nchar(s) - nchar(s2))
+}
+
 #' @details \code{freqUniqueValue} returns 2-column data frame of the unique values 
 #' and their frequency given a vector \code{x}. Refere to 
 #' \url{http://stackoverflow.com/questions/16905425/find-duplicate-values-in-r}.
