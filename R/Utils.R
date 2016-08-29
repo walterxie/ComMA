@@ -84,7 +84,8 @@ trimStartEnd <- function (x) gsub("^\\s+|\\s+$", "", x)
 #' [1] "foobarbaz3"
 #'
 #' @rdname stringUtils
-trimAll <- function (x) gsub("\\s", "", x)
+trimAll <- function (x) gsub("[[:space:]]", "", x)
+trimAll.old <- function (x) gsub("\\s", "", x)
 
 #' @details \code{substrLast} extracts the last n characters from a string x.
 #' Refer to \url{http://stackoverflow.com/questions/7963898/extracting-the-last-n-characters-from-a-string-in-r}.
