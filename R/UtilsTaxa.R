@@ -142,7 +142,7 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.co
   
   if (verbose)
     cat("Merge", nrow(cm), "rows in community matrix with", nrow(taxa.table), "rows in taxa table, get", 
-        nrow(cm.taxa), "classifications.\n")
+        nrow(cm.taxa), "classified OTUs.\n")
   
   attr(cm.taxa, "ncol.cm") <- ncol.cm
   attr(cm.taxa, "col.ranks") <- col.ranks
