@@ -77,7 +77,7 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL,
 #' It is dissimilarities either as a \code{\link{dist}} structure 
 #' or as a community data defined by \code{\link{vegan}} which is 
 #' a transposed matrix of community matrix in \code{\link{ComMA}}.
-#' Use \code{\link{transpose.df}} to rotate the data frame.
+#' Use \code{\link{transposeDF}} to rotate the data frame.
 #' Detail to \code{\link{metaMDS}}.
 #' @param distance Dissimilarity index used in \code{\link{vegdist}}.
 #' Default to "bray".
@@ -246,7 +246,7 @@ gtClassicalMDSPlot <- function(dist.comm, attr.df,
 #' \code{\link{prcomp}}.
 #' For example, a community data defined by \code{\link{vegan}} which is 
 #' a transposed matrix of community matrix in \code{\link{ComMA}}.
-#' Use \code{\link{transpose.df}} to rotate the data frame.
+#' Use \code{\link{transposeDF}} to rotate the data frame.
 #' @param scale.pca Logical indicating in \code{\link{prcomp}} 
 #' whether the variables should be scaled to have unit variance 
 #' before the analysis takes place. Default to TURE.
