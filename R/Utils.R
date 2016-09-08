@@ -216,15 +216,16 @@ findDuplicates <- function(x) {
 #' [1] "species"
 #' getPlural("phylumn")
 #' [1] "phyla"
-getPlural <- function (singular) {
-  if (tolower(singular)=="species") {
-    plural = singular
-  } else if (tolower(singular)=="phylumn") {
-    plural = "phyla"
-  } else {
-    plural = paste(singular,"s",sep="")
+getPlural <- function (...) {
+  plurals <- c()
+  for (singular in list(...)) {
+    plurals <- c(plurals, 
+                switch(tolower(singular),
+                       species = singular,
+                       phylumn = "phyla",
+                       paste0(singular,"s") ))
   }
-  return(plural) 
+  return(plurals) 
 }
 
 #' Generate coordinates for 2 clusters. 

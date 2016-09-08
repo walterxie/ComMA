@@ -109,7 +109,7 @@ spilt.df <- function(community.matrix, spilt.to=2, MARGIN=1, verbose=TRUE) {
   return(cm.list)
 }
 
-#' @details \code{summaryCM.Vector} return a vector of summary of the 
+#' @details \code{summaryCM.Vector} return a named vector of summary of the 
 #' community matrix, where \code{community.matrix} can be one column only.
 #' The vector is c("reads","OTUs","samples","Shannon","singletons","doubletons").
 #' 
@@ -130,9 +130,14 @@ summaryCM.Vector <- function(community.matrix, digits=2) {
   singletons <- sum(rs==1)
   doubletons <- sum(rs==2)
   shannon <- d(community.matrix,lev="gamma",q=1)
+  min.otu.abun <- min(rs)
+  max.otu.abun <- max(rs)
   
-  return(prettyNum(c(reads, otus, samples, round(shannon, digits), 
-           singletons, doubletons)))
+  summary.cm <- prettyNum(c(reads, otus, samples, round(shannon, digits), singletons, 
+                          doubletons, min.otu.abun, max.otu.abun), drop0trailing=T)
+  names(summary.cm) <- c("reads", "OTUs", "samples", "Shannon", "singletons", "doubletons",
+                         "min.OTU.abundance","max.OTU.abundance")
+  return(summary.cm)
 }
 
 #' @details \code{summaryCM} summarizes the community matrix.
@@ -148,8 +153,10 @@ summaryCM.Vector <- function(community.matrix, digits=2) {
 #'
 #' @rdname utilsCM
 summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2, 
-                      x.lab="samples", y.lab="OTUs", abundance.lab="reads") {
-  summary.cm <- data.frame(row.names = c(abundance.lab,y.lab,x.lab,"Shannon","singletons","doubletons"))
+                      x.lab="sample", y.lab="OTU", abundance.lab="read") {
+  su.cm.row.names <- c(ComMA::getPlural(abundance.lab, y.lab, x.lab),"Shannon","singletons", "doubletons", 
+                       paste("min",y.lab,"abundance",sep="."), paste("max",y.lab,"abundance",sep="."))
+  summary.cm <- data.frame(row.names = su.cm.row.names)
   if (has.total!=1) {
     for (col.name in colnames(community.matrix)) 
       summary.cm[,col.name] <- summaryCM.Vector(community.matrix[,col.name], digits=digits)

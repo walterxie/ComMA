@@ -95,7 +95,7 @@ such as transposed community matrix for \pkg{vegan} package.
 \code{spilt.df} spilt a data frame into chunks of data frames 
 having equal rows/columns.
 
-\code{summaryCM.Vector} return a vector of summary of the 
+\code{summaryCM.Vector} return a named vector of summary of the 
 community matrix, where \code{community.matrix} can be one column only.
 The vector is c("reads","OTUs","samples","Shannon","singletons","doubletons").
 

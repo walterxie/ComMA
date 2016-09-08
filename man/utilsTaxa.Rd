@@ -9,7 +9,7 @@
 \title{Utils to preprocess taxa table}
 \usage{
 subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
-  include = TRUE, verbose = TRUE)
+  include = TRUE)
 
 mergeCMTaxa(community.matrix, taxa.table, classifier = "MEGAN",
   min.conf = 0.8, has.total = 1, sort = TRUE, verbose = TRUE,
@@ -41,8 +41,6 @@ uncertain classifications, even when group(s) assigned.}
 \item{include}{Define whether include or exclude given \code{taxa.group}. 
 Default to TRUE.}
 
-\item{verbose}{More details. Default to TRUE.}
-
 \item{community.matrix}{Community matrix (OTU table), where rows are 
 OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.}
 
@@ -56,6 +54,8 @@ If 1, then only return toal abudence. If 2, then return abudence by samples (col
 Default to 1.}
 
 \item{sort}{Sort the taxonomy rank by rank. Default to TRUE.}
+
+\item{verbose}{More details. Default to TRUE.}
 
 \item{col.ranks}{A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 which will determine the aggregated abundence matrix. They have to be full set or subset of 
