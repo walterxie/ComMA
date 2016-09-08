@@ -131,13 +131,7 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
       taxa.group="CHROMISTA|PROTOZOA"
     
     if (taxa.group != "assigned") {
-      if (include) {
-        # include PROTISTS, taxa.group="CHROMISTA|PROTOZOA", rank="kingdom"
-        taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = T))) 
-      } else { 
-        # exclude some phyla, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum"
-        taxa.table <- subset(taxa.table, !grepl(taxa.group, taxa.table[,rank], ignore.case = T)) 
-      }
+      taxa.table <- ComMA::subsetTaxaTabl(taxa.table, taxa.group, rank, include)
     }
   }
   

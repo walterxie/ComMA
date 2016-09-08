@@ -33,7 +33,7 @@
 #' tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
 #' 
 #' @rdname utilsTaxa
-subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", include=TRUE, verbose=TRUE) {
+subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", include=TRUE) {
   if (include) {
     # include PROTISTS, taxa.group="CHROMISTA|PROTOZOA", rank="kingdom"
     taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = T))) 
