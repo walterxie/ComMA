@@ -97,10 +97,10 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.co
                         col.ranks=c("kingdom", "phylum", "class", "order", "family", "genus")) {
   ranks <- getRanks()
   if (length(col.ranks) < 1 || !all(col.ranks %in% ranks)) 
-    stop("Invaild column names for ranks !\nUse one element or a subset of", 
+    stop("Invaild column names for ranks !\nUse one element or a subset of ", 
              paste(ranks, collapse = ","))
   if (!all(col.ranks %in% colnames(taxa.table))) 
-    stop("Column names in taxa.table do not have", paste(col.ranks, collapse = ","))
+    stop("Column names in taxa.table do not have ", paste(col.ranks, collapse = ","))
   if (! "kingdom" %in% colnames(taxa.table))
     stop("Column names in taxa.table must have 'kingdom' column !")
   if ("confidence" %in% colnames(taxa.table) && classifier != "RDP")
