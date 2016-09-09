@@ -44,6 +44,18 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
   return(taxa.table)
 }
 
+#' @details \code{mergeCMTaxa} returns a subset community matrix regarding taxa.group
+#' 
+#' @keywords utils
+#' @export
+#' @rdname utilsTaxa 
+subsetCM <- function(community.matrix, taxa.table, taxa.group="BACTERIA", rank="kingdom") {
+  tt.sub <- ComMA::subsetTaxaTable(taxa.table, taxa.group=taxa.group, rank=rank)	
+  cm.taxa <- ComMA::mergeCMTaxa(community.matrix, tt.sub, has.total=0)
+  rownames(cm.taxa) <- cm.taxa[,"Row.names"]
+  cm.taxa <- cm.taxa[,colnames(community.matrix)]
+  return(cm.taxa)
+}
 
 #' @details 
 #' \code{mergeCMTaxa} creates a data frame \code{cm.taxa} combined community matrix with 
@@ -62,7 +74,7 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 #' Value is MEGAN or RDP. Default to MEGAN.
 #' @param min.conf The confidence threshold to drop rows < \emph{min.conf}.
 #' @param has.total If 0, then only return abudence by samples (columns) of community matrix. 
-#' If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
+#' If 1, then only return total abudence. If 2, then return abudence by samples (columns) and total. 
 #' Default to 1.
 #' @param col.ranks A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 #' which will determine the aggregated abundence matrix. They have to be full set or subset of 

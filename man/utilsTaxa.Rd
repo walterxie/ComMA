@@ -4,12 +4,16 @@
 \alias{assignTaxaByRank}
 \alias{groupsTaxaMembers}
 \alias{mergeCMTaxa}
+\alias{subsetCM}
 \alias{subsetTaxaTable}
 \alias{utilsTaxa}
 \title{Utils to preprocess taxa table}
 \usage{
 subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE)
+
+subsetCM(community.matrix, taxa.table, taxa.group = "BACTERIA",
+  rank = "kingdom")
 
 mergeCMTaxa(community.matrix, taxa.table, classifier = "MEGAN",
   min.conf = 0.8, has.total = 1, sort = TRUE, verbose = TRUE,
@@ -50,7 +54,7 @@ Value is MEGAN or RDP. Default to MEGAN.}
 \item{min.conf}{The confidence threshold to drop rows < \emph{min.conf}.}
 
 \item{has.total}{If 0, then only return abudence by samples (columns) of community matrix. 
-If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
+If 1, then only return total abudence. If 2, then return abudence by samples (columns) and total. 
 Default to 1.}
 
 \item{sort}{Sort the taxonomy rank by rank. Default to TRUE.}
@@ -110,6 +114,8 @@ and make it easy for visualization.
 }
 \details{
 \code{subsetTaxaTable} takes or excludes a subset of given a taxa table at given rank.
+
+\code{mergeCMTaxa} returns a subset community matrix regarding taxa.group
 
 \code{mergeCMTaxa} creates a data frame \code{cm.taxa} combined community matrix with 
 taxonomic classification table. The 1st column is "row.names" that are OTUs/individuals, 
