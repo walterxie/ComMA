@@ -202,6 +202,20 @@ findDuplicates <- function(x) {
   n_occur[n_occur$Freq > 1,1]
 }
 
+#' @details \code{gusbDF} applies \code{\link{gsub}} to 
+#' the entire data frame.
+#' 
+#' @export
+#' @examples 
+#' gusbDF(".00", "", df)
+#' 
+#' @rdname stringUtils
+gusbDF <- function(pattern, replacement, df, stringsAsFactors=FALSE, check.names=FALSE, ...) {
+  df1 <- data.frame(lapply(df, function(x) gsub(pattern, replacement, x, ...)), 
+                    stringsAsFactors=stringsAsFactors, check.names=check.names)
+  rownames(df1) <- rownames(df)
+  return(df1)
+}
 
 #' Get plural by adding 's' except special plural.
 #' 
@@ -275,8 +289,10 @@ normalize <- function(vec) {
 #' @keywords utils
 #' @export
 #' @examples 
-#' df <- as.type(df)
-#' df <- as.type(df, FUN=as.character)
-as.type <- function(df, FUN=as.numeric) {
-  df <- as.data.frame(lapply(df, FUN))
+#' df <- convertType(df)
+#' df <- convertType(df, FUN=as.character)
+convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=FALSE) {
+  df1 <- data.frame(lapply(df, FUN), stringsAsFactors=stringsAsFactors, check.names=check.names)
+  rownames(df1) <- rownames(df)
+  return(df1)
 }

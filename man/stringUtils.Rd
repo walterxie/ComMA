@@ -4,6 +4,7 @@
 \alias{countCharOccurrences}
 \alias{findDuplicates}
 \alias{freqUniqueValue}
+\alias{gusbDF}
 \alias{simpleCap}
 \alias{stringUtils}
 \alias{substrBetween}
@@ -30,6 +31,9 @@ countCharOccurrences(char, s)
 freqUniqueValue(x)
 
 findDuplicates(x)
+
+gusbDF(pattern, replacement, df, stringsAsFactors = FALSE,
+  check.names = FALSE, ...)
 }
 \arguments{
 \item{x}{The string.}
@@ -78,6 +82,9 @@ and their frequency given a vector \code{x}. Refere to
 
 \code{findDuplicates} uses \code{freqUniqueValue} to 
 find the duplicates in a vector \code{x}.
+
+\code{gusbDF} applies \code{\link{gsub}} to 
+the entire data frame.
 }
 \examples{
 text = "   foo bar  baz 3 "
@@ -118,6 +125,8 @@ freqUniqueValue(c("a", "b", "a"))
 freqUniqueValue(c(1, 1, 2, 1))
 
 findDuplicates(c("a", "b", "a"))
+
+gusbDF(".00", "", df)
 
 }
 \keyword{utils}
