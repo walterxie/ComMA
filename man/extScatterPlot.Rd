@@ -27,7 +27,7 @@ gtPCAPlot(df.comm, attr.df, x.i = 1, y.i = 2, colour.id = NULL,
 It is dissimilarities either as a \code{\link{dist}} structure 
 or as a community data defined by \code{\link{vegan}} which is 
 a transposed matrix of community matrix in \code{\link{ComMA}}.
-Use \code{\link{transpose.df}} to rotate the data frame.
+Use \code{\link{transposeDF}} to rotate the data frame.
 Detail to \code{\link{metaMDS}}.}
 
 \item{attr.df}{A data frame of meta data to define 
@@ -72,7 +72,7 @@ which provides the data for the principal components analysis
 \code{\link{prcomp}}.
 For example, a community data defined by \code{\link{vegan}} which is 
 a transposed matrix of community matrix in \code{\link{ComMA}}.
-Use \code{\link{transpose.df}} to rotate the data frame.}
+Use \code{\link{transposeDF}} to rotate the data frame.}
 
 \item{scale.pca}{Logical indicating in \code{\link{prcomp}} 
 whether the variables should be scaled to have unit variance 

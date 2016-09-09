@@ -8,7 +8,7 @@
 \alias{summaryCMPerSample}
 \title{Jost diversity from \pkg{vegetarian} Package}
 \usage{
-diversityTable(t.community.matrix)
+diversityTable(t.community.matrix, named.vector = FALSE)
 
 summaryCMPerSample(t.community.matrix, hasTotal = TRUE, digits = 2,
   sort = "descending", comma.in.number = TRUE)
@@ -22,6 +22,8 @@ TurnoverDist(t.community.matrix)
 \item{t.community.matrix}{is abundances argument in \pkg{vegetarian} \code{\link{d}}, 
 which is a transposed matrix of community matrix, 
 where rows are plots (Use plots instead of subplots.), columns are OTUs.}
+
+\item{named.vector}{Logical, if TRUE, then return a named vector instead of data.frame.}
 
 \item{hasTotal}{If TRUE, then display the Total. Default to TRUE.}
 

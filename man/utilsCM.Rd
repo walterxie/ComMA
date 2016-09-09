@@ -9,20 +9,20 @@
 \alias{sumColumns}
 \alias{summaryCM}
 \alias{summaryCM.Vector}
-\alias{transpose.df}
+\alias{transposeDF}
 \alias{utilsCM}
 \title{Utils to preprocess community matrix}
 \usage{
 rmMinAbundance(community.matrix, minAbund = 2, MARGIN = 1, verbose = TRUE)
 
-transpose.df(community.matrix)
+transposeDF(community.matrix)
 
 spilt.df(community.matrix, spilt.to = 2, MARGIN = 1, verbose = TRUE)
 
 summaryCM.Vector(community.matrix, digits = 2)
 
 summaryCM(community.matrix, most.abund, has.total = 1, digits = 2,
-  x.lab = "samples", y.lab = "OTUs", abundance.lab = "reads")
+  x.lab = "sample", y.lab = "OTU", abundance.lab = "read")
 
 mostAbundantRows(community.matrix, most.abund = 150, row.decreasing = TRUE,
   col.decreasing = TRUE)
@@ -89,7 +89,7 @@ and aggregating matrix by different ways.
 \code{rmMinAbundance} returns the subset matrix of given community matrix, 
 by removing rows or colums whose sum of abundance is less than the minimum abundance threshold.
 
-\code{transpose.df} returns a transposed data frame, 
+\code{transposeDF} returns a transposed data frame, 
 such as transposed community matrix for \pkg{vegan} package.
 
 \code{spilt.df} spilt a data frame into chunks of data frames 
@@ -122,7 +122,7 @@ to the values of given columns.
 # remove singletons 
 ComMA::rmMinAbundance(community.matrix, minAbund=2)
 
-t.community.matrix <- transpose.df(community.matrix)
+t.community.matrix <- transposeDF(community.matrix)
 
 cm.list <- spiltCM(community.matrix)
 

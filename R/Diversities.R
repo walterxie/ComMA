@@ -15,6 +15,7 @@
 #' @param t.community.matrix is abundances argument in \pkg{vegetarian} \code{\link{d}}, 
 #' which is a transposed matrix of community matrix, 
 #' where rows are plots (Use plots instead of subplots.), columns are OTUs.
+#' @param named.vector Logical, if TRUE, then return a named vector instead of data.frame.
 #' @return 
 #' \code{diversityTable} returns a 3x3 data frame: 
 #' columns are levels of diversity c("gamma", "alpha", "beta"), 
@@ -31,29 +32,36 @@
 #' diversity.table <- diversityTable(t.community.matrix)
 #' 
 #' @rdname JostDiversity
-diversityTable <- function(t.community.matrix) { 
+diversityTable <- function(t.community.matrix, named.vector=FALSE) { 
   require(vegetarian)
-  diversity.df <- data.frame(row.names=c("gamma", "alpha", "beta"))
   
-  diversity.df$'q=0' <- c(
+  # $ for latex
+  diversity <- data.frame(row.names=c("gamma", "alpha", "beta"))
+  
+  diversity$'$q=0$' <- c(
     d(t.community.matrix,lev="gamma",q=0),
     d(t.community.matrix,lev="alpha",q=0),
     d(t.community.matrix,lev="beta",q=0))
   
-  diversity.df$'q=1' <- c(
+  diversity$'$q=1$' <- c(
     d(t.community.matrix,lev="gamma",q=1),
     d(t.community.matrix,lev="alpha",q=1),
     d(t.community.matrix,lev="beta",q=1))
   
-  diversity.df$'q=2' <- c(
+  diversity$'$q=2$' <- c(
     d(t.community.matrix,lev="gamma",q=2),
     d(t.community.matrix,lev="alpha",q=2),
     d(t.community.matrix,lev="beta", q=2))
   
-  colnames(diversity.df) <- c("$q=0$", "$q=1$", "$q=2$")
-  rownames(diversity.df) <- c("$D_\\gamma(q)$", "$D_\\alpha(q)$", "$D_\\beta(q)$")
+  rownames(diversity) <- c("$D_\\gamma(q)$", "$D_\\alpha(q)$", "$D_\\beta(q)$")
   
-  return(diversity.df)
+  if (named.vector) {
+    diversity <- unlist(diversity)
+    names(diversity) <- c("$D_\\gamma(q=0)$", "$D_\\alpha(q=0)$", "$D_\\beta(q=0)$",
+                          "$D_\\gamma(q=1)$", "$D_\\alpha(q=1)$", "$D_\\beta(q=1)$",
+                          "$D_\\gamma(q=2)$", "$D_\\alpha(q=2)$", "$D_\\beta(q=2)$")
+  }
+  return(diversity)
 }
 
 #' abundance (reads, gamme0) per sample

@@ -4,7 +4,7 @@
 \alias{getPlural}
 \title{Get plural by adding 's' except special plural.}
 \usage{
-getPlural(singular)
+getPlural(...)
 }
 \arguments{
 \item{singular}{The singular of a word in string.}
