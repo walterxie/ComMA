@@ -217,6 +217,26 @@ gusbDF <- function(pattern, replacement, df, stringsAsFactors=FALSE, check.names
   return(df1)
 }
 
+#' \code{prettyNumbers} provide pretty numbers with comma separator 
+#' to a given data frame \code{df}.
+#' 
+#' @param digits, integer indicating the number of decimal places, default o 2.
+#' @param drop.0.tail If TRUE, then remove all 0's decimal, such as ".00"
+#' 
+#' @export
+#' @examples 
+#' prettyNumbers(df)
+prettyNumbers <- function(df, digits = 2, drop.0.tail=TRUE) {
+  df <- ComMA::convertType(df)
+  df <- round(df, digits)
+  df <- format(df, big.mark=",", scientific=F)
+  if (drop.0.tail) {
+    pattern <- paste0( ".", paste0(rep("0",digits), collapse="") )
+    df <- ComMA::gusbDF(pattern, "", df)
+  }
+  return(df)
+}
+
 #' Get plural by adding 's' except special plural.
 #' 
 #' @param singular The singular of a word in string.
