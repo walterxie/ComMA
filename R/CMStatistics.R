@@ -248,6 +248,7 @@ summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbe
   tg.rank.count <- NA
   if (!is.na(count.rank))
     tg.rank.count <- data.frame(row.names = taxa.group, stringsAsFactors=FALSE, check.names=FALSE)
+  count.rank.df.list <- list()
   
   for (data.id in 1:length(cm.taxa.list)) {
     col.name <- names(cm.taxa.list)[data.id]
@@ -270,8 +271,12 @@ summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbe
         
         tg.otus[taxa.group[taxa.id],col.name] <- sum(taxa.assign.otu[[group.rank]])
         tg.reads[taxa.group[taxa.id],col.name] <- sum(taxa.assign.reads[[group.rank]])
-        if (!is.na(count.rank))
+        if (!is.na(count.rank)) {
           tg.rank.count[taxa.group[taxa.id],col.name] <- nrow(taxa.assign.otu[[count.rank]])
+          # record taxa in count.rank
+          df.name <- paste(col.name, taxa.group[taxa.id], sep = ".")
+          count.rank.df.list[[df.name]] <- taxa.assign.otu[[count.rank]]
+        }
       }
     }
   }
@@ -283,7 +288,7 @@ summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbe
       tg.rank.count <- ComMA::prettyNumbers(tg.rank.count, digits = 0)
   }
   
-  list(otus=tg.otus, rank.count=tg.rank.count, reads=tg.reads, 
-       taxa.group=taxa.group, group.rank=group.rank, count.rank=count.rank)
+  list(otus=tg.otus, rank.count=tg.rank.count, reads=tg.reads, taxa.group=taxa.group, group.rank=group.rank,
+      count.rank=count.rank, count.rank.df.list=count.rank.df.list)
 }
 
