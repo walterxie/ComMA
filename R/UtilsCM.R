@@ -55,11 +55,15 @@ rmMinAbundance <- function(community.matrix, minAbund=2, MARGIN=1, verbose=TRUE)
 #' t.community.matrix <- transposeDF(community.matrix)
 #'
 #' @rdname utilsCM
-transposeDF <- function(community.matrix) {
-  if (!all(sapply(community.matrix, is.numeric))) 
-    stop("All community matrix elements have to be numeric type") 
-  
-  t.community.matrix <- as.data.frame(t(as.matrix(community.matrix))) # transpose  
+transposeDF <- function(community.matrix, to.numeric=TRUE) {
+  if (!all(sapply(community.matrix, is.numeric))) {
+    if (to.numeric)
+      community.matrix <- ComMA::convertType(community.matrix)
+    else
+      stop("All community matrix elements have to be numeric type") 
+  }
+  # transpose, community.matrix must be numeric
+  t.community.matrix <- as.data.frame(t(as.matrix(community.matrix)))  
 }
 
 #' @details \code{spilt.df} spilt a data frame into chunks of data frames 
@@ -109,75 +113,6 @@ spilt.df <- function(community.matrix, spilt.to=2, MARGIN=1, verbose=TRUE) {
   return(cm.list)
 }
 
-#' @details \code{summaryCM.Vector} return a named vector of summary of the 
-#' community matrix, where \code{community.matrix} can be one column only.
-#' The vector is c("reads","OTUs","samples","Shannon","singletons","doubletons").
-#' 
-#' @param digits The digits to \code{\link{round}} decimal places 
-#' if number is not interger. Default to 2.
-#' @keywords community matrix
-#' @export
-#' @examples 
-#' summary.cm.vector <- summaryCM.Vector(community.matrix)
-#'
-#' @rdname utilsCM
-summaryCM.Vector <- function(community.matrix, digits=2) {
-  suppressMessages(require(vegetarian))
-  samples <- ncol(community.matrix)
-  otus <- nrow(community.matrix)
-  reads <- sum(community.matrix)
-  rs <- rowSums(community.matrix)
-  singletons <- sum(rs==1)
-  doubletons <- sum(rs==2)
-  shannon <- d(community.matrix,lev="gamma",q=1)
-  min.otu.abun <- min(rs)
-  max.otu.abun <- max(rs)
-  
-  summary.cm <- prettyNum(c(reads, otus, samples, round(shannon, digits), singletons, 
-                          doubletons, min.otu.abun, max.otu.abun), drop0trailing=T)
-  names(summary.cm) <- c("reads", "OTUs", "samples", "Shannon", "singletons", "doubletons",
-                         "min.OTU.abundance","max.OTU.abundance")
-  return(summary.cm)
-}
-
-#' @details \code{summaryCM} summarizes the community matrix.
-#' 
-#' @param has.total If 0, then only return abudence by samples (columns) of community matrix. 
-#' If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
-#' Default to 1.
-#' @param most.abund The threshold to define the number of the most abundent OTUs.
-#' @keywords community matrix
-#' @export
-#' @examples 
-#' summary.cm <- summaryCM(community.matrix)
-#'
-#' @rdname utilsCM
-summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2, 
-                      x.lab="sample", y.lab="OTU", abundance.lab="read") {
-  su.cm.row.names <- c(ComMA::getPlural(abundance.lab, y.lab, x.lab),"Shannon","singletons", "doubletons", 
-                       paste("min",y.lab,"abundance",sep="."), paste("max",y.lab,"abundance",sep="."))
-  summary.cm <- data.frame(row.names = su.cm.row.names)
-  if (has.total!=1) {
-    for (col.name in colnames(community.matrix)) 
-      summary.cm[,col.name] <- summaryCM.Vector(community.matrix[,col.name], digits=digits)
-  }
-  if (has.total > 0) {
-    summary.cm[,"total"] <- summaryCM.Vector(community.matrix, digits=digits)
-    
-    if (!missing(most.abund)) {
-      if (most.abund > nrow(community.matrix))
-        most.abund <- nrow(community.matrix)
-      cat("Set most abundent OTUs threshold =", most.abund, ".\n")
-      
-      community.matrix <- community.matrix[order(rs, decreasing=TRUE),]
-      cm <- community.matrix[1:most.abund,]
-      col.name <- paste0("most.abund.", most.abund, ".otus)")
-      
-      summary.cm[,col.name] <- summaryCM.Vector(cm, digits=digits)
-    }
-  }
-  return(summary.cm)
-}
 
 #' @details \code{mostAbundantRows} takes the given number of 
 #' most abundant rows (OTUs) from original community matrix 

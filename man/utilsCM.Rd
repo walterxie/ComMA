@@ -7,22 +7,15 @@
 \alias{rmMinAbundance}
 \alias{spilt.df}
 \alias{sumColumns}
-\alias{summaryCM}
-\alias{summaryCM.Vector}
 \alias{transposeDF}
 \alias{utilsCM}
 \title{Utils to preprocess community matrix}
 \usage{
 rmMinAbundance(community.matrix, minAbund = 2, MARGIN = 1, verbose = TRUE)
 
-transposeDF(community.matrix)
+transposeDF(community.matrix, to.numeric = TRUE)
 
 spilt.df(community.matrix, spilt.to = 2, MARGIN = 1, verbose = TRUE)
-
-summaryCM.Vector(community.matrix, digits = 2)
-
-summaryCM(community.matrix, most.abund, has.total = 1, digits = 2,
-  x.lab = "sample", y.lab = "OTU", abundance.lab = "read")
 
 mostAbundantRows(community.matrix, most.abund = 150, row.decreasing = TRUE,
   col.decreasing = TRUE)
@@ -49,14 +42,8 @@ then remove all empty rows/columns. Default to 2 (singletons).}
 \item{spilt.to}{The number of sub-data-frame to spilt. It must >= 2.
 Default to 2.}
 
-\item{digits}{The digits to \code{\link{round}} decimal places 
-if number is not interger. Default to 2.}
-
-\item{most.abund}{The threshold to define the number of the most abundent OTUs.}
-
-\item{has.total}{If 0, then only return abudence by samples (columns) of community matrix. 
-If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
-Default to 1.}
+\item{most.abund}{The threshold to define the number 
+of the most abundent OTUs. Default to 150.}
 
 \item{row.decreasing, col.decreasing}{Should the sort 
 decreasing order of \code{colnames} or \code{colSums}
@@ -76,9 +63,6 @@ Please be careful of the order if any change.}
 
 \item{FUN}{The function to compute the summary statistics 
 which can be applied to all data subsets. Refer to \code{\link{aggregate}}.}
-
-\item{most.abund}{The threshold to define the number 
-of the most abundent OTUs. Default to 150.}
 }
 \description{
 Utils to preprocess community matrix, 
@@ -94,12 +78,6 @@ such as transposed community matrix for \pkg{vegan} package.
 
 \code{spilt.df} spilt a data frame into chunks of data frames 
 having equal rows/columns.
-
-\code{summaryCM.Vector} return a named vector of summary of the 
-community matrix, where \code{community.matrix} can be one column only.
-The vector is c("reads","OTUs","samples","Shannon","singletons","doubletons").
-
-\code{summaryCM} summarizes the community matrix.
 
 \code{mostAbundantRows} takes the given number of 
 most abundant rows (OTUs) from original community matrix 
@@ -125,10 +103,6 @@ ComMA::rmMinAbundance(community.matrix, minAbund=2)
 t.community.matrix <- transposeDF(community.matrix)
 
 cm.list <- spiltCM(community.matrix)
-
-summary.cm.vector <- summaryCM.Vector(community.matrix)
-
-summary.cm <- summaryCM(community.matrix)
 
 community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
 OTU100 <- mostAbundantRows(community.matrix, most.abund=100)

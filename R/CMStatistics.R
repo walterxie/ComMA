@@ -1,0 +1,197 @@
+# Author: Walter Xie, Andrew Dopheide
+# Accessed on 12 Sep 2016
+
+#' @name CMStatistics
+#' @title Statistics to one or multipe community matrix
+#'
+#' @description Statistics to one or multipe community matrix, 
+#' such as number of reads, OTUs, etc.  
+#' Jost diversity is also included in the summary.
+#' 
+#' @details \code{summaryCM.Vector} return a named vector of summary of the 
+#' community matrix, where \code{community.matrix} can be one column only.
+#' The vector is c("reads","OTUs","samples","Shannon","singletons","doubletons").
+#' 
+#' @param digits The digits to \code{\link{round}} decimal places 
+#' if number is not interger. Default to 2.
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' summary.cm.vector <- summaryCM.Vector(community.matrix)
+#'
+#' @rdname CMStatistics
+summaryCM.Vector <- function(community.matrix) {
+  suppressMessages(require(vegetarian))
+  samples <- ncol(community.matrix)
+  otus <- nrow(community.matrix)
+  reads <- sum(community.matrix)
+  if (! is.null(samples)) {
+    rs <- rowSums(community.matrix)
+    singletons <- sum(rs==1)
+    doubletons <- sum(rs==2)
+    min.otu.abun <- min(rs)
+    max.otu.abun <- max(rs)
+    cs <- colSums(community.matrix)
+    min.sample.abun <- min(cs)
+    max.sample.abun <- max(cs)
+  } else {
+    samples <- 1
+    otus <- length(community.matrix)
+    singletons <- NA
+    doubletons <- NA
+    min.otu.abun <- min(community.matrix)
+    max.otu.abun <- max(community.matrix)
+    min.sample.abun <- NA
+    max.sample.abun <- NA
+  }
+  shannon <- d(transposeDF(community.matrix),lev="gamma",q=1)
+  
+  summary.cm <- prettyNum(c(reads, otus, samples, singletons, doubletons, max.otu.abun, min.otu.abun, 
+                            max.sample.abun, min.sample.abun), drop0trailing=T)
+  names(summary.cm) <- c("reads", "OTUs", "samples", "singletons", "doubletons",
+                         "max.OTU.abun","min.OTU.abun","max.sample.abun","min.sample.abun")
+  return(summary.cm)
+}
+
+#' @details \code{summaryCM} summarizes only single community matrix.
+#' 
+#' @param has.total If 0, then only return abudence by samples (columns) of community matrix. 
+#' If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
+#' Default to 1.
+#' @param most.abund The threshold to define the number of the most abundent OTUs.
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' summary.cm <- summaryCM(community.matrix)
+#'
+#' @rdname CMStatistics
+summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2, 
+                      x.lab="sample", y.lab="OTU", abundance.lab="read") {
+  summary.row.names <- c(ComMA::getPlural(abundance.lab, y.lab, x.lab),"singletons", "doubletons", 
+                       paste("max",y.lab,"abundance",sep="."), paste("min",y.lab,"abundance",sep="."), 
+                       paste("max",x.lab,"abundance",sep="."), paste("min",x.lab,"abundance",sep="."))
+  summary.cm <- data.frame(row.names = summary.row.names, stringsAsFactors=FALSE, check.names=FALSE)
+  if (has.total != 1) {
+    for (col.name in colnames(community.matrix)) 
+      summary.cm[,col.name] <- ComMA::summaryCM.Vector(community.matrix[,col.name])
+  }
+  if (has.total > 0) {
+    summary.cm[,"total"] <- ComMA::summaryCM.Vector(community.matrix)
+    
+    if (!missing(most.abund)) {
+      if (most.abund > nrow(community.matrix))
+        most.abund <- nrow(community.matrix)
+      cat("Set most abundent OTUs threshold =", most.abund, ".\n")
+      
+      community.matrix <- community.matrix[order(rs, decreasing=TRUE),]
+      cm <- community.matrix[1:most.abund,]
+      col.name <- paste0("most.abund.", most.abund, ".otus)")
+      
+      summary.cm[,col.name] <- ComMA::summaryCM.Vector(cm)
+    }
+  }
+  summary.cm <- ComMA::prettyNumbers(summary.cm, digits=digits)
+  return(summary.cm)
+}
+
+#' @details \code{summaryOTUs} returns a data frame of 
+#' OTU clustering summary given one or multiple community matrix(matrices).
+#' The summary is created by \code{\link{summaryCM.Vector}}.
+#' 
+#' @param input.list Default to TRUE to unwrap list(...) to 
+#' get the actual list if the input is a list of cm. 
+#' @param row.names The row names in the summary.
+#' Default to "Reads", "97\\% OTUs", "Samples", "Singleton OTUs", 
+#' "Non-singleton OTUs", "Doubleton OTUs", "Maximum OTU abundance", 
+#' "Minimum OTU abundance", "Shannon".
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' otu.stats <- summaryOTUs(cm)
+#'
+#' @rdname CMStatistics
+summaryOTUs <- function(..., digits=2, input.list=FALSE, x.lab="sample", y.lab="OTU", abundance.lab="read") {
+  cm.list <- list(...)
+  # if input a list of cm, then unwrap list(...) to get the actual list
+  if (input.list && typeof(cm.list[[1]]) == "list")
+    cm.list <- cm.list[[1]]
+  # validation
+  if (! (typeof(cm.list) == "list" && length(cm.list) > 0) )
+    stop("Invaild input: at least one community matrix is required ! length(...) = ", length(cm.list))
+  
+  cat("Summarize OTUs on", length(cm.list), "data sets.\n") 
+  
+  summary.row.names <- c(ComMA::getPlural(abundance.lab, y.lab, x.lab),"singletons", "doubletons", 
+                         paste("max",y.lab,"abundance",sep="."), paste("min",y.lab,"abundance",sep="."), 
+                         paste("max",x.lab,"abundance",sep="."), paste("min",x.lab,"abundance",sep="."))
+  otu.stats <- data.frame(row.names = summary.row.names, stringsAsFactors=FALSE, check.names=FALSE)
+  for (data.id in 1:length(cm.list)) {
+    col.name <- names(cm.list)[data.id]
+    if (is.null(col.name))
+      col.name <- paste("data",data.id,sep=".")
+    # otus.row.names
+    otu.stats[,col.name] <- ComMA::summaryCM.Vector(cm.list[[data.id]])
+  }
+  otu.stats <- ComMA::prettyNumbers(otu.stats, digits=digits)
+  return(otu.stats)
+}
+
+#' @details \code{summaryDiversity} returns a data frame of 
+#' OTU clustering summary given a list of community matrix.
+#' The community matrix is transposed to an input of 
+#' \code{\link{d}} {vegetarian}, and the summary is 
+#' created by \code{\link{diversityTable}}.
+#' 
+#' @param row.names The row names in the summary.
+#' Default to "$^0D_\\gamma$","$^0D_\\alpha$","$^0D_\\beta$",
+#' "$^1D_\\gamma$","$^1D_\\alpha$", "$^1D_\\beta$",
+#' "$^2D_\\gamma$","$^2D_\\alpha$","$^2D_\\beta$".
+#' @param row.order The same row indices of \code{row names}, 
+#' but by a given order. Default to c().
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' div.stats <- summaryDiversity(cm, row.order=c(2,5,8,3,6,9,1,4,7))
+#'
+#' @rdname CMStatistics
+summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, verbose=TRUE, 
+        row.names=c("$^0D_\\gamma$","$^0D_\\alpha$","$^0D_\\beta$","$^1D_\\gamma$","$^1D_\\alpha$",
+                    "$^1D_\\beta$","$^2D_\\gamma$","$^2D_\\alpha$","$^2D_\\beta$")) {
+  cm.list <- list(...)
+  # if input a list of cm, then unwrap list(...) to get the actual list
+  if (input.list && typeof(cm.list[[1]]) == "list")
+    cm.list <- cm.list[[1]]
+  # validation
+  if (! (typeof(cm.list) == "list" && length(cm.list) > 0) )
+    stop("Invaild input: at least one community matrix is required ! length(...) = ", length(cm.list))
+  
+  cat("Summarize Jost diversities on", length(cm.list), "data sets.\n") 
+  
+  otu.stats <- data.frame(stringsAsFactors=FALSE, check.names=FALSE)
+  for (data.id in 1:length(cm.list)) {
+    t.cm <- ComMA::transposeDF(cm.list[[data.id]])
+    # gamma(q=0), alpha(q=0), beta(q=0), gamma(q=1), ..., beta(q=2)
+    diversity.v <- ComMA::diversityTable(t.cm, named.vector=T)
+    i.vec <- 1:length(diversity.v)
+    if (length(row.order) == length(row.names)) {
+      if (! all( 1:length(row.names) == sort(row.order) ) )
+        stop("Invalid vector row.order !")
+      # reorder to match div.row.names
+      i.vec <- row.order
+    } 
+    
+    col.name <- names(cm.list)[data.id]
+    if (is.null(col.name))
+      col.name <- paste("data",data.id,sep=".")
+
+    for (i in i.vec) 
+      otu.stats[row.names[i], col.name] <- diversity.v[i]
+    
+    if (verbose)
+      cat("Add column", col.name, "to data set", data.id, ".\n")
+  }
+  otu.stats <- ComMA::prettyNumbers(otu.stats, digits=digits)
+  return(otu.stats)
+}
+
+

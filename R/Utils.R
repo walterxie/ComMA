@@ -300,6 +300,7 @@ normalize <- function(vec) {
 
 #' Convert data frame columns to different type, 
 #' default to numeric type for columns. 
+#' But it assign NA to actual string.
 #' 
 #' @source Modified from 
 #' \url{http://stackoverflow.com/questions/2288485/how-to-convert-a-data-frame-column-to-numeric-type}.
@@ -312,7 +313,7 @@ normalize <- function(vec) {
 #' df <- convertType(df)
 #' df <- convertType(df, FUN=as.character)
 convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=FALSE) {
-  df1 <- data.frame(lapply(df, FUN), stringsAsFactors=stringsAsFactors, check.names=check.names)
+  df1 <- data.frame(suppressWarnings(lapply(df, FUN)), stringsAsFactors=stringsAsFactors, check.names=check.names)
   rownames(df1) <- rownames(df)
   return(df1)
 }
