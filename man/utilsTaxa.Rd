@@ -127,7 +127,7 @@ All sequences either classified as
 from BLAST + MEGAN, or confidence < \emph{min.conf} threshold from RDP, 
 are changed to "unclassified", which will be moved to the last row.
 
-\code{assignTaxa} provides a list of taxonomic assignments with abudence 
+\code{assignTaxaByRank} provides a list of taxonomic assignments with abudence 
 from community matrix at different rank levels, where rownames are taxonomy 
 at that rank, and columns are the sample names (may include total). 
 The function is iterated through \code{col.ranks}, and \code{\link{aggregate}}s 

@@ -101,9 +101,8 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2,
 #' @param input.list Default to TRUE to unwrap list(...) to 
 #' get the actual list if the input is a list of cm. 
 #' @param row.names The row names in the summary.
-#' Default to "Reads", "97\\% OTUs", "Samples", "Singleton OTUs", 
-#' "Non-singleton OTUs", "Doubleton OTUs", "Maximum OTU abundance", 
-#' "Minimum OTU abundance", "Shannon".
+#' Default to "reads", "OTUs", "samples", "singletons", "doubletons",
+#' "max.OTU.abun","min.OTU.abun","max.sample.abun","min.sample.abun".
 #' @keywords community matrix
 #' @export
 #' @examples 
@@ -168,7 +167,7 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, ver
   
   cat("Summarize Jost diversities on", length(cm.list), "data sets.\n") 
   
-  otu.stats <- data.frame(stringsAsFactors=FALSE, check.names=FALSE)
+  div.stats <- data.frame(stringsAsFactors=FALSE, check.names=FALSE)
   for (data.id in 1:length(cm.list)) {
     t.cm <- ComMA::transposeDF(cm.list[[data.id]])
     # gamma(q=0), alpha(q=0), beta(q=0), gamma(q=1), ..., beta(q=2)
@@ -186,13 +185,93 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, ver
       col.name <- paste("data",data.id,sep=".")
 
     for (i in i.vec) 
-      otu.stats[row.names[i], col.name] <- diversity.v[i]
+      div.stats[row.names[i], col.name] <- diversity.v[i]
     
     if (verbose)
       cat("Add column", col.name, "to data set", data.id, ".\n")
   }
-  otu.stats <- ComMA::prettyNumbers(otu.stats, digits=digits)
-  return(otu.stats)
+  div.stats <- ComMA::prettyNumbers(div.stats, digits=digits)
+  return(div.stats)
 }
 
+
+#' @details \code{summaryTaxaGroup} returns two data frames of 
+#' taxonomic composition of given one or multiple merged 
+#' community matrix(matrices) with taxa table, 
+#' which is created by \code{\link{mergeCMTaxa}}.
+#' The 1st data frame \code{otus} summarizes the OTUs 
+#' assigned to each taxa group.
+#' The 2nd data frame \code{rank.count} summarizes the \code{count.rank} 
+#' assigned to each taxa group.
+#' 
+#' @param unclassified Refere to \code{\link{assignTaxaByRank}}, 
+#' default to 3 to remove every rows containing "unclassified". 
+#' @param taxa.group The row names in the summary.
+#' Default to "ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", 
+#' "FUNGI", "PLANTAE", "ANIMALIA", "EUKARYOTA".
+#' @param group.rank The rank of given taxa groups.
+#' @param count.rank The lower rank to be counted for each taxa group. 
+#' Set NA to ignore this count.
+#' @keywords community matrix
+#' @export
+#' @examples 
+#' ta.gr.stats <- summaryTaxaGroup(cm.taxa)
+#' ta.gr.stats$otus
+#' ta.gr.stats$rank.count 
+#'
+#' @rdname CMStatistics
+summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, 
+          taxa.group=c("ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA", "EUKARYOTA"), 
+          group.rank="kingdom", count.rank="phylum") {
+  cm.taxa.list <- list(...)
+  # if input a list of cm, then unwrap list(...) to get the actual list
+  if (input.list && typeof(cm.taxa.list[[1]]) == "list")
+    cm.taxa.list <- cm.taxa.list[[1]]
+  # validation
+  if (! (typeof(cm.taxa.list) == "list" && length(cm.taxa.list) > 0) )
+    stop("Invaild input: at least one community matrix is required ! length(...) = ", length(cm.taxa.list))
+  
+  cat("Summarize OTUs by taxa group on", length(cm.taxa.list), "data sets.\n") 
+  
+  # data frame for statistics
+  tg.reads <- data.frame(row.names = taxa.group, stringsAsFactors=FALSE, check.names=FALSE)
+  tg.otus <- data.frame(row.names = taxa.group, stringsAsFactors=FALSE, check.names=FALSE)
+  tg.rank.count <- NA
+  if (!is.na(count.rank))
+    tg.rank.count <- data.frame(row.names = taxa.group, stringsAsFactors=FALSE, check.names=FALSE)
+  
+  for (data.id in 1:length(cm.taxa.list)) {
+    col.name <- names(cm.taxa.list)[data.id]
+    if (is.null(col.name))
+      col.name <- paste("data",data.id,sep=".")
+    
+    for (taxa.id in 1:length(taxa.group)) {
+      cat("Data set", col.name, "taxonomic group", taxa.group[taxa.id], ".\n") 
+      
+      cm.taxa.sub <- ComMA::subsetTaxaTable(cm.taxa.list[[data.id]], taxa.group=taxa.group[taxa.id], rank=group.rank)
+      
+      if (nrow(cm.taxa.sub) < 1) {
+        tg.reads[taxa.group[taxa.id],col.name] <- 0
+        tg.otus[taxa.group[taxa.id],col.name] <- 0
+        if (!is.na(count.rank))
+          tg.rank.count[taxa.group[taxa.id],col.name] <- 0
+      } else {
+        taxa.assign.otu <- ComMA::assignTaxaByRank(cm.taxa.sub, unclassified=unclassified, aggre.FUN=function(x) sum(x>0))
+        taxa.assign.reads <- ComMA::assignTaxaByRank(cm.taxa.sub, unclassified=unclassified)
+        
+        tg.otus[taxa.group[taxa.id],col.name] <- sum(taxa.assign.otu[[group.rank]])
+        tg.reads[taxa.group[taxa.id],col.name] <- sum(taxa.assign.reads[[group.rank]])
+        if (!is.na(count.rank))
+          tg.rank.count[taxa.group[taxa.id],col.name] <- nrow(taxa.assign.otu[[count.rank]])
+      }
+    }
+  }
+  tg.otus <- ComMA::prettyNumbers(tg.otus, digits = 0)
+  tg.reads <- ComMA::prettyNumbers(tg.reads, digits = 0)
+  if (!is.na(count.rank))
+    tg.rank.count <- ComMA::prettyNumbers(tg.rank.count, digits = 0)
+  
+  list(otus=tg.otus, rank.count=tg.rank.count, reads=tg.reads, 
+       taxa.group=taxa.group, group.rank=group.rank, count.rank=count.rank)
+}
 

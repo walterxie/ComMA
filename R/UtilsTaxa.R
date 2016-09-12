@@ -34,6 +34,11 @@
 #' 
 #' @rdname utilsTaxa
 subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", include=TRUE) {
+  # get attr if taxa.table is cm.taxa
+  attrs <- attributes(taxa.table)
+  ncol.cm <- attrs$ncol.cm
+  col.ranks <- attrs$col.ranks
+  
   if (include) {
     # include PROTISTS, taxa.group="CHROMISTA|PROTOZOA", rank="kingdom"
     taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = T))) 
@@ -41,6 +46,13 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
     # exclude some phyla, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum"
     taxa.table <- subset(taxa.table, !grepl(taxa.group, taxa.table[,rank], ignore.case = T)) 
   }
+  
+  # add attr if they are not NULL
+  if (! is.null(ncol.cm))
+    attr(taxa.table, "ncol.cm") <- ncol.cm
+  if (! is.null(col.ranks)) 
+    attr(taxa.table, "col.ranks") <- col.ranks
+    
   return(taxa.table)
 }
 
@@ -162,7 +174,7 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.co
 }
 
 #' @details 
-#' \code{assignTaxa} provides a list of taxonomic assignments with abudence 
+#' \code{assignTaxaByRank} provides a list of taxonomic assignments with abudence 
 #' from community matrix at different rank levels, where rownames are taxonomy 
 #' at that rank, and columns are the sample names (may include total). 
 #' The function is iterated through \code{col.ranks}, and \code{\link{aggregate}}s 
@@ -215,8 +227,8 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
     if (length(ta.list) > 0) {
       # replace repeated high rank taxa to unclassified high rank
       # MEGAN unclassified
-      id.match <- intersect(!grep("unclassified", cm.taxa[, pre.ra.col], ignore.case = T), 
-                            which(tolower(cm.taxa[, pre.ra.col])==tolower(cm.taxa[, ra.col])))
+      ta.tmp <- subset(cm.taxa, !grepl("unclassified", cm.taxa[, pre.ra.col], ignore.case = T))
+      id.match <- which(tolower(ta.tmp[, pre.ra.col])==tolower(ta.tmp[, ra.col]))
       # MEGAN environmental samples
       id.match <- c(id.match, grep("environmental samples", cm.taxa[, ra.col], ignore.case = T))
       # RDP unclassified
