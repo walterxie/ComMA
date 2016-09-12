@@ -46,8 +46,8 @@ summaryCM.Vector <- function(community.matrix) {
   }
   shannon <- d(transposeDF(community.matrix),lev="gamma",q=1)
   
-  summary.cm <- prettyNum(c(reads, otus, samples, singletons, doubletons, max.otu.abun, min.otu.abun, 
-                            max.sample.abun, min.sample.abun), drop0trailing=T)
+  summary.cm <- c(reads, otus, samples, singletons, doubletons, max.otu.abun, 
+                  min.otu.abun, max.sample.abun, min.sample.abun)
   names(summary.cm) <- c("reads", "OTUs", "samples", "singletons", "doubletons",
                          "max.OTU.abun","min.OTU.abun","max.sample.abun","min.sample.abun")
   return(summary.cm)
@@ -132,6 +132,7 @@ summaryOTUs <- function(..., digits=2, input.list=FALSE, x.lab="sample", y.lab="
     # otus.row.names
     otu.stats[,col.name] <- ComMA::summaryCM.Vector(cm.list[[data.id]])
   }
+  otu.stats["non.singletons",] <- as.numeric(otu.stats["OTUs",])-as.numeric(otu.stats["singletons",])
   otu.stats <- ComMA::prettyNumbers(otu.stats, digits=digits)
   return(otu.stats)
 }
