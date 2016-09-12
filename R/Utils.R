@@ -317,3 +317,32 @@ convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=
   rownames(df1) <- rownames(df)
   return(df1)
 }
+
+#' Merge two data frames or matrices with a same structure in one, 
+#' put all values in 2nd data frame into brackets.
+#' 
+#' @param df A data frame.
+#' @param df2 The 2nd data frame whose values are into brackets.
+#' @param merge.zero Default to TRUE to remove all " (0)".
+#' @param return.df Default to TRUE to return a data frame, otherwise a matrix.
+#' @keywords utils
+#' @export
+#' @examples 
+#' df <- merge2DF(df, df2)
+merge2DF <- function(df, df2, merge.zero=TRUE, return.df=TRUE, stringsAsFactors=FALSE, check.names=FALSE) {
+  if (nrow(df) != nrow(df2) || ncol(df) != ncol(df2)) 
+    stop("Two data frames must have a same structure !")
+  
+  df <- as.matrix(df)
+  df2 <- as.matrix(df2)
+  df1 <- matrix( paste0(trimSpace(df), " (", trimSpace(df2), ")"), 
+          nrow=nrow(df), dimnames=dimnames(df) )
+  
+  if (merge.zero) 
+    df1 <- gsub(" \\(0\\)", "", df1)
+  
+  if (return.df)
+    df1 <- data.frame(df1, stringsAsFactors=stringsAsFactors, check.names=check.names)
+  return(df1)
+}
+

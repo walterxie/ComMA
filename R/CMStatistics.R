@@ -59,13 +59,16 @@ summaryCM.Vector <- function(community.matrix) {
 #' If 1, then only return toal abudence. If 2, then return abudence by samples (columns) and total. 
 #' Default to 1.
 #' @param most.abund The threshold to define the number of the most abundent OTUs.
+#' @param pretty.numbers Default to TRUE to make numbers look pretty, 
+#' but they will be hard to convert to numeric type.
+#' @param x.lab,y.lab,abundance.lab The default text for "sample", "OTU", and "read".
 #' @keywords community matrix
 #' @export
 #' @examples 
 #' summary.cm <- summaryCM(community.matrix)
 #'
 #' @rdname CMStatistics
-summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2, 
+summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2, pretty.numbers=TRUE,
                       x.lab="sample", y.lab="OTU", abundance.lab="read") {
   summary.row.names <- c(ComMA::getPlural(abundance.lab, y.lab, x.lab),"singletons", "doubletons", 
                        paste("max",y.lab,"abundance",sep="."), paste("min",y.lab,"abundance",sep="."), 
@@ -90,7 +93,8 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2,
       summary.cm[,col.name] <- ComMA::summaryCM.Vector(cm)
     }
   }
-  summary.cm <- ComMA::prettyNumbers(summary.cm, digits=digits)
+  if (pretty.numbers)
+    summary.cm <- ComMA::prettyNumbers(summary.cm, digits=digits)
   return(summary.cm)
 }
 
@@ -109,7 +113,8 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2,
 #' otu.stats <- summaryOTUs(cm)
 #'
 #' @rdname CMStatistics
-summaryOTUs <- function(..., digits=2, input.list=FALSE, x.lab="sample", y.lab="OTU", abundance.lab="read") {
+summaryOTUs <- function(..., digits=2, input.list=FALSE, pretty.numbers=TRUE,
+                        x.lab="sample", y.lab="OTU", abundance.lab="read") {
   cm.list <- list(...)
   # if input a list of cm, then unwrap list(...) to get the actual list
   if (input.list && typeof(cm.list[[1]]) == "list")
@@ -132,7 +137,9 @@ summaryOTUs <- function(..., digits=2, input.list=FALSE, x.lab="sample", y.lab="
     otu.stats[,col.name] <- ComMA::summaryCM.Vector(cm.list[[data.id]])
   }
   otu.stats["non.singletons",] <- as.numeric(otu.stats["OTUs",])-as.numeric(otu.stats["singletons",])
-  otu.stats <- ComMA::prettyNumbers(otu.stats, digits=digits)
+  
+  if (pretty.numbers) 
+    otu.stats <- ComMA::prettyNumbers(otu.stats, digits=digits)
   return(otu.stats)
 }
 
@@ -154,7 +161,7 @@ summaryOTUs <- function(..., digits=2, input.list=FALSE, x.lab="sample", y.lab="
 #' div.stats <- summaryDiversity(cm, row.order=c(2,5,8,3,6,9,1,4,7))
 #'
 #' @rdname CMStatistics
-summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, verbose=TRUE, 
+summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, pretty.numbers=TRUE, verbose=TRUE, 
         row.names=c("$^0D_\\gamma$","$^0D_\\alpha$","$^0D_\\beta$","$^1D_\\gamma$","$^1D_\\alpha$",
                     "$^1D_\\beta$","$^2D_\\gamma$","$^2D_\\alpha$","$^2D_\\beta$")) {
   cm.list <- list(...)
@@ -190,7 +197,9 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, ver
     if (verbose)
       cat("Add column", col.name, "to data set", data.id, ".\n")
   }
-  div.stats <- ComMA::prettyNumbers(div.stats, digits=digits)
+  
+  if (pretty.numbers) 
+    div.stats <- ComMA::prettyNumbers(div.stats, digits=digits)
   return(div.stats)
 }
 
@@ -220,7 +229,7 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, ver
 #' ta.gr.stats$rank.count 
 #'
 #' @rdname CMStatistics
-summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, 
+summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbers=TRUE,
           taxa.group=c("ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA", "EUKARYOTA"), 
           group.rank="kingdom", count.rank="phylum") {
   cm.taxa.list <- list(...)
@@ -266,10 +275,13 @@ summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3,
       }
     }
   }
-  tg.otus <- ComMA::prettyNumbers(tg.otus, digits = 0)
-  tg.reads <- ComMA::prettyNumbers(tg.reads, digits = 0)
-  if (!is.na(count.rank))
-    tg.rank.count <- ComMA::prettyNumbers(tg.rank.count, digits = 0)
+  
+  if (pretty.numbers) {
+    tg.otus <- ComMA::prettyNumbers(tg.otus, digits = 0)
+    tg.reads <- ComMA::prettyNumbers(tg.reads, digits = 0)
+    if (!is.na(count.rank))
+      tg.rank.count <- ComMA::prettyNumbers(tg.rank.count, digits = 0)
+  }
   
   list(otus=tg.otus, rank.count=tg.rank.count, reads=tg.reads, 
        taxa.group=taxa.group, group.rank=group.rank, count.rank=count.rank)
