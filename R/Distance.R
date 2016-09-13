@@ -1,4 +1,4 @@
-# Author: Walter Xie, Alexei Drummond
+# Author: Walter Xie, Andrew Dopheide, Alexei Drummond
 # Accessed on 15 Sep 2016
 
 

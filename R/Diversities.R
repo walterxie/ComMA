@@ -1,4 +1,4 @@
-# Author: Walter Xie, Alexei Drummond
+# Author: Walter Xie, Andrew Dopheide, Alexei Drummond
 # Accessed on 9 Sep 2015
 
 ######## Jost diversity section #######
