@@ -2,8 +2,6 @@
 % Please edit documentation in R/Diversities.R
 \name{JostDiversity}
 \alias{JostDiversity}
-\alias{TurnoverDist}
-\alias{calculateDissimilarityMatrix}
 \alias{diversityTable}
 \alias{summaryCMPerSample}
 \title{Jost diversity from \pkg{vegetarian} Package}
@@ -12,18 +10,16 @@ diversityTable(t.community.matrix, named.vector = FALSE)
 
 summaryCMPerSample(t.community.matrix, hasTotal = TRUE, digits = 2,
   sort = "descending", comma.in.number = TRUE)
-
-calculateDissimilarityMatrix(t.community.matrix, diss.fun = "beta1-1",
-  printProgressBar)
-
-TurnoverDist(t.community.matrix)
 }
 \arguments{
-\item{t.community.matrix}{is abundances argument in \pkg{vegetarian} \code{\link{d}}, 
+\item{t.community.matrix}{is abundances argument 
+in \pkg{vegetarian} \code{\link{d}}, 
 which is a transposed matrix of community matrix, 
-where rows are plots (Use plots instead of subplots.), columns are OTUs.}
+where rows are plots (Use plots instead of subplots.), 
+columns are OTUs.}
 
-\item{named.vector}{Logical, if TRUE, then return a named vector instead of data.frame.}
+\item{named.vector}{Logical, if TRUE, then return 
+a named vector instead of data.frame.}
 
 \item{hasTotal}{If TRUE, then display the Total. Default to TRUE.}
 
@@ -32,11 +28,6 @@ or do nothing for any other string.}
 
 \item{comma.in.number}{If TRUE, then add comma to bug numbers. 
 Default to TRUE.}
-
-\item{diss.fun}{Similarity/dissimilarity index, values are jaccard, horn.morisita, 
-bray.curtis, and beta1-1. Default to beta1-1, but it is slower than other indices.}
-
-\item{printProgressBar}{Whether to print progress bar, if missing, it will be nrow(row.pairs)>100}
 
 \item{digit}{The digits of Shannon index. Default to 2.}
 }
@@ -60,32 +51,23 @@ rows are samples. For example,
   sample1 \tab 32,837 \tab 508 \tab 23.02\cr
   sample2 \tab 25,023 \tab 181 \tab 7.9 
 }
-
-\code{calculateDissimilarityMatrix} returns a \code{\link{matrix}} of similarity/dissimilarity, 
-whose rows and columns are sample names
-
-\code{TurnoverDist} returns a \code{\link{dist}} composed of pair-wise turnovers.
 }
 \description{
 Data input \strong{t.community.matrix} is 
 a transposed matrix of community matrix we defined in \pkg{ComMA}.
 Community matrix from file is a matrix where rows are OTUs or individual species 
 and columns are sites or samples. See \code{\link{ComMA}}.
+}
+\details{
+\code{diversityTable} creates a data frame 
+or named vector of Jost diversity measurement.
 
-A brief summary table of diversities per sample.
-
-Calculate similarity/dissimilarity distance matrix between samples.
-
-Calculate pair-wise turnovers between samples.
+\code{summaryCMPerSample} creates a brief summary table of diversities per sample.
 }
 \examples{
 diversity.table <- diversityTable(t.community.matrix)
 
 summary.t.cm <- summaryCMPerSample(t.community.matrix)
-
-diss.matrix <- calculateDissimilarityMatrix(t.community.matrix, diss.fun="jaccard")
-
-turnover.dist <- TurnoverDist(t.community.matrix)
 
 }
 \keyword{diversity}

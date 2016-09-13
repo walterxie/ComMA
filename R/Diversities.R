@@ -12,10 +12,15 @@
 #' Community matrix from file is a matrix where rows are OTUs or individual species 
 #' and columns are sites or samples. See \code{\link{ComMA}}. 
 #' 
-#' @param t.community.matrix is abundances argument in \pkg{vegetarian} \code{\link{d}}, 
+#' @details \code{diversityTable} creates a data frame 
+#' or named vector of Jost diversity measurement.
+#' @param t.community.matrix is abundances argument 
+#' in \pkg{vegetarian} \code{\link{d}}, 
 #' which is a transposed matrix of community matrix, 
-#' where rows are plots (Use plots instead of subplots.), columns are OTUs.
-#' @param named.vector Logical, if TRUE, then return a named vector instead of data.frame.
+#' where rows are plots (Use plots instead of subplots.), 
+#' columns are OTUs.
+#' @param named.vector Logical, if TRUE, then return 
+#' a named vector instead of data.frame.
 #' @return 
 #' \code{diversityTable} returns a 3x3 data frame: 
 #' columns are levels of diversity c("gamma", "alpha", "beta"), 
@@ -110,7 +115,7 @@ shannonPerSample <- function(t.community.matrix, digits = 2) {
   return(round(perSample, digits))
 }
 
-#' @description A brief summary table of diversities per sample. 
+#' @details \code{summaryCMPerSample} creates a brief summary table of diversities per sample. 
 #' 
 #' @param hasTotal If TRUE, then display the Total. Default to TRUE.
 #' @param digit The digits of Shannon index. Default to 2.
@@ -166,110 +171,3 @@ summaryCMPerSample <- function(t.community.matrix, hasTotal=TRUE, digits=2,
   return(summary)
 }
 
-
-######## Pair-wise turnovers #######
-
-#' Calculate similarity/dissimilarity distance matrix between samples.
-#' 
-#' @param diss.fun Similarity/dissimilarity index, values are jaccard, horn.morisita, 
-#' bray.curtis, and beta1-1. Default to beta1-1, but it is slower than other indices.
-#' @param printProgressBar Whether to print progress bar, if missing, it will be nrow(row.pairs)>100
-#' @return 
-#' \code{calculateDissimilarityMatrix} returns a \code{\link{matrix}} of similarity/dissimilarity, 
-#' whose rows and columns are sample names
-#' @export
-#' @keywords diversity
-#' @examples 
-#' diss.matrix <- calculateDissimilarityMatrix(t.community.matrix, diss.fun="jaccard")
-#' 
-#' @rdname JostDiversity
-calculateDissimilarityMatrix <- function(t.community.matrix, diss.fun="beta1-1", printProgressBar) {    
-  require(vegan)
-  require(vegetarian)
-  if (diss.fun=="jaccard") {
-    # Jaccard
-    return(vegdist(t.community.matrix, method="jaccard", binary=TRUE))
-  } else if (diss.fun=="horn.morisita") {
-    # Horn-Morisita
-    return(vegdist(t.community.matrix, method="horn", binary=FALSE))
-  } else if (diss.fun=="bray.curtis") {
-    # Bray-Curtis
-    return(vegdist(t.community.matrix))
-  } else { # diss.fun="beta1-1"
-    # including diagonal
-    diss.matrix <- matrix(0,nrow=nrow(t.community.matrix),ncol=nrow(t.community.matrix))
-    colnames(diss.matrix) <- c(rownames(t.community.matrix))
-    rownames(diss.matrix) <- c(rownames(t.community.matrix))
-    # row.pairs : each row is a pair of row number of t.community.matrix
-    row.pairs <- t(combn(nrow(t.community.matrix),2))
-    
-    cat("\nCalculating", diss.fun, "from", nrow(row.pairs), "pairs of samples.\n")
-    
-    if (missing(printProgressBar)) printProgressBar=nrow(row.pairs)>100
-    if (printProgressBar) {
-      flush.console()
-      pb <- txtProgressBar(min=1, max=nrow(row.pairs), style = 3)
-    }
-    for (n in 1:nrow(row.pairs)) {
-      if (printProgressBar) setTxtProgressBar(pb, n)
-      
-      # beta1-1
-      diss.matrix[row.pairs[n,2], row.pairs[n,1]] <- d(t.community.matrix[row.pairs[n,],],lev="beta",q=1)-1
-    }
-    if (printProgressBar) close(pb)
-    return(diss.matrix)
-  }
-  return (NULL)
-}
-
-#' Calculate pair-wise turnovers between samples.
-#' 
-#' @return 
-#' \code{TurnoverDist} returns a \code{\link{dist}} composed of pair-wise turnovers.
-#' @export
-#' @keywords diversity
-#' @examples 
-#' turnover.dist <- TurnoverDist(t.community.matrix)
-#' 
-#' @rdname JostDiversity
-TurnoverDist<-function(t.community.matrix){ 
-  require(vegetarian)
-  turnover.table<-matrix(0,nrow=nrow(t.community.matrix),ncol=nrow(t.community.matrix))
-  for(i in 1:nrow(t.community.matrix)){
-    for(j in 1:nrow(t.community.matrix)){
-      # For numerous communities of equal weights, the numbers equivalent of 
-      # the Shannon beta diversity and the number of samples (N) can be used to 
-      # calculate the turnover rate per sample (Equation 25 from Jost 2007, Harrison et al. 1992)
-      turnover.table[i,j]<-turnover(t.community.matrix[c(i,j),])
-    }
-  }
-  
-  d <- as.dist(turnover.table)
-  attr(d, "Labels") <- dimnames(t.community.matrix)[[1L]]
-  
-  return(d)
-}
-
-######## alpha1 #######
-#' effective alpha per sample
-#' return one column matrix
-#alpha1 <- function(t.community.matrix) {    
-# including diagonal
-#  m.alpha1 <- matrix(0,nrow=nrow(t.community.matrix),ncol=1)	
-#  rownames(m.alpha1) <- c(rownames(t.community.matrix))
-#  for(i in 1:nrow(t.community.matrix)){				
-#    m.alpha1[i,1] <- d(t.community.matrix[i,],lev="gamma",q=1)				
-#  }
-#  
-#  return (m.alpha1) # 1 col matrix
-#}
-
-
-# COMPUTER HORN-MORISITA OVERLAPS
-#library(vegan)
-#d.hornMorisita <- vegdist(t.community.matrix, method="horn", binary=FALSE)
-#d.brayBin <- vegdist(t.community.matrix, method="bray", binary=TRUE)
-
-#library(untb)
-#cm_counts <- count(colSums(t.community.matrix))
-#theta <- round(optimal.theta(cm_counts),2)
