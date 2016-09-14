@@ -131,7 +131,7 @@ readTaxaTable <- function(file, matrix.name=NULL, taxa.group="assigned", rank="k
       taxa.group="CHROMISTA|PROTOZOA"
     
     if (taxa.group != "assigned") {
-      taxa.table <- ComMA::subsetTaxaTabl(taxa.table, taxa.group, rank, include)
+      taxa.table <- ComMA::subsetTaxaTable(taxa.table, taxa.group=taxa.group, rank=rank, include=include)
     }
   }
   

@@ -12,8 +12,7 @@
 subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE)
 
-subsetCM(community.matrix, taxa.table, taxa.group = "BACTERIA",
-  rank = "kingdom")
+subsetCM(community.matrix, taxa.table, taxa.group = NA, rank = NA)
 
 mergeCMTaxa(community.matrix, taxa.table, classifier = "MEGAN",
   min.conf = 0.8, has.total = 1, sort = TRUE, verbose = TRUE,
@@ -115,7 +114,10 @@ and make it easy for visualization.
 \details{
 \code{subsetTaxaTable} takes or excludes a subset of given a taxa table at given rank.
 
-\code{mergeCMTaxa} returns a subset community matrix regarding taxa.group
+\code{subsetCM} returns a subset community matrix 
+regarding \code{taxa.group}. 
+Set either \code{taxa.group} or \code{rank} to NA, as default, 
+to use the whole \code{taxa.table}.
 
 \code{mergeCMTaxa} creates a data frame \code{cm.taxa} combined community matrix with 
 taxonomic classification table. The 1st column is "row.names" that are OTUs/individuals, 
@@ -147,6 +149,8 @@ in both \code{assignTaxaByRank} and \code{groupsTaxaMembers}.
 \examples{
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
+
+sub.cm <- subsetCM(cm, tt, taxa.group="BACTERIA", rank="kingdom")
 
 cm.taxa <- mergeCMTaxa(community.matrix, tt.megan) 
 ta.megan <- assignTaxaByRank(cm.taxa)

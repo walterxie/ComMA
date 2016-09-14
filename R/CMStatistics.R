@@ -230,7 +230,7 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, pre
 #'
 #' @rdname CMStatistics
 summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbers=TRUE,
-          taxa.group=c("ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA", "EUKARYOTA"), 
+          taxa.group=c("ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA"), 
           group.rank="kingdom", count.rank="phylum") {
   cm.taxa.list <- list(...)
   # if input a list of cm, then unwrap list(...) to get the actual list

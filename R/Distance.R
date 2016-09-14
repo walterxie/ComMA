@@ -5,16 +5,20 @@
 #' @name distance
 #' @title Calculate various multivariate distance metrics
 #'
-#' @description Data input \strong{cm} is community matrix defined in \pkg{\link{ComMA}}.
+#' @description Data input \strong{cm} is community matrix 
+#' defined in \pkg{\link{ComMA}}.
 #' Rows are OTUs or individual species, and columns are sites or samples.  
 #' It is a transposed matrix of \code{\link{vegdist}} input.
 
 #' @details Calculate various multivariate distance metrics among samples.
 #' 
 #' @param cm The community matrix.
-#' @param tree The \pkg{\link{ape}} tree object required to caculate \code{\link{UniFrac}}.
-#' @param is.transposed If TRUE, then \code{cm} is already the transposed matrix 
-#' of \code{\link{vegdist}} input. Default to FASLE.
+#' @param tree The \pkg{\link{ape}} tree object required 
+#' to caculate \code{\link{UniFrac}}. It cannot be NA, as default, 
+#' for method="unwt.unif" or "wt.unif".
+#' @param is.transposed If TRUE, then \code{cm} is already
+#' the transposed matrix of \code{\link{vegdist}} input. 
+#' Default to FASLE.
 #' @param method The method to calculate similarity/dissimilarity distance. 
 #' The options are jaccard, horn.morisita, 
 #' bray.curtis, beta1-1, and unwt.unif, wt.unif. 
@@ -22,18 +26,19 @@
 #' from \pkg{\link{phyloseq}}. 
 #' Default to beta1-1, but it is slow.
 #' @param progressBar Whether to print progress bar 
-#' only when method="beta1-1", 
-#' if TRUE, it will be nrow(row.pairs)>100.
+#' only when method="beta1-1" calculated by \code{\link{beta1minus1}}, 
+#' default to TRUE.
 #' @return 
-#' \code{getDissimilarity} returns a \code{\link{matrix}} of similarity/dissimilarity, 
-#' whose rows and columns are sample names
+#' \code{getDissimilarity} returns a \code{\link{dist}} object of 
+#' similarity/dissimilarity, whose rows and columns are 
+#' sample names from the community matrix.
 #' @export
 #' @keywords distance
 #' @examples 
 #' dist.jaccard <- getDissimilarity(cm, method="jaccard")
 #' 
 #' @rdname distance
-getDissimilarity <- function(cm, tree=NA, is.transposed=FALSE, method="beta1-1", progressBar=FALSE) {  
+getDissimilarity <- function(cm, tree=NA, is.transposed=FALSE, method="beta1-1", progressBar=TRUE) {  
   # if is.transposed=F as default, then transpose to vegdist input
   if (!is.transposed)
     cm <- ComMA::transposeDF(cm)
@@ -50,7 +55,7 @@ getDissimilarity <- function(cm, tree=NA, is.transposed=FALSE, method="beta1-1",
     return(vegdist(cm, method = "bray"))
   } else if (method=="beta1-1") { 
     # method="beta1-1"
-    return (ComMA::beta1minus1(cm, progressBar=progressBar))
+    return (ComMA::beta1minus1(cm, is.transposed=TRUE, return.dist=TRUE, progressBar=progressBar))
   } else if(grepl("unif", method)){ # Unifrac distances
     require(phyloseq)
     physeq <- phyloseq(otu_table(cm, taxa_are_rows = FALSE), phy_tree(tree))
@@ -64,8 +69,21 @@ getDissimilarity <- function(cm, tree=NA, is.transposed=FALSE, method="beta1-1",
   return (NULL)
 }
 
-# beta1-1
-beta1minus1 <- function(cm, progressBar=FALSE, return.dist=TRUE) {
+#' @details \code{beta1minus1} calculates beta1-1.
+#' 
+#' @param return.dist If TRUE, as default, 
+#' return a \code{\link{dist}} object, 
+#' otherwise return a \code{\link{matrix}}.
+#' @export
+#' @keywords distance
+#' @examples 
+#' turnover.dist <- beta1minus1(cm)
+#' 
+#' @rdname distance
+beta1minus1 <- function(cm, is.transposed=FALSE, progressBar=TRUE, return.dist=TRUE) {
+  if (!is.transposed)
+    cm <- ComMA::transposeDF(cm)
+  
   # including diagonal
   dist.matrix <- matrix(0,nrow=nrow(cm),ncol=nrow(cm))
   colnames(dist.matrix) <- c(rownames(cm))
@@ -73,7 +91,7 @@ beta1minus1 <- function(cm, progressBar=FALSE, return.dist=TRUE) {
   # row.pairs : each row is a pair of row number of cm
   row.pairs <- t(combn(nrow(cm),2))
   
-  cat("\nCalculating beta1-1 from", nrow(row.pairs), "pairs of samples.\n")
+  cat("Calculating beta1-1 from", nrow(row.pairs), "pairs of samples.\n")
   if (progressBar) {
     flush.console()
     pb <- txtProgressBar(min=1, max=nrow(row.pairs), style = 3)
@@ -96,10 +114,8 @@ beta1minus1 <- function(cm, progressBar=FALSE, return.dist=TRUE) {
 
 ######## Pair-wise turnovers #######
 
-#' @details Calculate pair-wise turnovers between samples.
+#' @details \code{TurnoverDist} returns a \code{\link{dist}} composed of pair-wise turnovers.
 #' 
-#' @return 
-#' \code{TurnoverDist} returns a \code{\link{dist}} composed of pair-wise turnovers.
 #' @export
 #' @keywords distance
 #' @examples 

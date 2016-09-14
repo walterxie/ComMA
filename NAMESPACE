@@ -3,6 +3,7 @@
 S3method(plot,gtable)
 export(TurnoverDist)
 export(assignTaxaByRank)
+export(beta1minus1)
 export(cmYAcrossX)
 export(convertType)
 export(countCharOccurrences)
