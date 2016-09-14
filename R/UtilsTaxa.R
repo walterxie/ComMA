@@ -67,12 +67,13 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 #' sub.cm <- subsetCM(cm, tt, taxa.group="BACTERIA", rank="kingdom")
 #' 
 #' @rdname utilsTaxa 
-subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA) {
+subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA, 
+                     col.ranks=c("kingdom", "phylum", "class", "order", "family", "genus")) {
   if (is.na(taxa.group) || is.na(rank))
     tt.sub <- taxa.table
   else
     tt.sub <- ComMA::subsetTaxaTable(taxa.table, taxa.group=taxa.group, rank=rank)	
-  cm.taxa <- ComMA::mergeCMTaxa(community.matrix, tt.sub, has.total=0)
+  cm.taxa <- ComMA::mergeCMTaxa(community.matrix, tt.sub, col.ranks=col.ranks, has.total=0)
   rownames(cm.taxa) <- cm.taxa[,"Row.names"]
   cm.taxa <- cm.taxa[,colnames(community.matrix)]
   return(cm.taxa)

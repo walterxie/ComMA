@@ -66,7 +66,7 @@ getDissimilarity <- function(cm, tree=NA, is.transposed=FALSE, method="beta1-1",
       return( phyloseq::UniFrac(physeq, weighted = TRUE, normalized = TRUE) )
   } 
   warning("Cannot find method ", method, "to calculate similarity/dissimilarity distance !\n")
-  return (NULL)
+  return (0)
 }
 
 #' @details \code{beta1minus1} calculates beta1-1.
