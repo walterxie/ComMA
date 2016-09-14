@@ -213,11 +213,17 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, pre
 #' The 2nd data frame \code{rank.count} summarizes the \code{count.rank} 
 #' assigned to each taxa group.
 #' 
+#' The \code{group.rank} determines which taxonomic rank is based on summary.
+#' It has to be consistent with given \code{taxa.group}. But there is a trick, 
+#' if you want to count the number of OTUs that are identified as EUKARYOTA 
+#' but aren't identified to Kingdom level, for example, 
+#' you can set group.rank="kingdom" to get that number.
+#' 
 #' @param unclassified Refere to \code{\link{assignTaxaByRank}}, 
 #' default to 3 to remove every rows containing "unclassified". 
 #' @param taxa.group The row names in the summary.
 #' Default to "ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", 
-#' "FUNGI", "PLANTAE", "ANIMALIA", "EUKARYOTA".
+#' "FUNGI", "PLANTAE", "ANIMALIA".
 #' @param group.rank The rank of given taxa groups.
 #' @param count.rank The lower rank to be counted for each taxa group. 
 #' Set NA to ignore this count.
@@ -227,7 +233,9 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, pre
 #' ta.gr.stats <- summaryTaxaGroup(cm.taxa)
 #' ta.gr.stats$otus
 #' ta.gr.stats$rank.count 
-#'
+#' # OTUs that were only identified to high-level EUKARYOTA ranks
+#' ta.gr.stats <- summaryTaxaGroup(cm.taxa, group.rank="kingdom")
+#' 
 #' @rdname CMStatistics
 summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbers=TRUE,
           taxa.group=c("ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA"), 
