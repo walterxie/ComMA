@@ -57,6 +57,7 @@ getDissimilarity <- function(cm, tree=NA, is.transposed=FALSE, method="beta1-1",
     # method="beta1-1"
     return (ComMA::beta1minus1(cm, is.transposed=TRUE, return.dist=TRUE, progressBar=progressBar))
   } else if(grepl("unif", method)){ # Unifrac distances
+    # use 1.10.0, newer version has bug on weighted UniFrac
     require(phyloseq)
     physeq <- phyloseq(otu_table(cm, taxa_are_rows = FALSE), phy_tree(tree))
 
