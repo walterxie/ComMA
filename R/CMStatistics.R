@@ -111,18 +111,13 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2, prett
 #' @export
 #' @examples 
 #' otu.stats <- summaryOTUs(cm)
+#' # cm.list is a list of cm
+#' otu.stats <- ComMA::summaryOTUs(cm.list, input.list=T)
 #'
 #' @rdname CMStatistics
 summaryOTUs <- function(..., digits=2, input.list=FALSE, pretty.numbers=TRUE,
                         x.lab="sample", y.lab="OTU", abundance.lab="read") {
-  cm.list <- list(...)
-  # if input a list of cm, then unwrap list(...) to get the actual list
-  if (input.list && typeof(cm.list[[1]]) == "list")
-    cm.list <- cm.list[[1]]
-  # validation
-  if (! (typeof(cm.list) == "list" && length(cm.list) > 0) )
-    stop("Invaild input: at least one community matrix is required ! length(...) = ", length(cm.list))
-  
+  cm.list <- validateInputList(..., input.list=input.list) 
   cat("Summarize OTUs on", length(cm.list), "data sets.\n") 
   
   summary.row.names <- c(ComMA::getPlural(abundance.lab, y.lab, x.lab),"singletons", "doubletons", 

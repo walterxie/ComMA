@@ -113,6 +113,8 @@ summary.cm.vector <- summaryCM.Vector(community.matrix)
 summary.cm <- summaryCM(community.matrix)
 
 otu.stats <- summaryOTUs(cm)
+# cm.list is a list of cm
+otu.stats <- ComMA::summaryOTUs(cm.list, input.list=T)
 
 div.stats <- summaryDiversity(cm, row.order=c(2,5,8,3,6,9,1,4,7))
 

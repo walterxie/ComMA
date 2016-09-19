@@ -249,3 +249,15 @@ createTaxaTableRDP <- function(file, sep="\t", rm.rank.prefix=TRUE,
   ComMA::writeTable(df.path, file.out, row.names = FALSE, msg.file = "taxa table")
 }
 
+# if input a list of cm, input.list=T, 
+# then unwrap list(...) to get the actual list
+validateInputList <- function(..., input.list=FALSE) {
+  cm.list <- list(...)
+  if (input.list && typeof(cm.list[[1]]) == "list")
+    cm.list <- cm.list[[1]]
+  # validation
+  if (! (typeof(cm.list) == "list" && length(cm.list) > 0) )
+    stop("Invaild input: at least one community matrix is required ! length(...) = ", length(cm.list))
+  return(cm.list)
+}
+
