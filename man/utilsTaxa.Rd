@@ -2,6 +2,7 @@
 % Please edit documentation in R/UtilsTaxa.R
 \name{utilsTaxa}
 \alias{assignTaxaByRank}
+\alias{getPrettyTaxonomy}
 \alias{groupsTaxaMembers}
 \alias{mergeCMTaxa}
 \alias{subsetCM}
@@ -13,12 +14,19 @@ subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE)
 
 subsetCM(community.matrix, taxa.table, taxa.group = NA, rank = NA,
-  col.ranks = c("kingdom", "phylum", "class", "order", "family", "genus"))
+  col.ranks = c("superkingdom", "kingdom", "phylum", "class", "order",
+  "family"))
+
+getPrettyTaxonomy(taxa.table,
+  pattern = "(\\\\s\\\\[|\\\\()(\\\\=|\\\\.|\\\\,|\\\\s|\\\\w|\\\\?)*(\\\\]|\\\\))",
+  col.ranks = c("superkingdom", "kingdom", "phylum", "class", "order",
+  "family"))
 
 mergeCMTaxa(community.matrix, taxa.table, classifier = "MEGAN",
   min.conf = 0.8, has.total = 1, sort = TRUE,
   assign.unclassified = TRUE, verbose = TRUE, mv.row.names = T,
-  col.ranks = c("kingdom", "phylum", "class", "order", "family", "genus"))
+  col.ranks = c("superkingdom", "kingdom", "phylum", "class", "order",
+  "family"))
 
 assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum)
 
@@ -52,7 +60,10 @@ OTUs or individual species and columns are sites or samples. See \code{\link{Com
 \item{col.ranks}{A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 which will determine the aggregated abundence matrix. They have to be full set or subset of 
 c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species"). 
-Default to c("kingdom", "phylum", "class", "order", "family", "genus").}
+Default to c("superkingdom", "kingdom", "phylum", "class", "order", "family").}
+
+\item{pattern}{The pattern for \code{\link{gsub}} "perl = TRUE". 
+Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".}
 
 \item{classifier}{The classifier is used to generate \code{taxa.table}. 
 Value is MEGAN or RDP. Default to MEGAN.}
@@ -133,6 +144,9 @@ regarding \code{taxa.group}.
 Set either \code{taxa.group} or \code{rank} to NA, as default, 
 to use the whole \code{taxa.table}.
 
+\code{getPrettyTaxonomy} returns assorted quirks in 
+taxonomy table \code{taxa.table} to make names look nice.
+
 \code{mergeCMTaxa} creates a data frame \code{cm.taxa} combined community matrix with 
 taxonomic classification table. The 1st column is "row.names" that are OTUs/individuals, 
 the next "ncol.cm" columns are abundence that can be sample-based or total, 
@@ -165,6 +179,8 @@ tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
 tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
 
 sub.cm <- subsetCM(cm, tt, taxa.group="BACTERIA", rank="kingdom")
+
+tt <- getPrettyTaxonomy(tt)
 
 cm.taxa <- mergeCMTaxa(community.matrix, tt.megan) 
 ta.megan <- assignTaxaByRank(cm.taxa)

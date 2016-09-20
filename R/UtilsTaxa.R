@@ -68,7 +68,7 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 #' 
 #' @rdname utilsTaxa 
 subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA, 
-                     col.ranks=c("kingdom", "phylum", "class", "order", "family", "genus")) {
+                     col.ranks=c("superkingdom", "kingdom", "phylum", "class", "order", "family")) {
   if (is.na(taxa.group) || is.na(rank))
     tt.sub <- taxa.table
   else
@@ -76,6 +76,27 @@ subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA,
   cm.taxa <- ComMA::mergeCMTaxa(community.matrix, tt.sub, col.ranks=col.ranks, has.total=0)
   cm.taxa <- cm.taxa[,colnames(community.matrix)]
   return(cm.taxa)
+}
+
+#' @details \code{getPrettyTaxonomy} returns assorted quirks in 
+#' taxonomy table \code{taxa.table} to make names look nice.
+#' 
+#' @param pattern The pattern for \code{\link{gsub}} "perl = TRUE". 
+#' Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".
+#' @keywords taxonomy
+#' @export
+#' @examples 
+#' tt <- getPrettyTaxonomy(tt)
+#' 
+#' @rdname utilsTaxa 
+getPrettyTaxonomy <- function(taxa.table, pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))",
+                              col.ranks=c("superkingdom", "kingdom", "phylum", "class", "order", "family")) {
+  ### Remove assorted quirks in taxonomy! ###
+  for (col in colnames(taxa.table)) {
+    if (tolower(col) %in% col.ranks)
+      taxa.table[, col] <- gsub(pattern, "", taxa.table[, col], perl = TRUE)
+  }
+  return(taxa.table)
 }
 
 #' @details 
@@ -103,7 +124,7 @@ subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA,
 #' @param col.ranks A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 #' which will determine the aggregated abundence matrix. They have to be full set or subset of 
 #' c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species"). 
-#' Default to c("kingdom", "phylum", "class", "order", "family", "genus").
+#' Default to c("superkingdom", "kingdom", "phylum", "class", "order", "family").
 #' @param sort Sort the taxonomy rank by rank. Default to TRUE.
 #' @param mv.row.names Default to TRUE to move the column 'Row.names' 
 #' created by \code{\link{merge}} into data frame row.names, 
@@ -123,7 +144,7 @@ subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA,
 mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.conf=0.8, 
                         has.total=1, sort=TRUE, assign.unclassified=TRUE, verbose=TRUE, 
                         mv.row.names=T, 
-                        col.ranks=c("kingdom", "phylum", "class", "order", "family", "genus")) {
+                        col.ranks=c("superkingdom", "kingdom", "phylum", "class", "order", "family")) {
   ranks <- getRanks()
   if (length(col.ranks) < 1 || !all(col.ranks %in% ranks)) 
     stop("Invaild column names for ranks !\nUse one element or a subset of ", 
