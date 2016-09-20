@@ -89,7 +89,8 @@ getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank=
 #' @param group.level The level to order 'gene' column.
 #' @param x.lab,y.lab Label for x or y axis.
 #' @param taxa.ref The taxonomic reference data set to order taxonomic names nicely. 
-#' Default to "" to ignore it, the logic is length(taxa.ref) > 0.
+#' Default to "", where length(taxa.ref) > 1, to load a taxonomy reference data set 
+#' \code{taxa.ref.PLOSONE.2015} in the package.
 #' @keywords taxonomy
 #' @export
 #' @examples 
@@ -99,29 +100,37 @@ getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank=
 plotTaxonomy <- function(all.counts.sums, taxa.ref="", taxa.rank="phylum", group.rank="kingdom", 
                          gene.level=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                          group.level=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
-                         x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs"){
+                         x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs", legend.title=NULL){
+  if (!taxa.rank %in% colnames(all.counts.sums) || !group.rank %in% colnames(all.counts.sums))
+    stop("Invalid 'taxa.rank' and 'group.rank' !\nCannot find them in 'all.counts.sums' !")
+  
   # z is a list
   z <- all.counts.sums[all.counts.sums[,taxa.rank] != 0, ]
   # fix name for convience
   colnames(z)[match(c(taxa.rank, group.rank), colnames(z))] <- c("taxa", "group")
-  if (length(taxa.ref) > 0) {
+  if (length(taxa.ref) > 1) {
     # make case insensitive
     colnames(taxa.ref) <- tolower(colnames(taxa.ref))
-    if (! taxa.rank %in% colnames(taxa.ref))
-      stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
-    z$taxa <- taxa.ref[match(tolower(z$taxa), tolower(taxa.ref[,taxa.rank])), taxa.rank]
+  } else {
+    taxa.ref <- ComMA::taxa.ref.PLOSONE.2015
   }
+  if (! taxa.rank %in% colnames(taxa.ref))
+    stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
+  z$taxa <- taxa.ref[match(tolower(z$taxa), tolower(taxa.ref[,taxa.rank])), taxa.rank]
+  
   require(reshape2)
   z <- as.data.frame(z)
   z <- melt(z, id.vars = c("taxa", "group", "gene"))
   # Order factors
-  if (length(taxa.ref) > 0)
-    z$taxa <- factor(z$taxa, ordered = TRUE, levels = rev(unique(taxa.ref[,taxa.rank])))
+  z$taxa <- factor(z$taxa, ordered = TRUE, levels = rev(unique(taxa.ref[,taxa.rank])))
   z$gene <- factor(z$gene, ordered = TRUE, levels = gene.level)
   z$group <- gsub("root|No hits|Not assigned|cellular organisms", "Unknown", z$group)
   z$group <- factor(z$group, ordered = TRUE, levels = group.level)
   z <- na.omit(z)
   #print(z)
+  
+  if (is.null(legend.title))
+    legend.title <- group.rank
   require(ggplot2)
   p <- ggplot(z) + 
     geom_point(data = z[z$variable == "count.1",], aes(x = taxa, y = value, colour = group), shape = 1, size = 2) +
@@ -130,7 +139,7 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref="", taxa.rank="phylum", group
     #geom_point(data = z[z$variable == "sums.2",], aes(x = taxa, y = value, colour = group), shape = 17, size = 2) +
     geom_line(data = z, aes(x = taxa, y = value, group=interaction(taxa, gene), colour = group), size = 0.5, alpha = 0.5) + 
     facet_grid( ~ gene) + guides(fill = guide_legend(reverse = FALSE)) +
-    coord_flip() + theme_bw() + ylab(y.lab) + xlab(x.lab) + 
+    coord_flip() + theme_bw() + ylab(y.lab) + xlab(x.lab) + labs(colour=legend.title) +
     scale_y_log10(breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000), label=ComMA::scientific_10) +
     #scale_color_manual(values = pal(length(unique(z$group)))) +
     theme(strip.background = element_blank(), plot.title = element_text(size = 9),

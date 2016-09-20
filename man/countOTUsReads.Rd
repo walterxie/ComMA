@@ -15,7 +15,7 @@ plotTaxonomy(all.counts.sums, taxa.ref = "", taxa.rank = "phylum",
   "COI-300", "COI-650"), group.level = c("ARCHAEA", "BACTERIA", "EUKARYOTA",
   "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
   x.lab = "Phylum (or higher-level taxon)",
-  y.lab = "Number of sequences or OTUs")
+  y.lab = "Number of sequences or OTUs", legend.title = NULL)
 
 sumReadsOTUs(cm.taxa.list, taxa.ref = "", taxa.rank = "phylum",
   group.rank = "kingdom", col.ranks = c("kingdom", "phylum", "class",
@@ -38,7 +38,8 @@ get the actual list if the input is a list of cm.}
 \item{taxa.rank}{The rank to display in the axis for counts of OTUs and reads.}
 
 \item{taxa.ref}{The taxonomic reference data set to order taxonomic names nicely. 
-Default to "" to ignore it, the logic is length(taxa.ref) > 0.}
+Default to "", where length(taxa.ref) > 1, to load a taxonomy reference data set 
+\code{taxa.ref.PLOSONE.2015} in the package.}
 
 \item{gene.level}{The level to order 'gene' column.}
 

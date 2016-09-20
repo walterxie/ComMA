@@ -14,19 +14,16 @@ subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE)
 
 subsetCM(community.matrix, taxa.table, taxa.group = NA, rank = NA,
-  col.ranks = c("superkingdom", "kingdom", "phylum", "class", "order",
-  "family"))
+  col.ranks = c("kingdom", "phylum", "class", "order", "family"))
 
 getPrettyTaxonomy(taxa.table,
   pattern = "(\\\\s\\\\[|\\\\()(\\\\=|\\\\.|\\\\,|\\\\s|\\\\w|\\\\?)*(\\\\]|\\\\))",
-  col.ranks = c("superkingdom", "kingdom", "phylum", "class", "order",
-  "family"))
+  col.ranks = c("kingdom", "phylum", "class", "order", "family"))
 
 mergeCMTaxa(community.matrix, taxa.table, classifier = "MEGAN",
   min.conf = 0.8, has.total = 1, sort = TRUE,
   assign.unclassified = TRUE, verbose = TRUE, mv.row.names = T,
-  col.ranks = c("superkingdom", "kingdom", "phylum", "class", "order",
-  "family"))
+  col.ranks = c("kingdom", "phylum", "class", "order", "family"))
 
 assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum)
 
@@ -60,7 +57,7 @@ OTUs or individual species and columns are sites or samples. See \code{\link{Com
 \item{col.ranks}{A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 which will determine the aggregated abundence matrix. They have to be full set or subset of 
 c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species"). 
-Default to c("superkingdom", "kingdom", "phylum", "class", "order", "family").}
+Default to c("kingdom", "phylum", "class", "order", "family").}
 
 \item{pattern}{The pattern for \code{\link{gsub}} "perl = TRUE". 
 Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".}
