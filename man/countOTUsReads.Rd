@@ -19,7 +19,12 @@ plotTaxonomy(all.counts.sums, taxa.ref = "", taxa.rank = "phylum",
 
 sumReadsOTUs(cm.taxa.list, taxa.ref = "", taxa.rank = "phylum",
   group.rank = "kingdom", col.ranks = c("kingdom", "phylum", "class",
-  "order"), fig.folder = "./figures", table.folder = "./outputs")
+  "order"), gene.level = c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
+  group.level = c("ARCHAEA", "BACTERIA", "EUKARYOTA", "PROTOZOA", "CHROMISTA",
+  "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
+  x.lab = "Phylum (or higher-level taxon)",
+  y.lab = "Number of sequences or OTUs", fig.folder = "./figures",
+  table.folder = "./outputs")
 }
 \arguments{
 \item{...}{Input of a list of community matrices, or comma separated multi-inputs.}
