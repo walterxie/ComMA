@@ -134,7 +134,7 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref="", taxa.rank="phylum", group
     scale_y_log10(breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000), label=ComMA::scientific_10) +
     #scale_color_manual(values = pal(length(unique(z$group)))) +
     theme(strip.background = element_blank(), plot.title = element_text(size = 9),
-          plot.margin=unit(c(0.2,0.5,0.2,0.8), "cm"), panel.margin = unit(0.8, "lines"), 
+          #plot.margin=unit(c(0.2,0.5,0.2,0.8), "cm"), panel.margin = unit(0.8, "lines"), 
           axis.title.y=element_text(vjust=2), axis.title.x=element_text(vjust=-0.2), 
           axis.text.x = element_text(vjust=-0.1)) 
   return(p)
@@ -149,6 +149,9 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref="", taxa.rank="phylum", group
 #' @param col.ranks A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 #' detail to see \code{\link{mergeCMTaxa}}. 
 #' Default to c("kingdom", "phylum", "class", "order").
+#' @param fig.folder Folder to contain the figure in PDF from \code{plotTaxonomy}.
+#' @param pdf.width,pdf.height,units Parameters in \code{\link{ggsave}} to adjust figure.
+#' @param table.folder Folder to save the result from \code{getCountSums}.
 #' @keywords taxonomy
 #' @export
 #' @examples 
@@ -159,7 +162,8 @@ sumReadsOTUs <- function(cm.taxa.list, taxa.ref="", taxa.rank="phylum", group.ra
                          gene.level=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                          group.level=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
                          x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs",
-                         fig.folder="./figures", table.folder="./outputs"){
+                         fig.folder="./figures", table.folder="./outputs",
+                         pdf.width = 260, pdf.height = 200, units = "mm"){
   all.counts.sums <- ComMA::getCountSums(cm.taxa.list, input.list=T, taxa.rank=taxa.rank, group.rank=group.rank)
   
   if (!is.na(table.folder)) {
@@ -170,7 +174,7 @@ sumReadsOTUs <- function(cm.taxa.list, taxa.ref="", taxa.rank="phylum", group.ra
     p <- ComMA::plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref, gene.level=gene.level, 
                              group.level=group.level, x.lab=x.lab, y.lab=y.lab)
     ggsave(p, file = file.path(fig.folder, paste0("Overall_taxonomy_OTUs_reads_by_", taxa.rank, ".pdf")), 
-           width = 260, height = 200, units = "mm")
+           width = pdf.width, height = pdf.height, units = units)
   }
   
   return(all.counts.sums) 

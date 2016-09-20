@@ -24,7 +24,8 @@ sumReadsOTUs(cm.taxa.list, taxa.ref = "", taxa.rank = "phylum",
   "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
   x.lab = "Phylum (or higher-level taxon)",
   y.lab = "Number of sequences or OTUs", fig.folder = "./figures",
-  table.folder = "./outputs")
+  table.folder = "./outputs", pdf.width = 260, pdf.height = 200,
+  units = "mm")
 }
 \arguments{
 \item{...}{Input of a list of community matrices, or comma separated multi-inputs.}
@@ -51,6 +52,12 @@ Require proper names of the list.}
 \item{col.ranks}{A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 detail to see \code{\link{mergeCMTaxa}}. 
 Default to c("kingdom", "phylum", "class", "order").}
+
+\item{fig.folder}{Folder to contain the figure in PDF from \code{plotTaxonomy}.}
+
+\item{table.folder}{Folder to save the result from \code{getCountSums}.}
+
+\item{pdf.width, pdf.height, units}{Parameters in \code{\link{ggsave}} to adjust figure.}
 }
 \description{
 Taxonomic summary of OTUs and reads for multiple data sets, 
