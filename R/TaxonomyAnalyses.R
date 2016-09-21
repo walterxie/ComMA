@@ -88,16 +88,17 @@ getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank=
 #' @param gene.level The level to order 'gene' column.  
 #' @param group.level The level to order 'gene' column.
 #' @param x.lab,y.lab Label for x or y axis.
-#' @param taxa.ref The taxonomic reference data set to order taxonomic names nicely. 
-#' Default to "", where length(taxa.ref) > 1, to load a taxonomy reference data set 
-#' \code{taxa.ref.PLOSONE.2015} in the package.
+#' @param taxa.ref The taxonomic reference data set to order taxonomic names nicely.
+#' But it removes the taxonomy not exsiting in the reference.
+#' Default to use a taxonomy reference data set \code{taxa.ref.PLOSONE.2015} in the package.
+#' Set \code{taxa.ref=""}, where length(taxa.ref) > 1, to plot all taxonomy.
 #' @keywords taxonomy
 #' @export
 #' @examples 
 #' plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref)
 #' 
 #' @rdname countOTUsReads
-plotTaxonomy <- function(all.counts.sums, taxa.ref="", taxa.rank="phylum", group.rank="kingdom", 
+plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, taxa.rank="phylum", group.rank="kingdom", 
                          gene.level=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                          group.level=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
                          x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs", legend.title=NULL){
@@ -111,21 +112,24 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref="", taxa.rank="phylum", group
   if (length(taxa.ref) > 1) {
     # make case insensitive
     colnames(taxa.ref) <- tolower(colnames(taxa.ref))
-  } else {
-    taxa.ref <- ComMA::taxa.ref.PLOSONE.2015
-  }
-  if (! taxa.rank %in% colnames(taxa.ref))
-    stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
-  z$taxa <- taxa.ref[match(tolower(z$taxa), tolower(taxa.ref[,taxa.rank])), taxa.rank]
+    if (! taxa.rank %in% colnames(taxa.ref))
+      stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
+    z$taxa <- taxa.ref[match(tolower(z$taxa), tolower(taxa.ref[,taxa.rank])), taxa.rank]
+  } 
   
   require(reshape2)
   z <- as.data.frame(z)
   z <- melt(z, id.vars = c("taxa", "group", "gene"))
-  # Order factors
-  z$taxa <- factor(z$taxa, ordered = TRUE, levels = rev(unique(taxa.ref[,taxa.rank])))
+  z$group <- gsub("root|No hits|Not assigned|cellular organisms|Unclassified", "Unknown", z$group, ignore.case=T)
   z$gene <- factor(z$gene, ordered = TRUE, levels = gene.level)
-  z$group <- gsub("root|No hits|Not assigned|cellular organisms", "Unknown", z$group)
   z$group <- factor(z$group, ordered = TRUE, levels = group.level)
+  # Order factors
+  if (length(taxa.ref) > 1) {
+    z$taxa <- factor(z$taxa, ordered = TRUE, levels = rev(unique(taxa.ref[,taxa.rank])))
+  } else {
+    #TODO bad order
+    z$taxa <- factor(z$taxa, ordered = TRUE, levels = rev(unique(z$taxa)))
+  }
   z <- na.omit(z)
   #print(z)
   
@@ -166,7 +170,7 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref="", taxa.rank="phylum", group
 #' @examples 
 #' 
 #' @rdname countOTUsReads
-sumReadsOTUs <- function(cm.taxa.list, taxa.ref="", taxa.rank="phylum", group.rank="kingdom", 
+sumReadsOTUs <- function(cm.taxa.list, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, taxa.rank="phylum", group.rank="kingdom", 
                          col.ranks=c("kingdom", "phylum", "class", "order"), 
                          gene.level=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                          group.level=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),

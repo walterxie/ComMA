@@ -10,18 +10,18 @@
 getCountSums(..., input.list = FALSE, group.rank = "kingdom",
   taxa.rank = "phylum")
 
-plotTaxonomy(all.counts.sums, taxa.ref = "", taxa.rank = "phylum",
-  group.rank = "kingdom", gene.level = c("16S", "18S", "26S", "ITS",
-  "COI-300", "COI-650"), group.level = c("ARCHAEA", "BACTERIA", "EUKARYOTA",
-  "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
-  x.lab = "Phylum (or higher-level taxon)",
+plotTaxonomy(all.counts.sums, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
+  taxa.rank = "phylum", group.rank = "kingdom", gene.level = c("16S",
+  "18S", "26S", "ITS", "COI-300", "COI-650"), group.level = c("ARCHAEA",
+  "BACTERIA", "EUKARYOTA", "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE",
+  "ANIMALIA", "Unknown"), x.lab = "Phylum (or higher-level taxon)",
   y.lab = "Number of sequences or OTUs", legend.title = NULL)
 
-sumReadsOTUs(cm.taxa.list, taxa.ref = "", taxa.rank = "phylum",
-  group.rank = "kingdom", col.ranks = c("kingdom", "phylum", "class",
-  "order"), gene.level = c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
-  group.level = c("ARCHAEA", "BACTERIA", "EUKARYOTA", "PROTOZOA", "CHROMISTA",
-  "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
+sumReadsOTUs(cm.taxa.list, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
+  taxa.rank = "phylum", group.rank = "kingdom", col.ranks = c("kingdom",
+  "phylum", "class", "order"), gene.level = c("16S", "18S", "26S", "ITS",
+  "COI-300", "COI-650"), group.level = c("ARCHAEA", "BACTERIA", "EUKARYOTA",
+  "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
   x.lab = "Phylum (or higher-level taxon)",
   y.lab = "Number of sequences or OTUs", fig.folder = "./figures",
   table.folder = "./outputs", pdf.width = 260, pdf.height = 200,
@@ -37,9 +37,10 @@ get the actual list if the input is a list of cm.}
 
 \item{taxa.rank}{The rank to display in the axis for counts of OTUs and reads.}
 
-\item{taxa.ref}{The taxonomic reference data set to order taxonomic names nicely. 
-Default to "", where length(taxa.ref) > 1, to load a taxonomy reference data set 
-\code{taxa.ref.PLOSONE.2015} in the package.}
+\item{taxa.ref}{The taxonomic reference data set to order taxonomic names nicely.
+But it removes the taxonomy not exsiting in the reference.
+Default to use a taxonomy reference data set \code{taxa.ref.PLOSONE.2015} in the package.
+Set \code{taxa.ref=""}, where length(taxa.ref) > 1, to plot all taxonomy.}
 
 \item{gene.level}{The level to order 'gene' column.}
 

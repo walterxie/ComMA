@@ -115,8 +115,8 @@ getPrettyTaxonomy <- function(taxa.table, pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|
 #' @param classifier The classifier is used to generate \code{taxa.table}. 
 #' Value is MEGAN or RDP. Default to MEGAN.
 #' @param min.conf The confidence threshold to drop rows < \emph{min.conf}.
-#' @param has.total If 0, then only return abudence by samples (columns) of community matrix. 
-#' If 1, then only return total abudence. If 2, then return abudence by samples (columns) and total. 
+#' @param has.total If 0, then only return abundance by samples (columns) of community matrix. 
+#' If 1, then only return total abundance. If 2, then return abundance by samples (columns) and total. 
 #' Default to 1.
 #' @param assign.unclassified If TRUE, as default, replace 
 #' "root|cellular organisms|No hits|Not assigned|unclassified sequences" from MEGAN result, 
@@ -141,10 +141,13 @@ getPrettyTaxonomy <- function(taxa.table, pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|
 #' @keywords taxonomy
 #' @export
 #' @rdname utilsTaxa
-mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.conf=0.8, 
+mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"), min.conf=0.8, 
                         has.total=1, sort=TRUE, assign.unclassified=TRUE, verbose=TRUE, 
                         mv.row.names=T, 
                         col.ranks=c("kingdom", "phylum", "class", "order", "family")) {
+  classifier <- match.arg(classifier)
+  if (verbose)
+    cat("Parse classification from", classifier, "classifier.\n")
   ranks <- getRanks()
   if (length(col.ranks) < 1 || !all(col.ranks %in% ranks)) 
     stop("Invaild column names for ranks !\nUse one element or a subset of ", 
@@ -164,27 +167,36 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.co
     cm[,"total"] <- rowSums(community.matrix) 
   ncol.cm <- ncol(cm)
   
-  if (assign.unclassified) {
-    if (classifier == "RDP") {
-      if (! "confidence" %in% colnames(taxa.table))
-        stop("Invaild file format from RDP: column 'confidence' is required !")
-      
-      ### grep all "Unclassified" in kingdom from greengenes, and overwrite to "unclassified"
-      id.match <- grep("^Unclassified$", taxa.table[, "kingdom"], ignore.case = TRUE)
-      if (length(id.match) > 0) {
-        taxa.table[id.match, col.ranks] <- "unclassified"
-        if (verbose)
-          cat("Find", length(id.match), "rows marked as 'unclassified' from taxa table.\n")
-      }
-      
-      ### drop rows < min.conf
-      n.row.un <- nrow(taxa.table[taxa.table[,"confidence"] < min.conf, ])
-      taxa.table[taxa.table[,"confidence"] < min.conf, col.ranks] <- "unclassified"
-      
+  
+  if (classifier == "RDP") {
+    if (! "confidence" %in% colnames(taxa.table))
+      stop("Invaild file format from RDP: column 'confidence' is required !")
+    
+    ### grep all "Unclassified" in kingdom from greengenes, and overwrite to "unclassified"
+    id.match <- grep("^Unclassified$", taxa.table[, "kingdom"], ignore.case = TRUE)
+    if (length(id.match) > 0) {
+      taxa.table[id.match, col.ranks] <- "unclassified"
       if (verbose)
-        cat("Set", n.row.un, "rows as 'unclassified' from the total of", nrow(taxa.table), 
-            "in RDP taxa table, whose confidence <", min.conf, ".\n")
-    } else {
+        cat("Find", length(id.match), "rows marked as 'unclassified' from taxa table.\n")
+    }
+    
+    ### set rows < min.conf as 'unclassified'
+    n.row.un <- nrow(taxa.table[taxa.table[,"confidence"] < min.conf, ])
+    taxa.table[taxa.table[,"confidence"] < min.conf, col.ranks] <- "unclassified"
+    
+    if (verbose)
+      cat("Set", n.row.un, "rows as 'unclassified' from the total of", nrow(taxa.table), 
+          "in RDP taxa table, whose confidence <", min.conf, ".\n")
+    # fill empty value as 'unclassified'
+    if (assign.unclassified) {
+      for (ra in col.ranks) {
+        id.match <- c(id.match, which(trimSpace(taxa.table[, ra])==""))
+        if (length(id.match) > 0)
+          taxa.table[id.match, ra] <- paste("unclassified")
+      }
+    }
+  } else {
+    if (assign.unclassified) {
       # BLAST + MEGAN
       for (ra in col.ranks) {
         id.match <- grep("root|cellular organisms|No hits|Not assigned|unclassified sequences", 
@@ -219,11 +231,11 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier="MEGAN", min.co
 }
 
 #' @details 
-#' \code{assignTaxaByRank} provides a list of taxonomic assignments with abudence 
+#' \code{assignTaxaByRank} provides a list of taxonomic assignments with abundance 
 #' from community matrix at different rank levels, where rownames are taxonomy 
 #' at that rank, and columns are the sample names (may include total). 
 #' The function is iterated through \code{col.ranks}, and \code{\link{aggregate}}s 
-#' abudence into taxonomy based on the rank in \code{col.ranks}. 
+#' abundance into taxonomy based on the rank in \code{col.ranks}. 
 #' 
 #' @param cm.taxa The data frame combined community matrix with 
 #' taxonomic classifications generated by \code{mergeCMTaxa}.
@@ -354,7 +366,7 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
 #' into "unclassified". The result relies on using the identical \code{cm.taxa} 
 #' in both \code{assignTaxaByRank} and \code{groupsTaxaMembers}.
 #' 
-#' @param taxa.assign The data frame of taxonomic assignments with abudence
+#' @param taxa.assign The data frame of taxonomic assignments with abundance
 #' at the \code{rank}, where rownames are taxonomy at that rank, 
 #' and columns are the sample names (may include total). It can be 
 #' one element of the list generated by \code{assignTaxaByRank}. 
