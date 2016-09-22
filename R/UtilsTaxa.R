@@ -99,6 +99,44 @@ getPrettyTaxonomy <- function(taxa.table, pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|
   return(taxa.table)
 }
 
+# replace repeated high rank taxa to unclassified high rank in MEGAN result
+# or replace the blank value to unclassified in RDP result
+# taxa.table can be cm.taxa, 
+# col.ranks vector have to be rank column names in taxa.table
+prepTaxonomy <- function(taxa.table, col.ranks,
+                         pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))") {
+  parent.rank <- NA
+  for (rank in col.ranks) {
+    if (! rank %in% colnames(taxa.table))
+      stop("Invalid ", rank, " not existing in colnames(taxa.table) !\n", 
+           paste(colnames(taxa.table), collapse = ","))
+    
+    # Remove assorted quirks in taxonomy! 
+    taxa.table[, rank] <- gsub(pattern, "", taxa.table[, rank], perl = TRUE)
+    
+    # MEGAN unclassified
+    if (!is.na(parent.rank)) {
+      ta.tmp <- subset(taxa.table, !grepl("unclassified", taxa.table[, parent.rank], ignore.case = T))
+      id.match <- which(tolower(ta.tmp[, parent.rank])==tolower(ta.tmp[, rank]))
+      
+      # MEGAN environmental samples => unclassified ???
+      id.match <- c(id.match, grep("environmental samples", taxa.table[, rank], ignore.case = T))
+      
+      # RDP unclassified
+      id.match <- c(id.match, which(trimSpace(taxa.table[, rank])==""))
+      if (length(id.match) > 0)
+        taxa.table[id.match, rank] <- paste("unclassified", taxa.table[id.match, parent.rank])
+      
+      # replace unclassified ??? to unclassified high rank
+      id.match <- grep("unclassified ", taxa.table[, parent.rank], ignore.case = TRUE)
+      if (length(id.match) > 0)
+        taxa.table[id.match, rank] <- paste("unclassified", parent.rank)
+    } 
+    parent.rank <- rank
+  }
+  return(taxa.table)
+}
+
 #' @details 
 #' \code{mergeCMTaxa} creates a data frame \code{cm.taxa} combined community matrix with 
 #' taxonomic classification table. The 1st column is "row.names" that are OTUs/individuals, 
@@ -188,13 +226,9 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
       cat("Set", n.row.un, "rows as 'unclassified' from the total of", nrow(taxa.table), 
           "in RDP taxa table, whose confidence <", min.conf, ".\n")
     # fill empty value as 'unclassified'
-    if (assign.unclassified) {
-      for (ra in col.ranks) {
-        id.match <- c(id.match, which(trimSpace(taxa.table[, ra])==""))
-        if (length(id.match) > 0)
-          taxa.table[id.match, ra] <- paste("unclassified")
-      }
-    }
+    if (assign.unclassified) 
+      taxa.table <- prepTaxonomy(taxa.table, col.ranks)
+    
   } else {
     if (assign.unclassified) {
       # BLAST + MEGAN
@@ -278,37 +312,21 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
   if (is.null(ncol.cm) || is.null(col.ranks)) 
     stop("Input cm.taxa should have attributes ncol.cm and col.ranks !")
   
+  ### preprocess rank columns
+  cm.taxa <- prepTaxonomy(cm.taxa, col.ranks)
+  
   ###### aggregate by ranks
   ta.list <- list()
   pre.ra <- NA
   for (ra in col.ranks) {
     ra.col=which(colnames(cm.taxa)==ra)
     
-    ### preprocess rank columns
-    if (length(ta.list) > 0) {
-      # replace repeated high rank taxa to unclassified high rank
-      # MEGAN unclassified
-      ta.tmp <- subset(cm.taxa, !grepl("unclassified", cm.taxa[, pre.ra.col], ignore.case = T))
-      id.match <- which(tolower(ta.tmp[, pre.ra.col])==tolower(ta.tmp[, ra.col]))
-      # MEGAN environmental samples
-      id.match <- c(id.match, grep("environmental samples", cm.taxa[, ra.col], ignore.case = T))
-      # RDP unclassified
-      id.match <- c(id.match, which(trimSpace(cm.taxa[, ra.col])==""))
-      if (length(id.match) > 0)
-        cm.taxa[id.match, ra.col] <- paste("unclassified", cm.taxa[id.match, pre.ra.col])
-      
-      # replace unclassified ??? to unclassified high rank
-      id.match <- grep("unclassified ", cm.taxa[, pre.ra.col], ignore.case = TRUE)
-      if (length(id.match) > 0)
-        cm.taxa[id.match, ra.col] <- paste("unclassified", pre.ra)
-    }
-    
     ### aggregate
     # cm.taxa 1st col is "row.names", "ncol.samples" columns abundence, and length(col.ranks) columns rank
     data.ta <- cm.taxa[,c(1:ncol.cm, ra.col)]
     # e.g. family plot1 plot2 ...
     taxa.assign <- aggregate(as.formula(paste(". ~", ra)), data=data.ta, FUN=aggre.FUN)
-    
+
     # deal with "unclassified"
     if (unclassified==0) {
       # move "unclassified ???" to last
@@ -337,17 +355,20 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
         ta.tmp <- rbind(ta.tmp, ra.un)
       }
       taxa.assign <- ta.tmp
-      taxa.assign[,2:ncol(taxa.assign)] <- sapply(taxa.assign[,2:ncol(taxa.assign)], as.numeric)
     } else {
       taxa.assign <- subset(taxa.assign, !grepl("unclassified", taxa.assign[, ra], ignore.case = T))
     }
+    taxa.assign[,2:ncol(taxa.assign)] <- sapply(taxa.assign[,2:ncol(taxa.assign)], as.numeric)
+    
     # move taxa to rownames
     rownames(taxa.assign) <- taxa.assign[,1]
     # add rank attr
     attr(taxa.assign, "rank") <- ra
-    
     # make sure 1-column data frame not converted to vector, see ?"[" 
-    ta.list[[ra]] <- taxa.assign[,-1, drop=FALSE]
+    taxa.assign <- taxa.assign[,-1, drop=FALSE]
+    
+    # rm 0 total row
+    ta.list[[ra]] <- taxa.assign
     pre.ra.col <- ra.col
     pre.ra <- ra
   }

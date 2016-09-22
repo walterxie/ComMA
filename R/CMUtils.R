@@ -41,7 +41,7 @@ rmMinAbundance <- function(community.matrix, minAbund=2, MARGIN=1, verbose=TRUE)
   }
   
   if(verbose) 
-    cat("Remove", length(rm), msg, "having minimum abundance (>=)", minAbund, "!\n")
+    cat("Remove", length(rm), msg, "whose minimum abundance <", minAbund, "!\n")
   
   community.matrix
 }
