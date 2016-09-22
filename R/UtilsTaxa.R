@@ -78,32 +78,24 @@ subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA,
   return(cm.taxa)
 }
 
-#' @details \code{getPrettyTaxonomy} returns assorted quirks in 
-#' taxonomy table \code{taxa.table} to make names look nice.
+#' @details \code{prepTaxonomy} replace repeated high rank taxa to 
+#' unclassified high rank in MEGAN result, 
+#' or replace the blank value to unclassified in RDP result,
+#' in order to make taxonomy table \code{taxa.table} (can be \code{cm.taxa}) 
+#' to make names look nice.
+#' \code{col.ranks} vector have to be rank column names in taxa.table.
 #' 
 #' @param pattern The pattern for \code{\link{gsub}} "perl = TRUE". 
 #' Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".
+#' @param txt.unclassified The key word to represent unclassified taxonomy.
 #' @keywords taxonomy
 #' @export
 #' @examples 
-#' tt <- getPrettyTaxonomy(tt)
+#' tt <- prepTaxonomy(taxa.table, col.ranks=c("kingdom", "phylum", "class"))
 #' 
 #' @rdname utilsTaxa 
-getPrettyTaxonomy <- function(taxa.table, pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))",
-                              col.ranks=c("kingdom", "phylum", "class", "order", "family")) {
-  ### Remove assorted quirks in taxonomy! ###
-  for (col in colnames(taxa.table)) {
-    if (tolower(col) %in% col.ranks)
-      taxa.table[, col] <- gsub(pattern, "", taxa.table[, col], perl = TRUE)
-  }
-  return(taxa.table)
-}
-
-# replace repeated high rank taxa to unclassified high rank in MEGAN result
-# or replace the blank value to unclassified in RDP result
-# taxa.table can be cm.taxa, 
-# col.ranks vector have to be rank column names in taxa.table
-prepTaxonomy <- function(taxa.table, col.ranks,
+prepTaxonomy <- function(taxa.table, col.ranks=c("kingdom", "phylum", "class", "order", "family"),
+                         txt.unclassified="unclassified",
                          pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))") {
   parent.rank <- NA
   for (rank in col.ranks) {
@@ -111,6 +103,8 @@ prepTaxonomy <- function(taxa.table, col.ranks,
       stop("Invalid ", rank, " not existing in colnames(taxa.table) !\n", 
            paste(colnames(taxa.table), collapse = ","))
     
+    taxa.table[, rank] <- gsub("root|cellular organisms|No hits|Not assigned|unclassified sequences", 
+                               txt.unclassified, taxa.table[, rank], ignore.case = TRUE)
     # Remove assorted quirks in taxonomy! 
     taxa.table[, rank] <- gsub(pattern, "", taxa.table[, rank], perl = TRUE)
     
@@ -156,7 +150,7 @@ prepTaxonomy <- function(taxa.table, col.ranks,
 #' @param has.total If 0, then only return abundance by samples (columns) of community matrix. 
 #' If 1, then only return total abundance. If 2, then return abundance by samples (columns) and total. 
 #' Default to 1.
-#' @param assign.unclassified If TRUE, as default, replace 
+#' @param preprocess If TRUE, as default, replace 
 #' "root|cellular organisms|No hits|Not assigned|unclassified sequences" from MEGAN result, 
 #' or mark OTUs as 'unclassified' in RDP result whose confidence < \code{min.conf} threshold. 
 #' @param col.ranks A vector or string of column name(s) of taxonomic ranks in the taxa table, 
@@ -180,7 +174,7 @@ prepTaxonomy <- function(taxa.table, col.ranks,
 #' @export
 #' @rdname utilsTaxa
 mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"), min.conf=0.8, 
-                        has.total=1, sort=TRUE, assign.unclassified=TRUE, verbose=TRUE, 
+                        has.total=1, sort=TRUE, preprocess=TRUE, verbose=TRUE, 
                         mv.row.names=T, 
                         col.ranks=c("kingdom", "phylum", "class", "order", "family")) {
   classifier <- match.arg(classifier)
@@ -205,7 +199,6 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
     cm[,"total"] <- rowSums(community.matrix) 
   ncol.cm <- ncol(cm)
   
-  
   if (classifier == "RDP") {
     if (! "confidence" %in% colnames(taxa.table))
       stop("Invaild file format from RDP: column 'confidence' is required !")
@@ -225,21 +218,10 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
     if (verbose)
       cat("Set", n.row.un, "rows as 'unclassified' from the total of", nrow(taxa.table), 
           "in RDP taxa table, whose confidence <", min.conf, ".\n")
-    # fill empty value as 'unclassified'
-    if (assign.unclassified) 
-      taxa.table <- prepTaxonomy(taxa.table, col.ranks)
-    
-  } else {
-    if (assign.unclassified) {
-      # BLAST + MEGAN
-      for (ra in col.ranks) {
-        id.match <- grep("root|cellular organisms|No hits|Not assigned|unclassified sequences", 
-                         taxa.table[, ra], ignore.case = TRUE)
-        if (length(id.match) > 0)
-          taxa.table[id.match, ra] <- paste("unclassified")
-      }
-    }
-  }
+  } # else BLAST + MEGAN
+
+  if (preprocess)
+    taxa.table <- prepTaxonomy(taxa.table, col.ranks=col.ranks)
   
   # cm.taxa 1st col is "row.names", "ncol.cm" columns abundence, and length(col.ranks) columns rank
   cm.taxa <- merge(cm, taxa.table, by = "row.names")
@@ -290,6 +272,7 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
 #' but also merge all the rest "unclassified ???" to "unclassified rank",
 #' such as "unclassified family".
 #' If 3, then remove every rows containing "unclassified".
+#' if 4, then do nothing.
 #' @param aggre.FUN A function for \code{FUN} in \code{\link{aggregate}}. 
 #' Default to \code{sum} to provide the reads abundance. 
 #' Make \code{aggre.FUN=function(x) sum(x>0)} provide the OTU abundance.
@@ -313,7 +296,8 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
     stop("Input cm.taxa should have attributes ncol.cm and col.ranks !")
   
   ### preprocess rank columns
-  cm.taxa <- prepTaxonomy(cm.taxa, col.ranks)
+  if (unclassified < 4)
+    cm.taxa <- prepTaxonomy(cm.taxa, col.ranks=col.ranks)
   
   ###### aggregate by ranks
   ta.list <- list()
@@ -355,7 +339,7 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
         ta.tmp <- rbind(ta.tmp, ra.un)
       }
       taxa.assign <- ta.tmp
-    } else {
+    } else if (unclassified==3) {
       taxa.assign <- subset(taxa.assign, !grepl("unclassified", taxa.assign[, ra], ignore.case = T))
     }
     taxa.assign[,2:ncol(taxa.assign)] <- sapply(taxa.assign[,2:ncol(taxa.assign)], as.numeric)

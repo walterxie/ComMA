@@ -2,9 +2,9 @@
 % Please edit documentation in R/UtilsTaxa.R
 \name{utilsTaxa}
 \alias{assignTaxaByRank}
-\alias{getPrettyTaxonomy}
 \alias{groupsTaxaMembers}
 \alias{mergeCMTaxa}
+\alias{prepTaxonomy}
 \alias{subsetCM}
 \alias{subsetTaxaTable}
 \alias{utilsTaxa}
@@ -16,14 +16,14 @@ subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
 subsetCM(community.matrix, taxa.table, taxa.group = NA, rank = NA,
   col.ranks = c("kingdom", "phylum", "class", "order", "family"))
 
-getPrettyTaxonomy(taxa.table,
-  pattern = "(\\\\s\\\\[|\\\\()(\\\\=|\\\\.|\\\\,|\\\\s|\\\\w|\\\\?)*(\\\\]|\\\\))",
-  col.ranks = c("kingdom", "phylum", "class", "order", "family"))
+prepTaxonomy(taxa.table, col.ranks = c("kingdom", "phylum", "class", "order",
+  "family"), txt.unclassified = "unclassified",
+  pattern = "(\\\\s\\\\[|\\\\()(\\\\=|\\\\.|\\\\,|\\\\s|\\\\w|\\\\?)*(\\\\]|\\\\))")
 
 mergeCMTaxa(community.matrix, taxa.table, classifier = c("MEGAN", "RDP"),
-  min.conf = 0.8, has.total = 1, sort = TRUE,
-  assign.unclassified = TRUE, verbose = TRUE, mv.row.names = T,
-  col.ranks = c("kingdom", "phylum", "class", "order", "family"))
+  min.conf = 0.8, has.total = 1, sort = TRUE, preprocess = TRUE,
+  verbose = TRUE, mv.row.names = T, col.ranks = c("kingdom", "phylum",
+  "class", "order", "family"))
 
 assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum)
 
@@ -59,6 +59,8 @@ which will determine the aggregated abundence matrix. They have to be full set o
 c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species"). 
 Default to c("kingdom", "phylum", "class", "order", "family").}
 
+\item{txt.unclassified}{The key word to represent unclassified taxonomy.}
+
 \item{pattern}{The pattern for \code{\link{gsub}} "perl = TRUE". 
 Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".}
 
@@ -73,7 +75,7 @@ Default to 1.}
 
 \item{sort}{Sort the taxonomy rank by rank. Default to TRUE.}
 
-\item{assign.unclassified}{If TRUE, as default, replace 
+\item{preprocess}{If TRUE, as default, replace 
 "root|cellular organisms|No hits|Not assigned|unclassified sequences" from MEGAN result, 
 or mark OTUs as 'unclassified' in RDP result whose confidence < \code{min.conf} threshold.}
 
@@ -102,7 +104,8 @@ See the detail.
 If 2, then remove the row whose taxon name is exact "unclassified", 
 but also merge all the rest "unclassified ???" to "unclassified rank",
 such as "unclassified family".
-If 3, then remove every rows containing "unclassified".}
+If 3, then remove every rows containing "unclassified".
+if 4, then do nothing.}
 
 \item{aggre.FUN}{A function for \code{FUN} in \code{\link{aggregate}}. 
 Default to \code{sum} to provide the reads abundance. 
@@ -141,8 +144,12 @@ regarding \code{taxa.group}.
 Set either \code{taxa.group} or \code{rank} to NA, as default, 
 to use the whole \code{taxa.table}.
 
-\code{getPrettyTaxonomy} returns assorted quirks in 
-taxonomy table \code{taxa.table} to make names look nice.
+\code{prepTaxonomy} replace repeated high rank taxa to 
+unclassified high rank in MEGAN result, 
+or replace the blank value to unclassified in RDP result,
+in order to make taxonomy table \code{taxa.table} (can be \code{cm.taxa}) 
+to make names look nice.
+\code{col.ranks} vector have to be rank column names in taxa.table.
 
 \code{mergeCMTaxa} creates a data frame \code{cm.taxa} combined community matrix with 
 taxonomic classification table. The 1st column is "row.names" that are OTUs/individuals, 
@@ -177,7 +184,7 @@ tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinoderma
 
 sub.cm <- subsetCM(cm, tt, taxa.group="BACTERIA", rank="kingdom")
 
-tt <- getPrettyTaxonomy(tt)
+tt <- prepTaxonomy(taxa.table, col.ranks=c("kingdom", "phylum", "class"))
 
 cm.taxa <- mergeCMTaxa(community.matrix, tt.megan) 
 ta.megan <- assignTaxaByRank(cm.taxa)
