@@ -11,16 +11,16 @@ getCountSums(..., input.list = FALSE, group.rank = "kingdom",
   taxa.rank = "phylum")
 
 plotTaxonomy(all.counts.sums, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
-  taxa.rank = "phylum", group.rank = "kingdom", gene.level = c("16S",
-  "18S", "26S", "ITS", "COI-300", "COI-650"), group.level = c("ARCHAEA",
+  taxa.rank = "phylum", group.rank = "kingdom", gene.levels = c("16S",
+  "18S", "26S", "ITS", "COI-300", "COI-650"), group.levels = c("ARCHAEA",
   "BACTERIA", "EUKARYOTA", "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE",
   "ANIMALIA", "Unknown"), x.lab = "Phylum (or higher-level taxon)",
   y.lab = "Number of sequences or OTUs", legend.title = NULL)
 
 sumReadsOTUs(cm.taxa.list, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
   taxa.rank = "phylum", group.rank = "kingdom", col.ranks = c("kingdom",
-  "phylum", "class", "order"), gene.level = c("16S", "18S", "26S", "ITS",
-  "COI-300", "COI-650"), group.level = c("ARCHAEA", "BACTERIA", "EUKARYOTA",
+  "phylum", "class", "order"), gene.levels = c("16S", "18S", "26S", "ITS",
+  "COI-300", "COI-650"), group.levels = c("ARCHAEA", "BACTERIA", "EUKARYOTA",
   "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
   x.lab = "Phylum (or higher-level taxon)",
   y.lab = "Number of sequences or OTUs", fig.folder = "./figures",
@@ -42,9 +42,9 @@ But it removes the taxonomy not exsiting in the reference.
 Default to use a taxonomy reference data set \code{taxa.ref.PLOSONE.2015} in the package.
 Set \code{taxa.ref=""}, where length(taxa.ref) > 1, to plot all taxonomy.}
 
-\item{gene.level}{The level to order 'gene' column.}
+\item{gene.levels}{The level to order 'gene' column.}
 
-\item{group.level}{The level to order 'gene' column.}
+\item{group.levels}{The level to order 'gene' column.}
 
 \item{x.lab, y.lab}{Label for x or y axis.}
 

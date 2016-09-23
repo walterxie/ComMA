@@ -85,8 +85,8 @@ getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank=
 #' open circles the number of OTUs including singleton OTUs, 
 #' and filled circles the number of OTUs excluding singleton OTUs.
 #' 
-#' @param gene.level The level to order 'gene' column.  
-#' @param group.level The level to order 'gene' column.
+#' @param gene.levels The level to order 'gene' column.  
+#' @param group.levels The level to order 'gene' column.
 #' @param x.lab,y.lab Label for x or y axis.
 #' @param taxa.ref The taxonomic reference data set to order taxonomic names nicely.
 #' But it removes the taxonomy not exsiting in the reference.
@@ -99,8 +99,8 @@ getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank=
 #' 
 #' @rdname countOTUsReads
 plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, taxa.rank="phylum", group.rank="kingdom", 
-                         gene.level=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
-                         group.level=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
+                         gene.levels=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
+                         group.levels=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
                          x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs", legend.title=NULL){
   if (!taxa.rank %in% colnames(all.counts.sums) || !group.rank %in% colnames(all.counts.sums))
     stop("Invalid 'taxa.rank' and 'group.rank' !\nCannot find them in 'all.counts.sums' !")
@@ -114,22 +114,24 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
     colnames(taxa.ref) <- tolower(colnames(taxa.ref))
     if (! taxa.rank %in% colnames(taxa.ref))
       stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
+
     z$taxa <- taxa.ref[match(tolower(z$taxa), tolower(taxa.ref[,taxa.rank])), taxa.rank]
   } 
   
   require(reshape2)
   z <- as.data.frame(z)
   z <- melt(z, id.vars = c("taxa", "group", "gene"))
-  z$group <- gsub("root|No hits|Not assigned|cellular organisms|Unclassified", "Unknown", z$group, ignore.case=T)
-  z$gene <- factor(z$gene, ordered = TRUE, levels = gene.level)
-  z$group <- factor(z$group, ordered = TRUE, levels = group.level)
+  z$group <- gsub("root|No hits|Not assigned|cellular organisms|unclassified", "Unknown", z$group, ignore.case=T)
   # Order factors
+  z$gene <- factor(z$gene, ordered = TRUE, levels = gene.levels)
+  z$group <- factor(z$group, ordered = TRUE, levels = group.levels)
   if (length(taxa.ref) > 1) {
     z$taxa <- factor(z$taxa, ordered = TRUE, levels = rev(unique(taxa.ref[,taxa.rank])))
   } else {
-    #TODO bad order
-    z$taxa <- factor(z$taxa, ordered = TRUE, levels = rev(unique(z$taxa)))
+    taxa.levels <- rev(unique(z[order(z$gene,z$group,z$taxa), "taxa"]))#rev(unique(z$taxa))
+    z$taxa <- factor(z$taxa, levels=taxa.levels, ordered=TRUE)
   }
+  
   z <- na.omit(z)
   #print(z)
   
@@ -172,8 +174,8 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
 #' @rdname countOTUsReads
 sumReadsOTUs <- function(cm.taxa.list, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, taxa.rank="phylum", group.rank="kingdom", 
                          col.ranks=c("kingdom", "phylum", "class", "order"), 
-                         gene.level=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
-                         group.level=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
+                         gene.levels=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
+                         group.levels=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
                          x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs",
                          fig.folder="./figures", table.folder="./outputs",
                          pdf.width = 260, pdf.height = 200, units = "mm"){
@@ -184,8 +186,8 @@ sumReadsOTUs <- function(cm.taxa.list, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, ta
                 sep = "\t", quote = FALSE, col.names = NA)
   }
   if (!is.na(fig.folder)) {
-    p <- ComMA::plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref, gene.level=gene.level, 
-                             group.level=group.level, x.lab=x.lab, y.lab=y.lab)
+    p <- ComMA::plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref, gene.levels=gene.levels, 
+                             group.levels=group.levels, x.lab=x.lab, y.lab=y.lab)
     ggsave(p, file = file.path(fig.folder, paste0("Overall_taxonomy_OTUs_reads_by_", taxa.rank, ".pdf")), 
            width = pdf.width, height = pdf.height, units = units)
   }

@@ -17,15 +17,17 @@ subsetCM(community.matrix, taxa.table, taxa.group = NA, rank = NA,
   col.ranks = c("kingdom", "phylum", "class", "order", "family"))
 
 prepTaxonomy(taxa.table, col.ranks = c("kingdom", "phylum", "class", "order",
-  "family"), txt.unclassified = "unclassified",
+  "family"), txt.unclassified = "unclassified", verbose = TRUE,
   pattern = "(\\\\s\\\\[|\\\\()(\\\\=|\\\\.|\\\\,|\\\\s|\\\\w|\\\\?)*(\\\\]|\\\\))")
 
 mergeCMTaxa(community.matrix, taxa.table, classifier = c("MEGAN", "RDP"),
   min.conf = 0.8, has.total = 1, sort = TRUE, preprocess = TRUE,
-  verbose = TRUE, mv.row.names = T, col.ranks = c("kingdom", "phylum",
-  "class", "order", "family"))
+  verbose = TRUE, mv.row.names = T,
+  pattern = "(\\\\s\\\\[|\\\\()(\\\\=|\\\\.|\\\\,|\\\\s|\\\\w|\\\\?)*(\\\\]|\\\\))",
+  col.ranks = c("kingdom", "phylum", "class", "order", "family"))
 
-assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum)
+assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum,
+  pattern = "(\\\\s\\\\[|\\\\()(\\\\=|\\\\.|\\\\,|\\\\s|\\\\w|\\\\?)*(\\\\]|\\\\))")
 
 groupsTaxaMembers(taxa.assign, cm.taxa, rank = "phylum",
   rm.unclassified = TRUE, regex1 = "(\\\\|[0-9]+)", regex2 = "",
@@ -61,8 +63,11 @@ Default to c("kingdom", "phylum", "class", "order", "family").}
 
 \item{txt.unclassified}{The key word to represent unclassified taxonomy.}
 
+\item{verbose}{More details. Default to TRUE.}
+
 \item{pattern}{The pattern for \code{\link{gsub}} "perl = TRUE". 
-Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".}
+Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".
+Set NA to skip it.}
 
 \item{classifier}{The classifier is used to generate \code{taxa.table}. 
 Value is MEGAN or RDP. Default to MEGAN.}
@@ -78,8 +83,6 @@ Default to 1.}
 \item{preprocess}{If TRUE, as default, replace 
 "root|cellular organisms|No hits|Not assigned|unclassified sequences" from MEGAN result, 
 or mark OTUs as 'unclassified' in RDP result whose confidence < \code{min.conf} threshold.}
-
-\item{verbose}{More details. Default to TRUE.}
 
 \item{mv.row.names}{Default to TRUE to move the column 'Row.names' 
 created by \code{\link{merge}} into data frame row.names, 

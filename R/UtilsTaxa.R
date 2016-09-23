@@ -87,6 +87,7 @@ subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA,
 #' 
 #' @param pattern The pattern for \code{\link{gsub}} "perl = TRUE". 
 #' Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".
+#' Set NA to skip it.
 #' @param txt.unclassified The key word to represent unclassified taxonomy.
 #' @keywords taxonomy
 #' @export
@@ -95,8 +96,11 @@ subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA,
 #' 
 #' @rdname utilsTaxa 
 prepTaxonomy <- function(taxa.table, col.ranks=c("kingdom", "phylum", "class", "order", "family"),
-                         txt.unclassified="unclassified",
+                         txt.unclassified="unclassified", verbose=TRUE,
                          pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))") {
+  if (verbose)
+    cat("Preprocess taxonomy names at rank columns :", paste(col.ranks, collapse = ","), "\n") 
+  
   parent.rank <- NA
   for (rank in col.ranks) {
     if (! rank %in% colnames(taxa.table))
@@ -105,9 +109,11 @@ prepTaxonomy <- function(taxa.table, col.ranks=c("kingdom", "phylum", "class", "
     
     taxa.table[, rank] <- gsub("root|cellular organisms|No hits|Not assigned|unclassified sequences", 
                                txt.unclassified, taxa.table[, rank], ignore.case = TRUE)
-    # Remove assorted quirks in taxonomy! 
-    taxa.table[, rank] <- gsub(pattern, "", taxa.table[, rank], perl = TRUE)
-    
+    if (!is.na(pattern)) {
+      # Remove assorted quirks in taxonomy! 
+      taxa.table[, rank] <- gsub(pattern, "", taxa.table[, rank], perl = TRUE)
+    }
+   
     # MEGAN unclassified
     if (!is.na(parent.rank)) {
       ta.tmp <- subset(taxa.table, !grepl("unclassified", taxa.table[, parent.rank], ignore.case = T))
@@ -175,11 +181,12 @@ prepTaxonomy <- function(taxa.table, col.ranks=c("kingdom", "phylum", "class", "
 #' @rdname utilsTaxa
 mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"), min.conf=0.8, 
                         has.total=1, sort=TRUE, preprocess=TRUE, verbose=TRUE, 
-                        mv.row.names=T, 
+                        mv.row.names=T, pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))",
                         col.ranks=c("kingdom", "phylum", "class", "order", "family")) {
   classifier <- match.arg(classifier)
   if (verbose)
-    cat("Parse classification from", classifier, "classifier.\n")
+    cat("Parse classification from", classifier, "classifier", 
+        ifelse(preprocess, ", and preprocess taxanomy names.", "."), "\n")
   ranks <- getRanks()
   if (length(col.ranks) < 1 || !all(col.ranks %in% ranks)) 
     stop("Invaild column names for ranks !\nUse one element or a subset of ", 
@@ -221,7 +228,7 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
   } # else BLAST + MEGAN
 
   if (preprocess)
-    taxa.table <- prepTaxonomy(taxa.table, col.ranks=col.ranks)
+    taxa.table <- prepTaxonomy(taxa.table, col.ranks=col.ranks, pattern=pattern, verbose=verbose)
   
   # cm.taxa 1st col is "row.names", "ncol.cm" columns abundence, and length(col.ranks) columns rank
   cm.taxa <- merge(cm, taxa.table, by = "row.names")
@@ -287,7 +294,8 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
 #' colSums(ta.rdp[["phylum"]])
 #' 
 #' @rdname utilsTaxa
-assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
+assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum, 
+                             pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))") {
   attr.cm.ta <- attributes(cm.taxa)
   ncol.cm <- attr.cm.ta$ncol.cm
   col.ranks <- attr.cm.ta$col.ranks
@@ -297,7 +305,7 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum) {
   
   ### preprocess rank columns
   if (unclassified < 4)
-    cm.taxa <- prepTaxonomy(cm.taxa, col.ranks=col.ranks)
+    cm.taxa <- prepTaxonomy(cm.taxa, col.ranks=col.ranks, pattern=pattern)
   
   ###### aggregate by ranks
   ta.list <- list()
