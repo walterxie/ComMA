@@ -149,6 +149,8 @@ If length == 1, then use \code{\link{scale_colour_brewer}}
 If 1 != length <= 3, then use \code{\link{scale_colour_gradientn}}, 
 such as c("blue", "orange").
 Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
+Set palette=c("red","darkgreen","darkgrey",""), if \code{\link{scale_fill_manual}} 
+has to be used when the actual length(palette) <=3. 
 Default NULL to use \code{\link{ggplot}} default colours.}
 
 \item{legend.col, legend.row}{Customize the number of columns or rows for legend in bar chart. 

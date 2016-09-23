@@ -29,7 +29,7 @@
 #' all.counts.sums <- ComMA::getCountSums(cm.taxa.list, input.list=T, group.rank="kingdom", taxa.rank="phylum")
 #' 
 #' @rdname countOTUsReads
-getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank="phylum"){
+getCountSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank="kingdom"){
   cm.taxa.list <- validateInputList(..., input.list=input.list) 
   cat("Count OTU/Reads on", length(cm.taxa.list), "data sets.\n") 
   
@@ -42,7 +42,7 @@ getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank=
     
     if (is.null(ncol.cm) || is.null(col.ranks)) 
       stop("Input cm.taxa", names(cm.taxa.list)[n], "should have attributes ncol.cm and col.ranks !")
-
+    
     if (ncol.cm > 1) {
       total <- rowSums(cm.taxa[,1:ncol.cm]) # do not have 'total' column
     } else {
@@ -85,13 +85,19 @@ getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank=
 #' open circles the number of OTUs including singleton OTUs, 
 #' and filled circles the number of OTUs excluding singleton OTUs.
 #' 
-#' @param gene.levels The level to order 'gene' column.  
-#' @param group.levels The level to order 'gene' column.
-#' @param x.lab,y.lab Label for x or y axis.
+#' @param all.counts.sums Teh output from \code{getCountSums}.
 #' @param taxa.ref The taxonomic reference data set to order taxonomic names nicely.
 #' But it removes the taxonomy not exsiting in the reference.
 #' Default to use a taxonomy reference data set \code{taxa.ref.PLOSONE.2015} in the package.
 #' Set \code{taxa.ref=""}, where length(taxa.ref) > 1, to plot all taxonomy.
+#' @param gene.levels The level to order 'gene' column.  
+#' @param group.levels The level to order 'gene' column.
+#' @param exclude.singletons If 0, then do not plot the number of 
+#' sequences and OTUs excluding singleton OTUs. 
+#' If 1, as default, just do not plot sequences excluding singleton. 
+#' If 2, then plot all (including/excluding singleton).
+#' @param x.lab,y.lab Label for x or y axis.
+#' @param palette The detail in \code{\link{ggPlot}}. 
 #' @keywords taxonomy
 #' @export
 #' @examples 
@@ -101,7 +107,9 @@ getCountSums <- function(..., input.list=FALSE, group.rank="kingdom", taxa.rank=
 plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, taxa.rank="phylum", group.rank="kingdom", 
                          gene.levels=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                          group.levels=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
-                         x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs", legend.title=NULL){
+                         exclude.singletons=1,
+                         x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs", 
+                         legend.title=NULL, palette=NULL, title="", title.size = 10, verbose=TRUE){
   if (!taxa.rank %in% colnames(all.counts.sums) || !group.rank %in% colnames(all.counts.sums))
     stop("Invalid 'taxa.rank' and 'group.rank' !\nCannot find them in 'all.counts.sums' !")
   
@@ -114,7 +122,7 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
     colnames(taxa.ref) <- tolower(colnames(taxa.ref))
     if (! taxa.rank %in% colnames(taxa.ref))
       stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
-
+    
     z$taxa <- taxa.ref[match(tolower(z$taxa), tolower(taxa.ref[,taxa.rank])), taxa.rank]
   } 
   
@@ -138,20 +146,26 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
   if (is.null(legend.title))
     legend.title <- group.rank
   require(ggplot2)
-  p <- ggplot(z) + 
+  p <- ggplot(z) +  
     geom_point(data = z[z$variable == "count.1",], aes(x = taxa, y = value, colour = group), shape = 1, size = 2) +
-    geom_point(data = z[z$variable == "sum.1",], aes(x = taxa, y = value, colour = group), shape = 5, size = 2, show.legend = NA) +
-    geom_point(data = z[z$variable == "count.2",], aes(x = taxa, y = value, colour = group), shape = 16, size = 2) +
-    #geom_point(data = z[z$variable == "sums.2",], aes(x = taxa, y = value, colour = group), shape = 17, size = 2) +
-    geom_line(data = z, aes(x = taxa, y = value, group=interaction(taxa, gene), colour = group), size = 0.5, alpha = 0.5) + 
+    geom_point(data = z[z$variable == "sum.1",], aes(x = taxa, y = value, colour = group), shape = 5, size = 2, show.legend = NA)
+  if (exclude.singletons > 0)
+    p <- p + geom_point(data = z[z$variable == "count.2",], aes(x = taxa, y = value, colour = group), shape = 16, size = 2)
+  if (exclude.singletons > 1)
+    p <- p + geom_point(data = z[z$variable == "sums.2",], aes(x = taxa, y = value, colour = group), shape = 17, size = 2)
+  
+  p <- p + geom_line(data = z, aes(x = taxa, y = value, group=interaction(taxa, gene), colour = group), size = 0.5, alpha = 0.5) +
     facet_grid( ~ gene) + guides(fill = guide_legend(reverse = FALSE)) +
-    coord_flip() + theme_bw() + ylab(y.lab) + xlab(x.lab) + labs(colour=legend.title) +
-    scale_y_log10(breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000), label=ComMA::scientific_10) +
-    #scale_color_manual(values = pal(length(unique(z$group)))) +
-    theme(strip.background = element_blank(), plot.title = element_text(size = 9),
-          #plot.margin=unit(c(0.2,0.5,0.2,0.8), "cm"), panel.margin = unit(0.8, "lines"), 
-          axis.title.y=element_text(vjust=2), axis.title.x=element_text(vjust=-0.2), 
-          axis.text.x = element_text(vjust=-0.1)) 
+    coord_flip() + theme_bw() + ylab(y.lab) + xlab(x.lab) + labs(colour=legend.title) + ggtitle(title) +
+    scale_y_log10(breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000), label=ComMA::scientific_10)
+  
+  #scale_color_manual(values = pal(length(unique(z$group)))) +
+  p <- ggOptPalette(p, palette=palette, verbose=verbose)
+  
+  p <- p + theme(strip.background = element_blank(), plot.title = element_text(size = title.size),
+                 #plot.margin=unit(c(0.2,0.5,0.2,0.8), "cm"), panel.margin = unit(0.8, "lines"), 
+                 axis.title.y=element_text(vjust=2), axis.title.x=element_text(vjust=-0.2), 
+                 axis.text.x = element_text(vjust=-0.1)) 
   return(p)
 }
 

@@ -80,6 +80,8 @@
 #' If 1 != length <= 3, then use \code{\link{scale_colour_gradientn}}, 
 #' such as c("blue", "orange").
 #' Otherwise use \code{\link{scale_fill_manual}} for a vector of customized colours.
+#' Set palette=c("red","darkgreen","darkgrey",""), if \code{\link{scale_fill_manual}} 
+#' has to be used when the actual length(palette) <=3. 
 #' Default NULL to use \code{\link{ggplot}} default colours.  
 #' @param text.id Label the data points according \code{text.id} column, 
 #' such as "Row.names" column after \code{\link{merge}}.

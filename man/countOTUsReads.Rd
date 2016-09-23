@@ -7,15 +7,17 @@
 \alias{sumReadsOTUs}
 \title{Taxonomy analyses for multiple data sets}
 \usage{
-getCountSums(..., input.list = FALSE, group.rank = "kingdom",
-  taxa.rank = "phylum")
+getCountSums(..., input.list = FALSE, taxa.rank = "phylum",
+  group.rank = "kingdom")
 
 plotTaxonomy(all.counts.sums, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
   taxa.rank = "phylum", group.rank = "kingdom", gene.levels = c("16S",
   "18S", "26S", "ITS", "COI-300", "COI-650"), group.levels = c("ARCHAEA",
   "BACTERIA", "EUKARYOTA", "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE",
-  "ANIMALIA", "Unknown"), x.lab = "Phylum (or higher-level taxon)",
-  y.lab = "Number of sequences or OTUs", legend.title = NULL)
+  "ANIMALIA", "Unknown"), exclude.singletons = 1,
+  x.lab = "Phylum (or higher-level taxon)",
+  y.lab = "Number of sequences or OTUs", legend.title = NULL,
+  palette = NULL, title = "", title.size = 10, verbose = TRUE)
 
 sumReadsOTUs(cm.taxa.list, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
   taxa.rank = "phylum", group.rank = "kingdom", col.ranks = c("kingdom",
@@ -33,9 +35,11 @@ sumReadsOTUs(cm.taxa.list, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
 \item{input.list}{Default to TRUE to unwrap list(...) to 
 get the actual list if the input is a list of cm.}
 
+\item{taxa.rank}{The rank to display in the axis for counts of OTUs and reads.}
+
 \item{group.rank}{The rank to group \code{taxa.rank} to colour the figure.}
 
-\item{taxa.rank}{The rank to display in the axis for counts of OTUs and reads.}
+\item{all.counts.sums}{Teh output from \code{getCountSums}.}
 
 \item{taxa.ref}{The taxonomic reference data set to order taxonomic names nicely.
 But it removes the taxonomy not exsiting in the reference.
@@ -46,7 +50,14 @@ Set \code{taxa.ref=""}, where length(taxa.ref) > 1, to plot all taxonomy.}
 
 \item{group.levels}{The level to order 'gene' column.}
 
+\item{exclude.singletons}{If 0, then do not plot the number of 
+sequences and OTUs excluding singleton OTUs. 
+If 1, as default, just do not plot sequences excluding singleton. 
+If 2, then plot all (including/excluding singleton).}
+
 \item{x.lab, y.lab}{Label for x or y axis.}
+
+\item{palette}{The detail in \code{\link{ggPlot}}.}
 
 \item{cm.taxa.list}{A list of \code{cm.taxa} merged by \code{\link{mergeCMTaxa}}. 
 Require proper names of the list.}
