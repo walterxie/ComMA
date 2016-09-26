@@ -7,8 +7,9 @@
 \alias{getDissimilarity}
 \title{Calculate various multivariate distance metrics}
 \usage{
-getDissimilarity(cm, tree = NA, is.transposed = FALSE, method = "beta1-1",
-  progressBar = TRUE)
+getDissimilarity(cm, tree = NA, is.transposed = FALSE, progressBar = TRUE,
+  method = c("beta1-1", "jaccard", "horn.morisita", "bray.curtis",
+  "unwt.unif", "wt.unif"))
 
 beta1minus1(cm, is.transposed = FALSE, progressBar = TRUE,
   return.dist = TRUE)
@@ -26,16 +27,16 @@ for method="unwt.unif" or "wt.unif".}
 the transposed matrix of \code{\link{vegdist}} input. 
 Default to FASLE.}
 
+\item{progressBar}{Whether to print progress bar 
+only when method="beta1-1" calculated by \code{\link{beta1minus1}}, 
+default to TRUE.}
+
 \item{method}{The method to calculate similarity/dissimilarity distance. 
 The options are jaccard, horn.morisita, 
 bray.curtis, beta1-1, and unwt.unif, wt.unif. 
 The last two are unweighted or weighted \code{\link{UniFrac}} 
 from \pkg{\link{phyloseq}}. 
 Default to beta1-1, but it is slow.}
-
-\item{progressBar}{Whether to print progress bar 
-only when method="beta1-1" calculated by \code{\link{beta1minus1}}, 
-default to TRUE.}
 
 \item{return.dist}{If TRUE, as default, 
 return a \code{\link{dist}} object, 

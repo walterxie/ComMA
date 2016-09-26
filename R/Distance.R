@@ -38,11 +38,13 @@
 #' dist.jaccard <- getDissimilarity(cm, method="jaccard")
 #' 
 #' @rdname distance
-getDissimilarity <- function(cm, tree=NA, is.transposed=FALSE, method="beta1-1", progressBar=TRUE) {  
+getDissimilarity <- function(cm, tree=NA, is.transposed=FALSE, progressBar=TRUE, 
+                             method=c("beta1-1","jaccard","horn.morisita","bray.curtis","unwt.unif","wt.unif")) {  
   # if is.transposed=F as default, then transpose to vegdist input
   if (!is.transposed)
     cm <- ComMA::transposeDF(cm)
   
+  method <- match.arg(method)
   require(vegan)
   if (method=="jaccard") {
     # Jaccard
