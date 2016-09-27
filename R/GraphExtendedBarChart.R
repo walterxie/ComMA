@@ -25,7 +25,7 @@
 #' bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 #' bar.chart$gg.plot
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", 
-                                 x.lab="", y.lab="", palette=NULL, 
+                                 x.lab="", y.lab="", palette=NULL, x.meta.data=NULL,
                                  x.text.angle=90, autoWidth=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
@@ -42,6 +42,16 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
     legend.ord <- legend.ord[c(setdiff(1:length(legend.ord), id.match),id.match)]
   df.melt[,melt.id] <- factor(df.melt[,melt.id], levels = legend.ord)
   
+  if (! is.null(x.meta.data)) {
+    id.match <- match(df.melt$variable, row.names(x.meta.data))
+    if (length(id.match) < 1)
+      stop("Invalid x.meta.data in row.names or 1st column !")
+    df.melt$facet <- x.meta.data[,1]
+    y.facet.id <- "facet"
+  } else {
+    y.facet.id <- NULL
+  }
+  
   if (! is.null(palette)) {
     pale <- palette
   } else {
@@ -56,7 +66,7 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   
   p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, 
                          bar.pos="fill", y.trans="per", palette=pale, 
-                         title=title, x.lab=x.lab, y.lab=y.lab, 
+                         title=title, x.lab=x.lab, y.lab=y.lab, y.facet.id=y.facet.id,
                          x.text.angle=x.text.angle, legend.col=legend.col, ...)
   
   if (autoWidth)
