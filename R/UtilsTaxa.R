@@ -124,8 +124,12 @@ prepTaxonomy <- function(taxa.table, col.ranks=c("kingdom", "phylum", "class", "
       
       # RDP unclassified
       id.match <- c(id.match, which(trimSpace(taxa.table[, rank])==""))
-      if (length(id.match) > 0)
+      if (length(id.match) > 0) {
         taxa.table[id.match, rank] <- paste("unclassified", taxa.table[id.match, parent.rank])
+        # avoid "unclassified unclassified"
+        taxa.table[id.match, rank] <- gsub("unclassified unclassified", "unclassified", 
+                                           taxa.table[id.match, rank], ignore.case = T)
+      }
       
       # replace unclassified ??? to unclassified high rank
       id.match <- grep("unclassified ", taxa.table[, parent.rank], ignore.case = TRUE)
