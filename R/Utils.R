@@ -68,7 +68,7 @@ prettyNumbers <- function(df, digits = 2, drop.0.tail=TRUE) {
   df <- round(df, digits)
   df <- format(df, big.mark=",", scientific=F)
   if (drop.0.tail && digits > 0) {
-    pattern <- paste0( ".", paste0(rep("0",digits), collapse="") )
+    pattern <- paste0( "\\.", paste0(rep("0",digits), collapse="") )
     df <- ComMA::gusbDF(pattern, "", df)
   }
   return(df)
