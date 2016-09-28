@@ -90,6 +90,8 @@ getCountSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank="
 #' But it removes the taxonomy not exsiting in the reference.
 #' Default to use a taxonomy reference data set \code{taxa.ref.PLOSONE.2015} in the package.
 #' Set \code{taxa.ref=""}, where length(taxa.ref) > 1, to plot all taxonomy.
+#' @param render.rdp Render the taxonomy from RDP when using \code{taxa.ref.PLOSONE.2015}, 
+#' the default is FALSE.
 #' @param gene.levels The level to order 'gene' column.  
 #' @param group.levels The level to order 'gene' column.
 #' @param exclude.singletons If 0, then do not plot the number of 
@@ -104,7 +106,8 @@ getCountSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank="
 #' plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref)
 #' 
 #' @rdname countOTUsReads
-plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, taxa.rank="phylum", group.rank="kingdom", 
+plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, 
+                         taxa.rank="phylum", group.rank="kingdom", render.rdp=FALSE,
                          gene.levels=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                          group.levels=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
                          exclude.singletons=1,
@@ -122,7 +125,11 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
     colnames(taxa.ref) <- tolower(colnames(taxa.ref))
     if (! taxa.rank %in% colnames(taxa.ref))
       stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
-    
+    if (render.rdp) {
+      z$taxa <- gsub("^unclassified$", "Not assigned", z$taxa, ignore.case = T)
+      z$taxa <- gsub("^unclassified ", "", z$taxa, ignore.case = T)
+    }
+      
     z$taxa <- taxa.ref[match(tolower(z$taxa), tolower(taxa.ref[,taxa.rank])), taxa.rank]
   } 
   
@@ -138,6 +145,8 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
   } else {
     taxa.levels <- rev(unique(z[order(z$gene,z$group,z$taxa), "taxa"]))#rev(unique(z$taxa))
     z$taxa <- factor(z$taxa, levels=taxa.levels, ordered=TRUE)
+    if (render.rdp)
+      z$taxa <- gsub("Not assigned", "unclassified", z$taxa, ignore.case = T)
   }
   
   z <- na.omit(z)
