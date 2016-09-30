@@ -30,14 +30,16 @@
 #' Default to \code{regex1="(\\|[0-9]+)", regex2=""}, 
 #' which removes size annotation seperated by "|".
 #' @param ignore.case Refer to \code{\link{gsub}}.
+#' @param max.seq Give the number (\code{max.seq}) of seleceted sequences randomly in the end. 
+#' Defaul to NA to ignore it.
 #' @keywords util
 #' @export
 #' @examples 
 #' subsetSequences(otus.file, otus.names, otus.out.file)
 #'
 #' @rdname utilsSeq
-subsetSequences <- function(otus.file, otus.names, otus.out.file, 
-                            regex1="(\\|[0-9]+)", regex2="", ignore.case = TRUE) {
+subsetSequences <- function(otus.file, otus.names, otus.out.file, regex1="(\\|[0-9]+)", 
+                            regex2="", ignore.case = TRUE, max.seq=NA) {
   require(ShortRead)
   
   otus.fasta <- readFasta(otus.file)
@@ -61,6 +63,12 @@ subsetSequences <- function(otus.file, otus.names, otus.out.file,
   if (length(final.fasta) != length(otus.names))
     stop(cat("The number of extracted sequences", length(final.fasta), 
              "!=", length(otus.names), "given names !\n"))
+  
+  if (! is.na(max.seq) && max.seq > 1 && length(final.fasta) > max.seq) {
+    final.id <- sample(1:length(final.fasta), max.seq, replace=F)
+    final.fasta <- final.fasta[final.id]
+    cat("Set max sequences = ", max.seq, ", so as to randomly extract", length(final.fasta), "sequences in the end.\n")
+  }
   
   writeFasta(final.fasta, otus.out.file)
 }

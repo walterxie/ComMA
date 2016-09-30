@@ -6,7 +6,8 @@
 \title{Utils to manipulate sequences or OTUs}
 \usage{
 subsetSequences(otus.file, otus.names, otus.out.file,
-  regex1 = "(\\\\|[0-9]+)", regex2 = "", ignore.case = TRUE)
+  regex1 = "(\\\\|[0-9]+)", regex2 = "", ignore.case = TRUE,
+  max.seq = NA)
 }
 \arguments{
 \item{otus.file}{The fasta file of OTU representive sequences. 
@@ -22,6 +23,9 @@ Default to \code{regex1="(\\|[0-9]+)", regex2=""},
 which removes size annotation seperated by "|".}
 
 \item{ignore.case}{Refer to \code{\link{gsub}}.}
+
+\item{max.seq}{Give the number (\code{max.seq}) of seleceted sequences randomly in the end. 
+Defaul to NA to ignore it.}
 }
 \description{
 Utils to manipulate sequences or OTUs, 

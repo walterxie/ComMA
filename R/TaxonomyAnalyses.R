@@ -126,6 +126,7 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
     if (! taxa.rank %in% colnames(taxa.ref))
       stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
     if (render.rdp) {
+      # change rdp unclassified to Not assigned to fit in factor
       z$taxa <- gsub("^unclassified$", "Not assigned", z$taxa, ignore.case = T)
       z$taxa <- gsub("^unclassified ", "", z$taxa, ignore.case = T)
     }
@@ -141,12 +142,16 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
   z$gene <- factor(z$gene, ordered = TRUE, levels = gene.levels)
   z$group <- factor(z$group, ordered = TRUE, levels = group.levels)
   if (length(taxa.ref) > 1) {
-    z$taxa <- factor(z$taxa, ordered = TRUE, levels = rev(unique(taxa.ref[,taxa.rank])))
+    taxa.levels <- rev(unique(taxa.ref[,taxa.rank]))
+    if (render.rdp) {
+      # get rdp unclassified back
+      z$taxa <- gsub("Not assigned", "unclassified", z$taxa, ignore.case = T)
+      taxa.levels[taxa.levels=="Not assigned"] <- "unclassified"
+    }
+    z$taxa <- factor(z$taxa, ordered = TRUE, levels = taxa.levels)
   } else {
     taxa.levels <- rev(unique(z[order(z$gene,z$group,z$taxa), "taxa"]))#rev(unique(z$taxa))
     z$taxa <- factor(z$taxa, levels=taxa.levels, ordered=TRUE)
-    if (render.rdp)
-      z$taxa <- gsub("Not assigned", "unclassified", z$taxa, ignore.case = T)
   }
   
   z <- na.omit(z)
