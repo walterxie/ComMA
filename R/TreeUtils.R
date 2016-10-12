@@ -26,17 +26,17 @@
 #' @export
 #' @keywords tree
 #' @examples 
-#' tree1 <- renameTips("RAxML_bestTree.16s.txt", taxa.map, "16s_RAxML.nex")
+#' tree <- read.tree("RAxML_bestTree.16s.txt")
+#' tree1 <- renameTips(tree, taxa.map, "16s_RAxML.nex")
 #' 
 #' @rdname TreeUtils
-annotateRAXMLTree <- function(tree.file, taxa.map, anno.tree.file=NA, no.match="unknown") {
-  if (!file.exists(tree.file)) 
-    stop("Cannot find tree file: ", tree.file, " !")
+annotateRAXMLTree <- function(tree, taxa.map, anno.tree.file="annotated-tree.nex", no.match="unknown") {
+  require(ape)
+  if (!is(tree, "phylo")) 
+    stop("The input tree has to be 'ape' 'phylo' class !")
   if (ncol(taxa.map) < 2) 
     stop("taxa.map must have at least 2 columns, where the 1st column is tree tip label !")
-  
-  require(ape)
-  tree <- read.tree(tree.file)
+
   # match tips
   row.id <- match(tree$tip.label, taxa.map[,1])
   if (all(is.na(row.id))) 
@@ -57,10 +57,13 @@ annotateRAXMLTree <- function(tree.file, taxa.map, anno.tree.file=NA, no.match="
   assignInNamespace("checkLabel", checkLabel2, ns="ape")
   
   write.tree(tree, file=anno.tree.file)
+  # assume 1 tree 1 line
+  trees <- ComMA::readFileLineByLine(anno.tree.file)
   # make file to suit figtree
-  tree1 <- readLines(anno.tree.file)
   cat("#NEXUS", "BEGIN TREES;", file=anno.tree.file, sep = "\n")
-  cat("  tree tree_1 =", tree1, "\n", file=anno.tree.file, append=TRUE)
+  for (t in 1:length(trees)) {
+    cat("  tree", paste0("tree_",t), "=", trees[t], "\n", file=anno.tree.file, append=TRUE)
+  }
   cat("END;\n", file=anno.tree.file, append=TRUE)
   return(tree)
 }

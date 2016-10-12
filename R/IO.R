@@ -183,15 +183,18 @@ mkValidTex <- function(file) {
 #' Read File Line By Line
 #' 
 #' @param file The file to read.
+#' @param rm.empty.line If TRUE, as default, remove all empty lines.
 #' @return 
 #' A character vector of length the number of lines read. Refer to \code{\link{readLines}}.
 #' @keywords IO
 #' @export
 #' @examples 
-#' linn <- readFileLineByLine("time.txt")
-readFileLineByLine <- function(file) {
+#' lines <- readFileLineByLine("time.txt")
+readFileLineByLine <- function(file, rm.empty.line=T) {
   conn <- file(file,open="r")
-  linn <-readLines(conn)
+  lines <-readLines(conn)
+  if (rm.empty.line)
+    lines <- lines[which(ComMA::trimSpace(lines)!="")]
   close(conn)
-  return(linn)
+  return(lines)
 }

@@ -4,10 +4,12 @@
 \alias{readFileLineByLine}
 \title{Read File Line By Line}
 \usage{
-readFileLineByLine(file)
+readFileLineByLine(file, rm.empty.line = T)
 }
 \arguments{
 \item{file}{The file to read.}
+
+\item{rm.empty.line}{If TRUE, as default, remove all empty lines.}
 }
 \value{
 A character vector of length the number of lines read. Refer to \code{\link{readLines}}.
@@ -16,7 +18,7 @@ A character vector of length the number of lines read. Refer to \code{\link{read
 Read File Line By Line
 }
 \examples{
-linn <- readFileLineByLine("time.txt")
+lines <- readFileLineByLine("time.txt")
 }
 \keyword{IO}
 
