@@ -6,7 +6,7 @@
 \usage{
 ggPercentageBarChart(df.to.melt, melt.id, title = "Percentage Bar Chart",
   x.lab = "", y.lab = "", palette = NULL, x.meta.data = NULL,
-  x.text.angle = 90, autoWidth = TRUE, ...)
+  x.text.angle = 90, x.levels = c(), autoWidth = TRUE, ...)
 }
 \arguments{
 \item{df.to.melt}{A data frame required to \code{\link{melt}} before making a percent bar chart,
@@ -19,6 +19,8 @@ For example, \url{https://github.com/walterxie/ComMA/blob/master/data-raw/reads.
 \item{title}{Graph title}
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names.}
+
+\item{x.levels}{The level to order x axis.}
 
 \item{autoWidth}{If TRUE, then use number of bars and legend columns 
 to estimate pdf width automatically. Default to TRUE.}

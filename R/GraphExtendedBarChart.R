@@ -15,6 +15,7 @@
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
 #' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}. 
 #' Default to low="white", high="steelblue".
+#' @param x.levels The level to order x axis.  
 #' @param autoWidth If TRUE, then use number of bars and legend columns 
 #' to estimate pdf width automatically. Default to TRUE.
 #' @param ... Other arguments passed to \code{\link{ggBarChart}}.
@@ -26,7 +27,7 @@
 #' bar.chart$gg.plot
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", 
                                  x.lab="", y.lab="", palette=NULL, x.meta.data=NULL,
-                                 x.text.angle=90, autoWidth=TRUE, ...) {
+                                 x.text.angle=90, x.levels=c(), autoWidth=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
@@ -63,6 +64,13 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
   }
   # number of columns for legend
   legend.col = ceiling(length(legend.ord) / 25)
+  
+  if (length(x.levels)>1) {
+    if (length(x.levels) != length(unique(df.melt$variable)))
+      warning("x.levels length != x unique values !")
+      
+    df.melt$variable <- factor(df.melt$variable, ordered = TRUE, levels = x.levels)
+  }
   
   p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, 
                          bar.pos="fill", y.trans="per", palette=pale, 

@@ -10,7 +10,8 @@
 gtNMDSPlot(comm, attr.df, colour.id = NULL, shape.id = NULL,
   link.id = NULL, text.id = NULL, text.or.point = 3,
   text.size.id = NULL, text.size = 3, distance = "bray", k = 2,
-  title = "NMDS", title.add.stress = TRUE, verbose = TRUE, ...)
+  title = "NMDS", title.add.stress = TRUE, colour.levels = c(),
+  shape.levels = c(), verbose = TRUE, ...)
 
 gtClassicalMDSPlot(dist.comm, attr.df, colour.id = NULL, shape.id = NULL,
   link.id = NULL, text.id = NULL, text.or.point = 3,

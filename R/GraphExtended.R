@@ -93,7 +93,7 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL,
 gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
                        text.id=NULL, text.or.point=3, text.size.id=NULL, text.size=3,
                        distance="bray", k = 2, title="NMDS", title.add.stress=TRUE, 
-                       verbose=TRUE, ...) {
+                       colour.levels=c(), shape.levels=c(), verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
       stop("Invalid attr.df,", paste(rownames(as.matrix(comm)), collapse = ","), 
@@ -141,6 +141,19 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
     text.size=round(df.points.merge[,text.size.id]/min.s, 2)
   }
 
+  if (length(colour.levels)>1) {
+    if (length(colour.levels) != length(unique(df.points.merge[,colour.id])))
+      warning("colour.levels length != ", colour.id, " unique values !")
+    
+    df.points.merge[,colour.id] <- factor(df.points.merge[,colour.id], ordered = TRUE, levels = colour.levels)
+  }
+  if (length(shape.levels)>1) {
+    if (length(shape.levels) != length(unique(df.points.merge[,shape.id])))
+      warning("shape.levels length != ", shape.id, " unique values !")
+    
+    df.points.merge[,shape.id] <- factor(df.points.merge[,shape.id], ordered = TRUE, levels = shape.levels)
+  }
+  
   # Plot MDS ordination
   gg.plot <- ComMA::ggScatterPlot(df.points.merge, x.id="MDS1", y.id="MDS2", 
                                   colour.id=colour.id, shape.id=shape.id, link.id=link.id, 
