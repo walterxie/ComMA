@@ -32,12 +32,12 @@ rmMinAbundance <- function(community.matrix, minAbund=2, MARGIN=1, verbose=TRUE)
     rm <- which(rowSums(community.matrix)<minAbund)
     if (length(rm)>0) 
       community.matrix <- community.matrix[-rm,]
-    msg <- "from rows"
+    msg <- "rows"
   } else if (is.element(2, MARGIN)) {
     rm <- which(colSums(community.matrix)<minAbund)
     if (length(rm)>0) 
       community.matrix <- community.matrix[,-rm]
-    msg <- "from columns"
+    msg <- "columns"
   }
   
   if(verbose) 
