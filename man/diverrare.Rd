@@ -12,7 +12,8 @@ getSubsamplesForDiverRare(cm, sample.size, replicates = 10,
 
 getDiverRare(cm, sample.sizes = 10, replicates = 10,
   levels = rep(c("gamma", "alpha", "beta"), 3), qs = rep(0:2, each = 3),
-  progressBar = TRUE, min.sample.abundance = NA, verbose = TRUE)
+  progressBar = TRUE, min.sample.abundance = NA,
+  non.rarefied.subsamples = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{cm}{The community matrix.}
@@ -43,6 +44,10 @@ which allows to automatically create the vector of subsample sizes ranged by
 
 \item{min.sample.abundance}{If \code{min.sample.abundance} of \code{cm} 
 is smaller than this threshold, then return NULL.}
+
+\item{non.rarefied.subsamples}{If TRUE, as default, the subsamples will include
+non rarefied ones, whose \code{sample.size} > \code{min.sample.abundance}.
+\code{\link{rrarefy}} will also create warnings.}
 }
 \value{
 \code{getSubsamplesForDiverRare} returns a list of results: 

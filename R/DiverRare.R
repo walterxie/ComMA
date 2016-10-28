@@ -84,6 +84,9 @@ getSubsamplesForDiverRare <- function(cm, sample.size, replicates=10, levels=rep
 #' \code{min.sample.abundance} and \code{max.sample.abundance} of \code{cm}   
 #' @param min.sample.abundance If \code{min.sample.abundance} of \code{cm} 
 #' is smaller than this threshold, then return NULL.
+#' @param non.rarefied.subsamples If TRUE, as default, the subsamples will include
+#' non rarefied ones, whose \code{sample.size} > \code{min.sample.abundance}.
+#' \code{\link{rrarefy}} will also create warnings.
 #' @export
 #' @keywords rarefaction
 #' @examples 
@@ -91,21 +94,27 @@ getSubsamplesForDiverRare <- function(cm, sample.size, replicates=10, levels=rep
 #' 
 #' @rdname diverrare
 getDiverRare <- function(cm, sample.sizes=10, replicates=10, levels=rep(c("gamma","alpha","beta"),3), 
-                         qs=rep(0:2,each=3), progressBar=TRUE, min.sample.abundance=NA, verbose=TRUE) {
+                         qs=rep(0:2,each=3), progressBar=TRUE, min.sample.abundance=NA, 
+                         non.rarefied.subsamples=TRUE, verbose=TRUE) {
   require(ComMA)
   summary.cm <- ComMA::summaryCM.Vector(cm)
   rare.max <- summary.cm["max.sample.abun"]
   rare.min <- summary.cm["min.sample.abun"]
-  
+  if (verbose)
+    print(summ)
   if (!is.na(min.sample.abundance) && rare.min < min.sample.abundance) {
     cat("\nWarning: min sample abundance", rare.min, "< threshold", min.sample.abundance, 
         ", return NULL !\n")
     return(NULL)
   }
   if (length(sample.sizes) == 1) {
-    points.mid <- round(sample.sizes/2)
-    sample.sizes <- c(round(exp( seq(log(1), log(rare.min), length.out = points.mid)) )[1:(points.mid-1)], 
-                      round(exp( seq(log(rare.min), log(rare.max), length.out = (sample.sizes-points.mid)) )) ) 
+    if (non.rarefied.subsamples) {
+      points.mid <- round(sample.sizes/2)
+      sample.sizes <- c(round(exp( seq(log(1), log(rare.min), length.out = points.mid)) )[1:(points.mid-1)], 
+                        round(exp( seq(log(rare.min), log(rare.max), length.out = (sample.sizes-points.mid+1)) )) ) 
+    } else {
+      sample.sizes <- round(exp( seq(log(1), log(rare.min), length.out = sample.sizes) ))
+    }
   }
   if (length(sample.sizes) < 6)
     stop("Do not have enough points to plot rarefaction curve, please set bigger points (= ", 
@@ -118,50 +127,4 @@ getDiverRare <- function(cm, sample.sizes=10, replicates=10, levels=rep(c("gamma
   }
 
   return(diver.rare.list)
-}
-
-
-createRDPerSampleTable <- function(expId, isPlot, rmSingleton, taxa.group, pathFileStem, reps=10, min.size=100, verbose=T) {
-  communityMatrix <- getCommunityMatrixT(expId, isPlot, rmSingleton, taxa.group)
-  
-  rare.max <- max(rowSums(communityMatrix))
-  rare.min <- min(rowSums(communityMatrix))
-  
-  if (rare.min < min.size) {
-    cat("\nWarning: min sample size", rare.min, "<", min.size, ", skip", taxa.group, "subset from", matrixNames[expId], ".\n")
-    return(FALSE)
-  }
-  sample.sizes <- c(round(exp(seq(log(1), log(rare.min), length.out = 6)), digits = 0)[1:5], 
-                    round(exp(seq(log(rare.min), log(rare.max), length.out = 6)), digits = 0))
-  
-  if (verbose) {
-    cat("Subsampling: reps =", reps, ", min size allowed", min.size,".\n") 
-    cat("Rarefaction :", matrixNames[expId], taxa.group, ", min =", rare.min, ", max =", rare.max, ".\n") 
-  }
-  
-  alpha0MeanTable <- data.frame(row.names=rownames(communityMatrix), check.names=FALSE)
-  alpha1MeanTable <- data.frame(row.names=rownames(communityMatrix), check.names=FALSE)
-  
-  for (ss in sample.sizes) {
-    if (verbose)
-      cat("sample size =", ss, ".\n") 
-    
-    rdMeanTable <- rrarefyPerSample(communityMatrix, ss, reps)
-    alpha0MeanTable[,paste("size.", ss, sep="")] <- rdMeanTable$alpha0
-    alpha1MeanTable[,paste("size.", ss, sep="")] <- rdMeanTable$alpha1
-  }
-  
-  outputFile <- paste(pathFileStem, "rare", "alpha0", "table.csv", sep = "-") 
-  write.csv(alpha0MeanTable, outputFile, row.names=TRUE, quote=FALSE)
-  
-  if (verbose) 
-    cat("Write file", outputFile, ".\n")
-  
-  outputFile <- paste(pathFileStem, "rare", "alpha1", "table.csv", sep = "-")
-  write.csv(alpha1MeanTable, outputFile, row.names=TRUE, quote=FALSE)
-  
-  if (verbose) 
-    cat("Write file", outputFile, ".\n")
-  
-  return(TRUE)
 }
