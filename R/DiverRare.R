@@ -128,3 +128,33 @@ getDiverRare <- function(cm, sample.sizes=10, replicates=10, levels=rep(c("gamma
 
   return(diver.rare.list)
 }
+
+getMultiDiverRare <- function(..., sample.sizes=10, replicates=10, levels=rep(c("gamma","alpha","beta"),3), 
+                         qs=rep(0:2,each=3), progressBar=TRUE, min.sample.abundance=NA, 
+                         non.rarefied.subsamples=TRUE, verbose=TRUE) {
+                         
+                         
+}
+
+plot.DiverRare <- function(diver.rare.list) {
+  diver.rare.df <- data.frame(stringsAsFactors = F)
+  
+  for (i in 1:length(diver.rare.list)) {
+    diver.rare <- diver.rare.list[[i]]
+    diver.rare.df <- rbind(diver.rare.df, diver.rare$mean)
+  }
+  colnames(diver.rare.df) <- names(diver.rare.list[[1]]$mean)
+  diver.rare.df$sample.size <- as.numeric(gsub("^.*?\\.","",names(diver.rare.list)))
+  
+  require(reshape2)
+  melt.df <- melt(diver.rare.df, id="sample.size")
+  melt.df[,"sample.size"] <- factor(melt.df[,"sample.size"], levels = sort(unique(melt.df[,"sample.size"])))
+  
+  gg.plot <- ComMA::ggLineWithPoints(melt.df[melt.df$variable=="beta1",], x.id="sample.size", y.id="value", group.id="variable", x.scale="discrete", 
+                                     colour.id="variable", shape.id=shape.id, 
+                                     point.data=point.data, line.or.point=line.or.point,
+                                     line.type=line.type, line.alpha=line.alpha,
+                                     title=title, x.lab=x.lab, y.lab=y.lab, 
+                                     verbose=verbose, ...)
+}
+
