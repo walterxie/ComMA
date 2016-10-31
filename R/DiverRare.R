@@ -37,6 +37,9 @@
 #' @rdname diverrare
 getSubsamplesForDiverRare <- function(cm, sample.size, replicates=10, levels=rep(c("gamma","alpha","beta"),3), 
                                qs=rep(0:2,each=3), is.transposed=FALSE, progressBar=TRUE, verbose=TRUE) {
+  if (length(levels) != length(qs))
+    stop("length(levels) != length(qs) !")
+  
   require(ComMA)
   if (!is.transposed)
     cm <- ComMA::transposeDF(cm)
