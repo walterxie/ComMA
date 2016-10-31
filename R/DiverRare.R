@@ -48,7 +48,7 @@ getSubsamplesForDiverRare <- function(cm, sample.size, replicates=10, levels=rep
   }
   if (verbose)
     cat("Subsampling rarefaction at", sample.size, "sample size and", replicates, 
-        "replicates, using Jost diversities :", paste(levels, qs, sep="", collapse=", "), "\n.")
+        "replicates, using Jost diversities :", paste(levels, qs, sep="", collapse=", "), ".\n")
   
   rdt <- matrix(nrow=replicates,ncol=size)
   rownames(rdt) <- 1:replicates
@@ -101,7 +101,7 @@ getDiverRare <- function(cm, sample.sizes=10, replicates=10, levels=rep(c("gamma
   rare.max <- summary.cm["max.sample.abun"]
   rare.min <- summary.cm["min.sample.abun"]
   if (verbose)
-    print(summ)
+    print(summary.cm)
   if (!is.na(min.sample.abundance) && rare.min < min.sample.abundance) {
     cat("\nWarning: min sample abundance", rare.min, "< threshold", min.sample.abundance, 
         ", return NULL !\n")
@@ -120,41 +120,112 @@ getDiverRare <- function(cm, sample.sizes=10, replicates=10, levels=rep(c("gamma
     stop("Do not have enough points to plot rarefaction curve, please set bigger points (= ", 
          points, ") , or more sample.sizes (length = ", length(sample.sizes), ") !\n")
   
-  diver.rare.list <- list()
+  diver.rare <- list()
   for (ss in sample.sizes) {
-    diver.rare.list[[paste("size.", ss, sep="")]] <- ComMA::getSubsamplesForDiverRare(cm, ss, replicates, levels=levels, qs=qs, 
+    diver.rare[[paste("size.", ss, sep="")]] <- ComMA::getSubsamplesForDiverRare(cm, ss, replicates, levels=levels, qs=qs, 
                                                        progressBar=progressBar, verbose=verbose)
   }
-
-  return(diver.rare.list)
+  return(diver.rare)
 }
 
-getMultiDiverRare <- function(..., sample.sizes=10, replicates=10, levels=rep(c("gamma","alpha","beta"),3), 
-                         qs=rep(0:2,each=3), progressBar=TRUE, min.sample.abundance=NA, 
-                         non.rarefied.subsamples=TRUE, verbose=TRUE) {
-                         
-                         
+#' @details \code{getMultiDiverRare} returns a list of rarefaction curves  
+#' calculated from \code{getDiverRare} given a list of community matrices.
+#' Note: every community matrices must not be transposed.
+#' 
+#' @param cm.list The list of community matrices.
+#' @param min.sample.abundance.list The list of \code{min.sample.abundance} 
+#' for each \code{cm}, the default is NA.
+#' @export
+#' @keywords rarefaction
+#' @examples 
+#' multi.diver.rare <- getMultiDiverRare(cm.list, replicates=5)
+#' 
+#' @rdname diverrare
+getMultiDiverRare <- function(cm.list, min.sample.abundance.list=NA, ...) {
+  require(ComMA)
+  multi.diver.rare <- list()
+  names <- names(cm.list)
+  for (i in 1:length(cm.list)) {
+    cat("\nComputing rarefaction curves from community matrix", names[i], "...\n")
+    
+    if (is.na(min.sample.abundance.list)) {
+      diver.rare <- ComMA::getDiverRare(cm.list[[i]], ...)
+    } else {
+      diver.rare <- ComMA::getDiverRare(cm.list[[i]], min.sample.abundance.list[[i]], ...)
+    }
+    if (is.null(names[i]) || is.na(names[i])) {
+      multi.diver.rare[[i]] <- diver.rare
+    } else {
+      multi.diver.rare[[names[i]]] <- diver.rare
+    }
+  }                      
+  return(multi.diver.rare)                       
 }
 
-plot.DiverRare <- function(diver.rare.list) {
+#' @details \code{ggDiverRare} plots the rarefaction curves calculated 
+#' from \code{getDiverRare} given a community matrix, 
+#' or from \code{getMultiDiverRare} given a list of community matrices,
+#' and returns a \code{\link{ggplot}} object.
+#' 
+#' @param diver.rare The rarefaction curves of one or more community matrices.
+#' Use \code{multi.cm} to determine.
+#' @param multi.cm If FALSE, as default, the \code{diver.rare} is calculated  
+#' from one community matrix and no colour, 
+#' otherwise it will be treated as a list of rarefaction curves
+#' from a list of community matrices and coloured by \code{cm}.  
+#' @export
+#' @keywords rarefaction
+#' @examples 
+#' gg.plot <- ggDiverRare(diver.rare)
+#' gg.plot <- ggDiverRare(multi.diver.rare, multi.cm=T, x.trans="log", auto.scale.x=T)
+#' 
+#' @rdname diverrare
+ggDiverRare <- function(diver.rare, multi.cm=FALSE, line.or.point=3, point.size=2,
+                        title="", x.lab="sample size", y.lab="diversity", ...) {
   diver.rare.df <- data.frame(stringsAsFactors = F)
-  
-  for (i in 1:length(diver.rare.list)) {
-    diver.rare <- diver.rare.list[[i]]
-    diver.rare.df <- rbind(diver.rare.df, diver.rare$mean)
+  colour.id <- NULL
+  group.id <- "variable"
+  if (multi.cm) {
+    colour.id <- "dataset"
+    group.id <- colour.id
+    diver.rare <- unlist(diver.rare, recursive=F)
   }
-  colnames(diver.rare.df) <- names(diver.rare.list[[1]]$mean)
-  diver.rare.df$sample.size <- as.numeric(gsub("^.*?\\.","",names(diver.rare.list)))
+  
+  for (i in 1:length(diver.rare)) {
+    means <- diver.rare[[i]]$mean
+    diver.rare.df <- rbind(diver.rare.df, means)
+  }
+  colnames(diver.rare.df) <- names(diver.rare[[1]]$mean)
+  
+  melt.id <- "sample.size"
+  if (multi.cm) {
+    melt.id <- c(melt.id, colour.id)
+    # reomve size. prefix
+    diver.rare.df[,melt.id[1]] <- as.numeric(gsub("^(.*)\\.size\\.(.*)","\\2",names(diver.rare)))
+    # cm names
+    diver.rare.df[,melt.id[2]] <- gsub("^(.*)\\.size\\.(.*)","\\1",names(diver.rare))
+  } else {
+    # reomve size. prefix
+    diver.rare.df[,melt.id] <- as.numeric(gsub("^.*size\\.","",names(diver.rare)))
+  }
   
   require(reshape2)
-  melt.df <- melt(diver.rare.df, id="sample.size")
-  melt.df[,"sample.size"] <- factor(melt.df[,"sample.size"], levels = sort(unique(melt.df[,"sample.size"])))
+  melt.df <- melt(diver.rare.df, id=melt.id)
   
-  gg.plot <- ComMA::ggLineWithPoints(melt.df[melt.df$variable=="beta1",], x.id="sample.size", y.id="value", group.id="variable", x.scale="discrete", 
-                                     colour.id="variable", shape.id=shape.id, 
-                                     point.data=point.data, line.or.point=line.or.point,
-                                     line.type=line.type, line.alpha=line.alpha,
-                                     title=title, x.lab=x.lab, y.lab=y.lab, 
-                                     verbose=verbose, ...)
+  # assign x-axis
+  melt.id <- "sample.size"
+  melt.df[,melt.id] <- factor(melt.df[,melt.id], levels = sort(unique(melt.df[,melt.id])))
+  # avoid Error: Discrete value supplied to continuous scale
+  melt.df[,melt.id] =as.numeric(levels(melt.df[,melt.id]))[melt.df[,melt.id]]
+#  if (multi.cm)
+#    melt.df[,colour.id] <- factor(melt.df[,colour.id], levels = sort(unique(melt.df[,colour.id])))
+  
+  require(ComMA)
+  gg.plot <- ComMA::ggLineWithPoints(melt.df, x.id=melt.id, y.id="value", 
+                                     group.id=group.id, colour.id=colour.id, 
+                                     point.size=point.size, line.or.point=line.or.point,
+                                     x.scale="continuous", x.facet.id="variable", facet.scales="free",
+                                     title=title, x.lab=x.lab, y.lab=y.lab, ...)
+  return(gg.plot)
 }
 

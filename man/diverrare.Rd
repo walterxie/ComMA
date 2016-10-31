@@ -3,7 +3,9 @@
 \name{diverrare}
 \alias{diverrare}
 \alias{getDiverRare}
+\alias{getMultiDiverRare}
 \alias{getSubsamplesForDiverRare}
+\alias{ggDiverRare}
 \title{Rarefaction curves using Jost diversities}
 \usage{
 getSubsamplesForDiverRare(cm, sample.size, replicates = 10,
@@ -14,6 +16,12 @@ getDiverRare(cm, sample.sizes = 10, replicates = 10,
   levels = rep(c("gamma", "alpha", "beta"), 3), qs = rep(0:2, each = 3),
   progressBar = TRUE, min.sample.abundance = NA,
   non.rarefied.subsamples = TRUE, verbose = TRUE)
+
+getMultiDiverRare(cm.list, min.sample.abundance.list = NA, ...)
+
+ggDiverRare(diver.rare, multi.cm = FALSE, line.or.point = 3,
+  point.size = 2, title = "", x.lab = "sample size",
+  y.lab = "diversity", ...)
 }
 \arguments{
 \item{cm}{The community matrix.}
@@ -48,6 +56,19 @@ is smaller than this threshold, then return NULL.}
 \item{non.rarefied.subsamples}{If TRUE, as default, the subsamples will include
 non rarefied ones, whose \code{sample.size} > \code{min.sample.abundance}.
 \code{\link{rrarefy}} will also create warnings.}
+
+\item{cm.list}{The list of community matrices.}
+
+\item{min.sample.abundance.list}{The list of \code{min.sample.abundance} 
+for each \code{cm}, the default is NA.}
+
+\item{diver.rare}{The rarefaction curves of one or more community matrices.
+Use \code{multi.cm} to determine.}
+
+\item{multi.cm}{If FALSE, as default, the \code{diver.rare} is calculated
+from one community matrix and no colour, 
+otherwise it will be treated as a list of rarefaction curves
+from a list of community matrices and coloured by \code{cm}.}
 }
 \value{
 \code{getSubsamplesForDiverRare} returns a list of results: 
@@ -66,11 +87,25 @@ the rarefaction using Jost diversities, given a community matrix.
 \code{getDiverRare} returns a list of subsamples calculated 
 from \code{getSubsamplesForDiverRare} given a community matrix.
 Note: this community matrix must not be transposed.
+
+\code{getMultiDiverRare} returns a list of rarefaction curves  
+calculated from \code{getDiverRare} given a list of community matrices.
+Note: every community matrices must not be transposed.
+
+\code{ggDiverRare} plots the rarefaction curves calculated 
+from \code{getDiverRare} given a community matrix, 
+or from \code{getMultiDiverRare} given a list of community matrices,
+and returns a \code{\link{ggplot}} object.
 }
 \examples{
 diver.rare <- getSubsamplesForDiverRare(cm, 2000, 5)
 
 diver.rare <- getDiverRare(cm, replicates=5)
+
+multi.diver.rare <- getMultiDiverRare(cm.list, replicates=5)
+
+gg.plot <- ggDiverRare(diver.rare)
+gg.plot <- ggDiverRare(multi.diver.rare, multi.cm=T, x.trans="log", auto.scale.x=T)
 
 }
 \keyword{rarefaction}

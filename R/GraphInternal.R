@@ -42,7 +42,9 @@ ggInit <- function(df, x.id, y.id=NULL, fill.id=NULL, group.id=NULL, colour.id=N
 }
 
 # reformulate(fac2,fac1) => fac1 ~ fac2
-ggOptFacetGrid <- function(p, col.names, x.facet.id=NULL, y.facet.id=NULL, verbose=TRUE) {
+ggOptFacetGrid <- function(p, col.names, x.facet.id=NULL, y.facet.id=NULL, 
+                           scales = "fixed", space = "fixed", shrink = TRUE, 
+                           drop = TRUE, verbose=TRUE) {
   if (! is.null(x.facet.id) || ! is.null(y.facet.id)) {
     fac1 <- "."
     fac2 <- "."
@@ -60,7 +62,8 @@ ggOptFacetGrid <- function(p, col.names, x.facet.id=NULL, y.facet.id=NULL, verbo
     if (verbose)
       cat("facet_grid(", deparse(reformulate(fac2,fac1)), ").\n")
     
-    p <- p + facet_grid(reformulate(fac2,fac1))
+    p <- p + facet_grid(reformulate(fac2,fac1), scales = scales, 
+                        space = space, shrink = shrink, drop = drop)
   }
   return(p)
 }

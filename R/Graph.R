@@ -446,7 +446,8 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
                              shape.id=NULL, shapes=NULL, line.or.point=3, 
                              line.size=0.5, line.type = 1, line.alpha=1, 
                              point.data=NULL, point.size=3, point.alpha=1,
-                             x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
+                             x.facet.id=NULL, y.facet.id=NULL, facet.scales="fixed", 
+                             facet.space="fixed", facet.shrink=TRUE, facet.drop = TRUE,
                              x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
                              y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
                              text.id=NULL, text.data = NULL, text.size = 3, 
@@ -456,7 +457,7 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
                              legend.title.shape=NULL, legend.col=1, legend.row=0, 
                              title="", title.size = 10, x.lab=NULL, y.lab=NULL, 
                              no.legend=NULL, legend.position="right", legend.direction="vertical",
-                             x.text.angle=0, x.text=TRUE, y.text=TRUE, 
+                             coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE, 
                              no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, group.id=group.id, colour.id=colour.id, verbose=verbose)
   col.names <- colnames(df)
@@ -490,6 +491,10 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
     p <- ggOptScaleAxis(p, axis="y", scale=y.scale, trans=y.trans, 
                         verbose=verbose)
   }
+  
+  p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, y.facet.id=y.facet.id, 
+                      scales=facet.scales, space=facet.space, shrink=facet.shrink, 
+                      drop=facet.drop, verbose=verbose)
   
   p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
                  text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
