@@ -50,7 +50,7 @@ subsetSequences <- function(otus.file, otus.names, otus.out.file, regex1="(\\|[0
   if (! is(otus.names, "character"))
     otus.names <- as.character(otus.names)
   
-  final.fasta <- otus.fasta[(otus.id %in% otus.names),]
+  final.fasta <- otus.fasta[(fasta.id %in% otus.names),]
   
   cat("Extract", length(final.fasta), "sequences from total", length(otus.fasta), 
       "by given", length(otus.names), "sequence names.\n")
