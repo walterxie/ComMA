@@ -19,8 +19,8 @@ getDiverRare(cm, sample.sizes = 10, replicates = 10,
 
 getMultiDiverRare(cm.list, min.sample.abundance.list = NA, ...)
 
-ggDiverRare(diver.rare, multi.cm = FALSE, line.or.point = 3,
-  point.size = 2, title = "", x.lab = "sample size",
+ggDiverRare(diver.rare, multi.cm = FALSE, diversity = c(),
+  line.or.point = 3, point.size = 2, title = "", x.lab = "sample size",
   y.lab = "diversity", ...)
 }
 \arguments{
@@ -69,6 +69,10 @@ Use \code{multi.cm} to determine.}
 from one community matrix and no colour, 
 otherwise it will be treated as a list of rarefaction curves
 from a list of community matrices and coloured by \code{cm}.}
+
+\item{diversity}{The vector of diversity included in the graph, 
+such as \code{c("gamma0","alpha0","beta1")}. The default is empty vector 
+to inlcude all diversities in \code{diver.rare}.}
 }
 \value{
 \code{getSubsamplesForDiverRare} returns a list of results: 

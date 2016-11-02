@@ -176,6 +176,9 @@ getMultiDiverRare <- function(cm.list, min.sample.abundance.list=NA, ...) {
 #' from one community matrix and no colour, 
 #' otherwise it will be treated as a list of rarefaction curves
 #' from a list of community matrices and coloured by \code{cm}.  
+#' @param diversity The vector of diversity included in the graph, 
+#' such as \code{c("gamma0","alpha0","beta1")}. The default is empty vector 
+#' to inlcude all diversities in \code{diver.rare}. 
 #' @export
 #' @keywords rarefaction
 #' @examples 
@@ -183,7 +186,8 @@ getMultiDiverRare <- function(cm.list, min.sample.abundance.list=NA, ...) {
 #' gg.plot <- ggDiverRare(multi.diver.rare, multi.cm=T, x.trans="log", auto.scale.x=T)
 #' 
 #' @rdname diverrare
-ggDiverRare <- function(diver.rare, multi.cm=FALSE, line.or.point=3, point.size=2,
+ggDiverRare <- function(diver.rare, multi.cm=FALSE, diversity=c(),
+                        line.or.point=3, point.size=2,
                         title="", x.lab="sample size", y.lab="diversity", ...) {
   diver.rare.df <- data.frame(stringsAsFactors = F)
   colour.id <- NULL
@@ -214,6 +218,9 @@ ggDiverRare <- function(diver.rare, multi.cm=FALSE, line.or.point=3, point.size=
   
   require(reshape2)
   melt.df <- melt(diver.rare.df, id=melt.id)
+  # diversity filter to give different graph
+  if (length(diversity) > 0)
+    melt.df <- melt.df[melt.id$variable %in% diversity,]
   
   # assign x-axis
   melt.id <- "sample.size"
