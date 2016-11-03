@@ -1,7 +1,7 @@
 # Author: Walter Xie
 # Accessed on 11 Apr 2016
 
-#' @name utilsTaxa
+#' @name TaxaUtils
 #' @title Utils to preprocess taxa table
 #'
 #' @description Utils to preprocess taxa table, 
@@ -32,7 +32,7 @@
 #' tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Proteobacteria", rank="phylum")
 #' tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
 #' 
-#' @rdname utilsTaxa
+#' @rdname TaxaUtils
 subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", include=TRUE) {
   # get attr if taxa.table is cm.taxa
   attrs <- attributes(taxa.table)
@@ -66,7 +66,7 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
 #' @examples 
 #' sub.cm <- subsetCM(cm, tt, taxa.group="BACTERIA", rank="kingdom")
 #' 
-#' @rdname utilsTaxa 
+#' @rdname TaxaUtils 
 subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA, 
                      col.ranks=c("kingdom", "phylum", "class", "order", "family")) {
   if (is.na(taxa.group) || is.na(rank))
@@ -94,7 +94,7 @@ subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA,
 #' @examples 
 #' tt <- prepTaxonomy(taxa.table, col.ranks=c("kingdom", "phylum", "class"))
 #' 
-#' @rdname utilsTaxa 
+#' @rdname TaxaUtils 
 prepTaxonomy <- function(taxa.table, col.ranks=c("kingdom", "phylum", "class", "order", "family"),
                          txt.unclassified="unclassified", verbose=TRUE,
                          pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))") {
@@ -182,7 +182,7 @@ prepTaxonomy <- function(taxa.table, col.ranks=c("kingdom", "phylum", "class", "
 #' 
 #' @keywords taxonomy
 #' @export
-#' @rdname utilsTaxa
+#' @rdname TaxaUtils
 mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"), min.conf=0.8, 
                         has.total=1, sort=TRUE, preprocess=TRUE, verbose=TRUE, 
                         mv.row.names=T, pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))",
@@ -297,7 +297,7 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
 #' ta.rdp <- assignTaxaByRank(cm.taxa, unclassified=2)
 #' colSums(ta.rdp[["phylum"]])
 #' 
-#' @rdname utilsTaxa
+#' @rdname TaxaUtils
 assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum, 
                              pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))") {
   attr.cm.ta <- attributes(cm.taxa)
@@ -399,7 +399,7 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum,
 #' taxa.members <- groupsTaxaMembers(ta.rdp[["phylum"]], tt.rdp)
 #' taxa.members <- groupsTaxaMembers(ta.rdp[["family"]], tt.rdp, rank="family")
 #' 
-#' @rdname utilsTaxa
+#' @rdname TaxaUtils
 groupsTaxaMembers <- function(taxa.assign, cm.taxa, rank="phylum", rm.unclassified=TRUE,
                               regex1="(\\|[0-9]+)", regex2="", ignore.case=TRUE, 
                               verbose=TRUE) {
