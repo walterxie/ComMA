@@ -184,7 +184,7 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
 }
 
 #' @details 
-#' \code{sumReadsOTUs} is a high-level function to use \code{getCountSums} sumarise counts,
+#' \code{sumReadsOTUs} is a high-level function to use \code{getCountSums} to sumarise counts,
 #' and call \code{plotTaxonomy} to plot figure.
 #' 
 #' @param cm.taxa.list A list of \code{cm.taxa} merged by \code{\link{mergeCMTaxa}}. 

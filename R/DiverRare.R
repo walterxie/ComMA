@@ -220,7 +220,7 @@ ggDiverRare <- function(diver.rare, multi.cm=FALSE, diversity=c(),
   melt.df <- melt(diver.rare.df, id=melt.id)
   # diversity filter to give different graph
   if (length(diversity) > 0)
-    melt.df <- melt.df[melt.id$variable %in% diversity,]
+    melt.df <- melt.df[melt.df$variable %in% diversity,]
   
   # assign x-axis
   melt.id <- "sample.size"

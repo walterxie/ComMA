@@ -94,7 +94,7 @@ Diamonds represent the number of sequences,
 open circles the number of OTUs including singleton OTUs, 
 and filled circles the number of OTUs excluding singleton OTUs.
 
-\code{sumReadsOTUs} is a high-level function to use \code{getCountSums} sumarise counts,
+\code{sumReadsOTUs} is a high-level function to use \code{getCountSums} to sumarise counts,
 and call \code{plotTaxonomy} to plot figure.
 }
 \examples{
