@@ -15,14 +15,15 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.interval = 0, x.trans = "identity",
   x.scale = "discrete", auto.scale.x = FALSE, y.trans = "identity",
   y.scale = "continuous", auto.scale.y = FALSE, x.facet.id = NULL,
-  y.facet.id = NULL, coord.flip = FALSE, xintercept = NULL,
+  y.facet.id = NULL, facet.scales = "fixed", facet.space = "fixed",
+  facet.shrink = TRUE, facet.drop = TRUE, xintercept = NULL,
   yintercept = NULL, line.type = 2, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title = NULL,
   legend.col = 1, legend.row = 0, title = "Bar Chart", title.size = 10,
   x.lab = NULL, y.lab = NULL, no.legend = NULL,
   legend.position = "right", legend.direction = "vertical",
-  x.text.angle = 0, x.text = TRUE, y.text = TRUE, plot.margin.cm = NULL,
-  no.panel.border = FALSE, verbose = TRUE)
+  coord.flip = FALSE, x.text.angle = 0, x.text = TRUE, y.text = TRUE,
+  plot.margin.cm = NULL, no.panel.border = FALSE, verbose = TRUE)
 
 ggHistogram(df, x.id, fill.id = NULL, bar.pos = "stack", bins = NULL,
   binwidth = NULL, x.interval = 0, x.trans = "identity",
@@ -44,14 +45,15 @@ ggScatterPlot(df, x.id, y.id, colour.id = NULL, shape.id = NULL,
   text.or.point = 2, text.avoid.overlap = FALSE, x.trans = "identity",
   x.scale = "continuous", auto.scale.x = FALSE, y.trans = "identity",
   y.scale = "continuous", auto.scale.y = FALSE, x.facet.id = NULL,
-  y.facet.id = NULL, coord.flip = FALSE, xintercept = NULL,
+  y.facet.id = NULL, facet.scales = "fixed", facet.space = "fixed",
+  facet.shrink = TRUE, facet.drop = TRUE, xintercept = NULL,
   yintercept = NULL, line.type = 2, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title.colour = NULL,
   legend.title.shape = NULL, legend.title.size = NULL, legend.col = 1,
   legend.row = 0, title = "Scatter Plot", title.size = 10, x.lab = NULL,
   y.lab = NULL, no.legend = NULL, legend.position = "right",
-  legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
-  y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
+  legend.direction = "vertical", coord.flip = FALSE, x.text.angle = 0,
+  x.text = TRUE, y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   shape.id = NULL, shapes = NULL, line.or.point = 3, line.size = 0.5,
@@ -129,10 +131,6 @@ Built-in transformations include "asn", "atanh", "boxcox", "exp", "identity",
 \item{x.facet.id, }{y.facet.id The string of column names in \code{df},
 which creates facets (a formula) in \code{\link{facet_grid}}.}
 
-\item{coord.flip}{If TRUE, then flip cartesian coordinates so that horizontal 
-becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
-\code{\link{coord_flip}}.}
-
 \item{xintercept, yintercept, linetype}{Add horizontal or vertical line. 
 Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.}
 
@@ -164,6 +162,10 @@ Set x.lab="" to remove x-axis label from the plot. Default to NULL to do nothing
 
 \item{no.legend}{Turning off some legends, such as, fill, shape, colour. 
 Default to NULL, which is to do nothing.}
+
+\item{coord.flip}{If TRUE, then flip cartesian coordinates so that horizontal 
+becomes vertical, and vertical becomes horizontal. Default to FALSE. Refer to 
+\code{\link{coord_flip}}.}
 
 \item{x.text, y.text}{If FALSE, then hide x or y axis labels in plot. 
 Default to TRUE.}

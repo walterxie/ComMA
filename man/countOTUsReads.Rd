@@ -84,8 +84,9 @@ and bar chart for visualization.
 "sum.2" is reads excluding singletons.
 }
 \details{
-\code{getCountSums} return a list of counts of OTUs and reads given a list of
-data sets.
+\code{getCountSums} return an unkeyed \code{\link{data.table}} by \code{\link{rbindlist}},
+concatenating counts of OTUs and reads given a list of data sets.
+Note: the type of the returned object is \code{\link{list}}.
 
 \code{plotTaxonomy} makes a plot of OTU and sequence counts by taxonomic group 
 sumarised by \code{getCountSums}.

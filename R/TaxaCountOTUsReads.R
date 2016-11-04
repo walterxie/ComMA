@@ -15,8 +15,9 @@
 #' "sum.2" is reads excluding singletons. 
 #' 
 #' @details 
-#' \code{getCountSums} return a list of counts of OTUs and reads given a list of
-#' data sets.
+#' \code{getCountSums} return an unkeyed \code{\link{data.table}} by \code{\link{rbindlist}},
+#' concatenating counts of OTUs and reads given a list of data sets.
+#' Note: the type of the returned object is \code{\link{list}}.
 #' 
 #' @param ... Input of a list of community matrices, or comma separated multi-inputs.
 #' @param input.list Default to TRUE to unwrap list(...) to 
@@ -59,7 +60,7 @@ getCountSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank="
                           data=OTU.sums[OTU.sums$total > 0,], FUN=function(x) sum(x>0))
     counts.2 <- aggregate(as.formula(paste("total ~", taxa.rank, "+", group.rank)), 
                           data=OTU.sums[OTU.sums$total > 1,], FUN=function(x) sum(x>0))
-    require(data.table)
+    
     counts.sums <- merge(counts.1, sums.1, by = c(taxa.rank, group.rank))
     counts.sums.2 <- merge(counts.2, sums.2, by = c(taxa.rank, group.rank))
     counts.sums <- merge(counts.sums, counts.sums.2, by = c(taxa.rank, group.rank), all = TRUE)

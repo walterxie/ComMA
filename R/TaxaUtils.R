@@ -165,8 +165,8 @@ prepTaxonomy <- function(taxa.table, col.ranks=c("kingdom", "phylum", "class", "
 #' or mark OTUs as 'unclassified' in RDP result whose confidence < \code{min.conf} threshold. 
 #' @param col.ranks A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 #' which will determine the aggregated abundence matrix. They have to be full set or subset of 
-#' c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species"). 
-#' Default to c("kingdom", "phylum", "class", "order", "family").
+#' \code{c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species")}. 
+#' Default to \code{c("kingdom", "phylum", "class", "order", "family")}.
 #' @param sort Sort the taxonomy rank by rank. Default to TRUE.
 #' @param mv.row.names Default to TRUE to move the column 'Row.names' 
 #' created by \code{\link{merge}} into data frame row.names, 
@@ -283,7 +283,7 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
 #' but also merge all the rest "unclassified ???" to "unclassified rank",
 #' such as "unclassified family".
 #' If 3, then remove every rows containing "unclassified".
-#' if 4, then do nothing.
+#' If 4, then do nothing.
 #' @param aggre.FUN A function for \code{FUN} in \code{\link{aggregate}}. 
 #' Default to \code{sum} to provide the reads abundance. 
 #' Make \code{aggre.FUN=function(x) sum(x>0)} provide the OTU abundance.
@@ -370,6 +370,57 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum,
   }
   return(ta.list)
 }
+
+#' @details 
+#' \code{summaryTaxaAssign} summarises the number of reads, OTUs, and taxonomy
+#' from the result of \code{assignTaxaByRank}.
+#' 
+#' @param ta.list,ta.OTU.list The list of taxonomic assignments 
+#' created by \code{assignTaxaByRank} based on either number of reads or OTUs. 
+#' @param exclude.rank The first n elements (ranks) to exclude from the summary, default to -1, 
+#' which is normally the kingdom.
+#' @param exclude.unclassified Default to TRUE, not to count the taxonomy 
+#' having the "unclassified" keyword.
+#' @param sort.rank The order used to sort the summary dataframe by "rank" column, 
+#' default to \code{c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species")}.
+#' @keywords taxonomy
+#' @export
+#' @examples 
+#' summary.ta.df <- summaryTaxaAssign(ta.list, ta.OTU.list)
+#' 
+#' @rdname TaxaUtils
+summaryTaxaAssign <- function(ta.list, ta.OTU.list, exclude.rank=c(-1), exclude.unclassified=TRUE, 
+                              sort.rank=getRanks()) {
+  ranks <- names(ta.list)
+  if (any(ranks != names(ta.OTU.list)))
+    stop("Two taxa assignments need to have same ranks !")
+  
+  # [-1] excludes kingdom
+  reads.df <- ldply(ta.list[exclude.rank], rbind, .id="rank")
+  otus.df <- ldply(ta.OTU.list[exclude.rank], rbind, .id="rank")
+  if (exclude.unclassified) {
+    reads.df <- subset(reads.df, !grepl("unclassified", unlist(lapply(ta.list, rownames)), ignore.case = T))
+    otus.df <- subset(otus.df, !grepl("unclassified", unlist(lapply(ta.OTU.list, rownames)), ignore.case = T))
+  }
+  
+  if ( (!"total" %in% colnames(reads.df)) || (!"total" %in% colnames(otus.df)) )
+    stop("Invalid taxa assignments inputs: no column 'total' !")
+  
+  reads <- aggregate(total ~ rank, data=reads.df, FUN=sum)
+  otus <- aggregate(total ~ rank, data=otus.df, FUN=sum)
+  taxa <- aggregate(total ~ rank, data=reads.df, FUN=function(x) sum(x>0))
+  
+  summary.df <- merge(reads, otus, by="rank", all = T)
+  summary.df <- merge(summary.df, taxa, by="rank", all = T)
+  colnames(summary.df) <- c("rank", "reads", "OTUs", "taxa")
+  
+  if (!any(unique(summary.df$rank) %in% sort.rank))
+    stop("Find extra rank(s) : ", paste(setdiff(unique(summary.df$rank), sort.rank), collapse = ","), 
+         " when sorting !\nAdd them to 'sort.rank'")
+  summary.df <- summary.df[match(sort.rank, summary.df$rank, nomatch=0),]
+  return(summary.df)
+}
+
 
 #' @details 
 #' \code{groupsTaxaMembers} groups the members (rows, also OTUs) from 

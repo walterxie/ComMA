@@ -126,20 +126,22 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL,
                        bar.pos="dodge", bar.stat="identity", x.interval=0, 
                        x.trans="identity", x.scale="discrete", auto.scale.x=FALSE, 
                        y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
-                       x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
+                       x.facet.id=NULL, y.facet.id=NULL, facet.scales="fixed", 
+                       facet.space="fixed", facet.shrink=TRUE, facet.drop = TRUE,
                        xintercept=NULL, yintercept=NULL, line.type=2,
                        x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                        legend.title=NULL, legend.col=1, legend.row=0, 
                        title="Bar Chart", title.size=10, x.lab=NULL, y.lab=NULL, 
                        no.legend=NULL, legend.position="right", legend.direction="vertical",
-                       x.text.angle=0, x.text=TRUE, y.text=TRUE, 
+                       coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE, 
                        plot.margin.cm=NULL, no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, verbose=verbose)
   p <- p + geom_bar(position=bar.pos, stat=bar.stat) 
   
   col.names <- colnames(df)
-  p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, 
-                      y.facet.id=y.facet.id, verbose=verbose)
+  p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, y.facet.id=y.facet.id, 
+                      scales=facet.scales, space=facet.space, shrink=facet.shrink, 
+                      drop=facet.drop, verbose=verbose)
   
   if (auto.scale.x) {
     x.max <- max(df[,x.id])
@@ -309,14 +311,15 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                           text.or.point=2, text.avoid.overlap = FALSE,
                           x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
                           y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
-                          x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
+                          x.facet.id=NULL, y.facet.id=NULL, facet.scales="fixed", 
+                          facet.space="fixed", facet.shrink=TRUE, facet.drop = TRUE,
                           xintercept=NULL, yintercept=NULL, line.type=2,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                           legend.title.colour=NULL, legend.title.shape=NULL,
                           legend.title.size=NULL, legend.col=1, legend.row=0,  
                           title="Scatter Plot", title.size = 10, x.lab=NULL, y.lab=NULL, 
                           no.legend=NULL, legend.position="right", legend.direction="vertical",
-                          x.text.angle=0, x.text=TRUE, y.text=TRUE, 
+                          coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE, 
                           no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id, verbose=verbose)
   col.names <- colnames(df)
@@ -354,8 +357,9 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
                    text.alpha=text.alpha, text.avoid.overlap=text.avoid.overlap, verbose=verbose)
   }
   
-  p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, 
-                      y.facet.id=y.facet.id, verbose=verbose)
+  p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, y.facet.id=y.facet.id, 
+                      scales=facet.scales, space=facet.space, shrink=facet.shrink, 
+                      drop=facet.drop, verbose=verbose)
   
   p <- ggOptEllipse(p, col.names, ellipsed.id=ellipsed.id)
   

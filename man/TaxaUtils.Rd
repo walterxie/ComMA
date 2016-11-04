@@ -8,6 +8,7 @@
 \alias{prepTaxonomy}
 \alias{subsetCM}
 \alias{subsetTaxaTable}
+\alias{summaryTaxaAssign}
 \title{Utils to preprocess taxa table}
 \usage{
 subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
@@ -28,6 +29,9 @@ mergeCMTaxa(community.matrix, taxa.table, classifier = c("MEGAN", "RDP"),
 
 assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum,
   pattern = "(\\\\s\\\\[|\\\\()(\\\\=|\\\\.|\\\\,|\\\\s|\\\\w|\\\\?)*(\\\\]|\\\\))")
+
+summaryTaxaAssign(ta.list, ta.OTU.list, exclude.rank = c(-1),
+  exclude.unclassified = TRUE, sort.rank = getRanks())
 
 groupsTaxaMembers(taxa.assign, cm.taxa, rank = "phylum",
   rm.unclassified = TRUE, regex1 = "(\\\\|[0-9]+)", regex2 = "",
@@ -58,8 +62,8 @@ OTUs or individual species and columns are sites or samples. See \code{\link{Com
 
 \item{col.ranks}{A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 which will determine the aggregated abundence matrix. They have to be full set or subset of 
-c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species"). 
-Default to c("kingdom", "phylum", "class", "order", "family").}
+\code{c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species")}. 
+Default to \code{c("kingdom", "phylum", "class", "order", "family")}.}
 
 \item{txt.unclassified}{The key word to represent unclassified taxonomy.}
 
@@ -108,11 +112,23 @@ If 2, then remove the row whose taxon name is exact "unclassified",
 but also merge all the rest "unclassified ???" to "unclassified rank",
 such as "unclassified family".
 If 3, then remove every rows containing "unclassified".
-if 4, then do nothing.}
+If 4, then do nothing.}
 
 \item{aggre.FUN}{A function for \code{FUN} in \code{\link{aggregate}}. 
 Default to \code{sum} to provide the reads abundance. 
 Make \code{aggre.FUN=function(x) sum(x>0)} provide the OTU abundance.}
+
+\item{ta.list, ta.OTU.list}{The list of taxonomic assignments 
+created by \code{assignTaxaByRank} based on either number of reads or OTUs.}
+
+\item{exclude.rank}{The first n elements (ranks) to exclude from the summary, default to -1, 
+which is normally the kingdom.}
+
+\item{exclude.unclassified}{Default to TRUE, not to count the taxonomy 
+having the "unclassified" keyword.}
+
+\item{sort.rank}{The order used to sort the summary dataframe by "rank" column, 
+default to \code{c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species")}.}
 
 \item{taxa.assign}{The data frame of taxonomic assignments with abundance
 at the \code{rank}, where rownames are taxonomy at that rank, 
@@ -170,6 +186,9 @@ at that rank, and columns are the sample names (may include total).
 The function is iterated through \code{col.ranks}, and \code{\link{aggregate}}s 
 abundance into taxonomy based on the rank in \code{col.ranks}.
 
+\code{summaryTaxaAssign} summarises the number of reads, OTUs, and taxonomy
+from the result of \code{assignTaxaByRank}.
+
 \code{groupsTaxaMembers} groups the members (rows, also OTUs) from 
 \code{cm.taxa} for each taxa in \code{taxa.assign} at the \code{rank}, 
 and returns a list of members (OTUs) grouped by taxonomy. 
@@ -195,6 +214,8 @@ ta.megan <- assignTaxaByRank(cm.taxa)
 cm.taxa <- mergeCMTaxa(community.matrix, tt.rdp, classifier="RDP", has.total=0)
 ta.rdp <- assignTaxaByRank(cm.taxa, unclassified=2)
 colSums(ta.rdp[["phylum"]])
+
+summary.ta.df <- summaryTaxaAssign(ta.list, ta.OTU.list)
 
 taxa.members <- groupsTaxaMembers(ta.rdp[["phylum"]], tt.rdp)
 taxa.members <- groupsTaxaMembers(ta.rdp[["family"]], tt.rdp, rank="family")
