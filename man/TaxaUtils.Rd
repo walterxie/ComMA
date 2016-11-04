@@ -119,7 +119,9 @@ Default to \code{sum} to provide the reads abundance.
 Make \code{aggre.FUN=function(x) sum(x>0)} provide the OTU abundance.}
 
 \item{ta.list, ta.OTU.list}{The list of taxonomic assignments 
-created by \code{assignTaxaByRank} based on either number of reads or OTUs.}
+created by \code{assignTaxaByRank} based on either number of reads or OTUs, 
+where 'total' column is required. 
+See \code{has.total} in \code{mergeCMTaxa} for the detail to get the total.}
 
 \item{exclude.rank}{The first n elements (ranks) to exclude from the summary, default to -1, 
 which is normally the kingdom.}

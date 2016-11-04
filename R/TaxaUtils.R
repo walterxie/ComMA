@@ -376,7 +376,9 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum,
 #' from the result of \code{assignTaxaByRank}.
 #' 
 #' @param ta.list,ta.OTU.list The list of taxonomic assignments 
-#' created by \code{assignTaxaByRank} based on either number of reads or OTUs. 
+#' created by \code{assignTaxaByRank} based on either number of reads or OTUs, 
+#' where 'total' column is required. 
+#' See \code{has.total} in \code{mergeCMTaxa} for the detail to get the total.
 #' @param exclude.rank The first n elements (ranks) to exclude from the summary, default to -1, 
 #' which is normally the kingdom.
 #' @param exclude.unclassified Default to TRUE, not to count the taxonomy 
