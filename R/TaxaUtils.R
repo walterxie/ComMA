@@ -408,11 +408,11 @@ summaryTaxaAssign <- function(ta.list, ta.OTU.list, exclude.rank=c(-1), exclude.
   
   reads <- aggregate(total ~ rank, data=reads.df, FUN=sum)
   otus <- aggregate(total ~ rank, data=otus.df, FUN=sum)
-  taxa <- aggregate(total ~ rank, data=reads.df, FUN=function(x) sum(x>0))
+  taxonomy <- aggregate(total ~ rank, data=reads.df, FUN=function(x) sum(x>0))
   
   summary.df <- merge(reads, otus, by="rank", all = T)
-  summary.df <- merge(summary.df, taxa, by="rank", all = T)
-  colnames(summary.df) <- c("rank", "reads", "OTUs", "taxa")
+  summary.df <- merge(summary.df, taxonomy, by="rank", all = T)
+  colnames(summary.df) <- c("rank", "reads", "OTUs", "taxonomy")
   
   if (!any(unique(summary.df$rank) %in% sort.rank))
     stop("Find extra rank(s) : ", paste(setdiff(unique(summary.df$rank), sort.rank), collapse = ","), 
