@@ -398,6 +398,7 @@ summaryTaxaAssign <- function(ta.list, ta.OTU.list, exclude.rank=c(-1), exclude.
     stop("Two taxa assignments need to have same ranks !")
   
   # [-1] excludes kingdom
+  require(plyr)
   reads.df <- ldply(ta.list[exclude.rank], rbind, .id="rank")
   otus.df <- ldply(ta.OTU.list[exclude.rank], rbind, .id="rank")
   if (exclude.unclassified) {
@@ -423,6 +424,9 @@ summaryTaxaAssign <- function(ta.list, ta.OTU.list, exclude.rank=c(-1), exclude.
   return(summary.df)
 }
 
+summaryRank <- function(taxa.assign, rank="", exclude.unclassified=TRUE) {
+
+}
 
 #' @details 
 #' \code{groupsTaxaMembers} groups the members (rows, also OTUs) from 

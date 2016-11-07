@@ -26,8 +26,9 @@
 #' bar.chart <- ggPercentageBarChart(reads.phyla, melt.id="TaxaGroup")
 #' bar.chart$gg.plot
 ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Chart", 
-                                 x.lab="", y.lab="", palette=NULL, x.meta.data=NULL,
-                                 x.text.angle=90, x.levels=c(), autoWidth=TRUE, ...) {
+                                 x.lab="", y.lab="", palette=NULL, colour.levels=c(),
+                                 x.levels=c(), x.meta.data=NULL, x.text.angle=90, 
+                                 autoWidth=TRUE, ...) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop(paste0("Data frame column names do NOT have \"", melt.id, "\" for melt function !"))
   
@@ -70,6 +71,12 @@ ggPercentageBarChart <- function(df.to.melt, melt.id, title="Percentage Bar Char
       warning("x.levels length != x unique values !")
       
     df.melt$variable <- factor(df.melt$variable, ordered = TRUE, levels = x.levels)
+  }
+  if (length(colour.levels)>1) {
+    if (length(colour.levels) != length(unique(df.melt[,melt.id])))
+      warning("colour.levels length != x unique values !")
+    
+    df.melt[,melt.id] <- factor(df.melt[,melt.id], ordered = TRUE, levels = colour.levels)
   }
   
   p <- ComMA::ggBarChart(df.melt, x.id="variable", y.id="value", fill.id=melt.id, 

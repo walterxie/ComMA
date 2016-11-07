@@ -5,8 +5,9 @@
 \title{Percentage Bar}
 \usage{
 ggPercentageBarChart(df.to.melt, melt.id, title = "Percentage Bar Chart",
-  x.lab = "", y.lab = "", palette = NULL, x.meta.data = NULL,
-  x.text.angle = 90, x.levels = c(), autoWidth = TRUE, ...)
+  x.lab = "", y.lab = "", palette = NULL, colour.levels = c(),
+  x.levels = c(), x.meta.data = NULL, x.text.angle = 90,
+  autoWidth = TRUE, ...)
 }
 \arguments{
 \item{df.to.melt}{A data frame required to \code{\link{melt}} before making a percent bar chart,

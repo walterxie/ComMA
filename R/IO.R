@@ -157,8 +157,9 @@ printXTable <- function(df, file=NULL, caption="The table of", label="tab:label"
   if (invalid.char) {
     rownames(df) <- gsub("_", "\\\\_", rownames(df))
     colnames(df) <- gsub("_", "\\\\_", colnames(df))
-    df <- apply(df, 2, function(x) as.numeric(gsub("_", "\\\\_", x)))
-    df <- apply(df, 2, function(x) as.numeric(gsub("%", "\\\\%", x)))
+    df <- ComMA::gusbDF("_", "\\\\_", df)
+    df <- ComMA::gusbDF("%", "\\\\%", df)
+    df <- ComMA::convertType(df, FUN=as.numeric)
   }
     
   suppressMessages(require(xtable))
