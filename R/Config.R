@@ -10,7 +10,7 @@ installAllPackages <- function() {
   install.packages(c("vegan","vegetarian"))
   install.packages(c("grid", "gridExtra", "data.table", "xtable", "tools", "reshape2", "Matrix"))
   install.packages(c("gplots", "ggplot2", "RColorBrewer", "colorspace"))
-  install.packages(c("ggdendro", "cluster"))
+  install.packages(c("ggdendro", "cluster", "clusterSim"))
   ###CommunityPhyloStru
   install.packages(c("ape", "picante", "plyr"))
   ###RDA

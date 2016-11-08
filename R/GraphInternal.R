@@ -96,8 +96,11 @@ ggOptText <- function(p, col.names, text.id=NULL, text.data=NULL, colour.id=NULL
       stop("Data frame do NOT have column name \"", text.id, "\" !")
     
     aes.string <- paste0("aes(label=", text.id)
-    if (! is.null(colour.id)) 
+    if (! is.null(colour.id)) {
+      if (!is.element(tolower(colour.id), tolower(col.names)))
+        stop("Data frame do NOT have column name \"", colour.id, "\" !")
       aes.string <- paste0(aes.string, ", colour=", colour.id)
+    }
     
     if (verbose)
       cat("geom_text(", aes.string, ", ...\n")
@@ -131,15 +134,24 @@ ggOptEllipse <- function(p, col.names, ellipsed.id=NULL) {
   return(p)
 }
 
-# scale_*_brewer, * has "colour", "fill" 
-ggOptPalette <- function(p, scale.to="colour", palette=NULL, verbose=TRUE) {
+# scale.to = c("colour", "fill"),  scale.type = c("brewer", "gradientn", "manual")
+ggOptPalette <- function(p, scale.to="colour", scale.type=NULL, palette=NULL, verbose=TRUE) {
   if (! is.null(palette)) {
-    if (length(palette) == 1)
-      scale.string <- paste0("scale_", scale.to, "_brewer(palette=palette)")
-    else if (length(palette) <= 3)
-      scale.string <- paste0("scale_", scale.to, "_gradientn(colours=palette)")
-    else 
-      scale.string <- paste0("scale_", scale.to, "_manual(values=palette)")
+    if (is.null(scale.type)) {
+      if (length(palette) == 1)
+        scale.string <- paste0("scale_", scale.to, "_brewer(palette=palette)")
+      else if (length(palette) <= 3)
+        scale.string <- paste0("scale_", scale.to, "_gradientn(colours=palette)")
+      else 
+        scale.string <- paste0("scale_", scale.to, "_manual(values=palette)")
+    } else {
+      if (scale.type == "brewer")
+        scale.string <- paste0("scale_", scale.to, "_brewer(palette=palette)")
+      else if (scale.type == "gradientn")
+        scale.string <- paste0("scale_", scale.to, "_gradientn(colours=palette)")
+      else 
+        scale.string <- paste0("scale_", scale.to, "_manual(values=palette)")
+    }
     
     if (verbose)
       cat("colour scale : ", scale.string, "\n")

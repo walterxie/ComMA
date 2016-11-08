@@ -31,13 +31,13 @@
 #' enterotypes(taxa.assign, n.max=20, fig.path="figures", percent=0)
 #'
 #' @rdname enterotypes
-enterotypes <- function(taxa.assign, n.max=20, fig.path=NULL, percent=0.01, verbose=TRUE, ...) {
+enterotypes <- function(taxa.assign, n.max=20, k=NULL, fig.path=NULL, percent=0.01, verbose=TRUE, ...) {
   abun.dist.matrix <- getAbundanceDist(taxa.assign)
   #nrow(abun.dist.matrix);ncol(abun.dist.matrix)
   #colSums(abun.dist.matrix)
   jsd.dist <- getJSD(abun.dist.matrix)
   nclusters <- getClusters(abun.dist.matrix, jsd.dist, n.max=n.max, fig.path=fig.path)
-  data.cluster <- getDataCluster(jsd.dist, measurements=nclusters, validate=TRUE, verbose=verbose)
+  data.cluster <- getDataCluster(jsd.dist, k=k, measurements=nclusters, validate=TRUE, verbose=verbose)
   
   plotEnterotypes(abun.dist.matrix, jsd.dist, data.cluster, fig.path=fig.path, percent=percent)
 }
@@ -79,8 +79,6 @@ getJSD <- function(abun.dist.matrix) {
 #' \code{getClusters} return the Calinski-Harabasz (CH) Index 
 #' for choosig a number of clusters from 2 to \code{n.max}.
 #'  
-#' @param abun.dist.matrix The \code{\link{dist}} object of 
-#' distance Jensen-Shannon divergence (JSD). 
 #' @param jsd.dist A distance \code{\link{dist}} object 
 #' calculated by Jensen-Shannon divergence (JSD) metric.
 #' @param n.max The number of clusters. Default to 20.
@@ -154,15 +152,15 @@ getDataCluster <- function(jsd.dist, k=NULL, measurements=NULL, validate=TRUE, v
 #' data.cluster <- getClusters(jsd.dist)
 #'
 #' @rdname enterotypes
-plotEnterotypes <- function(data, data.dist, data.cluster, fig.path, percent=0, 
-                            addLabel=TRUE, verbose=TRUE, ...) {
+plotEnterotypes <- function(data, data.dist, data.cluster, fig.path, attr.data, percent=0, 
+                            addLabel=TRUE, text.colour.id=NULL, verbose=TRUE, ...) {
   attr.data.cluster <- attributes(data.cluster)
   k <- attr.data.cluster$k
   
   if (percent > 0)
     data=noise.removal(data, percent)
   
-  plotClusterAbundence(fig.path, data, data.cluster)
+  ComMA::plotClusterAbundence(data, data.cluster, fig.path=fig.path)
   
   require(ade4)
   if (k > 2) {
@@ -202,13 +200,23 @@ plotEnterotypes <- function(data, data.dist, data.cluster, fig.path, percent=0,
   pcoa.df$cluster <- factor(pcoa.df$cluster, levels = sort(unique(pcoa.df$cluster)))
   if (addLabel) {
     text.id="Row.names"
-    pcoa.df$Row.names <- rownames(pcoa.df)
+    if (! missing(attr.data)) {
+      pcoa.df.merge <- merge(pcoa.df, attr.data, by = "row.names")
+      
+      if (nrow(pcoa.df.merge) != nrow(pcoa.df) || nrow(pcoa.df.merge) != nrow(attr.data)) 
+        warning(paste("Some data points are missing after merge ! nrow(pcoa.df.merge) =", 
+                      nrow(pcoa.df.merge), ", nrow(pcoa.df) =", nrow(pcoa.df), 
+                      ", nrow(attr.data) =", nrow(attr.data) ))
+    } else {
+      pcoa.df$Row.names <- rownames(pcoa.df)
+    }
   } else {
     text.id=NULL
   }
   
   p <- ComMA::ggScatterPlot(pcoa.df, x.id="PCo1", y.id="PCo2", colour.id="cluster", ellipsed.id="cluster",
-                            text.id=text.id, title="Principal Coordinates Analysis", palette="Set1",
+                            text.id=text.id, text.colour.id=text.colour.id, palette="Set1",
+                            title="Principal Coordinates Analysis",
                             xintercept=0, yintercept=0, verbose=verbose, ...)
   gt <- unclip.ggplot(p)  
   pdf.gtable(gt, fig.path=file.path(fig.path, paste0("enterotypes-principal-coordiante-",k,".pdf")), width=8, height=8) 
@@ -216,16 +224,27 @@ plotEnterotypes <- function(data, data.dist, data.cluster, fig.path, percent=0,
   #                   file.path(fig.path, paste0("enterotypes-principal-coordiante-",k,".pdf")), addLabel)
 }
 
-plotOptClusters <- function(figPath, nclusters, n.max=20) {
+plotOptClusters <- function(fig.path, nclusters, n.max=20) {
   # the optimal number of clusters
-  pdf(file.path(figPath, "optimal-clusters-JSD.pdf"), width=6, height=6)
+  pdf(file.path(fig.path, "optimal-clusters-JSD.pdf"), width=6, height=6)
   plot(nclusters, type="h", xlab="number of clusters", ylab="CH index",
        main=paste0("Optimal number of clusters (Jensen-Shannon divergence)"), xaxt="n")
   axis(1, at = seq(1, n.max, by = 2))
   invisible(dev.off())   
 }
 
-plotClusterAbundence <- function(figPath, data, data.cluster) {
+#' @details 
+#' \code{plotClusterAbundence} return a list of \code{\link{ggplot2}} objects
+#' for relative abundance distribution in each cluster.
+#'  
+#' @keywords enterotypes
+#' @export
+#' @examples 
+#' p.list <- plotClusterAbundence(data, data.cluster)
+#'
+#' @rdname enterotypes
+plotClusterAbundence <- function(data, data.cluster, fig.path=NA, cluster.colours=c(), min.median=0, 
+                                 x.lab="", y.lab="Relative abundence", width=8, height=6) {
   attr.data.cluster <- attributes(data.cluster)
   k <- attr.data.cluster$k
   
@@ -234,26 +253,31 @@ plotClusterAbundence <- function(figPath, data, data.cluster) {
   da.cl.melt <- melt(da.cl, id=c("cluster"))
   da.cl.melt <- da.cl.melt[da.cl.melt$value>0,]
   
+  plot.list <- list()
   require(ggplot2)
   for (cl in sort(unique(data.cluster))) {
     gg <- da.cl.melt[da.cl.melt$cluster==cl,]
+    cat("Cluster", cl, "samples:", paste(rownames(da.cl[da.cl$cluster==cl,]), collapse = ", "), ".\n") 
+    gg$cluster <- paste0("cluster", cl)
     
-    cat("Cluster", cl, "smaples:", paste(rownames(da.cl[da.cl$cluster==cl,]), collapse = ", "), ".\n") 
-    
+    #if (min.median > 0)
+      
     gg$variable <- reorder(gg$variable, gg$value, median, order=TRUE)
-    #p <- ggplot(gg, aes(x= reorder(variable, value, median, order=TRUE), y=value)) + 
-    #  geom_boxplot(aes(fill = factor(variable))) + 
-    #  ggtitle(paste("Cluster", cl)) + xlab("") + ylab("Abundence") + 
-    #  theme_bw() + guides(fill=FALSE) +
-    #  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-    #        panel.background = element_blank(), axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.3)) 
     
-    p <- ggBoxWhiskersPlot(gg, x.id="variable", y.id="value", fill.id="variable", 
-                           x.lab="", y.lab="Abundence", title=paste("Cluster", cl),
-                           x.text.angle=90, no.legend="fill")
+    if (length(cluster.colours) > 0 && cl <= length(cluster.colours))
+      cl.col <- cluster.colours[cl]
+    else
+      cl.col <- NULL
     
-    pdf.ggplot(p, fig.path = file.path(figPath, paste0("enterotype-",k,"-",cl,".pdf")), width=8, height=6)
+    p <- ComMA::ggBoxWhiskersPlot(gg, x.id="variable", y.id="value", fill.id="cluster",
+                                  palette=cl.col, scale.type="manual",
+                                  x.lab=x.lab, y.lab=y.lab, title=paste("Cluster", cl), 
+                                  x.text.angle=90, no.legend="fill")
+    plot.list[[cl]] <- p
+    if(!is.na(fig.path))
+      pdf.ggplot(p, fig.path = file.path(fig.path, paste0("enterotype-",k,"-",cl,".pdf")), width=width, height=height)
   }
+  return(plot.list)
 }
 # Jensen-Shannon divergence (JSD) (Endres & Schindelin, 2003)
 # Kullback-Leibler divergence
@@ -334,23 +358,23 @@ noise.removal <- function(Matrix, percent=0.01){
 }
 
 ######### vegan cascadeKM ##########
-plotCascadeKM <- function(figPath, data, n.max) {
+plotCascadeKM <- function(fig.path, data, n.max) {
   library(vegan)
   
   ccas <- cascadeKM(t(data), 2, n.max)
   #ccas
-  pdf(file.path(figPath, paste0("optimal-clusters-cascadeKM.pdf")), width=6, height=6)
+  pdf(file.path(fig.path, paste0("optimal-clusters-cascadeKM.pdf")), width=6, height=6)
   plot(ccas, sortq=TRUE)
   invisible(dev.off()) 
   
   ccas <- cascadeKM(t(data), 2, 20, criterion = "ssi")
-  pdf(file.path(figPath, paste0("optimal-clusters-cascadeKM-ssi.pdf")), width=6, height=6)
+  pdf(file.path(fig.path, paste0("optimal-clusters-cascadeKM-ssi.pdf")), width=6, height=6)
   plot(ccas, sortq=TRUE)
   invisible(dev.off())
 }
 
 ######### original plot fuction  ##########
-plotEnterotypes.bak <- function(figPath, data, data.dist, data.cluster, k, percent=0.01) {
+plotEnterotypes.bak <- function(fig.path, data, data.dist, data.cluster, k, percent=0.01) {
   if (percent > 0)
     data=noise.removal(data, percent)
   
@@ -359,7 +383,7 @@ plotEnterotypes.bak <- function(figPath, data, data.dist, data.cluster, k, perce
   obs.pca=dudi.pca(data.frame(t(data)), scannf=F, nf=10)
   obs.bet=bca(obs.pca, fac=as.factor(data.cluster), scannf=F, nf=k-1) 
   
-  pdf(file.path(figPath, "enterotypes-between-class.pdf"), width=6, height=6)
+  pdf(file.path(fig.path, "enterotypes-between-class.pdf"), width=6, height=6)
   #  dev.new()
   s.class(obs.bet$ls, fac=as.factor(data.cluster), grid=F,sub="Between-class analysis")
   invisible(dev.off()) 
@@ -367,7 +391,7 @@ plotEnterotypes.bak <- function(figPath, data, data.dist, data.cluster, k, perce
   #plot 2
   obs.pcoa=dudi.pco(data.dist, scannf=F, nf=k)
   
-  pdf(file.path(figPath, "enterotypes-principal-coordiante.pdf"), width=6, height=6)
+  pdf(file.path(fig.path, "enterotypes-principal-coordiante.pdf"), width=6, height=6)
   #  dev.new()
   s.class(obs.pcoa$li, fac=as.factor(data.cluster), grid=F,sub="Principal coordiante analysis")
   invisible(dev.off())

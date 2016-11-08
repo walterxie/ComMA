@@ -303,8 +303,8 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
 #'               xintercept=0, yintercept=0, title="Clusters", palette="Set1")
 #'  
 #' @rdname ggPlot
-ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL, 
-                          shapes=NULL, point.size=3, point.alpha=1,
+ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL, 
+                          shape.id=NULL, shapes=NULL, point.size=3, point.alpha=1,
                           link.id=NULL, ellipsed.id=NULL, text.id=NULL, 
                           text.data = NULL, text.size = 3, text.hjust=-0.1, 
                           text.vjust = -0.2, text.alpha = 0.5, 
@@ -352,7 +352,9 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, shape.id=NULL,
       if (text.alpha == 0.5)
         text.alpha = 1
     }
-    p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
+    if (is.null(text.colour.id))
+      text.colour.id <- colour.id
+    p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=text.colour.id, 
                    text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
                    text.alpha=text.alpha, text.avoid.overlap=text.avoid.overlap, verbose=verbose)
   }
@@ -618,15 +620,17 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
 #' @rdname ggPlot
 ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
                               outlier.colour=alpha("black", 0.3), dodge.width=0.8,
-                              x.facet.id=NULL, y.facet.id=NULL, coord.flip=FALSE,
+                              x.facet.id=NULL, y.facet.id=NULL, facet.scales="fixed", 
+                              facet.space="fixed", facet.shrink=TRUE, facet.drop = TRUE,
                               y.trans="identity", auto.scale.y=FALSE, 
-                              x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
+                              x.lim.cart=NULL, y.lim.cart=NULL, 
+                              palette=NULL, scale.to="fill", scale.type=NULL,
                               legend.title.fill=NULL, legend.title.colour=NULL, 
                               legend.col=1, legend.row=0, 
                               title="Box Whiskers Plot", title.size = 10, 
                               x.lab=NULL, y.lab=NULL, no.legend=NULL, 
                               legend.position="right", legend.direction="vertical",
-                              x.text.angle=0, x.text=TRUE, y.text=TRUE,
+                              coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE,
                               no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, colour.id=colour.id, verbose=verbose)
   if (! is.null(fill.id)) 
@@ -637,8 +641,9 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
   p <- p + scale_shape(solid = FALSE) #+ geom_jitter(alpha = 0.5) 
   
   col.names <- colnames(df)
-  p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, 
-                      y.facet.id=y.facet.id, verbose=verbose)
+  p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, y.facet.id=y.facet.id, 
+                      scales=facet.scales, space=facet.space, shrink=facet.shrink, 
+                      drop=facet.drop, verbose=verbose)
   
   if (auto.scale.y) {
     y.max <- max(df[,y.id])
@@ -652,7 +657,7 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
-  p <- ggOptPalette(p, scale.to="fill", palette=palette, verbose=verbose)
+  p <- ggOptPalette(p, scale.to=scale.to, scale.type=scale.type, palette=palette, verbose=verbose)
   
   p <- ggOptLegend(p, legend.title.colour=legend.title.colour, 
                    legend.title.fill=legend.title.fill, no.legend=no.legend, 
