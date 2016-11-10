@@ -155,32 +155,50 @@ convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=
   return(df1)
 }
 
-#' Merge two data frames or matrices with a same structure in one, 
+#' Combine two data frames or matrices with a same structure in one, 
 #' put all values in 2nd data frame into brackets.
 #' 
-#' @param df A data frame.
-#' @param df2 The 2nd data frame whose values are into brackets.
-#' @param merge.zero Default to TRUE to remove all " (0)".
+#' @param dfm A data frame or matrix.
+#' @param dfm2 The 2nd data frame or matrix whose values are into brackets.
+#' @param rm.zero Default to TRUE to remove all " (0)".
 #' @param return.df Default to TRUE to return a data frame, otherwise a matrix.
 #' @keywords utils
 #' @export
 #' @examples 
-#' df <- merge2DF(df, df2)
-merge2DF <- function(df, df2, merge.zero=TRUE, return.df=TRUE, stringsAsFactors=FALSE, check.names=FALSE) {
-  if (nrow(df) != nrow(df2) || ncol(df) != ncol(df2)) 
+#' df <- combineTwoDF(df, df2)
+combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, stringsAsFactors=FALSE, check.names=FALSE) {
+  if (nrow(dfm) != nrow(dfm2) || ncol(dfm) != ncol(dfm2)) 
     stop("Two data frames must have a same structure !")
   
-  df <- as.matrix(df)
-  df2 <- as.matrix(df2)
-  df1 <- matrix( paste0(trimSpace(df), " (", trimSpace(df2), ")"), 
-          nrow=nrow(df), dimnames=dimnames(df) )
+  dfm <- as.matrix(dfm)
+  dfm2 <- as.matrix(dfm2)
+  dfm.comb <- matrix( paste0(trimSpace(dfm), " (", trimSpace(dfm2), ")"), 
+          nrow=nrow(dfm), dimnames=dimnames(dfm) )
   
-  if (merge.zero) 
-    df1 <- gsub(" \\(0\\)", "", df1)
+  if (rm.zero) 
+    dfm.comb <- gsub(" \\(0\\)", "", dfm.comb)
   
-  if (return.df)
-    df1 <- data.frame(df1, stringsAsFactors=stringsAsFactors, check.names=check.names)
-  return(df1)
+  if (return.dfm)
+    dfm.comb <- data.frame(dfm.comb, stringsAsFactors=stringsAsFactors, check.names=check.names)
+  return(dfm.comb)
+}
+
+#' Merge two data frames by 'row.names' using \code{\link{merge}}.
+#' 
+#' @param x,y data frames, or objects to be coerced to one.
+#' @param warning.msg logical; if TRUE, then print warning message when rows are missing after merge.
+#' @param ... pass to \code{\link{merge}}.
+#' @keywords utils
+#' @export
+#' @examples 
+#' df <- combineTwoDF(df, df2)
+mergeByRownames <- function(x, y, warning.msg=TRUE, ...) {
+  xy <- merge(x, y, by = "row.names", ...)
+  
+  if ( warning.msg && (nrow(xy) != nrow(x) || nrow(xy) != nrow(y)) ) 
+    warning(paste("Rows are missing after merge ! nrow(xy) =", 
+                  nrow(xy), ", nrow(x) =", nrow(x), ", nrow(y) =", nrow(y) ))
+  return(xy)
 }
 
 #' Return the first \code{n} elements. 

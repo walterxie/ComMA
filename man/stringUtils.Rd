@@ -77,8 +77,9 @@ Refer to \url{http://stackoverflow.com/questions/6364783/capitalize-the-first-le
 \url{https://techoverflow.net/blog/2012/11/10/r-count-occurrences-of-character-in-string/}.
 
 \code{freqUniqueValue} returns 2-column data frame of the unique values 
-and their frequency given a vector \code{x}. Refere to 
-\url{http://stackoverflow.com/questions/16905425/find-duplicate-values-in-r}.
+and their frequency given a vector \code{x}, if \code{x} is a data frame, 
+then return unique pairs counts including zero counts. 
+Refere to \url{http://stackoverflow.com/questions/16905425/find-duplicate-values-in-r}.
 
 \code{findDuplicates} uses \code{freqUniqueValue} to 
 find the duplicates in a vector \code{x}.
@@ -122,7 +123,12 @@ freqUniqueValue(c("a", "b", "a"))
 #    Var1 Freq
 # 1    a    2
 # 2    b    1
-freqUniqueValue(c(1, 1, 2, 1))
+freqUniqueValue(data.frame(x=c(1, 1, 2), y=c(3, 4, 3)))
+#   x y Freq
+# 1 1 3    1
+# 2 2 3    1
+# 3 1 4    1
+# 4 2 4    0
 
 findDuplicates(c("a", "b", "a"))
 

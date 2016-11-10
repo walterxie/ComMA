@@ -17,7 +17,10 @@
 #' @title Enterotype
 #'
 #' @description The enterotype method is introduced by
-#' \url{http://enterotype.embl.de}.
+#' \url{http://enterotype.embl.de}. 
+#' Besides the original functions copied from the website, 
+#' we also add few more analyses to advancing this method, 
+#' such as correlation between enterotypes and given/known groups.  
 #' 
 #' @details 
 #' \code{enterotypePipeline} is a pipeline summarised from 
@@ -187,6 +190,25 @@ getDataCluster <- function(data.dist, k=NULL, nclusters=NULL, validate=TRUE, ver
 }
 
 #' @details 
+#' \code{noise.removal} removes any row whose sum is samller than 
+#' the given percentage of total sum of matrix. 
+#' Advise to apply this function to data generated 
+#' using short sequencing technologes, like Illumina or Solid.
+#'  
+#' @keywords enterotype
+#' @export
+#' @examples 
+#' data=noise.removal(data, percent=0.1)
+#'
+#' @rdname enterotype
+noise.removal <- function(data, percent=0.01){
+  bigones <- rowSums(data)*100/sum(data) > percent 
+  Matrix_1 <- data[bigones,]
+  cat("percent = ", percent, ", remove", nrow(data)-nrow(Matrix_1), "rows.\n")
+  return(Matrix_1)
+}
+
+#' @details 
 #' \code{plotEnterotypes} is a mixed function to plot clusters, 
 #' BCA \code{\link{bca}} and PCoA \code{\link{dudi.pco}}
 #' from the optimised or selected solution.
@@ -310,6 +332,45 @@ plotClusterAbundence <- function(data, data.cluster, fig.path=NA, cluster.colour
   return(plot.list)
 }
 
+######### correlation between enterotypes and known groups ##########
+#' @details 
+#' \code{corrEnterotypeToGroup} checks if both the enterotypes and the known groups
+#' from a same data set (two categorical variables) are independent with 
+#' Chi-Squared test \code{\link{chisq.test}},
+#' and returns Crammer's V to measure their correlation.
+#' 
+#' @param group.id The column name in \code{attr.data} contains the known groups to 
+#' compare with enterotypes.
+#' @param simulate.p.value a logical indicating whether to compute p-values 
+#' by Monte Carlo simulation, the default is FALSE.
+#' @keywords enterotype
+#' @export
+#' @examples 
+#' chi <- corrEnterotypeToGroup(jsd.dist, k=5, attr.data=env, group.id="land.use")
+#'
+#' @rdname enterotype
+corrEnterotypeToGroup <- function(data.dist, k, attr.data, group.id, simulate.p.value=TRUE) {
+  k.clusters <- pam.clustering(data.dist, k, as.vector=F)$clustering
+  df.merge <- ComMA::mergeByRownames(as.data.frame(k.clusters), attr.data)
+  
+  clusters.id <- "k.clusters"
+   # data frame bug: cannot use df.merge[, c(clusters.id, group.id)]
+  pair.freq <- ComMA::freqUniqueValue(df.merge[, c(clusters.id, group.id)])
+  pair.freq <- pair.freq[order(pair.freq[,clusters.id], pair.freq[,group.id]),]
+  
+  nrow=length(unique(pair.freq[,clusters.id])) 
+  ncol=length(unique(pair.freq[,group.id]))
+  tb.freq <- matrix(data=pair.freq$Freq, nrow=nrow, ncol=ncol, byrow=T)
+  rownames(tb.freq) <- unique(pair.freq[,clusters.id])
+  colnames(tb.freq) <- unique(pair.freq[,group.id])
+  
+  chi2v = chisq.test(tb.freq, simulate.p.value=simulate.p.value)
+  #c(chi2v$statistic, chi2v$p.value)
+  list(freq=tb.freq, chi=chi2v, V=sqrt(as.numeric(chi2v$statistic) / sum(tb.freq)), p.value=chi2v$p.value)
+}
+
+
+
 ######### internal ##########
 # Jensen-Shannon divergence (JSD) (Endres & Schindelin, 2003)
 # Kullback-Leibler divergence
@@ -360,15 +421,6 @@ validateCluster <- function(data.cluster, data.dist) {
   cat("obs.silhouette =", obs.silhouette, "\n") 
 }
 
-# advise to apply this function to data generated using 
-# short sequencing technologes, like Illumina or Solid
-noise.removal <- function(Matrix, percent=0.01){
-  bigones <- rowSums(Matrix)*100/(sum(rowSums(Matrix))) > percent 
-  Matrix_1 <- Matrix[bigones,]
-  cat("percent = ", percent, ", remove", nrow(Matrix)-nrow(Matrix_1), "rows.\n")
-  return(Matrix_1)
-}
-
 # for both BCA and PCoA
 plotSamples <- function(points.df, attr.data=data.frame(), fig.path=NA, addLabel=TRUE, 
                         text.colour.id=NULL, palette="Set1", prefix="enterotypes-pcoa-", width=8, height=8,
@@ -379,17 +431,10 @@ plotSamples <- function(points.df, attr.data=data.frame(), fig.path=NA, addLabel
   points.df$cluster <- factor(points.df$cluster, levels = cluster.levels)
   if (addLabel) {
     text.id="Row.names"
-    if (nrow(attr.data) > 0) {
-      points.df.merge <- merge(points.df, attr.data, by = "row.names")
-      
-      if (nrow(points.df.merge) != nrow(points.df) || nrow(points.df.merge) != nrow(attr.data)) 
-        warning(paste("Some data points are missing after merge ! nrow(points.df.merge) =", 
-                      nrow(points.df.merge), ", nrow(points.df) =", nrow(points.df), 
-                      ", nrow(attr.data) =", nrow(attr.data) ))
-      points.df <- points.df.merge
-    } else {
+    if (nrow(attr.data) > 0) 
+      points.df <- ComMA::mergeByRownames(points.df, attr.data)
+    else 
       points.df$Row.names <- rownames(points.df)
-    }
   } else {
     text.id=NULL
   }
