@@ -73,11 +73,14 @@ ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   no.panel.border = FALSE, verbose = TRUE)
 
 ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
-  title = "Heatmap", title.size = 10, x.lab = "", y.lab = "",
-  log.scale.colour = FALSE, legend.title = "Counts", x.lim.cart = NULL,
-  y.lim.cart = NULL, coord.flip = FALSE, no.legend = NULL,
-  legend.position = "right", legend.direction = "vertical",
-  x.text.angle = 90, x.text = TRUE, y.text = TRUE,
+  midpoint = NULL, colours = NULL, values = NULL,
+  na.value = "transparent", breaks.length.out = 5, breaks.digits = 0,
+  add.label = T, label.digits = 1, title = "Heatmap", title.size = 10,
+  x.lab = "", y.lab = "", log.scale.colour = FALSE,
+  legend.title = "Counts", x.lim.cart = NULL, y.lim.cart = NULL,
+  coord.flip = FALSE, no.legend = NULL, legend.position = "right",
+  legend.direction = "vertical", x.text.angle = 90, x.text = TRUE,
+  y.text = TRUE, x.levels = c(), y.levels = c(),
   no.panel.border = FALSE, verbose = TRUE)
 
 ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,

@@ -547,41 +547,84 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
 #' 
 #' @rdname ggPlot
 ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", 
-                      title="Heatmap", title.size = 10, x.lab="", y.lab="", 
+                      midpoint = NULL, colours=NULL, values=NULL, na.value="transparent",
+                      breaks.length.out = 5, breaks.digits = 0,
+                      add.label=T, label.digits=1,
+                      title="Heatmap", title.size = 10, x.lab="", y.lab="",
                       log.scale.colour=FALSE, legend.title="Counts",
                       x.lim.cart=NULL, y.lim.cart=NULL, coord.flip=FALSE,
                       no.legend=NULL, legend.position="right", legend.direction="vertical",
                       x.text.angle=90, x.text=TRUE, y.text=TRUE,
+                      x.levels=c(), y.levels=c(), 
                       no.panel.border=FALSE, verbose=TRUE) {
   if (!is.element(tolower(melt.id), tolower(colnames(df.to.melt))))
     stop("Data frame column names do NOT have \"", melt.id, "\" for melt function !")
   
   suppressMessages(require(reshape2))
   df.melt <- melt(df.to.melt, id=c(melt.id))
-  df.melt[,melt.id] <- factor(df.melt[,melt.id], levels=unique(df.melt[,melt.id]))
+  if (length(x.levels)>1) {
+    if (length(x.levels) != length(unique(df.melt$variable)))
+      warning("x.levels length != x unique values !")
+    
+    df.melt$variable <- factor(df.melt$variable, ordered = TRUE, levels = x.levels)
+  }
+  if (length(y.levels)>1) {
+    if (length(y.levels) != length(unique(df.melt[,melt.id])))
+      warning("y.levels length != y unique values !")
+    
+    df.melt[,melt.id] <- factor(df.melt[,melt.id], ordered = TRUE, levels = y.levels)
+  } else {
+    df.melt[,melt.id] <- factor(df.melt[,melt.id], levels=sort(unique(df.melt[,melt.id]), decreasing = T))
+  }
   
   suppressMessages(require(ggplot2))
   # variable is all group names, such as "16S" or "FUNGI"
   # value is ranks for each group
   p <- ggplot(df.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) 
   
+  min.v <- min(df.melt$value)
+  max.v <- max(df.melt$value)
   if (log.scale.colour) {
-    if (min(df.melt$value) == 0)
+    if (min.v == 0)
       min.log <- 0
     else 
-      min.log <- log(min(df.melt$value))
-    if (max(df.melt$value) == 0)
+      min.log <- log(min.v)
+    if (max.v == 0)
       max.log <- 0
     else 
-      max.log <- log(max(df.melt$value))
+      max.log <- log(max.v)
     
-    breaks.rank <- round(exp(seq(min.log, max.log, length.out = 5)), digits = 0)
-    p <- p + scale_fill_gradient(trans='log', na.value="transparent", low=low, high=high, 
+    breaks.rank <- round(exp(seq(min.log, max.log, length.out = breaks.length.out)), 
+                         digits = breaks.digits)
+    p <- p + scale_fill_gradient(trans='log', na.value=na.value, low=low, high=high, 
                                  name=legend.title, breaks=breaks.rank) 
   } else {
-    breaks.rank <- round(seq(min(df.melt$value), max(df.melt$value), length.out = 5), digits = 0)
-    p <- p + scale_fill_gradient(na.value="transparent", low=low, high=high, 
-                                 name=legend.title, breaks=breaks.rank) 
+    breaks.rank <- round(seq(min.v, max.v, length.out = breaks.length.out), digits = breaks.digits)
+    if (!is.null(midpoint)) {
+      p <- p + scale_fill_gradient2(midpoint=midpoint, na.value=na.value, low=low, high=high, 
+                                   name=legend.title, breaks=breaks.rank)
+    } else if (!is.null(colours)) {
+      if (!is.null(values) && length(values) < 1) {
+        require(scales)
+        if (min.v < 0 && max.v > 0) {
+          values=rescale(c(min.v,0-.Machine$double.eps,0,0+.Machine$double.eps,max.v))
+          if (! 0 %in% breaks.rank) {
+            breaks.rank <- sort(c(0, breaks.rank), decreasing = T)
+          }
+        } else {
+          values=rescale(c(min.v,max.v))
+        }
+      }
+      p <- p + scale_fill_gradientn(colours=colours, na.value=na.value, values=values, 
+                                    name=legend.title, breaks=breaks.rank)
+    } else {
+      p <- p + scale_fill_gradient(na.value=na.value, low=low, high=high, 
+                                   name=legend.title, breaks=breaks.rank) 
+    }
+  }
+  
+  if (add.label) {
+    p <- p + geom_text(aes(label=paste(round(value, digits = label.digits))))
   }
   
   p <- ggOptCoordCartesian(p, df.melt, x.id="variable", y.id=melt.id, 

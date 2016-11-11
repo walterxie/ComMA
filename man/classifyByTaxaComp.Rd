@@ -5,7 +5,8 @@
 \title{Classify sample attribute by taxonomic composition}
 \usage{
 classifyByTaxaComp(data, attr.data, group.id, percent = 0.01, alpha = 1,
-  family = "multinomial", nlambda = 500, coef.s = "lambda.min", ...)
+  family = "multinomial", nlambda = 500, coef.s = "lambda.min",
+  return.df = TRUE, ...)
 }
 \arguments{
 \item{data, attr.data, group.id, percent}{Refer to \code{\link{enterotype}}.}

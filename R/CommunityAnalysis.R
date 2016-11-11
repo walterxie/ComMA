@@ -23,7 +23,7 @@
 #' cvfit <- classifyByTaxaComp(abun.dist.matrix, attr.data=env, group.id="land.use")
 classifyByTaxaComp <- function(data, attr.data, group.id, percent=0.01, 
                                alpha=1, family='multinomial', nlambda = 500, 
-                               coef.s = "lambda.min", ...) {
+                               coef.s = "lambda.min", return.df=TRUE, ...) {
   # remove noise
   data <- noise.removal(data, percent=percent)
   x <- t(data)
@@ -38,6 +38,11 @@ classifyByTaxaComp <- function(data, attr.data, group.id, percent=0.01,
   coef.list <- coef(cvfit, s = coef.s)
   model <- do.call("cbind", coef.list)
   colnames(model) <- names(coef.list)
+  if (return.df) {
+    model <- as.data.frame(as.matrix(model))
+    model <- model[-1,]                  # rm 1st row "(Intercept)" 
+    model <- model[rowSums(model) != 0,]  # rm empty rows
+  }
   
-  list(fit=cvfit, model=model)
+  list(fit=cvfit, model=model, return.df=return.df)
 }
