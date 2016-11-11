@@ -117,21 +117,19 @@ summaryCM <- function(community.matrix, most.abund, has.total=1, digits=2, prett
 #' @rdname CMStatistics
 summaryOTUs <- function(..., digits=2, input.list=FALSE, pretty.numbers=TRUE,
                         x.lab="sample", y.lab="OTU", abundance.lab="read") {
-  cm.list <- validateInputList(..., input.list=input.list) 
+  cm.list <- unwrapInputList(..., input.list=input.list) 
   cat("Summarize OTUs on", length(cm.list), "data sets.\n") 
   
-  summary.row.names <- c(ComMA::getPlural(abundance.lab, y.lab, x.lab),"singletons", "doubletons", 
+  summary.row.names <- c(ComMA::getPlural(abundance.lab, y.lab, x.lab),"singleton OTU", "doubleton OTU", 
                          paste("max",y.lab,"abundance",sep="."), paste("min",y.lab,"abundance",sep="."), 
                          paste("max",x.lab,"abundance",sep="."), paste("min",x.lab,"abundance",sep="."))
-  otu.stats <- data.frame(row.names = summary.row.names, stringsAsFactors=FALSE, check.names=FALSE)
-  for (data.id in 1:length(cm.list)) {
-    col.name <- names(cm.list)[data.id]
-    if (is.null(col.name))
-      col.name <- paste("data",data.id,sep=".")
-    # otus.row.names
-    otu.stats[,col.name] <- ComMA::summaryCM.Vector(cm.list[[data.id]])
-  }
-  otu.stats["non.singletons",] <- as.numeric(otu.stats["OTUs",])-as.numeric(otu.stats["singletons",])
+  otu.stats.list <- lapply(cm.list, ComMA::summaryCM.Vector)
+  otu.stats <- data.frame(t(do.call("rbind", otu.stats.list)))
+  if (is.null(names(cm.list)))
+      colnames(otu.stats) <- paste0("dataset", 1:length(cm.list))
+  rownames(otu.stats) <- summary.row.names
+  # add new row
+  otu.stats["non singletons",] <- as.numeric(otu.stats["OTUs",])-as.numeric(otu.stats["singleton OTU",])
   
   if (pretty.numbers) 
     otu.stats <- ComMA::prettyNumbers(otu.stats, digits=digits)
@@ -156,17 +154,11 @@ summaryOTUs <- function(..., digits=2, input.list=FALSE, pretty.numbers=TRUE,
 #' div.stats <- summaryDiversity(cm, row.order=c(2,5,8,3,6,9,1,4,7))
 #'
 #' @rdname CMStatistics
+#TODO rewrite like summaryOTUs
 summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, pretty.numbers=TRUE, verbose=TRUE, 
         row.names=c("$^0D_\\gamma$","$^0D_\\alpha$","$^0D_\\beta$","$^1D_\\gamma$","$^1D_\\alpha$",
                     "$^1D_\\beta$","$^2D_\\gamma$","$^2D_\\alpha$","$^2D_\\beta$")) {
-  cm.list <- list(...)
-  # if input a list of cm, then unwrap list(...) to get the actual list
-  if (input.list && typeof(cm.list[[1]]) == "list")
-    cm.list <- cm.list[[1]]
-  # validation
-  if (! (typeof(cm.list) == "list" && length(cm.list) > 0) )
-    stop("Invaild input: at least one community matrix is required ! length(...) = ", length(cm.list))
-  
+  cm.list <- unwrapInputList(..., input.list=input.list) 
   cat("Summarize Jost diversities on", length(cm.list), "data sets.\n") 
   
   div.stats <- data.frame(stringsAsFactors=FALSE, check.names=FALSE)
@@ -235,14 +227,7 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, pre
 summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbers=TRUE,
           taxa.group=c("ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA"), 
           group.rank="kingdom", count.rank="phylum") {
-  cm.taxa.list <- list(...)
-  # if input a list of cm, then unwrap list(...) to get the actual list
-  if (input.list && typeof(cm.taxa.list[[1]]) == "list")
-    cm.taxa.list <- cm.taxa.list[[1]]
-  # validation
-  if (! (typeof(cm.taxa.list) == "list" && length(cm.taxa.list) > 0) )
-    stop("Invaild input: at least one community matrix is required ! length(...) = ", length(cm.taxa.list))
-  
+  cm.taxa.list <- unwrapInputList(..., input.list=input.list) 
   cat("Summarize OTUs by taxa group on", length(cm.taxa.list), "data sets.\n") 
   
   # data frame for statistics

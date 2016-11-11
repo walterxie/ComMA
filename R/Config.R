@@ -15,4 +15,6 @@ installAllPackages <- function() {
   install.packages(c("ape", "picante", "plyr"))
   ###RDA
   install.packages(c("VIF", "scales"))
+  ###lasso
+  install.packages(c("glmnet"))
 }

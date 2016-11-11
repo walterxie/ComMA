@@ -11,13 +11,19 @@
 #' This can be used after 
 #' 
 #' @param data,attr.data,group.id,percent Refer to \code{\link{enterotype}}.
-#' @param alpha,family,nlambda Refer to \code{\link{cv.glmnet}}.
+#' @param alpha,family,nlambda,... Refer to \code{\link{cv.glmnet}}.
+#' @param coef.s Which coeffient to return by \code{\link{coef}}.
+#' \code{lambda.min}, as default, is the value of lambda that 
+#' gives minimum mean cross-validated error. 
+#' \code{lambda.1se} gives the most regularized model such that 
+#' error is within one standard error of the minimum.
 #' @keywords classification
 #' @export
 #' @examples 
 #' cvfit <- classifyByTaxaComp(abun.dist.matrix, attr.data=env, group.id="land.use")
 classifyByTaxaComp <- function(data, attr.data, group.id, percent=0.01, 
-                               alpha=1, family='multinomial', nlambda = 500, ...) {
+                               alpha=1, family='multinomial', nlambda = 500, 
+                               coef.s = "lambda.min", ...) {
   # remove noise
   data <- noise.removal(data, percent=percent)
   x <- t(data)
@@ -28,5 +34,10 @@ classifyByTaxaComp <- function(data, attr.data, group.id, percent=0.01,
   
   require(glmnet)
   cvfit = cv.glmnet(x, y=as.factor(y), alpha=alpha, family=family, nlambda = nlambda, ...)
-  return(cvfit)
+  # 
+  coef.list <- coef(cvfit, s = coef.s)
+  model <- do.call("cbind", coef.list)
+  colnames(model) <- names(coef.list)
+  
+  list(fit=cvfit, model=model)
 }

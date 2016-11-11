@@ -399,8 +399,10 @@ summaryTaxaAssign <- function(ta.list, ta.OTU.list, exclude.rank=c(-1), exclude.
   
   # [-1] excludes kingdom
   require(plyr)
+  # rank column has names of ta.list, such as phylum
   reads.df <- ldply(ta.list[exclude.rank], rbind, .id="rank")
   otus.df <- ldply(ta.OTU.list[exclude.rank], rbind, .id="rank")
+  # use unlist(lapply(ta.list, rownames)) to get the taxonomy from rownames
   if (exclude.unclassified) {
     reads.df <- subset(reads.df, !grepl("unclassified", unlist(lapply(ta.list, rownames)), ignore.case = T))
     otus.df <- subset(otus.df, !grepl("unclassified", unlist(lapply(ta.OTU.list, rownames)), ignore.case = T))

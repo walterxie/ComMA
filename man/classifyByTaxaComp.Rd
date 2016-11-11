@@ -5,12 +5,18 @@
 \title{Classify sample attribute by taxonomic composition}
 \usage{
 classifyByTaxaComp(data, attr.data, group.id, percent = 0.01, alpha = 1,
-  family = "multinomial", nlambda = 500, ...)
+  family = "multinomial", nlambda = 500, coef.s = "lambda.min", ...)
 }
 \arguments{
 \item{data, attr.data, group.id, percent}{Refer to \code{\link{enterotype}}.}
 
-\item{alpha, family, nlambda}{Refer to \code{\link{cv.glmnet}}.}
+\item{alpha, family, nlambda, ...}{Refer to \code{\link{cv.glmnet}}.}
+
+\item{coef.s}{Which coeffient to return by \code{\link{coef}}.
+\code{lambda.min}, as default, is the value of lambda that 
+gives minimum mean cross-validated error. 
+\code{lambda.1se} gives the most regularized model such that 
+error is within one standard error of the minimum.}
 }
 \details{
 Build a classification model using lasso \code{\link{cv.glmnet}},

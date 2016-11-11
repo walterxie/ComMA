@@ -31,7 +31,7 @@
 #' 
 #' @rdname countOTUsReads
 getCountSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank="kingdom"){
-  cm.taxa.list <- validateInputList(..., input.list=input.list) 
+  cm.taxa.list <- unwrapInputList(..., input.list=input.list) 
   cat("Count OTU/Reads on", length(cm.taxa.list), "data sets.\n") 
   
   counts.sums.list <- list()
