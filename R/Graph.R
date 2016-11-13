@@ -532,10 +532,17 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
 #' from the code  
 #' \url{https://learnr.wordpress.com/2010/01/26/ggplot2-quick-heatmap-plotting/}. 
 #' 
-#' @param low,high The colour range of heatmap. Refer to \code{\link{scale_fill_gradient}}. 
-#' Default to low="white", high="steelblue".
+#' @param low,high,na.value,midpoint,colours,values The colour range of heatmap.
+#' Default to low="white", high="steelblue". 
+#' Refer to \code{\link{scale_fill_gradient}} or \code{\link{scale_fill_gradient2}}
+#' (if midpoint is given). 
 #' @param log.scale.colour If TRUE, then use log scale to the colour of heat map.
 #' Default to FALSE.
+#' @param breaks.length.out,breaks.digits Heatmap ledgend breaks.
+#' @param add.label,label.digits \code{add.label} is logical, default to TRUE, 
+#' to add value into the tiles of heatmap. 
+#' \code{label.digits} determines the digit of the label.
+#' @param x.levels,y.levels The levels to order x or y.
 #' @keywords graph
 #' @export
 #' @examples 
