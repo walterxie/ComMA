@@ -151,11 +151,11 @@ and returns Crammer's V to measure their correlation.
 \examples{
 enterotypePipeline(taxa.assign, n.max=20, fig.path="./figures", percent=0)
 
-abun.dist.matrix <- getAbundanceDist(taxa.assign)
+relative.abund <- getAbundanceDist(taxa.assign)
 
-jsd.dist <- getJSD(abun.dist.matrix)
+jsd.dist <- getJSD(relative.abund)
 
-nclusters <- getClusters(abun.dist.matrix, jsd.dist)
+nclusters <- getClusters(relative.abund, jsd.dist)
 
 plotOptClusters(nclusters, fig.path="./figures", n.max=10)
 
@@ -163,7 +163,7 @@ data.cluster <- getDataCluster(jsd.dist, nclusters=nclusters)
 
 data=noise.removal(data, percent=0.1)
 
-plotEnterotypes(abun.dist.matrix, jsd.dist, data.cluster)
+plotEnterotypes(relative.abund, jsd.dist, data.cluster)
 
 p.list <- plotClusterAbundence(data, data.cluster)
 

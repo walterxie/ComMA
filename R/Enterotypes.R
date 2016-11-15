@@ -45,17 +45,17 @@
 #' @rdname enterotype
 enterotypePipeline <- function(taxa.assign, n.max=20, k=NULL, fig.path=NA, percent=0.01, verbose=TRUE, ...) {
   # 1. turn taxa.assign into normalized probability distributions
-  abun.dist.matrix <- ComMA::getAbundanceDist(taxa.assign)
+  relative.abund <- ComMA::getAbundanceDist(taxa.assign)
   # 2. calculate Jensen-Shannon divergence dissimilarity
-  jsd.dist <- ComMA::getJSD(abun.dist.matrix)
+  jsd.dist <- ComMA::getJSD(relative.abund)
   # 3. Calinski-Harabasz (CH) Index of n clusters
-  nclusters <- ComMA::getClusters(abun.dist.matrix, jsd.dist, n.max=n.max)
+  nclusters <- ComMA::getClusters(relative.abund, jsd.dist, n.max=n.max)
   # 4. the optimised or selected k-cluster final result
   data.cluster <- ComMA::getDataCluster(jsd.dist, k=k, nclusters=nclusters, validate=TRUE, verbose=verbose)
   
   # 5. plot
   ComMA::plotOptClusters(nclusters, fig.path=fig.path, n.max=n.max)
-  ComMA::plotEnterotypes(abun.dist.matrix, jsd.dist, data.cluster, fig.path=fig.path, percent=percent)
+  ComMA::plotEnterotypes(relative.abund, jsd.dist, data.cluster, fig.path=fig.path, percent=percent)
 }
 
 #' @details 
@@ -69,7 +69,7 @@ enterotypePipeline <- function(taxa.assign, n.max=20, k=NULL, fig.path=NA, perce
 #' @keywords enterotype
 #' @export
 #' @examples 
-#' abun.dist.matrix <- getAbundanceDist(taxa.assign)
+#' relative.abund <- getAbundanceDist(taxa.assign)
 #'
 #' @rdname enterotype
 getAbundanceDist <- function(taxa.assign) {
@@ -86,11 +86,11 @@ getAbundanceDist <- function(taxa.assign) {
 #' @keywords enterotype
 #' @export
 #' @examples 
-#' jsd.dist <- getJSD(abun.dist.matrix)
+#' jsd.dist <- getJSD(relative.abund)
 #'
 #' @rdname enterotype
 getJSD <- function(data) {
-  #nrow(data);ncol(abun.dist.matrix)
+  #nrow(data);ncol(relative.abund)
   #colSums(data)
   jsd.dist=dist.JSD(data)
   return(jsd.dist)
@@ -106,7 +106,7 @@ getJSD <- function(data) {
 #' @keywords enterotype
 #' @export
 #' @examples 
-#' nclusters <- getClusters(abun.dist.matrix, jsd.dist)
+#' nclusters <- getClusters(relative.abund, jsd.dist)
 #'
 #' @rdname enterotype
 getClusters <- function(data, data.dist, n.max=20, ...) {
@@ -232,7 +232,7 @@ noise.removal <- function(data, percent=0.01){
 #' @keywords enterotype
 #' @export
 #' @examples 
-#' plotEnterotypes(abun.dist.matrix, jsd.dist, data.cluster)
+#' plotEnterotypes(relative.abund, jsd.dist, data.cluster)
 #'
 #' @rdname enterotype
 plotEnterotypes <- function(data, data.dist, data.cluster, attr.data=data.frame(), fig.path=NA, 
