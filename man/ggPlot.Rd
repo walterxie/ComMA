@@ -88,12 +88,13 @@ ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,
   x.facet.id = NULL, y.facet.id = NULL, facet.scales = "fixed",
   facet.space = "fixed", facet.shrink = TRUE, facet.drop = TRUE,
   y.trans = "identity", auto.scale.y = FALSE, x.lim.cart = NULL,
-  y.lim.cart = NULL, palette = NULL, scale.to = "fill",
-  scale.type = NULL, legend.title.fill = NULL, legend.title.colour = NULL,
-  legend.col = 1, legend.row = 0, title = "Box Whiskers Plot",
-  title.size = 10, x.lab = NULL, y.lab = NULL, no.legend = NULL,
-  legend.position = "right", legend.direction = "vertical",
-  coord.flip = FALSE, x.text.angle = 0, x.text = TRUE, y.text = TRUE,
+  y.lim.cart = NULL, lwd = 1, fatten = 1, palette = NULL,
+  scale.to = "fill", scale.type = NULL, legend.title.fill = NULL,
+  legend.title.colour = NULL, no.legend = NULL, legend.col = 1,
+  legend.row = 0, legend.position = "right",
+  legend.direction = "vertical", title = "Box Whiskers Plot",
+  title.size = 10, x.lab = NULL, y.lab = NULL, coord.flip = FALSE,
+  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
 
 ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
@@ -243,11 +244,21 @@ The data example
 \item{melt.id}{A column name to \code{\link{melt}} 
 and used as a \code{\link{factor}}, such as "plot" column.}
 
-\item{low, high}{The colour range of heatmap. Refer to \code{\link{scale_fill_gradient}}. 
-Default to low="white", high="steelblue".}
+\item{low, high, na.value, midpoint, colours, values}{The colour range of heatmap.
+Default to low="white", high="steelblue". 
+Refer to \code{\link{scale_fill_gradient}} or \code{\link{scale_fill_gradient2}}
+(if midpoint is given).}
+
+\item{breaks.length.out, breaks.digits}{Heatmap ledgend breaks.}
+
+\item{add.label, label.digits}{\code{add.label} is logical, default to TRUE, 
+to add value into the tiles of heatmap. 
+\code{label.digits} determines the digit of the label.}
 
 \item{log.scale.colour}{If TRUE, then use log scale to the colour of heat map.
 Default to FALSE.}
+
+\item{x.levels, y.levels}{The levels to order x or y.}
 
 \item{outlier.colour}{The colour of outliers in box whiskers plot 
 used for \code{outlier.colour} in \code{\link{geom_boxplot}}. 
@@ -257,6 +268,10 @@ Default to alpha("black", 0.3).}
 the individual elements in box Whiskers plot. 
 This is useful when you want to align narrow geoms with wider geoms. 
 Refer to \code{\link{position_dodge}}.}
+
+\item{lwd}{change the line thinkness.}
+
+\item{fatten}{make the median line thinner relative to the other lines.}
 
 \item{legend.title.fill, legend.title.colour, legend.title.shape, legend.title.group, }{legend.title.size The title of legend created by fill, colour, shape, group, or size. 
 Set legend.title.*="" to remove legend.}

@@ -662,6 +662,8 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
 #' the individual elements in box Whiskers plot. 
 #' This is useful when you want to align narrow geoms with wider geoms. 
 #' Refer to \code{\link{position_dodge}}.
+#' @param lwd change the line thinkness. 
+#' @param fatten make the median line thinner relative to the other lines.
 #' @keywords graph
 #' @export
 #' @examples
@@ -673,20 +675,21 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
                               x.facet.id=NULL, y.facet.id=NULL, facet.scales="fixed", 
                               facet.space="fixed", facet.shrink=TRUE, facet.drop = TRUE,
                               y.trans="identity", auto.scale.y=FALSE, 
-                              x.lim.cart=NULL, y.lim.cart=NULL, 
+                              x.lim.cart=NULL, y.lim.cart=NULL, lwd=1, fatten=1,
                               palette=NULL, scale.to="fill", scale.type=NULL,
                               legend.title.fill=NULL, legend.title.colour=NULL, 
-                              legend.col=1, legend.row=0, 
-                              title="Box Whiskers Plot", title.size = 10, 
-                              x.lab=NULL, y.lab=NULL, no.legend=NULL, 
+                              no.legend=NULL, legend.col=1, legend.row=0, 
                               legend.position="right", legend.direction="vertical",
+                              title="Box Whiskers Plot", title.size = 10, 
+                              x.lab=NULL, y.lab=NULL, 
                               coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE,
                               no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, fill.id=fill.id, colour.id=colour.id, verbose=verbose)
   if (! is.null(fill.id)) 
-    p <- p + geom_boxplot(outlier.colour=outlier.colour, position=position_dodge(width=dodge.width))
+    p <- p + geom_boxplot(outlier.colour=outlier.colour, position=position_dodge(width=dodge.width),
+                          lwd=lwd, fatten=fatten)
   else 
-    p <- p + geom_boxplot(outlier.colour=outlier.colour)
+    p <- p + geom_boxplot(outlier.colour=outlier.colour, lwd=lwd, fatten=fatten)
   
   p <- p + scale_shape(solid = FALSE) #+ geom_jitter(alpha = 0.5) 
   
