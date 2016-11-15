@@ -36,7 +36,9 @@
 #' 4. \code{data.cluster} picks up the optimised or selected k-cluster final result;
 #' 
 #' 5. \code{plotOptClusters} and \code{plotEnterotypes} make plots including BCA and PCoA.
-#'  
+#' 
+#' ---------------------------------------------------------------------------------------
+#' 
 #' @keywords enterotype
 #' @export
 #' @examples 
@@ -113,7 +115,7 @@ getClusters <- function(data, data.dist, n.max=20, ...) {
   if (n.max < 2)
     stop("The max number of clusters must >= 2!")
   
-  require(clusterSim)
+  require("clusterSim")
   #nclusters = index.G1(t(data), data.cluster, d = data.dist, centrotypes = "medoids")
   nclusters=NULL
   for (k in 1:n.max) { 
@@ -334,10 +336,10 @@ plotClusterAbundence <- function(data, data.cluster, fig.path=NA, cluster.colour
 
 ######### correlation between enterotypes and known groups ##########
 #' @details 
-#' \code{corrEnterotypeToGroup} checks if both the enterotypes and the known groups
-#' from a same data set (two categorical variables) are independent with 
-#' Chi-Squared test \code{\link{chisq.test}},
-#' and returns Crammer's V to measure their correlation.
+#' \code{corrEnterotypeToGroup} calculates Cramér's V between the enterotypes 
+#' and the known groups (two categorical variables) from a same data set 
+#' using Chi-Squared test \code{\link{chisq.test}}. 
+#' \url{http://en.wikipedia.org/wiki/Cramér\%27s_V}.
 #' 
 #' @param group.id The column name in \code{attr.data} contains the known groups to 
 #' compare with enterotypes.
@@ -366,7 +368,9 @@ corrEnterotypeToGroup <- function(data.dist, k, attr.data, group.id, simulate.p.
   
   chi2v = chisq.test(tb.freq, simulate.p.value=simulate.p.value)
   #c(chi2v$statistic, chi2v$p.value)
-  list(freq=tb.freq, chi=chi2v, V=sqrt(as.numeric(chi2v$statistic) / sum(tb.freq)), p.value=chi2v$p.value)
+  # V=sqrt( X-squared / (N * min(k-1, r-1)) ) 
+  V=sqrt( as.numeric(chi2v$statistic) / ( sum(tb.freq) * min(ncol(tb.freq)-1, nrow(tb.freq)-1) ) )
+  list(freq=tb.freq, chi=chi2v, V=V, p.value=chi2v$p.value)
 }
 
 

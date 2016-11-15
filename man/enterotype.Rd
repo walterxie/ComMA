@@ -112,6 +112,8 @@ The steps of this pipeline are described below:
 
 5. \code{plotOptClusters} and \code{plotEnterotypes} make plots including BCA and PCoA.
 
+---------------------------------------------------------------------------------------
+
 \code{getAbundanceDist} returns a matrix of normalized probability distributions
 of the abundance matrix for an input of \code{getJSD}.
 
@@ -143,10 +145,10 @@ It is only available when \code{k} > 2.
 \code{plotClusterAbundence} return a list of \code{\link{ggplot2}} objects
 for relative abundance distribution in each cluster.
 
-\code{corrEnterotypeToGroup} checks if both the enterotypes and the known groups
-from a same data set (two categorical variables) are independent with 
-Chi-Squared test \code{\link{chisq.test}},
-and returns Crammer's V to measure their correlation.
+\code{corrEnterotypeToGroup} calculates Cramér's V between the enterotypes 
+and the known groups (two categorical variables) from a same data set 
+using Chi-Squared test \code{\link{chisq.test}}. 
+\url{http://en.wikipedia.org/wiki/Cramér\%27s_V}.
 }
 \examples{
 enterotypePipeline(taxa.assign, n.max=20, fig.path="./figures", percent=0)
