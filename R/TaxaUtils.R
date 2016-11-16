@@ -378,6 +378,7 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum,
 #' @param ta.list,ta.OTU.list The list of taxonomic assignments 
 #' created by \code{assignTaxaByRank} based on either number of reads or OTUs, 
 #' where 'total' column is required. 
+#' If ta.OTU.list is an empty list, as default, then do not count OTUs.
 #' See \code{has.total} in \code{mergeCMTaxa} for the detail to get the total.
 #' @param exclude.rank The first n elements (ranks) to exclude from the summary, default to -1, 
 #' which is normally the kingdom.
@@ -391,33 +392,35 @@ assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum,
 #' summary.ta.df <- summaryTaxaAssign(ta.list, ta.OTU.list)
 #' 
 #' @rdname TaxaUtils
-summaryTaxaAssign <- function(ta.list, ta.OTU.list, exclude.rank=c(-1), exclude.unclassified=TRUE, 
+summaryTaxaAssign <- function(ta.list, ta.OTU.list=list(), exclude.rank=c(-1), exclude.unclassified=TRUE, 
                               sort.rank=getRanks()) {
   ranks <- names(ta.list)
-  if (any(ranks != names(ta.OTU.list)))
-    stop("Two taxa assignments need to have same ranks !")
-  
   # [-1] excludes kingdom
   require(plyr)
   # rank column has names of ta.list, such as phylum
   reads.df <- ldply(ta.list[exclude.rank], rbind, .id="rank")
-  otus.df <- ldply(ta.OTU.list[exclude.rank], rbind, .id="rank")
-  # use unlist(lapply(ta.list, rownames)) to get the taxonomy from rownames
-  if (exclude.unclassified) {
+  if (exclude.unclassified) 
     reads.df <- subset(reads.df, !grepl("unclassified", unlist(lapply(ta.list, rownames)), ignore.case = T))
-    otus.df <- subset(otus.df, !grepl("unclassified", unlist(lapply(ta.OTU.list, rownames)), ignore.case = T))
-  }
-  
-  if ( (!"total" %in% colnames(reads.df)) || (!"total" %in% colnames(otus.df)) )
-    stop("Invalid taxa assignments inputs: no column 'total' !")
-  
   reads <- aggregate(total ~ rank, data=reads.df, FUN=sum)
-  otus <- aggregate(total ~ rank, data=otus.df, FUN=sum)
   taxonomy <- aggregate(total ~ rank, data=reads.df, FUN=function(x) sum(x>0))
+  summary.df <- merge(reads, taxonomy, by="rank", all = T)
+  colnames(summary.df) <- c("rank", "reads", "taxonomy")
   
-  summary.df <- merge(reads, otus, by="rank", all = T)
-  summary.df <- merge(summary.df, taxonomy, by="rank", all = T)
-  colnames(summary.df) <- c("rank", "reads", "OTUs", "taxonomy")
+  if (length(ta.OTU.list) > 0){
+    if (any(ranks != names(ta.OTU.list)))
+      stop("Two taxa assignments need to have same ranks !")
+    
+    otus.df <- ldply(ta.OTU.list[exclude.rank], rbind, .id="rank")
+    # use unlist(lapply(ta.list, rownames)) to get the taxonomy from rownames
+    if (exclude.unclassified) 
+        otus.df <- subset(otus.df, !grepl("unclassified", unlist(lapply(ta.OTU.list, rownames)), ignore.case = T))
+    
+    if ( (!"total" %in% colnames(reads.df)) || (!"total" %in% colnames(otus.df)) )
+      stop("Invalid inputs : taxa assignments have no column 'total' !")
+    
+    otus <- aggregate(total ~ rank, data=otus.df, FUN=sum)
+    summary.df <- merge(summary.df, otus, by="rank", all = T)
+  }
   
   if (!any(unique(summary.df$rank) %in% sort.rank))
     stop("Find extra rank(s) : ", paste(setdiff(unique(summary.df$rank), sort.rank), collapse = ","), 
@@ -426,8 +429,27 @@ summaryTaxaAssign <- function(ta.list, ta.OTU.list, exclude.rank=c(-1), exclude.
   return(summary.df)
 }
 
-summaryRank <- function(taxa.assign, rank="", exclude.unclassified=TRUE) {
-
+#' @details 
+#' \code{summaryRank} directly converts the result of \code{assignTaxaByRank} 
+#' at a given \code{rank} into a data frame as the summary.
+#' 
+#' @param rank The rank given to select the list of taxa assignments 
+#' produced by \code{assignTaxaByRank}.
+#' @keywords taxonomy
+#' @export
+#' @examples 
+#' summary.kingdom.df <- summaryRank(ta.list, rank="kingdom")
+#' 
+#' @rdname TaxaUtils
+summaryRank <- function(ta.list, rank="kingdom", exclude.unclassified=TRUE) {
+  if (! rank %in% names(ta.list)) 
+    stop("Invalid inputs : taxa assignments have no '", rank, "' in the list !")
+  
+  df <- as.data.frame(ta.list[[rank]])
+  df[,rank] <- rownames(df)
+  if (exclude.unclassified) 
+    df <- subset(df, !grepl("unclassified", rownames(df), ignore.case = T))
+  return(df)
 }
 
 #' @details 
