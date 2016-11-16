@@ -15,9 +15,8 @@
 #' "sum.2" is reads excluding singletons. 
 #' 
 #' @details 
-#' \code{getCountsSums} return an unkeyed \code{\link{data.table}} by \code{\link{rbindlist}},
+#' \code{getCountsSums} return a data frame
 #' concatenating counts of OTUs and reads given a list of data sets.
-#' Note: the type of the returned object is \code{\link{list}}.
 #' 
 #' @param ... Input of a list of community matrices, or comma separated multi-inputs.
 #' @param input.list Default to TRUE to unwrap list(...) to 
@@ -73,8 +72,8 @@ getCountsSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank=
         "and", length(unique(counts.sums[,group.rank])), group.rank,"\n")
     counts.sums.list[[label]] <- counts.sums
   }
-  require(data.table)
-  return(rbindlist(counts.sums.list)) # list
+  counts.sums.df <- data.frame(do.call("rbind", counts.sums.list))
+  return(counts.sums.df)
 }
 
 
@@ -86,7 +85,7 @@ getCountsSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank=
 #' open circles the number of OTUs including singleton OTUs, 
 #' and filled circles the number of OTUs excluding singleton OTUs.
 #' 
-#' @param all.counts.sums The output from \code{getCountsSums}.
+#' @param all.counts.sums The output produced by \code{getCountsSums}.
 #' @param taxa.ref The taxonomic reference data set to order taxonomic names nicely.
 #' But it removes the taxonomy not exsiting in the reference.
 #' Default to use a taxonomy reference data set \code{taxa.ref.PLOSONE.2015} in the package.
@@ -115,10 +114,11 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
                          x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs", 
                          legend.title=NULL, palette=NULL, title="", title.size = 10, verbose=TRUE){
   if (!taxa.rank %in% colnames(all.counts.sums) || !group.rank %in% colnames(all.counts.sums))
-    stop("Invalid 'taxa.rank' and 'group.rank' !\nCannot find them in 'all.counts.sums' !")
+    stop("Cannot find 'taxa.rank' ", taxa.rank, " or 'group.rank'", group.rank,
+         " in the input 'all.counts.sums' columns !")
   
-  # z is a list
-  z <- all.counts.sums[all.counts.sums[,taxa.rank] != 0, ]
+  # in case if z is a data.table object from rbindlist
+  z <- as.data.frame(all.counts.sums)
   # fix name for convience
   colnames(z)[match(c(taxa.rank, group.rank), colnames(z))] <- c("taxa", "group")
   if (length(taxa.ref) > 1) {
@@ -136,7 +136,6 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
   } 
   
   require(reshape2)
-  z <- as.data.frame(z)
   z <- melt(z, id.vars = c("taxa", "group", "gene"))
   z$group <- gsub("root|No hits|Not assigned|cellular organisms|unclassified", "Unknown", z$group, ignore.case=T)
   # Order factors

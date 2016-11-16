@@ -39,7 +39,7 @@ get the actual list if the input is a list of cm.}
 
 \item{group.rank}{The rank to group \code{taxa.rank} to colour the figure.}
 
-\item{all.counts.sums}{The output from \code{getCountsSums}.}
+\item{all.counts.sums}{The output produced by \code{getCountsSums}.}
 
 \item{taxa.ref}{The taxonomic reference data set to order taxonomic names nicely.
 But it removes the taxonomy not exsiting in the reference.
@@ -84,9 +84,8 @@ and bar chart for visualization.
 "sum.2" is reads excluding singletons.
 }
 \details{
-\code{getCountsSums} return an unkeyed \code{\link{data.table}} by \code{\link{rbindlist}},
+\code{getCountsSums} return a data frame
 concatenating counts of OTUs and reads given a list of data sets.
-Note: the type of the returned object is \code{\link{list}}.
 
 \code{plotTaxonomy} plots a circle-diamond graph of reads and OTUs coloured by taxonomic group 
 and sumarised by \code{getCountsSums}.
