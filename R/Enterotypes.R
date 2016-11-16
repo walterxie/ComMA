@@ -27,7 +27,7 @@
 #' \url{http://enterotype.embl.de/enterotypes_tutorial.sanger.R}.
 #' The steps of this pipeline are described below: 
 #' 
-#' 1. \code{getAbundanceDist} turns taxa.assign into normalized probability distributions;
+#' 1. \code{getRelativeAbundance} turns taxa.assign into normalized probability distributions;
 #' 
 #' 2. \code{getJSD} calculates Jensen-Shannon divergence dissimilarity;
 #' 
@@ -47,7 +47,7 @@
 #' @rdname enterotype
 enterotypePipeline <- function(taxa.assign, n.max=20, k=NULL, fig.path=NA, percent=0.01, verbose=TRUE, ...) {
   # 1. turn taxa.assign into normalized probability distributions
-  relative.abund <- ComMA::getAbundanceDist(taxa.assign)
+  relative.abund <- ComMA::getRelativeAbundance(taxa.assign)
   # 2. calculate Jensen-Shannon divergence dissimilarity
   jsd.dist <- ComMA::getJSD(relative.abund)
   # 3. Calinski-Harabasz (CH) Index of n clusters
@@ -61,8 +61,8 @@ enterotypePipeline <- function(taxa.assign, n.max=20, k=NULL, fig.path=NA, perce
 }
 
 #' @details 
-#' \code{getAbundanceDist} returns a matrix of normalized probability distributions
-#' of the abundance matrix for an input of \code{getJSD}.
+#' \code{getRelativeAbundance} returns a matrix of normalized probability distributions
+#' of the abundance matrix for an input of \code{getJSD}, namely relative abundance.
 #' 
 #' @param taxa.assign The data frame of taxonomic assignments with abudence
 #' at the \code{rank}, where rownames are taxonomy at that rank, 
@@ -71,10 +71,10 @@ enterotypePipeline <- function(taxa.assign, n.max=20, k=NULL, fig.path=NA, perce
 #' @keywords enterotype
 #' @export
 #' @examples 
-#' relative.abund <- getAbundanceDist(taxa.assign)
+#' relative.abund <- getRelativeAbundance(taxa.assign)
 #'
 #' @rdname enterotype
-getAbundanceDist <- function(taxa.assign) {
+getRelativeAbundance <- function(taxa.assign) {
   taxa.assign.prop <- prop.table(as.matrix(taxa.assign), 2)
 }
 
@@ -165,13 +165,15 @@ plotOptClusters <- function(nclusters, fig.path=NA, n.max=20) {
 #' @param nclusters The vector of nclusters, such as 
 #' Calinski-Harabasz (CH) Index, to find the optimised solution.
 #' @param validate Logical if it needs to validate. Default to TRUE.
+#' @param as.vector Logical if TRUE, as default, to return a vector, 
+#' otherwise return a \code{\link{pam.object}} representing the clustering. 
 #' @keywords enterotype
 #' @export
 #' @examples 
 #' data.cluster <- getDataCluster(jsd.dist, nclusters=nclusters)
 #'
 #' @rdname enterotype
-getDataCluster <- function(data.dist, k=NULL, nclusters=NULL, validate=TRUE, verbose=TRUE) {
+getDataCluster <- function(data.dist, k=NULL, nclusters=NULL, as.vector=TRUE, validate=TRUE) {
   if (is.null(k)) {
     if (is.null(nclusters))
       stop("Please provide the nclusters, such as CH Index, to find the optimised solution !")
@@ -179,12 +181,11 @@ getDataCluster <- function(data.dist, k=NULL, nclusters=NULL, validate=TRUE, ver
     cat("The optimised solution is ", k, " clusters.\n")
   }
   
-  data.cluster=pam.clustering(data.dist, k)
+  data.cluster=pam.clustering(data.dist, k=k, as.vector=as.vector)
+  if (as.vector) 
+    return(data.cluster)
   attr(data.cluster, "k") <- k
-  if (verbose) {
-    print(pam.clustering(data.dist, k, as.vector=F))
-  }
-    
+  
   #nclusters = index.G1(t(data), data.cluster, d = data.dist, centrotypes = "medoids")
   if (validate)
     validateCluster(data.cluster, data.dist)

@@ -4,10 +4,10 @@
 \alias{corrEnterotypeToGroup}
 \alias{enterotype}
 \alias{enterotypePipeline}
-\alias{getAbundanceDist}
 \alias{getClusters}
 \alias{getDataCluster}
 \alias{getJSD}
+\alias{getRelativeAbundance}
 \alias{noise.removal}
 \alias{plotClusterAbundence}
 \alias{plotEnterotypes}
@@ -17,7 +17,7 @@
 enterotypePipeline(taxa.assign, n.max = 20, k = NULL, fig.path = NA,
   percent = 0.01, verbose = TRUE, ...)
 
-getAbundanceDist(taxa.assign)
+getRelativeAbundance(taxa.assign)
 
 getJSD(data)
 
@@ -25,8 +25,8 @@ getClusters(data, data.dist, n.max = 20, ...)
 
 plotOptClusters(nclusters, fig.path = NA, n.max = 20)
 
-getDataCluster(data.dist, k = NULL, nclusters = NULL, validate = TRUE,
-  verbose = TRUE)
+getDataCluster(data.dist, k = NULL, nclusters = NULL, as.vector = TRUE,
+  validate = TRUE)
 
 noise.removal(data, percent = 0.01)
 
@@ -71,6 +71,9 @@ calculated by Jensen-Shannon divergence (JSD) metric.}
 \item{nclusters}{The vector of nclusters, such as 
 Calinski-Harabasz (CH) Index, to find the optimised solution.}
 
+\item{as.vector}{Logical if TRUE, as default, to return a vector, 
+otherwise return a \code{\link{pam.object}} representing the clustering.}
+
 \item{validate}{Logical if it needs to validate. Default to TRUE.}
 
 \item{data.cluster}{The clusters assigned by 
@@ -102,7 +105,7 @@ such as correlation between enterotypes and given/known groups.
 \url{http://enterotype.embl.de/enterotypes_tutorial.sanger.R}.
 The steps of this pipeline are described below: 
 
-1. \code{getAbundanceDist} turns taxa.assign into normalized probability distributions;
+1. \code{getRelativeAbundance} turns taxa.assign into normalized probability distributions;
 
 2. \code{getJSD} calculates Jensen-Shannon divergence dissimilarity;
 
@@ -114,8 +117,8 @@ The steps of this pipeline are described below:
 
 ---------------------------------------------------------------------------------------
 
-\code{getAbundanceDist} returns a matrix of normalized probability distributions
-of the abundance matrix for an input of \code{getJSD}.
+\code{getRelativeAbundance} returns a matrix of normalized probability distributions
+of the abundance matrix for an input of \code{getJSD}, namely relative abundance.
 
 \code{getJSD} return a distance \code{\link{dist}} object 
 calculated by Jensen-Shannon divergence (JSD) metric.
@@ -153,7 +156,7 @@ using Chi-Squared test \code{\link{chisq.test}}.
 \examples{
 enterotypePipeline(taxa.assign, n.max=20, fig.path="./figures", percent=0)
 
-relative.abund <- getAbundanceDist(taxa.assign)
+relative.abund <- getRelativeAbundance(taxa.assign)
 
 jsd.dist <- getJSD(relative.abund)
 
