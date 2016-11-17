@@ -5,8 +5,7 @@
 \title{Combine two data frames or matrices with a same structure in one, 
 put all values in 2nd data frame into brackets.}
 \usage{
-combineTwoDF(dfm, dfm2, rm.zero = TRUE, return.df = TRUE,
-  stringsAsFactors = FALSE, check.names = FALSE)
+combineTwoDF(dfm, dfm2, rm.zero = TRUE, return.df = TRUE, ...)
 }
 \arguments{
 \item{dfm}{A data frame or matrix.}
@@ -15,14 +14,14 @@ combineTwoDF(dfm, dfm2, rm.zero = TRUE, return.df = TRUE,
 
 \item{rm.zero}{Default to TRUE to remove all " (0)".}
 
-\item{return.df}{Default to TRUE to return a data frame, otherwise a matrix.}
+\item{return.df, ...}{Default to TRUE to return a data frame, otherwise a matrix.}
 }
 \description{
 Combine two data frames or matrices with a same structure in one, 
 put all values in 2nd data frame into brackets.
 }
 \examples{
-df <- combineTwoDF(df, df2)
+df <- combineTwoDF(df, df2, stringsAsFactors=FALSE, check.names=FALSE)
 }
 \keyword{utils}
 

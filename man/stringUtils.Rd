@@ -5,6 +5,7 @@
 \alias{findDuplicates}
 \alias{freqUniqueValue}
 \alias{gusbDF}
+\alias{pasteDF}
 \alias{simpleCap}
 \alias{stringUtils}
 \alias{substrBetween}
@@ -34,6 +35,9 @@ findDuplicates(x)
 
 gusbDF(pattern, replacement, df, stringsAsFactors = FALSE,
   check.names = FALSE, ...)
+
+pasteDF(df, ..., sep = " ", collapse = NULL, stringsAsFactors = FALSE,
+  check.names = FALSE)
 }
 \arguments{
 \item{x}{The string.}
@@ -48,6 +52,12 @@ gusbDF(pattern, replacement, df, stringsAsFactors = FALSE,
 \item{l}{The regex on the left.}
 
 \item{r}{The regex on the right.}
+
+\item{pattern, replacement, ...}{Arguemnts for \code{\link{gsub}}.}
+
+\item{df}{Data frame as the input.}
+
+\item{sep, collapse}{Arguemnts for \code{\link{paste}}.}
 }
 \description{
 Useful function to manipulate strings and characters in \code{\link{ComMA}}.
@@ -86,6 +96,10 @@ find the duplicates in a vector \code{x}.
 
 \code{gusbDF} applies \code{\link{gsub}} to 
 the entire data frame.
+
+\code{pasteDF} \code{\link{paste}} strings to 
+the entire data frame. 
+This will change the type to \code{\link{character}}.
 }
 \examples{
 text = "   foo bar  baz 3 "
@@ -133,6 +147,8 @@ freqUniqueValue(data.frame(x=c(1, 1, 2), y=c(3, 4, 3)))
 findDuplicates(c("a", "b", "a"))
 
 gusbDF(".00", "", df)
+
+pasteDF(df, "\%")
 
 }
 \keyword{utils}

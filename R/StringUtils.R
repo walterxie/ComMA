@@ -160,15 +160,34 @@ findDuplicates <- function(x) {
 #' @details \code{gusbDF} applies \code{\link{gsub}} to 
 #' the entire data frame.
 #' 
+#' @param df Data frame as the input.
+#' @param pattern,replacement,... Arguemnts for \code{\link{gsub}}.
 #' @export
 #' @examples 
 #' gusbDF(".00", "", df)
 #' 
 #' @rdname stringUtils
 gusbDF <- function(pattern, replacement, df, stringsAsFactors=FALSE, check.names=FALSE, ...) {
-  df1 <- data.frame(lapply(df, function(x) gsub(pattern, replacement, x, ...)), 
+  df1 <- data.frame(apply(df, 2, function(x) gsub(pattern, replacement, as.character(x), ...)), 
                     stringsAsFactors=stringsAsFactors, check.names=check.names)
   rownames(df1) <- rownames(df)
   return(df1)
 }
 
+#' @details \code{pasteDF} \code{\link{paste}} strings to 
+#' the entire data frame. 
+#' This will change the type to \code{\link{character}}.
+#' 
+#' @param sep,collapse Arguemnts for \code{\link{paste}}.
+#' @export
+#' @examples 
+#' pasteDF(df, "%")
+#' 
+#' @rdname stringUtils
+pasteDF <- function(df, ..., sep = " ", collapse = NULL, stringsAsFactors=FALSE, check.names=FALSE) {
+  df1 <- data.frame(apply(df, 2, function(x) paste(as.character(x), ..., sep=sep, collapse=collapse)), 
+                    stringsAsFactors=stringsAsFactors, check.names=check.names)
+  rownames(df1) <- rownames(df)
+  colnames(df1) <- colnames(df)
+  return(df1)
+}

@@ -161,12 +161,12 @@ convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=
 #' @param dfm A data frame or matrix.
 #' @param dfm2 The 2nd data frame or matrix whose values are into brackets.
 #' @param rm.zero Default to TRUE to remove all " (0)".
-#' @param return.df Default to TRUE to return a data frame, otherwise a matrix.
+#' @param return.df,... Default to TRUE to return a data frame, otherwise a matrix.
 #' @keywords utils
 #' @export
 #' @examples 
-#' df <- combineTwoDF(df, df2)
-combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, stringsAsFactors=FALSE, check.names=FALSE) {
+#' df <- combineTwoDF(df, df2, stringsAsFactors=FALSE, check.names=FALSE)
+combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, ...) {
   if (nrow(dfm) != nrow(dfm2) || ncol(dfm) != ncol(dfm2)) 
     stop("Two data frames must have a same structure !")
   
@@ -178,8 +178,8 @@ combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, stringsAsFacto
   if (rm.zero) 
     dfm.comb <- gsub(" \\(0\\)", "", dfm.comb)
   
-  if (return.dfm)
-    dfm.comb <- data.frame(dfm.comb, stringsAsFactors=stringsAsFactors, check.names=check.names)
+  if (return.df)
+    dfm.comb <- data.frame(dfm.comb, ...)
   return(dfm.comb)
 }
 
