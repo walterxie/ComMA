@@ -124,7 +124,7 @@ summaryOTUs <- function(..., digits=2, input.list=FALSE, pretty.numbers=TRUE,
                          paste("max",y.lab,"abundance",sep="."), paste("min",y.lab,"abundance",sep="."), 
                          paste("max",x.lab,"abundance",sep="."), paste("min",x.lab,"abundance",sep="."))
   otu.stats.list <- lapply(cm.list, ComMA::summaryCM.Vector)
-  otu.stats <- data.frame(t(do.call("rbind", otu.stats.list)))
+  otu.stats <- data.frame(t(do.call("rbind", otu.stats.list)), check.names = F)
   if (is.null(names(cm.list)))
       colnames(otu.stats) <- paste0("dataset", 1:length(cm.list))
   rownames(otu.stats) <- summary.row.names
