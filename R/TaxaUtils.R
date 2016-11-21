@@ -300,6 +300,9 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
 #' @rdname TaxaUtils
 assignTaxaByRank <- function(cm.taxa, unclassified=0, aggre.FUN=sum, 
                              pattern="(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))") {
+  if (nrow(cm.taxa) < 1) 
+    stop("Invalid input cm.taxa: it must have at least 1 rows ! ", nrow(cm.taxa))
+  
   attr.cm.ta <- attributes(cm.taxa)
   ncol.cm <- attr.cm.ta$ncol.cm
   col.ranks <- attr.cm.ta$col.ranks

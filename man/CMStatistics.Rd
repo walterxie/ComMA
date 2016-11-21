@@ -26,7 +26,7 @@ summaryDiversity(..., row.order = c(), digits = 2, input.list = FALSE,
 summaryTaxaGroup(..., input.list = FALSE, unclassified = 3,
   pretty.numbers = TRUE, taxa.group = c("ARCHAEA", "BACTERIA", "CHROMISTA",
   "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA"), group.rank = "kingdom",
-  count.rank = "phylum")
+  count.rank = "phylum", digits = 0)
 }
 \arguments{
 \item{most.abund}{The threshold to define the number of the most abundent OTUs.}

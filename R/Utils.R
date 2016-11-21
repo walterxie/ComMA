@@ -165,7 +165,7 @@ convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=
 #' @keywords utils
 #' @export
 #' @examples 
-#' df <- combineTwoDF(df, df2, stringsAsFactors=FALSE, check.names=FALSE)
+#' df <- combineTwoDF(df, df2, stringsAsFactors=FALSE)
 combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, ...) {
   if (nrow(dfm) != nrow(dfm2) || ncol(dfm) != ncol(dfm2)) 
     stop("Two data frames must have a same structure !")
@@ -179,7 +179,7 @@ combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, ...) {
     dfm.comb <- gsub(" \\(0\\)", "", dfm.comb)
   
   if (return.df)
-    dfm.comb <- data.frame(dfm.comb, ...)
+    dfm.comb <- data.frame(dfm.comb, check.names=FALSE, ...)
   return(dfm.comb)
 }
 

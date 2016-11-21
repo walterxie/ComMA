@@ -226,18 +226,18 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, pre
 #' @rdname CMStatistics
 summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbers=TRUE,
           taxa.group=c("ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", "FUNGI", "PLANTAE", "ANIMALIA"), 
-          group.rank="kingdom", count.rank="phylum") {
+          group.rank="kingdom", count.rank="phylum", digits = 0) {
   cm.taxa.list <- unwrapInputList(..., input.list=input.list) 
   cat("Summarize OTUs by taxa group on", length(cm.taxa.list), "data sets.\n") 
   
   # data frame for statistics
-  tg.reads <- data.frame(row.names = taxa.group, stringsAsFactors=FALSE, check.names=FALSE)
-  tg.otus <- data.frame(row.names = taxa.group, stringsAsFactors=FALSE, check.names=FALSE)
+  tg.reads <- data.frame(row.names = taxa.group, check.names=FALSE)
+  tg.otus <- data.frame(row.names = taxa.group, check.names=FALSE)
   tg.rank.count <- NA
   if (!is.na(count.rank))
-    tg.rank.count <- data.frame(row.names = taxa.group, stringsAsFactors=FALSE, check.names=FALSE)
-  count.rank.df.list <- list()
+    tg.rank.count <- data.frame(row.names = taxa.group, check.names=FALSE)
   
+  count.rank.df.list <- list()
   for (data.id in 1:length(cm.taxa.list)) {
     col.name <- names(cm.taxa.list)[data.id]
     if (is.null(col.name))
@@ -245,35 +245,38 @@ summaryTaxaGroup <- function(..., input.list=FALSE, unclassified=3, pretty.numbe
     
     for (taxa.id in 1:length(taxa.group)) {
       cat("Data set", col.name, "taxonomic group", taxa.group[taxa.id], ".\n") 
-      
       cm.taxa.sub <- ComMA::subsetTaxaTable(cm.taxa.list[[data.id]], taxa.group=taxa.group[taxa.id], rank=group.rank)
       
-      if (nrow(cm.taxa.sub) < 1) {
+      taxa.assign.reads <- list()
+      if (nrow(cm.taxa.sub) > 1) {
+        taxa.assign.otu <- ComMA::assignTaxaByRank(cm.taxa.sub, unclassified=unclassified, aggre.FUN=function(x) sum(x>0))
+        taxa.assign.reads <- ComMA::assignTaxaByRank(cm.taxa.sub, unclassified=unclassified)
+      } 
+      
+      if (is.null(nrow(taxa.assign.reads[[group.rank]])) || nrow(taxa.assign.reads[[group.rank]]) < 1) {
         tg.reads[taxa.group[taxa.id],col.name] <- 0
         tg.otus[taxa.group[taxa.id],col.name] <- 0
         if (!is.na(count.rank))
           tg.rank.count[taxa.group[taxa.id],col.name] <- 0
       } else {
-        taxa.assign.otu <- ComMA::assignTaxaByRank(cm.taxa.sub, unclassified=unclassified, aggre.FUN=function(x) sum(x>0))
-        taxa.assign.reads <- ComMA::assignTaxaByRank(cm.taxa.sub, unclassified=unclassified)
-        
         tg.otus[taxa.group[taxa.id],col.name] <- sum(taxa.assign.otu[[group.rank]])
         tg.reads[taxa.group[taxa.id],col.name] <- sum(taxa.assign.reads[[group.rank]])
         if (!is.na(count.rank)) {
           tg.rank.count[taxa.group[taxa.id],col.name] <- nrow(taxa.assign.otu[[count.rank]])
           # record taxa in count.rank
           df.name <- paste(col.name, taxa.group[taxa.id], sep = ".")
-          count.rank.df.list[[df.name]] <- taxa.assign.otu[[count.rank]]
+          count.rank.df.list[["reads"]][[df.name]] <- taxa.assign.reads[[count.rank]]
+          count.rank.df.list[["OTUs"]][[df.name]] <- taxa.assign.otu[[count.rank]]
         }
       }
-    }
-  }
+    } # for taxa.id
+  } # for data.id
   
   if (pretty.numbers) {
-    tg.otus <- ComMA::prettyNumbers(tg.otus, digits = 0)
-    tg.reads <- ComMA::prettyNumbers(tg.reads, digits = 0)
+    tg.otus <- ComMA::prettyNumbers(tg.otus, digits = digits)
+    tg.reads <- ComMA::prettyNumbers(tg.reads, digits = digits)
     if (!is.na(count.rank))
-      tg.rank.count <- ComMA::prettyNumbers(tg.rank.count, digits = 0)
+      tg.rank.count <- ComMA::prettyNumbers(tg.rank.count, digits = digits)
   }
   
   list(otus=tg.otus, rank.count=tg.rank.count, reads=tg.reads, taxa.group=taxa.group, group.rank=group.rank,

@@ -21,7 +21,7 @@ Combine two data frames or matrices with a same structure in one,
 put all values in 2nd data frame into brackets.
 }
 \examples{
-df <- combineTwoDF(df, df2, stringsAsFactors=FALSE, check.names=FALSE)
+df <- combineTwoDF(df, df2, stringsAsFactors=FALSE)
 }
 \keyword{utils}
 
