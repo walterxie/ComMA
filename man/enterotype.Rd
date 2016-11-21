@@ -15,7 +15,7 @@
 \title{Enterotype}
 \usage{
 enterotypePipeline(taxa.assign, n.max = 20, k = NULL, fig.path = NA,
-  percent = 0.01, verbose = TRUE, ...)
+  percent = 0.01, validate = TRUE, ...)
 
 getRelativeAbundance(taxa.assign)
 
@@ -32,12 +32,13 @@ noise.removal(data, percent = 0.01)
 
 plotEnterotypes(data, data.dist, data.cluster, attr.data = data.frame(),
   fig.path = NA, percent = 0, addLabel = TRUE, text.colour.id = NULL,
-  palette = "Set1", postfix = "", to.plot = c(TRUE, TRUE, TRUE),
-  width = 8, height = 8, verbose = TRUE, ...)
+  palette = "Set1", postfix = "", plot.clusters = TRUE, plot.bca = TRUE,
+  plot.pcoa = TRUE, cl.width = 9, cl.height = 6, width = 8,
+  height = 8, verbose = TRUE, ...)
 
 plotClusterAbundence(data, data.cluster, fig.path = NA,
   cluster.colours = c(), min.median = 0, x.lab = "",
-  y.lab = "Relative abundence", width = 8, height = 6)
+  y.lab = "Relative abundence", width = 9, height = 6)
 
 corrEnterotypeToGroup(data.dist, k, attr.data, group.id,
   simulate.p.value = TRUE)
@@ -61,6 +62,8 @@ the default, do not plot the figure.}
 (ie. low abundant genera). Prior to the analysis. 
 Default to 0.}
 
+\item{validate}{Logical if it needs to validate. Default to TRUE.}
+
 \item{data}{The matrix of normalized probability distributions 
 of the abundance matrix, also called abundance distributions.
 Rows are taxonomy at that rank and columns are samples.}
@@ -73,8 +76,6 @@ Calinski-Harabasz (CH) Index, to find the optimised solution.}
 
 \item{as.vector}{Logical if TRUE, as default, to return a vector, 
 otherwise return a \code{\link{pam.object}} representing the clustering.}
-
-\item{validate}{Logical if it needs to validate. Default to TRUE.}
 
 \item{data.cluster}{The clusters assigned by 
 partitioning clustering \code{\link{pam}}.}

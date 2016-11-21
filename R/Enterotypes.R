@@ -45,7 +45,7 @@
 #' enterotypePipeline(taxa.assign, n.max=20, fig.path="./figures", percent=0)
 #'
 #' @rdname enterotype
-enterotypePipeline <- function(taxa.assign, n.max=20, k=NULL, fig.path=NA, percent=0.01, verbose=TRUE, ...) {
+enterotypePipeline <- function(taxa.assign, n.max=20, k=NULL, fig.path=NA, percent=0.01, validate=TRUE, ...) {
   # 1. turn taxa.assign into normalized probability distributions
   relative.abund <- ComMA::getRelativeAbundance(taxa.assign)
   # 2. calculate Jensen-Shannon divergence dissimilarity
@@ -53,11 +53,11 @@ enterotypePipeline <- function(taxa.assign, n.max=20, k=NULL, fig.path=NA, perce
   # 3. Calinski-Harabasz (CH) Index of n clusters
   nclusters <- ComMA::getClusters(relative.abund, jsd.dist, n.max=n.max)
   # 4. the optimised or selected k-cluster final result
-  data.cluster <- ComMA::getDataCluster(jsd.dist, k=k, nclusters=nclusters, validate=TRUE, verbose=verbose)
+  data.cluster <- ComMA::getDataCluster(jsd.dist, k=k, nclusters=nclusters, validate=TRUE)
   
   # 5. plot
   ComMA::plotOptClusters(nclusters, fig.path=fig.path, n.max=n.max)
-  ComMA::plotEnterotypes(relative.abund, jsd.dist, data.cluster, fig.path=fig.path, percent=percent)
+  ComMA::plotEnterotypes(relative.abund, jsd.dist, data.cluster, fig.path=fig.path, percent=percent, ...)
 }
 
 #' @details 
@@ -182,9 +182,9 @@ getDataCluster <- function(data.dist, k=NULL, nclusters=NULL, as.vector=TRUE, va
   }
   
   data.cluster=pam.clustering(data.dist, k=k, as.vector=as.vector)
+  attr(data.cluster, "k") <- k
   if (as.vector) 
     return(data.cluster)
-  attr(data.cluster, "k") <- k
   
   #nclusters = index.G1(t(data), data.cluster, d = data.dist, centrotypes = "medoids")
   if (validate)
@@ -240,18 +240,21 @@ noise.removal <- function(data, percent=0.01){
 #' @rdname enterotype
 plotEnterotypes <- function(data, data.dist, data.cluster, attr.data=data.frame(), fig.path=NA, 
                             percent=0, addLabel=TRUE, text.colour.id=NULL, palette="Set1", postfix="",
-                            to.plot=c(TRUE, TRUE, TRUE), width=8, height=8, verbose=TRUE, ...) {
+                            plot.clusters=TRUE, plot.bca=TRUE, plot.pcoa=TRUE, 
+                            cl.width=9, cl.height=6, width=8, height=8, verbose=TRUE, ...) {
   attr.data.cluster <- attributes(data.cluster)
-  k <- attr.data.cluster$k
+  k <- as.numeric(attr.data.cluster$k)
   
   if (percent > 0)
     data=noise.removal(data, percent)
   
-  if (to.plot[1])
-    p.list <- ComMA::plotClusterAbundence(data, data.cluster, fig.path=fig.path)
+  if (plot.clusters)
+    p.list <- ComMA::plotClusterAbundence(data, data.cluster, fig.path=fig.path, width=cl.width, height=cl.height)
   
   require(ade4)
-  if (to.plot[2] && k > 2) {
+  if (plot.bca && k > 2) {
+    cat("Plot between-class analysis (BCA) for", k, "clusters.\n")
+    
     #Between-class analysis (BCA) was performed to support the clustering and identify the drivers for the enterotypes. 
     obs.pca=dudi.pca(data.frame(t(data)), scannf=F, nf=10)
     obs.bet=bca(obs.pca, fac=as.factor(data.cluster), scannf=F, nf=k-1) 
@@ -267,7 +270,9 @@ plotEnterotypes <- function(data, data.dist, data.cluster, attr.data=data.frame(
                                    title="Between Class Analysis", verbose=verbose, ...)
   }
   
-  if (to.plot[3]) {
+  if (plot.pcoa) {
+    cat("Plot principal coordinates analysis (PCoA) for", k, "clusters.\n")
+    
     #principal coordinates analysis (PCoA) of a Euclidean distance matrix
     obs.pcoa=dudi.pco(data.dist, scannf=F, nf=3)
     cat("\nplot", k, "clusters principal coordinates analysis (PCoA).\n") 
@@ -296,12 +301,14 @@ plotEnterotypes <- function(data, data.dist, data.cluster, attr.data=data.frame(
 #'
 #' @rdname enterotype
 plotClusterAbundence <- function(data, data.cluster, fig.path=NA, cluster.colours=c(), min.median=0, 
-                                 x.lab="", y.lab="Relative abundence", width=8, height=6) {
+                                 x.lab="", y.lab="Relative abundence", width=9, height=6) {
   attr.data.cluster <- attributes(data.cluster)
   k <- attr.data.cluster$k
   
   if (!is(data, "matrix")) 
     stop("Data input has to be 'matrix' !")
+  cat("\nPlot the relative abundance for", k, "clusters.\n")
+  
   da.cl <- as.data.frame(cbind(t(data), cluster=data.cluster))
   require(reshape2)
   da.cl.melt <- melt(da.cl, id=c("cluster"))
@@ -428,7 +435,8 @@ validateCluster <- function(data.cluster, data.dist) {
 
 # for both BCA and PCoA
 plotSamples <- function(points.df, attr.data=data.frame(), fig.path=NA, addLabel=TRUE, 
-                        text.colour.id=NULL, palette="Set1", prefix="enterotypes-pcoa-", width=8, height=8,
+                        colour.id="cluster", ellipsed.id="cluster", shape.id=NULL, text.colour.id=NULL, 
+                        palette="Set1", prefix="enterotypes-pcoa-", width=8, height=8,
                         x.id="PCo1", y.id="PCo2", title="Principal Coordinates Analysis", verbose=TRUE, ...) {
   cluster.levels <- sort(unique(points.df$cluster))
   k <- length(cluster.levels)
@@ -436,17 +444,19 @@ plotSamples <- function(points.df, attr.data=data.frame(), fig.path=NA, addLabel
   points.df$cluster <- factor(points.df$cluster, levels = cluster.levels)
   if (addLabel) {
     text.id="Row.names"
-    if (nrow(attr.data) > 0) 
+    if (nrow(attr.data) > 0) {
       points.df <- ComMA::mergeByRownames(points.df, attr.data)
-    else 
+      #points.df[,] <- factor(points.df[,], levels = attr.levels)
+    } else {
       points.df$Row.names <- rownames(points.df)
+    }
   } else {
     text.id=NULL
   }
   
-  p <- ComMA::ggScatterPlot(points.df, x.id=x.id, y.id=y.id, colour.id="cluster", ellipsed.id="cluster",
-                            text.id=text.id, text.colour.id=text.colour.id, palette=palette,
-                            title=title, xintercept=0, yintercept=0, verbose=verbose, ...)
+  p <- ComMA::ggScatterPlot(points.df, x.id=x.id, y.id=y.id, colour.id=colour.id, ellipsed.id=ellipsed.id,
+                            shape.id=shape.id, text.id=text.id, text.colour.id=text.colour.id, 
+                            palette=palette, title=title, xintercept=0, yintercept=0, verbose=verbose, ...)
   gt <- unclip.ggplot(p)  
   if(!is.na(fig.path))
     pdf.gtable(gt, fig.path=file.path(fig.path, paste0(prefix, k,".pdf")), width=width, height=height) 
