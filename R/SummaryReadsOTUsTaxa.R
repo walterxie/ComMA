@@ -191,9 +191,6 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
 #' @param col.ranks A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 #' detail to see \code{\link{mergeCMTaxa}}. 
 #' Default to c("kingdom", "phylum", "class", "order").
-#' @param fig.folder Folder to contain the figure in PDF from \code{plotTaxonomy}.
-#' @param pdf.width,pdf.height,units Parameters in \code{\link{ggsave}} to adjust figure.
-#' @param table.folder Folder to save the result from \code{getCountsSums}.
 #' @keywords taxonomy
 #' @export
 #' @examples 
@@ -204,22 +201,12 @@ summReadsOTUsPipeline <- function(cm.taxa.list, taxa.ref=ComMA::taxa.ref.PLOSONE
                                   gene.levels=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                                   group.levels=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
                                   x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs",
-                                  title="", legend.title=NULL, palette=NULL, 
-                                  fig.folder="./figures", table.folder="./outputs",
-                                  pdf.width = 260, pdf.height = 200, units = "mm"){
+                                  title="", legend.title=NULL, palette=NULL){
   all.counts.sums <- ComMA::getCountsSums(cm.taxa.list, input.list=T, taxa.rank=taxa.rank, group.rank=group.rank)
   
-  if (!is.na(table.folder)) {
-    write.table(all.counts.sums, file = file.path(table.folder, paste0("Overall_counts_sums_by_", taxa.rank, ".txt")), 
-                sep = "\t", quote = FALSE, col.names = NA)
-  }
-  if (!is.na(fig.folder)) {
-    p <- ComMA::plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref, gene.levels=gene.levels, 
-                             group.levels=group.levels, x.lab=x.lab, y.lab=y.lab, title=title, 
-                             legend.title=legend.title, palette=palette)
-    ggsave(p, file = file.path(fig.folder, paste0("Overall_taxonomy_OTUs_reads_by_", taxa.rank, ".pdf")), 
-           width = pdf.width, height = pdf.height, units = units)
-  }
+  p <- ComMA::plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref, gene.levels=gene.levels, 
+                           group.levels=group.levels, x.lab=x.lab, y.lab=y.lab, title=title, 
+                           legend.title=legend.title, palette=palette)
   
-  return(all.counts.sums) 
+  list(ggplot=p, all.counts.sums=all.counts.sums) 
 }
