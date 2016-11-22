@@ -13,7 +13,7 @@
 \title{Utils to preprocess taxa table}
 \usage{
 subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
-  include = TRUE)
+  include = TRUE, ignore.case = TRUE)
 
 subsetCM(community.matrix, taxa.table, taxa.group = NA, rank = NA,
   col.ranks = c("kingdom", "phylum", "class", "order", "family"))
@@ -59,6 +59,8 @@ uncertain classifications, even when group(s) assigned.}
 
 \item{include}{Define whether include or exclude given \code{taxa.group}. 
 Default to TRUE.}
+
+\item{ignore.case}{If TRUE, as default, case insensitive for taxon names.}
 
 \item{community.matrix}{Community matrix (OTU table), where rows are 
 OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.}

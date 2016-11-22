@@ -25,6 +25,7 @@
 #' @param rank The rank to specify which column name in \code{taxa.table} to search. 
 #' @param include Define whether include or exclude given \code{taxa.group}. 
 #' Default to TRUE.
+#' @param ignore.case If TRUE, as default, case insensitive for taxon names.
 #' @param verbose More details. Default to TRUE.
 #' @keywords taxonomy
 #' @export
@@ -33,7 +34,8 @@
 #' tt.sub <- subsetTaxaTable(tt.megan, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum", include=FALSE)
 #' 
 #' @rdname TaxaUtils
-subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", include=TRUE) {
+subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", 
+                            include=TRUE, ignore.case=TRUE) {
   # get attr if taxa.table is cm.taxa
   attrs <- attributes(taxa.table)
   ncol.cm <- attrs$ncol.cm
@@ -41,10 +43,10 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom", i
   
   if (include) {
     # include PROTISTS, taxa.group="CHROMISTA|PROTOZOA", rank="kingdom"
-    taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = T))) 
+    taxa.table <- subset(taxa.table, (grepl(taxa.group, taxa.table[,rank], ignore.case = ignore.case))) 
   } else { 
     # exclude some phyla, taxa.group="Cnidaria|Brachiopoda|Echinodermata|Porifera", rank="phylum"
-    taxa.table <- subset(taxa.table, !grepl(taxa.group, taxa.table[,rank], ignore.case = T)) 
+    taxa.table <- subset(taxa.table, !grepl(taxa.group, taxa.table[,rank], ignore.case = ignore.case)) 
   }
   
   # add attr if they are not NULL
