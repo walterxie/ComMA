@@ -109,7 +109,7 @@ PCoA \code{\link{cmdscale}}, and PCA \code{\link{prcomp}}
 take different input data, please make sure you give a valid input to plot.
 }
 \examples{
-nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", add.text=T)
+nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", text.or.point=2)
 plot(nmds.plot)
 
 cmds.plot <- gtClassicalMDSPlot(dist.comm, env, colour.id="FishSpecies", shape.id="FeedingPattern")

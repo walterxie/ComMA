@@ -211,7 +211,8 @@ summaryDiversity <- function(..., row.order=c(), digits=2, input.list=FALSE, pre
 #' @param taxa.group The row names in the summary.
 #' Default to "ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", 
 #' "FUNGI", "PLANTAE", "ANIMALIA".
-#' @param group.rank The rank of given taxa groups.
+#' @param group.rank The rank of given taxa groups, 
+#' which determines the column name (rank) to create the subset.
 #' @param count.rank The lower rank to be counted for each taxa group. 
 #' Set NA to ignore this count.
 #' @keywords community matrix

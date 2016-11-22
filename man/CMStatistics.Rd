@@ -60,7 +60,8 @@ default to 3 to remove every rows containing "unclassified".}
 Default to "ARCHAEA", "BACTERIA", "CHROMISTA", "PROTOZOA", 
 "FUNGI", "PLANTAE", "ANIMALIA".}
 
-\item{group.rank}{The rank of given taxa groups.}
+\item{group.rank}{The rank of given taxa groups, 
+which determines the column name (rank) to create the subset.}
 
 \item{count.rank}{The lower rank to be counted for each taxa group. 
 Set NA to ignore this count.}

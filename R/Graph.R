@@ -366,16 +366,18 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
   p <- ggOptEllipse(p, col.names, ellipsed.id=ellipsed.id)
   
   if (! is.null(link.id)) {
-    suppressMessages(require(data.table))
-    # Convex hull http://stackoverflow.com/questions/16428962/convex-hull-ggplot-using-data-tables-in-r
-    df.dt <- data.table(df, key = link.id)
-    chull.txt <- paste0('df.dt[, .SD[chull(x.id, y.id)], by = link.id ]')
-    cat("chull.cmd : ", chull.txt, "\n")
-    # hulls <- df.dt[, .SD[chull(MDS1, MDS2)], by = link.id]
-    chull.cmd <- parse(text = chull.txt) 
-    hulls <- eval(chull.cmd)
+    # TODO: not working properly
+    # suppressMessages(require(data.table)) 
+    # # Convex hull http://stackoverflow.com/questions/16428962/convex-hull-ggplot-using-data-tables-in-r
+    # df.dt <- data.table(df, key = link.id)
+    # chull.txt <- paste0('df.dt[, .SD[chull(x.id, y.id)], by = link.id ]')
+    # cat("chull.cmd : ", chull.txt, "\n")
+    # # hulls <- df.dt[, .SD[chull(MDS1, MDS2)], by = link.id]
+    # chull.cmd <- parse(text = chull.txt) 
+    # hulls <- eval(chull.cmd)
+    # p <- p + geom_polygon(data = hulls, aes_string(mapping=link.id), fill = NA, alpha = 0.5)
     
-    p <- p + geom_polygon(data = hulls, aes_string(mapping=link.id), fill = NA, alpha = 0.5)
+    p <- p + geom_polygon(data = df, aes_string(mapping=link.id), fill = NA, alpha = 0.75)
   }
   
   if (auto.scale.x) {
