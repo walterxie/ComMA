@@ -197,7 +197,7 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
   if (length(col.ranks) < 1 || !all(col.ranks %in% ranks)) 
     stop("Invaild column names for ranks !\nUse one element or a subset of ", 
          paste(ranks, collapse = ","))
-  if (!all(col.ranks %in% colnames(taxa.table))) 
+  if (!any(col.ranks %in% colnames(taxa.table))) 
     stop("Column names in taxa.table do not have ", paste(col.ranks, collapse = ","))
   if (! "kingdom" %in% colnames(taxa.table))
     stop("Column names in taxa.table must have 'kingdom' column !")
@@ -233,11 +233,13 @@ mergeCMTaxa <- function(community.matrix, taxa.table, classifier=c("MEGAN","RDP"
           "in RDP taxa table, whose confidence <", min.conf, ".\n")
   } # else BLAST + MEGAN
 
-  if (preprocess)
-    taxa.table <- prepTaxonomy(taxa.table, col.ranks=col.ranks, pattern=pattern, verbose=verbose)
+  # trim taxa.table columns to given col.ranks
+  if (preprocess) {
+    taxa.table <- ComMA::prepTaxonomy(taxa.table, col.ranks=col.ranks, pattern=pattern, verbose=verbose)
+  } 
   
   # cm.taxa 1st col is "row.names", "ncol.cm" columns abundence, and length(col.ranks) columns rank
-  cm.taxa <- merge(cm, taxa.table, by = "row.names")
+  cm.taxa <- merge(cm, taxa.table[,col.ranks, drop=FALSE], by = "row.names")
   # move 'Row.names' into row.names to keep 1st column same as community matrix.
   if (mv.row.names) {
     rownames(cm.taxa) <- cm.taxa[,"Row.names"]
