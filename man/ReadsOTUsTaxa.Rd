@@ -11,11 +11,11 @@ getCountsSums(..., input.list = FALSE, taxa.rank = "phylum",
   group.rank = "kingdom")
 
 plotTaxonomy(all.counts.sums, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
-  taxa.rank = "phylum", group.rank = "kingdom", render.rdp = FALSE,
-  gene.levels = c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
-  group.levels = c("ARCHAEA", "BACTERIA", "EUKARYOTA", "PROTOZOA",
-  "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
-  exclude.singletons = 1, x.lab = "Phylum (or higher-level taxon)",
+  exclude.singletons = 1, taxa.rank = "phylum", group.rank = "kingdom",
+  count.unclassified = FALSE, gene.levels = c("16S", "18S", "26S", "ITS",
+  "COI-300", "COI-650"), group.levels = c("ARCHAEA", "BACTERIA", "EUKARYOTA",
+  "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
+  x.lab = "Phylum (or higher-level taxon)",
   y.lab = "Number of sequences or OTUs", legend.title = NULL,
   palette = NULL, title = "", title.size = 10, verbose = TRUE)
 
@@ -25,9 +25,9 @@ summReadsOTUsPipeline(cm.taxa.list, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
   "COI-300", "COI-650"), group.levels = c("ARCHAEA", "BACTERIA", "EUKARYOTA",
   "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
   x.lab = "Phylum (or higher-level taxon)",
-  y.lab = "Number of sequences or OTUs", fig.folder = "./figures",
-  table.folder = "./outputs", pdf.width = 260, pdf.height = 200,
-  units = "mm")
+  y.lab = "Number of sequences or OTUs", title = "", legend.title = NULL,
+  palette = NULL, fig.folder = "./figures", table.folder = "./outputs",
+  pdf.width = 260, pdf.height = 200, units = "mm")
 }
 \arguments{
 \item{...}{Input of a list of community matrices, or comma separated multi-inputs.}
@@ -46,17 +46,17 @@ But it removes the taxonomy not exsiting in the reference.
 Default to use a taxonomy reference data set \code{taxa.ref.PLOSONE.2015} in the package.
 Set \code{taxa.ref=""}, where length(taxa.ref) > 1, to plot all taxonomy.}
 
-\item{render.rdp}{Render the taxonomy from RDP when using \code{taxa.ref.PLOSONE.2015}, 
-the default is FALSE.}
-
-\item{gene.levels}{The level to order 'gene' column.}
-
-\item{group.levels}{The level to order 'gene' column.}
-
 \item{exclude.singletons}{If 0, then do not plot the number of 
 sequences and OTUs excluding singleton OTUs. 
 If 1, as default, just do not plot sequences excluding singleton. 
 If 2, then plot all (including/excluding singleton).}
+
+\item{count.unclassified}{Count the taxonomy having 'unclassified' prefix, 
+mostly in RDP classification, when using \code{taxa.ref.PLOSONE.2015}. The default is FALSE.}
+
+\item{gene.levels}{The level to order 'gene' column.}
+
+\item{group.levels}{The level to order 'gene' column.}
 
 \item{x.lab, y.lab}{Label for x or y axis.}
 

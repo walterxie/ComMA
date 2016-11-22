@@ -90,8 +90,8 @@ getCountsSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank=
 #' But it removes the taxonomy not exsiting in the reference.
 #' Default to use a taxonomy reference data set \code{taxa.ref.PLOSONE.2015} in the package.
 #' Set \code{taxa.ref=""}, where length(taxa.ref) > 1, to plot all taxonomy.
-#' @param render.rdp Render the taxonomy from RDP when using \code{taxa.ref.PLOSONE.2015}, 
-#' the default is FALSE.
+#' @param count.unclassified Count the taxonomy having 'unclassified' prefix, 
+#' mostly in RDP classification, when using \code{taxa.ref.PLOSONE.2015}. The default is FALSE.
 #' @param gene.levels The level to order 'gene' column.  
 #' @param group.levels The level to order 'gene' column.
 #' @param exclude.singletons If 0, then do not plot the number of 
@@ -106,11 +106,10 @@ getCountsSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank=
 #' plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref)
 #' 
 #' @rdname ReadsOTUsTaxa
-plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, 
-                         taxa.rank="phylum", group.rank="kingdom", render.rdp=FALSE,
+plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015, exclude.singletons=1,
+                         taxa.rank="phylum", group.rank="kingdom", count.unclassified=FALSE,
                          gene.levels=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                          group.levels=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
-                         exclude.singletons=1,
                          x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs", 
                          legend.title=NULL, palette=NULL, title="", title.size = 10, verbose=TRUE){
   if (!taxa.rank %in% colnames(all.counts.sums) || !group.rank %in% colnames(all.counts.sums))
@@ -126,7 +125,7 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
     colnames(taxa.ref) <- tolower(colnames(taxa.ref))
     if (! taxa.rank %in% colnames(taxa.ref))
       stop("Invalid taxonomic reference data set: no ", taxa.rank, " column !")
-    if (render.rdp) {
+    if (count.unclassified) {
       # change rdp unclassified to Not assigned to fit in factor
       z$taxa <- gsub("^unclassified$", "Not assigned", z$taxa, ignore.case = T)
       z$taxa <- gsub("^unclassified ", "", z$taxa, ignore.case = T)
@@ -143,8 +142,8 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
   z$group <- factor(z$group, ordered = TRUE, levels = group.levels)
   if (length(taxa.ref) > 1) {
     taxa.levels <- rev(unique(taxa.ref[,taxa.rank]))
-    if (render.rdp) {
-      # get rdp unclassified back
+    if (count.unclassified) {
+      # get unclassified key word back
       z$taxa <- gsub("Not assigned", "unclassified", z$taxa, ignore.case = T)
       taxa.levels[taxa.levels=="Not assigned"] <- "unclassified"
     }
@@ -205,6 +204,7 @@ summReadsOTUsPipeline <- function(cm.taxa.list, taxa.ref=ComMA::taxa.ref.PLOSONE
                                   gene.levels=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                                   group.levels=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
                                   x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs",
+                                  title="", legend.title=NULL, palette=NULL, 
                                   fig.folder="./figures", table.folder="./outputs",
                                   pdf.width = 260, pdf.height = 200, units = "mm"){
   all.counts.sums <- ComMA::getCountsSums(cm.taxa.list, input.list=T, taxa.rank=taxa.rank, group.rank=group.rank)
@@ -215,7 +215,8 @@ summReadsOTUsPipeline <- function(cm.taxa.list, taxa.ref=ComMA::taxa.ref.PLOSONE
   }
   if (!is.na(fig.folder)) {
     p <- ComMA::plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref, gene.levels=gene.levels, 
-                             group.levels=group.levels, x.lab=x.lab, y.lab=y.lab)
+                             group.levels=group.levels, x.lab=x.lab, y.lab=y.lab, title=title, 
+                             legend.title=legend.title, palette=palette)
     ggsave(p, file = file.path(fig.folder, paste0("Overall_taxonomy_OTUs_reads_by_", taxa.rank, ".pdf")), 
            width = pdf.width, height = pdf.height, units = units)
   }
