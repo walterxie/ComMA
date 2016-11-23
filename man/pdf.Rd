@@ -9,10 +9,6 @@
 \alias{plot.gtable}
 \alias{unclip.ggplot}
 \title{Create pdf}
-\source{
-\code{grid_arrange_shared_legend} is derived from 
-\url{http://rpubs.com/sjackman/grid_arrange_shared_legend}
-}
 \usage{
 pdf.ggplot(gg.plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
@@ -24,7 +20,8 @@ pdf.plot(plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
 unclip.ggplot(gg.plot)
 
-grid_arrange_shared_legend(...)
+grid_arrange_shared_legend(..., legend.position = "bottom", ncol = 2,
+  nrow = 1, unclip.ggplot = TRUE)
 }
 \arguments{
 \item{gg.plot}{A \code{\link{ggplot}} object.}
@@ -40,6 +37,11 @@ Refer to \code{\link{pdf}}.}
 \item{plot}{The list returned from \code{\link{plot}}.}
 
 \item{...}{The list of \code{\link{ggplot}} objects.}
+
+\item{legend.position}{The position of legends 
+("none", "left", "right", "bottom", "top", or two-element numeric vector)}
+
+\item{ncol, nrow}{Specify the grid.}
 
 \item{gtable}{A \code{\link{gtable}} object.}
 }
@@ -61,6 +63,9 @@ Refer to \url{http://stackoverflow.com/questions/9690648/point-clipped-on-x-axis
 \code{grid_arrange_shared_legend} shares a legend 
 between multiple plots using \code{\link{grid.arrange}}. 
 Return a \code{\link{gtable}} object.
+
+Modified from  
+\url{http://rpubs.com/sjackman/grid_arrange_shared_legend}.
 }
 \examples{
 pdf.ggplot(gg.plot, fig.path="fig.pdf", width=8, height=8)  

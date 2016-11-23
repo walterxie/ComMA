@@ -2,16 +2,19 @@
 % Please edit documentation in R/GraphExtended.R
 \name{extScatterPlot}
 \alias{extScatterPlot}
+\alias{ggNMDSPlot}
 \alias{gtClassicalMDSPlot}
 \alias{gtNMDSPlot}
 \alias{gtPCAPlot}
 \title{The Graphs Extended From \code{\link{ggScatterPlot}}}
 \usage{
-gtNMDSPlot(comm, attr.df, colour.id = NULL, shape.id = NULL,
+ggNMDSPlot(comm, attr.df, colour.id = NULL, shape.id = NULL,
   link.id = NULL, text.id = NULL, text.or.point = 3,
   text.size.id = NULL, text.size = 3, distance = "bray", k = 2,
   title = "NMDS", title.add.stress = TRUE, colour.levels = c(),
   shape.levels = c(), verbose = TRUE, ...)
+
+gtNMDSPlot(comm, attr.df, ...)
 
 gtClassicalMDSPlot(dist.comm, attr.df, colour.id = NULL, shape.id = NULL,
   link.id = NULL, text.id = NULL, text.or.point = 3,

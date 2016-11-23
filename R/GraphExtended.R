@@ -85,12 +85,8 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL,
 #' \code{\link{metaMDS}} to the title.
 #' @keywords graph
 #' @export
-#' @examples
-#' nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", text.or.point=2)
-#' plot(nmds.plot)
-#' 
 #' @rdname extScatterPlot
-gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
+ggNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
                        text.id=NULL, text.or.point=3, text.size.id=NULL, text.size=3,
                        distance="bray", k = 2, title="NMDS", title.add.stress=TRUE, 
                        colour.levels=c(), shape.levels=c(), verbose=TRUE, ...) {
@@ -160,11 +156,23 @@ gtNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
                                   text.id=text.id, text.or.point=text.or.point, 
                                   text.size=text.size, title=title, legend.title.size=text.size.id,
                                   verbose=verbose, ...)
+  return(gg.plot)
+}
+
+#' @keywords graph
+#' @export
+#' @examples
+#' nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", text.or.point=2)
+#' plot(nmds.plot)
+#' 
+#' @rdname extScatterPlot
+gtNMDSPlot <- function(comm, attr.df, ...) {
+  gg.plot <- ggNMDSPlot(comm, attr.df, ...)
   # turns off clipping
   gt <- ComMA::unclip.ggplot(gg.plot) 
-  
   return(gt)
 }
+
 
 #' @details
 #' Classical MDS \code{gtClassicalMDSPlot} uses \code{\link{cmdscale}} to  

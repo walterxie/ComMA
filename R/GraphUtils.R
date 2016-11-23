@@ -91,10 +91,14 @@ unclip.ggplot <- function(gg.plot) {
 #' @details \code{grid_arrange_shared_legend} shares a legend 
 #' between multiple plots using \code{\link{grid.arrange}}. 
 #' Return a \code{\link{gtable}} object.
-#' @source \code{grid_arrange_shared_legend} is derived from 
-#' \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}
+#' 
+#' Modified from  
+#' \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}.
 #' 
 #' @param ... The list of \code{\link{ggplot}} objects.
+#' @param legend.position The position of legends 
+#' ("none", "left", "right", "bottom", "top", or two-element numeric vector)
+#' @param ncol,nrow Specify the grid.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -107,21 +111,23 @@ unclip.ggplot <- function(gg.plot) {
 #' grid_arrange_shared_legend(p1, p2, p3, p4)
 #' 
 #' @rdname pdf
-grid_arrange_shared_legend <- function(...) {
+grid_arrange_shared_legend <- function(..., legend.position="bottom", ncol=2, nrow=1, unclip.ggplot=TRUE) {
   plots <- list(...)
+  if ( !(length(plots) != ncol*nrow || length(plots) != ncol*nrow-1) )
+    stop("Incorrect grid ", ncol, " * ", nrow, " for total ", length(plots), " plots !")
+  
   require(ggplot2)
-  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
+  g <- ggplotGrob(plots[[1]] + theme(legend.position=legend.position))$grobs
   legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
-  lheight <- sum(legend$height)
+  plots <- lapply(plots, function(x) x + theme(legend.position="none") )
+  if (unclip.ggplot)
+    plots <- lapply(plots, ComMA::unclip.ggplot)
+  args.list <- c(plots, list(ncol=ncol, nrow=nrow))
   
   require(gridExtra)
-  require(grid)
   grid.arrange(
-    do.call(arrangeGrob, lapply(plots, function(x)
-      x + theme(legend.position="none"))),
-    legend,
-    ncol = 1,
-    heights = unit.c(unit(1, "npc") - lheight, lheight))
+    do.call(arrangeGrob, args.list),
+    legend, ncol=ncol, widths=c(1, 0.11))
 }
 
 #' Defining the scale change.

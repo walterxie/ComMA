@@ -48,10 +48,11 @@ ggScatterPlot(df, x.id, y.id, colour.id = NULL, text.colour.id = NULL,
   y.facet.id = NULL, facet.scales = "fixed", facet.space = "fixed",
   facet.shrink = TRUE, facet.drop = TRUE, xintercept = NULL,
   yintercept = NULL, line.type = 2, x.lim.cart = NULL,
-  y.lim.cart = NULL, palette = NULL, legend.title.colour = NULL,
-  legend.title.shape = NULL, legend.title.size = NULL, legend.col = 1,
-  legend.row = 0, title = "Scatter Plot", title.size = 10, x.lab = NULL,
-  y.lab = NULL, no.legend = NULL, legend.position = "right",
+  y.lim.cart = NULL, palette = NULL, scale.limits.min = NULL,
+  legend.title.colour = NULL, legend.title.shape = NULL,
+  legend.title.size = NULL, legend.col = 1, legend.row = 0,
+  title = "Scatter Plot", title.size = 10, x.lab = NULL, y.lab = NULL,
+  no.legend = NULL, legend.position = "right",
   legend.direction = "vertical", coord.flip = FALSE, x.text.angle = 0,
   x.text = TRUE, y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
@@ -214,6 +215,10 @@ if 3, then both the text and points.}
 
 \item{text.avoid.overlap}{If TRUE, text that overlaps previous text 
 in the same layer will not be plotted. Use it carefully. Default to FALSE.}
+
+\item{scale.limits.min}{Manually set the minimum data range of the scale 
+given colours to \code{c(scale.limits.min, max(df[,colour.id]))}. 
+Refer to \code{limits} in \code{\link{discrete_scale}}.}
 
 \item{line.or.point}{If 1, then display the line only; if 2, then only points; 
 if 3, the default, then both the line and points.}

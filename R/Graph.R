@@ -280,6 +280,9 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
 #' \code{colour.id} to show clusters.
 #' @param shapes Manually define the shapes of points. Refer to \code{\link{scale_shape_manual}}, 
 #' and \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}.
+#' @param scale.limits.min Manually set the minimum data range of the scale 
+#' given colours to \code{c(scale.limits.min, max(df[,colour.id]))}. 
+#' Refer to \code{limits} in \code{\link{discrete_scale}}.
 #' @param xintercept,yintercept,linetype Add horizontal or vertical line. 
 #' Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.
 #' @param text.avoid.overlap If TRUE, text that overlaps previous text 
@@ -314,7 +317,7 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
                           x.facet.id=NULL, y.facet.id=NULL, facet.scales="fixed", 
                           facet.space="fixed", facet.shrink=TRUE, facet.drop = TRUE,
                           xintercept=NULL, yintercept=NULL, line.type=2,
-                          x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
+                          x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, scale.limits.min=NULL, 
                           legend.title.colour=NULL, legend.title.shape=NULL,
                           legend.title.size=NULL, legend.col=1, legend.row=0,  
                           title="Scatter Plot", title.size = 10, x.lab=NULL, y.lab=NULL, 
@@ -405,7 +408,10 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)
   
-  p <- ggOptPalette(p, palette=palette, verbose=verbose)
+  colour.limits <- NULL
+  if (!is.null(scale.limits.min))
+    colour.limits <- c(scale.limits.min, max(df[,colour.id]))
+  p <- ggOptPalette(p, palette=palette, limits=colour.limits, verbose=verbose)
   
   p <- ggOptLegend(p, legend.title.colour=legend.title.colour,  
                    legend.title.shape=legend.title.shape, legend.title.size=legend.title.size,
