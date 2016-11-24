@@ -10,7 +10,8 @@
 #' Rows are OTUs or individual species, and columns are sites or samples.  
 #' It is a transposed matrix of \code{\link{vegdist}} input.
 
-#' @details Calculate various multivariate distance metrics among samples.
+#' @details \code{getDissimilarity} calculates various 
+#' multivariate distance metrics among samples.
 #' 
 #' @param cm The community matrix.
 #' @param tree The \pkg{\link{ape}} tree object required 

@@ -54,7 +54,8 @@ Rows are OTUs or individual species, and columns are sites or samples.
 It is a transposed matrix of \code{\link{vegdist}} input.
 }
 \details{
-Calculate various multivariate distance metrics among samples.
+\code{getDissimilarity} calculates various 
+multivariate distance metrics among samples.
 
 \code{beta1minus1} calculates beta1-1.
 

@@ -1,3 +1,5 @@
+# Wrapped by Walter Xie
+# Accessed on 23 Nov 2016
 
 #' @name classification
 #' @title Classify samples by taxonomic composition
