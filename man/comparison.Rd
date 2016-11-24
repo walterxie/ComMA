@@ -38,6 +38,5 @@ dist.list <- getDissimilarityList(cm.list, metric="jaccard")
 corr.sign <- mantelComparison(dist.list)
 
 }
-\keyword{classification}
 \keyword{comparison}
 

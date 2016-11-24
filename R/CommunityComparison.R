@@ -45,7 +45,6 @@ getDissimilarityList <- function(cm.list, metric="jaccard", ...){
 #' between pairwised community matrices, 
 #' which can be calculated by \code{\link{getDissimilarityList}}. 
 #' @param method,permutations Parameters used in \code{\link{mantel}} in \pkg{vegan}.
-#' @keywords classification
 #' @export
 #' @examples 
 #' corr.sign <- mantelComparison(dist.list)
