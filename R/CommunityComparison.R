@@ -19,7 +19,8 @@
 #' @keywords comparison
 #' @export
 #' @examples 
-#' dist.list <- getDissimilarityList(cm.list, metric="jaccard")
+#' jaccard.dist <- getDissimilarityList(cm.list, metric="jaccard")
+#' jaccard.dist$dist.list
 #' 
 #' @rdname comparison
 getDissimilarityList <- function(cm.list, metric="jaccard", ...){
@@ -39,7 +40,7 @@ getDissimilarityList <- function(cm.list, metric="jaccard", ...){
 }
 
 #' @details
-#' Mantel tests for comparisons between the overall community structure.
+#' Mantel tests for comparisons between the overall community structure.  
 #' 
 #' @param dist.list A list of dissimilarity in \code{\link{dist}} 
 #' between pairwised community matrices, 
@@ -47,15 +48,74 @@ getDissimilarityList <- function(cm.list, metric="jaccard", ...){
 #' @param method,permutations Parameters used in \code{\link{mantel}} in \pkg{vegan}.
 #' @export
 #' @examples 
-#' corr.sign <- mantelComparison(dist.list)
+#' corr.sign <- mantelComparison(jaccard.dist$dist.list)
 #' 
 #' @rdname comparison
 mantelComparison <- function(dist.list, method="pearson", permutations = 999){
-  corr.sign <- list() # list for mantel results storage
+  corr.list <- list() # list for mantel results storage
+  sign.list <- list()
+  
+  label.matched <- getLabelMatchedDist(dist.list)
+  require(vegan)
+  for(i in 1:length(label.matched$dist1)){
+    man <- mantel(label.matched$dist1[[i]], label.matched$dist2[[i]], 
+                  method=method, permutations = permutations)
+    corr.list[[i]] <- man$statistic
+    sign.list[[i]] <- man$signif
+  }
+  
+  list(corr = corr.list, sign = sign.list, pairs=label.matched$pairs, 
+       samples=label.matched$samples, same.samples=label.matched$same.samples)
+}
+
+#' @details
+#' Procrustes comparisons between the overall community structure.  
+#' 
+#' @param scale,symmetric,permutations Parameters used in 
+#' \code{\link{procrustes}} and \code{\link{protest}}.
+#' @export
+#' @examples 
+#' procrustes <- procrustesComparison(jaccard.dist$dist.list)
+#' 
+#' @rdname comparison
+procrustesComparison <- function(dist.list, scale = TRUE, symmetric = TRUE, permutations = 999){  
+  proc.list <- list() # list to store procrustes objects (for plotting)
+  prot.ss <- list() # list to store protest results 
+  prot.corr <- list()
+  prot.sign <- list()
+  
+  label.matched <- getLabelMatchedDist(dist.list)
+  require(vegan)
+  for(i in 1:length(label.matched$dist1)){
+    # Generate MDS plots
+    d1.mds <- metaMDS(label.matched$dist1[[i]])
+    d2.mds <- metaMDS(label.matched$dist2[[i]])
+    proc <- procrustes(d1.mds, d2.mds, scale = scale, symmetric = symmetric)
+    prot <- protest(d1.mds, d2.mds, scale = scale, symmetric = symmetric, 
+                    permutations = permutations)
+    proc.list[[i]] <- proc
+    prot.ss[[i]] <- prot$ss
+    prot.corr[[i]] <- prot$t0
+    prot.sign[[i]] <- prot$signif
+  }
+
+  list(proc = proc.list, prot.ss = prot.ss, prot.corr = prot.corr, prot.sign = prot.sign,
+       pairs=label.matched$pairs, samples=label.matched$samples, same.samples=label.matched$same.samples)
+}
+
+
+###### Internal #####
+
+getLabelMatchedDist <- function(dist.list) {
+  dist1.list <- list()
+  dist2.list <- list()
+  pair.list <- list()
+  samples.list <- list()
+  same.samples.list <- list()
   x <- combn(dist.list, 2, simplify = F) # Get all pairs of dist matrices
   for(i in 1:length(x)){
     cat("Paired dist matrices : ", labels(x[[i]]), "\n")
-    if(length(labels(x[[i]][[1]])) != length(labels(x[[i]][[2]]))){ # Different numbers of samples
+    if( !all(labels(x[[i]][[1]]) == labels(x[[i]][[2]])) ) { # Different numbers of samples
       cat("Making samples match...\n")
       # Subset to shared samples
       keep <- intersect(labels(x[[i]][[1]]), labels(x[[i]][[2]]))
@@ -63,55 +123,21 @@ mantelComparison <- function(dist.list, method="pearson", permutations = 999){
       m2 <- as.matrix(x[[i]][[2]])
       d1 <- as.dist(m1[keep, keep])
       d2 <- as.dist(m2[keep, keep])
+      same.samples.list[[i]] <- FALSE
     } else { # Same numbers of samples
-      cat("Samples match...\n")
       d1 <- x[[i]][[1]]
       d2 <- x[[i]][[2]]
+      same.samples.list[[i]] <- TRUE
     }
-    require(vegan)
-    man <- mantel(d1, d2, method=method, permutations = permutations)
-    t1 <- labels(x[[i]])[[1]] 
-    t2 <- labels(x[[i]])[[2]]
-    corr.sign[[i]] <- list(t1 = t1, t2 = t2, corr = man$statistic, sign = man$signif)
+    cat("Samples match ... ", all(names(d1) == names(d2)), "\n")
+    dist1.list[[i]] <- d1
+    dist2.list[[i]] <- d2
+    pair.list[[i]] <- labels(x[[i]])
+    samples.list[[i]] <- labels(d1)
   }
-  return(corr.sign)
+  list(dist1=dist1.list, dist2=dist2.list, pairs=pair.list, 
+       samples=samples.list, same.samples=same.samples.list)
 }
 
 
-
-### Procrustes comparisons ###
-#do.procrustes <- function(dist.list, metric){
-procrustesComparison <- function(dist.list){  
-  p.results <- list() # list to store procrustes results 
-  pro.list <- list() # list to store procrustes objects (for plotting)
-  n <- 1 # counter for plot output
-  x <- combn(dist.list, 2, simplify = F) # Get all pairs of dist matrices
-  for(i in 1:length(x)){
-    print(labels(x[[i]]))
-    if(length(labels(x[[i]][[1]])) != length(labels(x[[i]][[2]]))){ # Different numbers of samples
-      print("Making samples match...")
-      # Subset to shared samples
-      keep <- intersect(labels(x[[i]][[1]]), labels(x[[i]][[2]]))
-      m1 <- as.matrix(x[[i]][[1]])
-      m2 <- as.matrix(x[[i]][[2]])
-      d1 <- as.dist(m1[keep, keep])
-      d2 <- as.dist(m2[keep, keep])
-    } else { # Same numbers of samples
-      print("Samples match...")
-      d1 <- x[[i]][[1]]
-      d2 <- x[[i]][[2]]
-    }
-    # Generate MDS plots
-    d1.mds <- metaMDS(d1)
-    d2.mds <- metaMDS(d2)
-    proc <- procrustes(d1.mds, d2.mds, scale = TRUE, symmetric = TRUE)
-    prot <- protest(d1.mds, d2.mds, scale = TRUE, symmetric = TRUE, permutations = 999)
-    p.results[[n]] <- list(t1 = labels(x[[i]])[[1]], t2 = labels(x[[i]])[[2]], 
-                           pro_ss = prot$ss, pro_corr = prot$t0, pro_sig = prot$signif) 
-    pro.list[[n]] <- proc
-    names(pro.list)[[n]] <- paste(labels(x[[i]])[[1]], "vs.", labels(x[[i]])[[2]])
-    n <- n + 1
-  }
-  return(list(p.results, pro.list))
-}
 

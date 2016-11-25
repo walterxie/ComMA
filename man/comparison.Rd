@@ -4,11 +4,15 @@
 \alias{comparison}
 \alias{getDissimilarityList}
 \alias{mantelComparison}
+\alias{procrustesComparison}
 \title{Compare community structure}
 \usage{
 getDissimilarityList(cm.list, metric = "jaccard", ...)
 
 mantelComparison(dist.list, method = "pearson", permutations = 999)
+
+procrustesComparison(dist.list, scale = TRUE, symmetric = TRUE,
+  permutations = 999)
 }
 \arguments{
 \item{cm.list}{A list of community matrices.}
@@ -21,6 +25,9 @@ between pairwised community matrices,
 which can be calculated by \code{\link{getDissimilarityList}}.}
 
 \item{method, permutations}{Parameters used in \code{\link{mantel}} in \pkg{vegan}.}
+
+\item{scale, symmetric, permutations}{Parameters used in 
+\code{\link{procrustes}} and \code{\link{protest}}.}
 }
 \description{
 Multivariate patterns of sample similarity were compared between pairwised community matrices 
@@ -31,11 +38,16 @@ using Procrustes and Mantel tests.
 given a list of community matrices and the distance metric.
 
 Mantel tests for comparisons between the overall community structure.
+
+Procrustes comparisons between the overall community structure.
 }
 \examples{
-dist.list <- getDissimilarityList(cm.list, metric="jaccard")
+jaccard.dist <- getDissimilarityList(cm.list, metric="jaccard")
+jaccard.dist$dist.list
 
-corr.sign <- mantelComparison(dist.list)
+corr.sign <- mantelComparison(jaccard.dist$dist.list)
+
+procrustes <- procrustesComparison(jaccard.dist$dist.list)
 
 }
 \keyword{comparison}
