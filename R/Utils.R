@@ -143,22 +143,3 @@ convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=
 firstN <- function(vect, n) {
   vect[1:ifelse(length(vect) < n, length(vect), n)]
 }
-
-#' Return the first \code{n} elements in a string, 
-#' using \code{\link{paste}}. 
-#' If \code{n} is greater than length,
-#' then return the whole vector or list in a string.
-#' 
-#' @param vect A Vector or List.
-#' @param n The first n elements.
-#' @keywords utils
-#' @export
-#' @examples 
-#' printFirstN(1:10, 3)
-#' printFirstN(1:10, 20)
-getFirstNInString <- function(vect, n, collapse=", ", tail="...") {
-  if (length(vect) < n)
-    return( paste(vect, collapse=collapse) )
-  else
-    return( paste(paste(vect[1:n], collapse=collapse), tail) )
-}
