@@ -4,6 +4,7 @@
 \alias{countCharOccurrences}
 \alias{findDuplicates}
 \alias{freqUniqueValue}
+\alias{getFirstNInString}
 \alias{gusbDF}
 \alias{pasteDF}
 \alias{simpleCap}
@@ -26,6 +27,8 @@ substrLastSplit(x, split = "/", ...)
 substrBetween(x, l, r)
 
 simpleCap(x)
+
+getFirstNInString(vect, n, collapse = ", ", tail = "...")
 
 countCharOccurrences(char, s)
 
@@ -53,11 +56,15 @@ pasteDF(df, ..., sep = " ", collapse = NULL, stringsAsFactors = FALSE,
 
 \item{r}{The regex on the right.}
 
+\item{vect}{A Vector or List.}
+
 \item{pattern, replacement, ...}{Arguemnts for \code{\link{gsub}}.}
 
 \item{df}{Data frame as the input.}
 
 \item{sep, collapse}{Arguemnts for \code{\link{paste}}.}
+
+\item{n}{The first n elements.}
 }
 \description{
 Useful function to manipulate strings and characters in \code{\link{ComMA}}.
@@ -81,6 +88,11 @@ Refer to \url{http://stackoverflow.com/questions/14146362/regex-extract-string-b
 
 \code{simpleCap} capitalizes the first letter of a word string.
 Refer to \url{http://stackoverflow.com/questions/6364783/capitalize-the-first-letter-of-both-words-in-a-two-word-string}.
+
+\code{getFirstNInString} returns the first \code{n} elements in a string, 
+using \code{\link{paste}}. 
+If \code{n} is greater than length,
+then return the whole vector or list in a string.
 
 \code{countCharOccurrences} returns the occurrences of given charater 
 \code{char} in string \code{s}. Refere to 
@@ -130,6 +142,9 @@ taxaGroups <- c("BACTERIA", "FUNGI", "PROTISTS", "ANIMALIA")
 sapply(taxaGroups, simpleCap)
 #BACTERIA      FUNGI   PROTISTS   ANIMALIA 
 #"Bacteria"    "Fungi" "Protists" "Animalia"
+
+getFirstNInString(1:10, 3)
+getFirstNInString(1:10, 20)
 
 countCharOccurrences("a", "application")
 

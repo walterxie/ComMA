@@ -107,6 +107,26 @@ simpleCap <- function(x) {
   paste(toupper(substring(s, 1,1)), substring(s, 2), sep="", collapse=" ")
 }
 
+#' @details \code{getFirstNInString} returns the first \code{n} elements in a string, 
+#' using \code{\link{paste}}. 
+#' If \code{n} is greater than length,
+#' then return the whole vector or list in a string.
+#' 
+#' @param vect A Vector or List.
+#' @param n The first n elements.
+#' @export
+#' @examples 
+#' getFirstNInString(1:10, 3)
+#' getFirstNInString(1:10, 20)
+#' 
+#' @rdname stringUtils
+getFirstNInString <- function(vect, n, collapse=", ", tail="...") {
+  if (length(vect) < n)
+    return( paste(vect, collapse=collapse) )
+  else
+    return( paste(paste(vect[1:n], collapse=collapse), tail) )
+}
+
 #' @details \code{countCharOccurrences} returns the occurrences of given charater 
 #' \code{char} in string \code{s}. Refere to 
 #' \url{https://techoverflow.net/blog/2012/11/10/r-count-occurrences-of-character-in-string/}.

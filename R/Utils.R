@@ -27,32 +27,6 @@ mvRowsToLast <- function(data, col, regex="unclassified", ignore.case = TRUE) {
   return(data)
 }
 
-#' Get a table in the format of 'corr (sign)'
-#' 
-#' @param corr.sign.matrix The \code{\link{matrix}} of pairwised correlations and significance, 
-#' where the upper triangle is significance and the lower triangle is correlation (or equivalent).
-#' @param digits The number of digits to keep.  
-#' @return
-#' The matrix of strings in the format of 'corr (sign)' for report.
-#' @keywords utils
-#' @export
-#' @examples 
-#' 
-#' getCorrSignTable(corr.sign.matrix, digits=2)
-getCorrSignTable <- function(corr.sign.matrix, digits=3) {
-	m.corr <- corr.sign.matrix
-	m.corr[upper.tri(m.corr)] <- 0
-	m.corr <- formatC(signif(m.corr,digits=digits), digits=digits,format="fg", flag="#")
-	m.sign <- t(corr.sign.matrix)
-	m.sign[upper.tri(m.sign)] <- 0
-	m.sign <- formatC(signif(m.sign,digits=digits), digits=digits,format="fg", flag="#")
-
-	corr.sign.table <- matrix( paste(m.corr, " (", m.sign, ")", sep=""), nrow=nrow(m.corr), dimnames=dimnames(m.corr) )
-	corr.sign.table[corr.sign.table=="0 (0)"] <- ""
-
-	corr.sign.table <- corr.sign.table[-1,-ncol(corr.sign.table)]
-}
-
 
 #' \code{prettyNumbers} provide pretty numbers with comma separator 
 #' to a given data frame \code{df}.
@@ -153,52 +127,6 @@ convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=
   df1 <- data.frame(suppressWarnings(lapply(df, FUN)), stringsAsFactors=stringsAsFactors, check.names=check.names)
   rownames(df1) <- rownames(df)
   return(df1)
-}
-
-#' Combine two data frames or matrices with a same structure in one, 
-#' put all values in 2nd data frame into brackets.
-#' 
-#' @param dfm A data frame or matrix.
-#' @param dfm2 The 2nd data frame or matrix whose values are into brackets.
-#' @param rm.zero Default to TRUE to remove all " (0)".
-#' @param return.df,... Default to TRUE to return a data frame, otherwise a matrix.
-#' @keywords utils
-#' @export
-#' @examples 
-#' df <- combineTwoDF(df, df2, stringsAsFactors=FALSE)
-combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, ...) {
-  if (nrow(dfm) != nrow(dfm2) || ncol(dfm) != ncol(dfm2)) 
-    stop("Two data frames must have a same structure !")
-  
-  dfm <- as.matrix(dfm)
-  dfm2 <- as.matrix(dfm2)
-  dfm.comb <- matrix( paste0(trimSpace(dfm), " (", trimSpace(dfm2), ")"), 
-          nrow=nrow(dfm), dimnames=dimnames(dfm) )
-  
-  if (rm.zero) 
-    dfm.comb <- gsub(" \\(0\\)", "", dfm.comb)
-  
-  if (return.df)
-    dfm.comb <- data.frame(dfm.comb, check.names=FALSE, ...)
-  return(dfm.comb)
-}
-
-#' Merge two data frames by 'row.names' using \code{\link{merge}}.
-#' 
-#' @param x,y data frames, or objects to be coerced to one.
-#' @param warning.msg logical; if TRUE, then print warning message when rows are missing after merge.
-#' @param ... pass to \code{\link{merge}}.
-#' @keywords utils
-#' @export
-#' @examples 
-#' df <- combineTwoDF(df, df2)
-mergeByRownames <- function(x, y, warning.msg=TRUE, ...) {
-  xy <- merge(x, y, by = "row.names", ...)
-  
-  if ( warning.msg && (nrow(xy) != nrow(x) || nrow(xy) != nrow(y)) ) 
-    warning(paste("Rows are missing after merge ! nrow(xy) =", 
-                  nrow(xy), ", nrow(x) =", nrow(x), ", nrow(y) =", nrow(y) ))
-  return(xy)
 }
 
 #' Return the first \code{n} elements. 

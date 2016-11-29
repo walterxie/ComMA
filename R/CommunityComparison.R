@@ -2,7 +2,7 @@
 # Accessed on 25 Nov 2016
 
 
-#' @name comparison
+#' @name CommunityComparison
 #' @title Compare community structure
 #'
 #' @description
@@ -22,7 +22,7 @@
 #' jaccard.dist <- getDissimilarityList(cm.list, metric="jaccard")
 #' jaccard.dist$dist.list
 #' 
-#' @rdname comparison
+#' @rdname CommunityComparison
 getDissimilarityList <- function(cm.list, metric="jaccard", ...){
   dist.list <- list()
   
@@ -40,7 +40,8 @@ getDissimilarityList <- function(cm.list, metric="jaccard", ...){
 }
 
 #' @details
-#' Mantel tests for comparisons between the overall community structure.  
+#' \code{mantelComparison} makes Mantel tests for comparisons 
+#' between the overall community structure.  
 #' 
 #' @param dist.list A list of dissimilarity in \code{\link{dist}} 
 #' between pairwised community matrices, 
@@ -48,28 +49,29 @@ getDissimilarityList <- function(cm.list, metric="jaccard", ...){
 #' @param method,permutations Parameters used in \code{\link{mantel}} in \pkg{vegan}.
 #' @export
 #' @examples 
-#' corr.sign <- mantelComparison(jaccard.dist$dist.list)
+#' mantel <- mantelComparison(jaccard.dist$dist.list)
 #' 
-#' @rdname comparison
+#' @rdname CommunityComparison
 mantelComparison <- function(dist.list, method="pearson", permutations = 999){
-  corr.list <- list() # list for mantel results storage
-  sign.list <- list()
-  
+  m.list <- list() # list for mantel results storage
+
   label.matched <- getLabelMatchedDist(dist.list)
   require(vegan)
   for(i in 1:length(label.matched$dist1)){
     man <- mantel(label.matched$dist1[[i]], label.matched$dist2[[i]], 
                   method=method, permutations = permutations)
-    corr.list[[i]] <- man$statistic
-    sign.list[[i]] <- man$signif
+    m.list[[i]] <- list(l1 = label.matched$pairs[[i]][[1]], l2 = label.matched$pairs[[i]][[2]], 
+                        corr = man$statistic, sign = man$signif)
   }
+  m.result <- do.call("rbind", lapply(m.list, data.frame))
   
-  list(corr = corr.list, sign = sign.list, pairs=label.matched$pairs, 
-       samples=label.matched$samples, same.samples=label.matched$same.samples)
+  list(m.df=m.result, m.list=m.list, pairs=label.matched$pairs, samples=label.matched$samples, 
+       same.samples=label.matched$same.samples)
 }
 
 #' @details
-#' Procrustes comparisons between the overall community structure.  
+#' \code{procrustesComparison} makes Procrustes comparisons 
+#' between the overall community structure.  
 #' 
 #' @param scale,symmetric,permutations Parameters used in 
 #' \code{\link{procrustes}} and \code{\link{protest}}.
@@ -77,12 +79,10 @@ mantelComparison <- function(dist.list, method="pearson", permutations = 999){
 #' @examples 
 #' procrustes <- procrustesComparison(jaccard.dist$dist.list)
 #' 
-#' @rdname comparison
+#' @rdname CommunityComparison
 procrustesComparison <- function(dist.list, scale = TRUE, symmetric = TRUE, permutations = 999){  
   proc.list <- list() # list to store procrustes objects (for plotting)
-  prot.ss <- list() # list to store protest results 
-  prot.corr <- list()
-  prot.sign <- list()
+  prot.list <- list()
   
   label.matched <- getLabelMatchedDist(dist.list)
   require(vegan)
@@ -94,14 +94,32 @@ procrustesComparison <- function(dist.list, scale = TRUE, symmetric = TRUE, perm
     prot <- protest(d1.mds, d2.mds, scale = scale, symmetric = symmetric, 
                     permutations = permutations)
     proc.list[[i]] <- proc
-    prot.ss[[i]] <- prot$ss
-    prot.corr[[i]] <- prot$t0
-    prot.sign[[i]] <- prot$signif
+    prot.list[[i]] <- list(l1 = label.matched$pairs[[i]][[1]], l2 = label.matched$pairs[[i]][[2]], 
+                        ss=prot$ss, corr=prot$t0, sign=prot$signif)
   }
-
-  list(proc = proc.list, prot.ss = prot.ss, prot.corr = prot.corr, prot.sign = prot.sign,
-       pairs=label.matched$pairs, samples=label.matched$samples, same.samples=label.matched$same.samples)
+  p.result <- do.call("rbind", lapply(prot.list, data.frame))
+  
+  list(proc = proc.list, prot.df=p.result, prot.list=prot.list, pairs=label.matched$pairs, 
+       samples=label.matched$samples, same.samples=label.matched$same.samples)
 }
+
+#' @details
+#' \code{getCorrTriMatrix} combines Mantel test (lower triangle) 
+#' and Procrustes test (upper triangle) correlations into one matrix 
+#' for comparisons.  
+#' 
+#' @param mantel.corr.list,prot.corr.list The list of correlations from  
+#' Mantel test and Procrustes test.
+#' @export
+#' @examples 
+#' corr.tri.m <- getCorrTriMatrix(mantel$m.df, procrustes$prot.df)
+#' 
+#' @rdname CommunityComparison
+getCorrTriMatrix <- function(mantel.df, prot.df) {
+  
+  
+}
+
 
 
 ###### Internal #####
