@@ -3,7 +3,7 @@
 # Accessed on 12 Apr 2016
 
 #' @name ggPlot
-#' @title One-line Function to Get \pkg{ggplot} 
+#' @title One-line function to make \pkg{ggplot} 
 #'
 #' @description 
 #' Simplify \pkg{ggplot} graphic coding into one-line functions that provides frequently 
@@ -13,6 +13,7 @@
 #' nonmetric multidimensional scaling plot \code{\link{gtNMDSPlot}}, 
 #' PCA plot \code{\link{gtPCAPlot}}, 
 #' rarefaction curves \code{\link{gtRarefactionCurve}}.
+#' 
 #' And also some useful charts that we derived from our publications, 
 #' such as group abundance bar chart \code{\link{ggGroupAbundanceBar}},
 #' and Y across X bar chart \code{\link{ggGroupAbundanceBar}}. 
@@ -21,6 +22,8 @@
 #' @return 
 #' If the function returns a \code{\link{ggplot}} object, then its name starts with "gg". 
 #' It needs to use \code{\link{pdf.ggplot}} to create pdf. 
+#' It also keeps the expandability using '+'.  
+#' 
 #' If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
 #' This kind of functions use \code{\link{unclip.ggplot}} to turns off clipping for a 
 #' \code{\link{ggplot}} object, but returns a \code{\link{gtable}} object.
@@ -64,8 +67,8 @@
 #' "reverse" and "sqrt". Default to "identity". 
 #' @param x.lim.cart,y.lim.cart Setting limits on the coordinate system will zoom the plot, 
 #' and will not change the underlying data like setting limits on a scale will. 
-#' Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
-#' Default NULL. 
+#' Refer to \code{\link{coord_cartesian}}. 
+#' Set lower bound only to y-axis using y.lim.cart=c(1000,NA). Default NULL. 
 #' @param title Graph title, set title="" to remove it from the plot.
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names. 
 #' Set x.lab="" to remove x-axis label from the plot. Default to NULL to do nothing.

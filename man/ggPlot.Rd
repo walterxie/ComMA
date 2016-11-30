@@ -9,7 +9,7 @@
 \alias{ggLineWithPoints}
 \alias{ggPlot}
 \alias{ggScatterPlot}
-\title{One-line Function to Get \pkg{ggplot}}
+\title{One-line function to make \pkg{ggplot}}
 \usage{
 ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   bar.stat = "identity", x.interval = 0, x.trans = "identity",
@@ -146,8 +146,8 @@ Default line.type to 1, size to 0.5, alpha to 1.}
 
 \item{x.lim.cart, y.lim.cart}{Setting limits on the coordinate system will zoom the plot, 
 and will not change the underlying data like setting limits on a scale will. 
-Refer to \code{\link{coord_cartesian}}. Set lower bound only to y-axis using y.lim.cart=c(1000,NA). 
-Default NULL.}
+Refer to \code{\link{coord_cartesian}}. 
+Set lower bound only to y-axis using y.lim.cart=c(1000,NA). Default NULL.}
 
 \item{palette}{The colour palette for bar, box, scatter plot, etc. 
 If length == 1, then use \code{\link{scale_colour_brewer}} 
@@ -295,6 +295,8 @@ Assume x values are discrete for each bar. Default to 0 to do nothing.}
 \value{
 If the function returns a \code{\link{ggplot}} object, then its name starts with "gg". 
 It needs to use \code{\link{pdf.ggplot}} to create pdf. 
+It also keeps the expandability using '+'.  
+
 If the function returns a \code{\link{gtable}} object, then its name starts with "gt".
 This kind of functions use \code{\link{unclip.ggplot}} to turns off clipping for a 
 \code{\link{ggplot}} object, but returns a \code{\link{gtable}} object.
@@ -309,6 +311,7 @@ such as percentage bar chart \code{\link{ggPercentageBarChart}},
 nonmetric multidimensional scaling plot \code{\link{gtNMDSPlot}}, 
 PCA plot \code{\link{gtPCAPlot}}, 
 rarefaction curves \code{\link{gtRarefactionCurve}}.
+
 And also some useful charts that we derived from our publications, 
 such as group abundance bar chart \code{\link{ggGroupAbundanceBar}},
 and Y across X bar chart \code{\link{ggGroupAbundanceBar}}. 

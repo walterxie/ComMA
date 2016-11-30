@@ -217,20 +217,24 @@ ggOptCoordCartesian <- function(p, df, x.id, y.id, x.lim.cart=NULL, y.lim.cart=N
   if (! is.null(x.lim.cart)) {
     if (length(x.lim.cart) != 2)
       stop("Invalid format, use x.lim.cart = c(1000,NA) !")
-    if (which(is.na(x.lim.cart))==1) {
-      x.lim.cart[1] = min(df[,x.id])
-    } else if (which(is.na(x.lim.cart))==2) {
-      x.lim.cart[2] = max(df[,x.id])
+    if (anyNA(x.lim.cart)) {
+      if (which(is.na(x.lim.cart))==1) {
+        x.lim.cart[1] = min(df[,x.id])
+      } else if (which(is.na(x.lim.cart))==2) {
+        x.lim.cart[2] = max(df[,x.id])
+      }
     }
     p <- p + coord_cartesian(xlim=x.lim.cart)
   } 
   if (! is.null(y.lim.cart)) {
     if (length(y.lim.cart) != 2)
       stop("Invalid format, use y.lim.cart = c(1000,NA) !")
-    if (which(is.na(y.lim.cart))==1) {
-      y.lim.cart[1] = min(df[,y.id])
-    } else if (which(is.na(y.lim.cart))==2) {
-      y.lim.cart[2] = max(df[,y.id])
+    if (anyNA(y.lim.cart)) {
+      if (which(is.na(y.lim.cart))==1) {
+        y.lim.cart[1] = min(df[,y.id])
+      } else if (which(is.na(y.lim.cart))==2) {
+        y.lim.cart[2] = max(df[,y.id])
+      }
     }
     p <- p + coord_cartesian(ylim=y.lim.cart)
   } 
