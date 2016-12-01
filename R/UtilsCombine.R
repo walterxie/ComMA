@@ -25,15 +25,18 @@
 #' }
 #' @param key Two column names containing the pair names,
 #' which determine the output matrix's row names and column names.
+#' It must make row and column names same.
 #' @param value The column's values are going to fill in the output matrix.
 #' @param na.to.0 Logical, replace all NA to 0, as default.
+#' @param order.by A vector to order matrix rows and columns. 
+#' It must be a subset or same as their names.
 #' @keywords utils
 #' @export
 #' @examples 
 #' corr.tri <- getTriMatrix(corr.df)
 #' 
 #' @rdname UtilsCombine 
-getTriMatrix <- function(df, row.col=c("l1", "l2"), value="corr", na.to.0=TRUE) {
+getTriMatrix <- function(df, row.col=c("l1", "l2"), value="corr", na.to.0=TRUE, order.by=c()) {
   if (!all(c(row.col, value) %in% colnames(df)))
     stop("Invalid inputs: cannot find column names ", paste(c(row.col, value), collapse = ","), " !")
   
@@ -47,16 +50,31 @@ getTriMatrix <- function(df, row.col=c("l1", "l2"), value="corr", na.to.0=TRUE) 
   rownames(m) <- m[,row.col[1]]
   # rm column l1
   m <- m[ , -which(colnames(m) %in% row.col)]
-  m <- m[order(rownames(m)), ]
-  m <- m[, order(colnames(m))]
+
+  # order rows and columns
+  if (length(order.by) > 1) {
+    if ( !all( is.element(order.by, rownames(m)) ) )
+      stop("order.by must be a subset or same as row/colnames !")
+    m <- m[match(order.by, rownames(m)), ]
+    m <- m[, match(order.by, colnames(m))]
+  } else {
+    m <- m[order(rownames(m)), ]
+    m <- m[, order(colnames(m))]
+  }
+  
   if (na.to.0)
     m[is.na(m)] <- 0
   
+  if (!all(rownames(m) == colnames(m)))
+    stop("Invaild result: key 'row.col' must make row/colnames same ! \n", 
+         "Rownames: ", paste(rownames(m), collapse = ","), ". \n",
+         "Colnames: ", paste(rownames(m), collapse = ","))
   return(m)
 }
 
 #' \code{combineTriMatrix} combines two symmetric triangular matrices into one.
-#' The 1st matrix's upper triangle combines with the 2nd's lower triangle.
+#' The 1st matrix goes to the lower triangle in the combined matrix,
+#' and the 2nd to upper triangle.
 #' 
 #' @param tri.m1,tri.m2 Two symmetric triangular matrices, 
 #' which can be the output from \code{getTriMatrix}.
@@ -70,8 +88,8 @@ combineTriMatrix <- function(tri.m1, tri.m2) {
   if (!all(rownames(tri.m1) == rownames(tri.m2)) || !all(colnames(tri.m1) == colnames(tri.m2)))
     stop("Invalid inputs: row or column names not same !")
   
-  tri.m1[lower.tri(tri.m1)] <- NA # lower tri 
-  tri.m2[upper.tri(tri.m2)] <- NA # upper tri 
+  tri.m1[upper.tri(tri.m1)] <- NA # lower tri 
+  tri.m2[lower.tri(tri.m2)] <- NA # upper tri 
   m <- tri.m1
   m[lower.tri(m)] <- tri.m2[lower.tri(tri.m2)] # Combine matrices
   return(m)

@@ -60,8 +60,10 @@ mantelComparison <- function(dist.list, method="pearson", permutations = 999){
   for(i in 1:length(label.matched$dist1)){
     man <- mantel(label.matched$dist1[[i]], label.matched$dist2[[i]], 
                   method=method, permutations = permutations)
-    m.list[[i]] <- list(l1 = label.matched$pairs[[i]][[1]], l2 = label.matched$pairs[[i]][[2]], 
-                        corr = man$statistic, sign = man$signif)
+    l1 = label.matched$pairs[[i]][[1]] 
+    l2 = label.matched$pairs[[i]][[2]]
+    m.list[[i]] <- list(l1 = l1, l2 = l2, corr = man$statistic, sign = man$signif)
+    cat("Pair (", l1, ",", l2, ") correlation =", man$statistic, ", significance =", man$signif, "\n")
   }
   m.result <- do.call("rbind", lapply(m.list, data.frame))
   
@@ -94,8 +96,11 @@ procrustesComparison <- function(dist.list, scale = TRUE, symmetric = TRUE, perm
     prot <- protest(d1.mds, d2.mds, scale = scale, symmetric = symmetric, 
                     permutations = permutations)
     proc.list[[i]] <- proc
-    prot.list[[i]] <- list(l1 = label.matched$pairs[[i]][[1]], l2 = label.matched$pairs[[i]][[2]], 
-                        ss=prot$ss, corr=prot$t0, sign=prot$signif)
+    l1 = label.matched$pairs[[i]][[1]]
+    l2 = label.matched$pairs[[i]][[2]]
+    prot.list[[i]] <- list(l1 = l1, l2 = l2, ss=prot$ss, corr=prot$t0, sign=prot$signif)
+    cat("Pair (", l1, ",", l2, ") correlation =", prot$t0, ", significance =", prot$signif, 
+        ", sum of squares ss =", prot$ss,"\n")
   }
   p.result <- do.call("rbind", lapply(prot.list, data.frame))
   

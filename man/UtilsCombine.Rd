@@ -8,7 +8,8 @@
 \alias{mergeByRownames}
 \title{Utils to combine data frames or matrices into the required data format}
 \usage{
-getTriMatrix(df, row.col = c("l1", "l2"), value = "corr", na.to.0 = TRUE)
+getTriMatrix(df, row.col = c("l1", "l2"), value = "corr", na.to.0 = TRUE,
+  order.by = c())
 
 combineTriMatrix(tri.m1, tri.m2)
 
@@ -31,6 +32,9 @@ For example, a data frame can be
 
 \item{na.to.0}{Logical, replace all NA to 0, as default.}
 
+\item{order.by}{A vector to order matrix rows and columns. 
+It must be a subset or same as their names.}
+
 \item{tri.m1, tri.m2}{Two symmetric triangular matrices, 
 which can be the output from \code{getTriMatrix}.}
 
@@ -49,11 +53,13 @@ which can be the output from \code{getTriMatrix}.}
 \item{warning.msg}{logical; if TRUE, then print warning message when rows are missing after merge.}
 
 \item{key}{Two column names containing the pair names,
-which determine the output matrix's row names and column names.}
+which determine the output matrix's row names and column names.
+It must make row and column names same.}
 }
 \description{
 \code{combineTriMatrix} combines two symmetric triangular matrices into one.
-The 1st matrix's upper triangle combines with the 2nd's lower triangle.
+The 1st matrix goes to the lower triangle in the combined matrix,
+and the 2nd to upper triangle.
 
 \code{combineTwoDF} combines two data frames or matrices with a same structure in one, 
 put all values in 2nd data frame into brackets.
