@@ -91,7 +91,7 @@ combineTriMatrix <- function(tri.m1, tri.m2) {
   tri.m1[upper.tri(tri.m1)] <- NA # lower tri 
   tri.m2[lower.tri(tri.m2)] <- NA # upper tri 
   m <- tri.m1
-  m[lower.tri(m)] <- tri.m2[lower.tri(tri.m2)] # Combine matrices
+  m[upper.tri(m)] <- tri.m2[upper.tri(tri.m2)] # Combine matrices
   return(m)
 }
 
