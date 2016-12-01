@@ -74,12 +74,13 @@ ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   no.panel.border = FALSE, verbose = TRUE)
 
 ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
-  midpoint = NULL, colours = NULL, values = NULL,
-  na.value = "transparent", breaks.length.out = 5, breaks.digits = 0,
-  add.label = T, label.digits = 1, title = "Heatmap", title.size = 10,
-  x.lab = "", y.lab = "", log.scale.colour = FALSE,
-  legend.title = "Counts", x.lim.cart = NULL, y.lim.cart = NULL,
-  coord.flip = FALSE, no.legend = NULL, legend.position = "right",
+  mid = "white", midpoint = NULL, colours = NULL, values = NULL,
+  na.value = "transparent", limits = NULL, breaks = waiver(),
+  add.label = T, label.digits = 1, auto.breaks.length = 5,
+  breaks.digits = 0, title = "Heatmap", title.size = 10, x.lab = "",
+  y.lab = "", log.scale.colour = FALSE, legend.title = "Counts",
+  x.lim.cart = NULL, y.lim.cart = NULL, coord.flip = FALSE,
+  no.legend = NULL, legend.position = "right",
   legend.direction = "vertical", x.text.angle = 90, x.text = TRUE,
   y.text = TRUE, x.levels = c(), y.levels = c(),
   no.panel.border = FALSE, verbose = TRUE)
@@ -249,16 +250,21 @@ The data example
 \item{melt.id}{A column name to \code{\link{melt}} 
 and used as a \code{\link{factor}}, such as "plot" column.}
 
-\item{low, high, na.value, midpoint, colours, values}{The colour range of heatmap.
+\item{low, high, mid, na.value, midpoint, colours, values}{The colour range of heatmap.
 Default to low="white", high="steelblue". 
 Refer to \code{\link{scale_fill_gradient}} or \code{\link{scale_fill_gradient2}}
 (if midpoint is given).}
 
-\item{breaks.length.out, breaks.digits}{Heatmap ledgend breaks.}
+\item{limits, breaks}{Refer to \code{\link{discrete_scale}}.}
 
 \item{add.label, label.digits}{\code{add.label} is logical, default to TRUE, 
 to add value into the tiles of heatmap. 
 \code{label.digits} determines the digit of the label.}
+
+\item{auto.breaks.length, breaks.digits}{Heatmap ledgend breaks automatically.
+If \code{auto.breaks.length <= 1}, then use \code{breaks}, the default is 5.
+If values are between 0 and 1, then make sure \code{breaks.digits} is set properly,  
+such as 2 in this case.}
 
 \item{log.scale.colour}{If TRUE, then use log scale to the colour of heat map.
 Default to FALSE.}
@@ -392,6 +398,8 @@ ranks.by.group <- data.frame(plot=c("Plot03","Plot02","Plot01"), `16s`=c(3,2,1),
 ranks.by.group
 gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
 pdf.ggplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
+
+ggHeatmap(corr.tri, melt.id="gene", title="", legend.title="Correlations", label.digits=2, breaks.digits=2)
 
 ggBoxWhiskersPlot(df, x.id="test", y.id="performance", colour.id="OS", x.text.angle=90)
 

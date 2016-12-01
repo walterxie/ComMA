@@ -543,13 +543,17 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
 #' from the code  
 #' \url{https://learnr.wordpress.com/2010/01/26/ggplot2-quick-heatmap-plotting/}. 
 #' 
-#' @param low,high,na.value,midpoint,colours,values The colour range of heatmap.
+#' @param low,high,mid,na.value,midpoint,colours,values The colour range of heatmap.
 #' Default to low="white", high="steelblue". 
 #' Refer to \code{\link{scale_fill_gradient}} or \code{\link{scale_fill_gradient2}}
 #' (if midpoint is given). 
 #' @param log.scale.colour If TRUE, then use log scale to the colour of heat map.
 #' Default to FALSE.
-#' @param breaks.length.out,breaks.digits Heatmap ledgend breaks.
+#' @param limits,breaks Refer to \code{\link{discrete_scale}}.
+#' @param auto.breaks.length,breaks.digits Heatmap ledgend breaks automatically.
+#' If \code{auto.breaks.length <= 1}, then use \code{breaks}, the default is 5.
+#' If values are between 0 and 1, then make sure \code{breaks.digits} is set properly,  
+#' such as 2 in this case. 
 #' @param add.label,label.digits \code{add.label} is logical, default to TRUE, 
 #' to add value into the tiles of heatmap. 
 #' \code{label.digits} determines the digit of the label.
@@ -563,11 +567,13 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
 #' gg.plot <- ggHeatmap(ranks.by.group, melt.id="plot")
 #' pdf.ggplot(gg.plot, fig.path="plot-prior-example-heatmap.pdf") 
 #' 
+#' ggHeatmap(corr.tri, melt.id="gene", title="", legend.title="Correlations", label.digits=2, breaks.digits=2)
+#' 
 #' @rdname ggPlot
-ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", 
+ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = "white",
                       midpoint = NULL, colours=NULL, values=NULL, na.value="transparent",
-                      breaks.length.out = 5, breaks.digits = 0,
-                      add.label=T, label.digits=1,
+                      limits = NULL, breaks = waiver(), add.label=T, label.digits=1, 
+                      auto.breaks.length = 5, breaks.digits = 0,
                       title="Heatmap", title.size = 10, x.lab="", y.lab="",
                       log.scale.colour=FALSE, legend.title="Counts",
                       x.lim.cart=NULL, y.lim.cart=NULL, coord.flip=FALSE,
@@ -580,16 +586,17 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
   
   suppressMessages(require(reshape2))
   df.melt <- melt(df.to.melt, id=c(melt.id))
+  if(anyNA(df.melt$value)) # rm all NA
+    df.melt <- na.omit(df.melt)
+  
   if (length(x.levels)>1) {
     if (length(x.levels) != length(unique(df.melt$variable)))
       warning("x.levels length != x unique values !")
-    
     df.melt$variable <- factor(df.melt$variable, ordered = TRUE, levels = x.levels)
   }
   if (length(y.levels)>1) {
     if (length(y.levels) != length(unique(df.melt[,melt.id])))
       warning("y.levels length != y unique values !")
-    
     df.melt[,melt.id] <- factor(df.melt[,melt.id], ordered = TRUE, levels = y.levels)
   } else {
     df.melt[,melt.id] <- factor(df.melt[,melt.id], levels=sort(unique(df.melt[,melt.id]), decreasing = T))
@@ -600,46 +607,54 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue",
   # value is ranks for each group
   p <- ggplot(df.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) 
   
-  min.v <- min(df.melt$value)
-  max.v <- max(df.melt$value)
-  if (log.scale.colour) {
-    if (min.v == 0)
-      min.log <- 0
-    else 
-      min.log <- log(min.v)
-    if (max.v == 0)
-      max.log <- 0
-    else 
-      max.log <- log(max.v)
+  if (length(breaks) == 0 && auto.breaks.length > 1) {
+    min.v <- min(df.melt$value)
+    max.v <- max(df.melt$value)
+    breaks <- round(seq(min.v, max.v, length.out = auto.breaks.length), digits = breaks.digits)
     
-    breaks.rank <- round(exp(seq(min.log, max.log, length.out = breaks.length.out)), 
-                         digits = breaks.digits)
+    if (log.scale.colour) {
+      if (min.v == 0)
+        min.log <- 0
+      else 
+        min.log <- log(min.v)
+      if (max.v == 0)
+        max.log <- 0
+      else 
+        max.log <- log(max.v)
+      
+      breaks <- round(exp(seq(min.log, max.log, length.out = auto.breaks.length)), 
+                      digits = breaks.digits)
+    }
+  }
+  if (log.scale.colour) {
     p <- p + scale_fill_gradient(trans='log', na.value=na.value, low=low, high=high, 
-                                 name=legend.title, breaks=breaks.rank) 
+                                 name=legend.title, breaks=breaks, limits=limits) 
   } else {
-    breaks.rank <- round(seq(min.v, max.v, length.out = breaks.length.out), digits = breaks.digits)
     if (!is.null(midpoint)) {
       p <- p + scale_fill_gradient2(midpoint=midpoint, na.value=na.value, low=low, high=high, 
-                                   name=legend.title, breaks=breaks.rank)
+                                    mid =mid, name=legend.title, breaks=breaks, limits=limits)
     } else if (!is.null(colours)) {
-      if (!is.null(values) && length(values) < 1) {
+      if (auto.breaks.length > 1 && !is.null(values) && length(values) < 1) {
         require(scales)
         if (min.v < 0 && max.v > 0) {
           values=rescale(c(min.v,0-.Machine$double.eps,0,0+.Machine$double.eps,max.v))
-          if (! 0 %in% breaks.rank) {
-            breaks.rank <- sort(c(0, breaks.rank), decreasing = T)
+          if (! 0 %in% breaks) {
+            breaks <- sort(c(0, breaks), decreasing = T)
           }
         } else {
           values=rescale(c(min.v,max.v))
         }
       }
       p <- p + scale_fill_gradientn(colours=colours, na.value=na.value, values=values, 
-                                    name=legend.title, breaks=breaks.rank)
+                                    name=legend.title, breaks=breaks, limits=limits)
     } else {
       p <- p + scale_fill_gradient(na.value=na.value, low=low, high=high, 
-                                   name=legend.title, breaks=breaks.rank) 
+                                   name=legend.title, breaks=breaks, limits=limits) 
     }
   }
+  cat("The final breaks are : ", paste(breaks, collapse = ","), ".\n")
+  if (length(breaks) > 2 && length(unique(breaks)) <= 2)
+    warning("breaks are not set properly ! Try breaks.digits = 2")
   
   if (add.label) {
     p <- p + geom_text(aes(label=paste(round(value, digits = label.digits))))
