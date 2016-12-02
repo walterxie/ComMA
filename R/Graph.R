@@ -70,6 +70,8 @@
 #' Refer to \code{\link{coord_cartesian}}. 
 #' Set lower bound only to y-axis using y.lim.cart=c(1000,NA). Default NULL. 
 #' @param title Graph title, set title="" to remove it from the plot.
+#' @param title.hjust Numeric, adjust title position, default to 0.5 (middle), 
+#' 0 is left and 1 right.   
 #' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names. 
 #' Set x.lab="" to remove x-axis label from the plot. Default to NULL to do nothing.
 #' @param coord.flip If TRUE, then flip cartesian coordinates so that horizontal 
@@ -134,7 +136,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL,
                        xintercept=NULL, yintercept=NULL, line.type=2,
                        x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                        legend.title=NULL, legend.col=1, legend.row=0, 
-                       title="Bar Chart", title.size=10, x.lab=NULL, y.lab=NULL, 
+                       title="Bar Chart", title.hjust=0.5, title.size=10, x.lab=NULL, y.lab=NULL, 
                        no.legend=NULL, legend.position="right", legend.direction="vertical",
                        coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE, 
                        plot.margin.cm=NULL, no.panel.border=FALSE, verbose=TRUE) {
@@ -184,7 +186,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL,
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     plot.margin.cm=plot.margin.cm, verbose=verbose)
+                     plot.margin.cm=plot.margin.cm, title.hjust=title.hjust, verbose=verbose)
   
   return(p)
 }
@@ -219,7 +221,7 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
                         xintercept=NULL, yintercept=NULL, line.type=2,
                         x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL,
                         legend.title=NULL, legend.col=1, legend.row=0, 
-                        title="Histogram", title.size=10, x.lab=NULL, y.lab=NULL, 
+                        title="Histogram", title.hjust=0.5, title.size=10, x.lab=NULL, y.lab=NULL, 
                         no.legend=NULL, legend.position="right", legend.direction="vertical",
                         x.text.angle=0, x.text=TRUE, y.text=TRUE, 
                         plot.margin.cm=NULL, no.panel.border=FALSE, verbose=TRUE) {
@@ -263,7 +265,7 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     plot.margin.cm=plot.margin.cm, verbose=verbose)
+                     plot.margin.cm=plot.margin.cm, title.hjust=title.hjust, verbose=verbose)
   
   return(p)
 }
@@ -327,10 +329,10 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
                           x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, scale.limits.min=NULL, 
                           legend.title.colour=NULL, legend.title.shape=NULL,
                           legend.title.size=NULL, legend.col=1, legend.row=0,  
-                          title="Scatter Plot", title.size = 10, x.lab=NULL, y.lab=NULL, 
                           no.legend=NULL, legend.position="right", legend.direction="vertical",
-                          coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE, 
-                          no.panel.border=FALSE, verbose=TRUE) {
+                          title="Scatter Plot", title.size = 10, title.hjust=0.5,  
+                          x.lab=NULL, y.lab=NULL, x.text=TRUE, y.text=TRUE, x.text.angle=0, 
+                          coord.flip=FALSE, no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id, verbose=verbose)
   col.names <- colnames(df)
   
@@ -434,7 +436,7 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     verbose=verbose)
+                     title.hjust=title.hjust, verbose=verbose)
   return(p)
 }
 
@@ -480,7 +482,7 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
                              x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                              legend.title.group=NULL, legend.title.colour=NULL, 
                              legend.title.shape=NULL, legend.col=1, legend.row=0, 
-                             title="", title.size = 10, x.lab=NULL, y.lab=NULL, 
+                             title="", title.hjust=0.5, title.size = 10, x.lab=NULL, y.lab=NULL, 
                              no.legend=NULL, legend.position="right", legend.direction="vertical",
                              coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE, 
                              no.panel.border=FALSE, verbose=TRUE) {
@@ -544,7 +546,7 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     verbose=verbose)
+                     title.hjust=title.hjust, verbose=verbose)
   return(p)
 }
 
@@ -584,7 +586,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = 
                       midpoint = NULL, colours=NULL, values=NULL, na.value="transparent",
                       limits = NULL, breaks = waiver(), add.label=T, label.digits=1, 
                       auto.breaks.length = 5, breaks.digits = 0,
-                      title="Heatmap", title.size = 10, x.lab="", y.lab="",
+                      title="Heatmap", title.hjust=0.5, title.size = 10, x.lab="", y.lab="",
                       log.scale.colour=FALSE, legend.title="Counts",
                       x.lim.cart=NULL, y.lim.cart=NULL, coord.flip=FALSE,
                       no.legend=NULL, legend.position="right", legend.direction="vertical",
@@ -682,7 +684,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = 
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     verbose=verbose)
+                     title.hjust=title.hjust, verbose=verbose)
   
   return(p) 
 }
@@ -716,7 +718,7 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
                               legend.title.fill=NULL, legend.title.colour=NULL, 
                               no.legend=NULL, legend.col=1, legend.row=0, 
                               legend.position="right", legend.direction="vertical",
-                              title="Box Whiskers Plot", title.size = 10, 
+                              title="Box Whiskers Plot", title.hjust=0.5, title.size = 10, 
                               x.lab=NULL, y.lab=NULL, 
                               coord.flip=FALSE, x.text.angle=0, x.text=TRUE, y.text=TRUE,
                               no.panel.border=FALSE, verbose=TRUE) {
@@ -760,7 +762,7 @@ ggBoxWhiskersPlot <- function(df, x.id, y.id, fill.id=NULL, colour.id=NULL,
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     verbose=verbose)
+                     title.hjust=title.hjust, verbose=verbose)
   
   return(p)
 }
@@ -807,7 +809,7 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
                               fill.palette=NULL, colour.palette=NULL, coord.flip=FALSE,
                               legend.title.colour=NULL, legend.title.fill=NULL,
                               legend.col=1, legend.row=0, 
-                              title="Kernel Density Estimate", title.size=10, 
+                              title="Kernel Density Estimate", title.hjust=0.5, title.size=10, 
                               x.lab=NULL, y.lab=NULL, no.legend=NULL, 
                               legend.position="right", legend.direction="vertical",
                               x.text.angle=0, x.text=TRUE, y.text=TRUE,
@@ -856,7 +858,7 @@ ggDensityEstimate <- function(df, x.id, y.id=NULL, fill.id=NULL, colour.id=NULL,
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     verbose=verbose)
+                     title.hjust=title.hjust, verbose=verbose)
   
   return(p)
 }

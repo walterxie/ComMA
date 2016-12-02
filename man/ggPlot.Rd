@@ -19,11 +19,12 @@ ggBarChart(df, x.id, y.id, fill.id = NULL, bar.pos = "dodge",
   facet.shrink = TRUE, facet.drop = TRUE, xintercept = NULL,
   yintercept = NULL, line.type = 2, x.lim.cart = NULL,
   y.lim.cart = NULL, palette = NULL, legend.title = NULL,
-  legend.col = 1, legend.row = 0, title = "Bar Chart", title.size = 10,
-  x.lab = NULL, y.lab = NULL, no.legend = NULL,
-  legend.position = "right", legend.direction = "vertical",
-  coord.flip = FALSE, x.text.angle = 0, x.text = TRUE, y.text = TRUE,
-  plot.margin.cm = NULL, no.panel.border = FALSE, verbose = TRUE)
+  legend.col = 1, legend.row = 0, title = "Bar Chart",
+  title.hjust = 0.5, title.size = 10, x.lab = NULL, y.lab = NULL,
+  no.legend = NULL, legend.position = "right",
+  legend.direction = "vertical", coord.flip = FALSE, x.text.angle = 0,
+  x.text = TRUE, y.text = TRUE, plot.margin.cm = NULL,
+  no.panel.border = FALSE, verbose = TRUE)
 
 ggHistogram(df, x.id, fill.id = NULL, bar.pos = "stack", bins = NULL,
   binwidth = NULL, x.interval = 0, x.trans = "identity",
@@ -32,8 +33,8 @@ ggHistogram(df, x.id, fill.id = NULL, bar.pos = "stack", bins = NULL,
   xintercept = NULL, yintercept = NULL, line.type = 2,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title = NULL, legend.col = 1, legend.row = 0,
-  title = "Histogram", title.size = 10, x.lab = NULL, y.lab = NULL,
-  no.legend = NULL, legend.position = "right",
+  title = "Histogram", title.hjust = 0.5, title.size = 10, x.lab = NULL,
+  y.lab = NULL, no.legend = NULL, legend.position = "right",
   legend.direction = "vertical", x.text.angle = 0, x.text = TRUE,
   y.text = TRUE, plot.margin.cm = NULL, no.panel.border = FALSE,
   verbose = TRUE)
@@ -52,10 +53,11 @@ ggScatterPlot(df, x.id, y.id, colour.id = NULL, text.colour.id = NULL,
   line.type = 2, x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   scale.limits.min = NULL, legend.title.colour = NULL,
   legend.title.shape = NULL, legend.title.size = NULL, legend.col = 1,
-  legend.row = 0, title = "Scatter Plot", title.size = 10, x.lab = NULL,
-  y.lab = NULL, no.legend = NULL, legend.position = "right",
-  legend.direction = "vertical", coord.flip = FALSE, x.text.angle = 0,
-  x.text = TRUE, y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
+  legend.row = 0, no.legend = NULL, legend.position = "right",
+  legend.direction = "vertical", title = "Scatter Plot", title.size = 10,
+  title.hjust = 0.5, x.lab = NULL, y.lab = NULL, x.text = TRUE,
+  y.text = TRUE, x.text.angle = 0, coord.flip = FALSE,
+  no.panel.border = FALSE, verbose = TRUE)
 
 ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   shape.id = NULL, shapes = NULL, text.id = NULL, line.or.point = 3,
@@ -71,19 +73,19 @@ ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title.group = NULL, legend.title.colour = NULL,
   legend.title.shape = NULL, legend.col = 1, legend.row = 0, title = "",
-  title.size = 10, x.lab = NULL, y.lab = NULL, no.legend = NULL,
-  legend.position = "right", legend.direction = "vertical",
-  coord.flip = FALSE, x.text.angle = 0, x.text = TRUE, y.text = TRUE,
-  no.panel.border = FALSE, verbose = TRUE)
+  title.hjust = 0.5, title.size = 10, x.lab = NULL, y.lab = NULL,
+  no.legend = NULL, legend.position = "right",
+  legend.direction = "vertical", coord.flip = FALSE, x.text.angle = 0,
+  x.text = TRUE, y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
   mid = "white", midpoint = NULL, colours = NULL, values = NULL,
   na.value = "transparent", limits = NULL, breaks = waiver(),
   add.label = T, label.digits = 1, auto.breaks.length = 5,
-  breaks.digits = 0, title = "Heatmap", title.size = 10, x.lab = "",
-  y.lab = "", log.scale.colour = FALSE, legend.title = "Counts",
-  x.lim.cart = NULL, y.lim.cart = NULL, coord.flip = FALSE,
-  no.legend = NULL, legend.position = "right",
+  breaks.digits = 0, title = "Heatmap", title.hjust = 0.5,
+  title.size = 10, x.lab = "", y.lab = "", log.scale.colour = FALSE,
+  legend.title = "Counts", x.lim.cart = NULL, y.lim.cart = NULL,
+  coord.flip = FALSE, no.legend = NULL, legend.position = "right",
   legend.direction = "vertical", x.text.angle = 90, x.text = TRUE,
   y.text = TRUE, x.levels = c(), y.levels = c(),
   no.panel.border = FALSE, verbose = TRUE)
@@ -98,8 +100,8 @@ ggBoxWhiskersPlot(df, x.id, y.id, fill.id = NULL, colour.id = NULL,
   legend.title.colour = NULL, no.legend = NULL, legend.col = 1,
   legend.row = 0, legend.position = "right",
   legend.direction = "vertical", title = "Box Whiskers Plot",
-  title.size = 10, x.lab = NULL, y.lab = NULL, coord.flip = FALSE,
-  x.text.angle = 0, x.text = TRUE, y.text = TRUE,
+  title.hjust = 0.5, title.size = 10, x.lab = NULL, y.lab = NULL,
+  coord.flip = FALSE, x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
 
 ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
@@ -109,8 +111,8 @@ ggDensityEstimate(df, x.id, y.id = NULL, fill.id = NULL, colour.id = NULL,
   y.trans = "identity", y.scale = "continuous", auto.scale.y = FALSE,
   fill.palette = NULL, colour.palette = NULL, coord.flip = FALSE,
   legend.title.colour = NULL, legend.title.fill = NULL, legend.col = 1,
-  legend.row = 0, title = "Kernel Density Estimate", title.size = 10,
-  x.lab = NULL, y.lab = NULL, no.legend = NULL,
+  legend.row = 0, title = "Kernel Density Estimate", title.hjust = 0.5,
+  title.size = 10, x.lab = NULL, y.lab = NULL, no.legend = NULL,
   legend.position = "right", legend.direction = "vertical",
   x.text.angle = 0, x.text = TRUE, y.text = TRUE,
   no.panel.border = FALSE, verbose = TRUE)
@@ -167,6 +169,9 @@ Default NULL to use \code{\link{ggplot}} default colours.}
 They cannot be used at the same time. Default not to use them, legend.col=1, legend.row=0.}
 
 \item{title}{Graph title, set title="" to remove it from the plot.}
+
+\item{title.hjust}{Numeric, adjust title position, default to 0.5 (middle), 
+0 is left and 1 right.}
 
 \item{x.lab, y.lab}{The label of x-axis or y-axis, such as plot names. 
 Set x.lab="" to remove x-axis label from the plot. Default to NULL to do nothing.}

@@ -97,7 +97,8 @@ ggOptText <- function(p, col.names, text.id=NULL, text.data=NULL, colour.id=NULL
     if (!is.element(tolower(text.id), tolower(col.names)))
       stop("Data frame do NOT have column name \"", text.id, "\" !")
     
-    if(text.repel) require(ggrepel)
+    # bug in 0.6.5: "Error in as.vector(y) : attempt to apply non-function" 
+    if(text.repel) require(ggrepel) # ggrepel >= 0.6.6
     aes.string <- paste0(ifelse(text.repel, "geom_text_repel( ", "geom_text( "), 
                          "aes(label=", text.id)
     if (! is.null(colour.id)) {
@@ -302,7 +303,7 @@ ggLabTitle <- function(p, x.id, y.id, title, x.lab=NULL, y.lab=NULL) {
 }
 
 ggThemeOthers <- function(p, x.text=TRUE, y.text=TRUE, x.ticks=TRUE, y.ticks=TRUE, 
-                          x.text.angle=0, verbose=TRUE, plot.margin.cm=NULL,
+                          x.text.angle=0, verbose=TRUE, plot.margin.cm=NULL, title.hjust=0.5,
                           legend.position="right", legend.direction="vertical") {
   theme.string <- "theme(legend.position=legend.position, legend.direction=legend.direction"
   # hide x or y axis labels
@@ -318,8 +319,8 @@ ggThemeOthers <- function(p, x.text=TRUE, y.text=TRUE, x.ticks=TRUE, y.ticks=TRU
     theme.string <- paste(theme.string, "axis.ticks.x = element_blank()", sep = ",")
   if (!y.ticks)
     theme.string <- paste(theme.string, "axis.ticks.y = element_blank()", sep = ",")
-
-  theme.string <- paste0(theme.string, ")")
+  # default title in middle
+  theme.string <- paste0(theme.string, ", plot.title = element_text(hjust=", title.hjust, ")", " )")
   
   if (verbose)
     cat("theme : ", theme.string, "\n")
