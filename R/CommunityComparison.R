@@ -50,6 +50,7 @@ getDissimilarityList <- function(cm.list, metric="jaccard", ...){
 #' @export
 #' @examples 
 #' mantel <- mantelComparison(jaccard.dist$dist.list)
+#' mantel.tri <- getTriMatrix(mantel$m.df) 
 #' 
 #' @rdname CommunityComparison
 mantelComparison <- function(dist.list, method="pearson", permutations = 999){
@@ -79,7 +80,11 @@ mantelComparison <- function(dist.list, method="pearson", permutations = 999){
 #' \code{\link{procrustes}} and \code{\link{protest}}.
 #' @export
 #' @examples 
-#' procrustes <- procrustesComparison(jaccard.dist$dist.list)
+#' procrustes <- procrustesComparison(jaccard.dist$dist.list) 
+#' prot.tri <- getTriMatrix(procrustes$prot.df, order.by=order.by) 
+#' 
+#' # Mantel test (lower triangle) and Procrustes test (upper triangle)
+#' corrs <- combineTriMatrix(mantel.tri, prot.tri)
 #' 
 #' @rdname CommunityComparison
 procrustesComparison <- function(dist.list, scale = TRUE, symmetric = TRUE, permutations = 999){  
@@ -109,20 +114,50 @@ procrustesComparison <- function(dist.list, scale = TRUE, symmetric = TRUE, perm
 }
 
 #' @details
-#' \code{getCorrTriMatrix} combines Mantel test (lower triangle) 
-#' and Procrustes test (upper triangle) correlations into one matrix 
-#' for comparisons.  
+#' \code{plotProcrustes} plots Procrustes correlations between pairwised communities.  
 #' 
-#' @param mantel.corr.list,prot.corr.list The list of correlations from  
-#' Mantel test and Procrustes test.
+#' @param proc.list The list of \code{\link{procrustes}} results.
 #' @export
 #' @examples 
-#' corr.tri.m <- getCorrTriMatrix(mantel$m.df, procrustes$prot.df)
+#' plotProcrustes(procrustes$proc)
 #' 
 #' @rdname CommunityComparison
-getCorrTriMatrix <- function(mantel.df, prot.df) {
-  
-  
+plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation") {
+  plot.list <- list()
+  for(i in 1:length(proc.list)){
+    pro <- proc.list[[i]]
+    pts <- data.frame(yMDS1 = pro$Yrot[,1], yMDS2 = pro$Yrot[,2], # rotated matrix i.e. d2.mds
+                      xMDS1 = pro$X[,1], xMDS2 = pro$X[,2]) # target matrix i.e. d1.mds
+    
+    pts <- merge(pts, attr.df, by = "row.names")
+    
+    r1 = acos(pro$rotation[1,1]) # X axis rotation (radians)
+    r2 = r1 + (pi/2) # Y axis rotation (radians)
+    p <- ggplot(pts) +
+      geom_point(aes(x = yMDS1, y = yMDS2, colour = Elevation), shape = 1.5, size = 1.5, alpha = 0.75) + # rotated i.e. d2 (circles)
+      geom_point(aes(x = xMDS1, y = xMDS2, colour = Elevation), shape = 2, size = 1, alpha = 0.75) + # target i.e. d1 (triangles)
+      scale_shape(solid = FALSE) + xlab("") + ylab("") +
+      geom_segment(aes(x = yMDS1, y = yMDS2, xend = xMDS1, yend = xMDS2, colour = Elevation), alpha = 0.75) +
+      #arrow = arrow(length = unit(0.2,"cm")), alpha = 0.75) + 
+      #geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") + 
+      #geom_vline(xintercept = 0, linetype = "dashed", colour = "grey") +
+      #geom_abline(intercept = 0, slope = tan(r1), colour = "grey") + 
+      #geom_abline(intercept = 0, slope = tan(r2), colour = "grey") +
+      #geom_text(aes(x = xMDS1, y = xMDS2, label = pts.mds$Row.names, colour = Elevation), size = 1.5, vjust = 1.5, alpha = 0.5) + 
+      scale_colour_gradientn(colours = c("blue", "orange")) + labs(colour="Elevation (m)") +
+      theme(panel.grid = element_blank(), plot.title = element_text(size = 8), 
+            plot.margin = unit(c(0.1,0.1,0.1,0), "cm"), legend.key.width = unit(0.65, "cm")) +
+      #ggtitle(paste0(letters[[i]], ". ", labels(x[[i]])[[1]], " vs. ", labels(x[[i]])[[2]])) #, ", ", metric, " distance")) #+
+      ggtitle(paste0(letters[[i]], ". ", names(proc.list)[[i]]))
+    #coord_fixed()
+    tmp <- ggplot_gtable(ggplot_build(p))
+    leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+    legend <- tmp$grobs[[leg]]
+    
+    p <- p + theme(legend.position = "none")
+    plot.list[[i]] <- p
+  }
+  return(list(plot.list, legend))
 }
 
 

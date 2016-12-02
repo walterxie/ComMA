@@ -2,9 +2,9 @@
 % Please edit documentation in R/CommunityComparison.R
 \name{CommunityComparison}
 \alias{CommunityComparison}
-\alias{getCorrTriMatrix}
 \alias{getDissimilarityList}
 \alias{mantelComparison}
+\alias{plotProcrustes}
 \alias{procrustesComparison}
 \title{Compare community structure}
 \usage{
@@ -15,7 +15,7 @@ mantelComparison(dist.list, method = "pearson", permutations = 999)
 procrustesComparison(dist.list, scale = TRUE, symmetric = TRUE,
   permutations = 999)
 
-getCorrTriMatrix(mantel.df, prot.df)
+plotProcrustes(proc.list, attr.df, colour.id = "Elevation")
 }
 \arguments{
 \item{cm.list}{A list of community matrices.}
@@ -32,8 +32,7 @@ which can be calculated by \code{\link{getDissimilarityList}}.}
 \item{scale, symmetric, permutations}{Parameters used in 
 \code{\link{procrustes}} and \code{\link{protest}}.}
 
-\item{mantel.corr.list, prot.corr.list}{The list of correlations from
-Mantel test and Procrustes test.}
+\item{proc.list}{The list of \code{\link{procrustes}} results.}
 }
 \description{
 Multivariate patterns of sample similarity were compared between pairwised community matrices 
@@ -49,19 +48,22 @@ between the overall community structure.
 \code{procrustesComparison} makes Procrustes comparisons 
 between the overall community structure.
 
-\code{getCorrTriMatrix} combines Mantel test (lower triangle) 
-and Procrustes test (upper triangle) correlations into one matrix 
-for comparisons.
+\code{plotProcrustes} plots Procrustes correlations between pairwised communities.
 }
 \examples{
 jaccard.dist <- getDissimilarityList(cm.list, metric="jaccard")
 jaccard.dist$dist.list
 
 mantel <- mantelComparison(jaccard.dist$dist.list)
+mantel.tri <- getTriMatrix(mantel$m.df) 
 
-procrustes <- procrustesComparison(jaccard.dist$dist.list)
+procrustes <- procrustesComparison(jaccard.dist$dist.list) 
+prot.tri <- getTriMatrix(procrustes$prot.df, order.by=order.by) 
 
-corr.tri.m <- getCorrTriMatrix(mantel$m.df, procrustes$prot.df)
+# Mantel test (lower triangle) and Procrustes test (upper triangle)
+corrs <- combineTriMatrix(mantel.tri, prot.tri)
+
+plotProcrustes(procrustes$proc)
 
 }
 \keyword{comparison}
