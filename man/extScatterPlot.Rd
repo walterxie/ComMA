@@ -96,8 +96,8 @@ whats-the-difference-between-principal-components-analysis-and-multidimensional}
 A classical MDS is also known as principal coordinates analysis (Gower, 1966).
 }
 \details{
-NMDS plot \code{gtNMDSPlot} uses \code{\link{metaMDS}} in \code{\link{vegan}}
-to create Nonmetric Multidimensional Scaling (NMDS) plot.
+NMDS plot \code{ggNMDSPlot} and \code{gtNMDSPlot} uses \code{\link{metaMDS}} 
+in \code{\link{vegan}} to create Nonmetric Multidimensional Scaling (NMDS) plot.
 
 Classical MDS \code{gtClassicalMDSPlot} uses \code{\link{cmdscale}} to  
 create a classical (metric) multidimensional scaling plot of a data matrix. 
@@ -110,6 +110,10 @@ a principal components analysis (PCA) plot.
 Because functions of computing NMDS \code{\link{metaMDS}}, 
 PCoA \code{\link{cmdscale}}, and PCA \code{\link{prcomp}} 
 take different input data, please make sure you give a valid input to plot.
+
+If the points are overlapped to the edge box, then use \code{\link{expand_limits}}, 
+such as \code{gg???(...) + expand_limits(x = c(?, ?), y=c(?, ?))},
+to expand the x y axis limits.
 }
 \examples{
 nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", text.or.point=2)

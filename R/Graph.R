@@ -288,6 +288,9 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
 #' Refer to \code{limits} in \code{\link{discrete_scale}}.
 #' @param xintercept,yintercept,linetype Add horizontal or vertical line. 
 #' Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.
+#' @param text.repel Apply \code{\link{geom_text_repel}} in \pkg{ggrepel}.
+#' It is better than \code{text.avoid.overlap} which removes overlapped text.
+#' Default to FALSE.
 #' @param text.avoid.overlap If TRUE, text that overlaps previous text 
 #' in the same layer will not be plotted. Use it carefully. Default to FALSE.
 #' @keywords graph
@@ -310,11 +313,12 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
 #'  
 #' @rdname ggPlot
 ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL, 
-                          shape.id=NULL, shapes=NULL, point.size=3, point.alpha=1,
-                          link.id=NULL, ellipsed.id=NULL, text.id=NULL, 
-                          text.data = NULL, text.size = 3, text.hjust=-0.1, 
-                          text.vjust = -0.2, text.alpha = 0.5, 
-                          text.or.point=2, text.avoid.overlap = FALSE,
+                          shape.id=NULL, shapes=NULL, link.id=NULL, ellipsed.id=NULL, 
+                          text.id=NULL, text.or.point=2, point.size=3, point.alpha=1,
+                          text.data = NULL, text.size = 3, text.alpha = 0.5, 
+                          text.hjust=-0.1, text.vjust = -0.2, text.avoid.overlap = FALSE,
+                          text.repel = FALSE, box.padding = unit(0.25, "lines"), 
+                          point.padding = unit(1e-06, "lines"), arrow = NULL, force = 1,
                           x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
                           y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
                           x.facet.id=NULL, y.facet.id=NULL, facet.scales="fixed", 
@@ -361,8 +365,10 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
     if (is.null(text.colour.id))
       text.colour.id <- colour.id
     p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=text.colour.id, 
-                   text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
-                   text.alpha=text.alpha, text.avoid.overlap=text.avoid.overlap, verbose=verbose)
+                   text.repel=text.repel, text.size=text.size, text.alpha=text.alpha, 
+                   text.hjust=text.hjust, text.vjust=text.vjust, text.avoid.overlap=text.avoid.overlap, 
+                   box.padding=box.padding, point.padding=point.padding, arrow=arrow, 
+                   force=force, verbose=verbose)
   }
   
   p <- ggOptFacetGrid(p, col.names, x.facet.id=x.facet.id, y.facet.id=y.facet.id, 
@@ -460,15 +466,17 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
 #' 
 #' @rdname ggPlot
 ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL, 
-                             shape.id=NULL, shapes=NULL, line.or.point=3, 
-                             line.size=0.5, line.type = 1, line.alpha=1, 
-                             point.data=NULL, point.size=3, point.alpha=1,
+                             shape.id=NULL, shapes=NULL, text.id=NULL,  
+                             line.or.point=3, line.size=0.5, line.type = 1, line.alpha=1, 
+                             text.or.point=2, point.size=3, point.alpha=1, point.data=NULL, 
+                             text.data = NULL, text.size = 3, text.alpha = 0.5, 
+                             text.hjust=-0.1, text.vjust = -0.2, text.avoid.overlap = FALSE,
+                             text.repel = FALSE, box.padding = unit(0.25, "lines"), 
+                             point.padding = unit(1e-06, "lines"), arrow = NULL, force = 1,
                              x.facet.id=NULL, y.facet.id=NULL, facet.scales="fixed", 
                              facet.space="fixed", facet.shrink=TRUE, facet.drop = TRUE,
                              x.trans="identity", x.scale="continuous", auto.scale.x=FALSE, 
                              y.trans="identity", y.scale="continuous", auto.scale.y=FALSE,
-                             text.id=NULL, text.data = NULL, text.size = 3, 
-                             text.hjust=-0.1, text.vjust = -0.2, text.alpha = 0.5, 
                              x.lim.cart=NULL, y.lim.cart=NULL, palette=NULL, 
                              legend.title.group=NULL, legend.title.colour=NULL, 
                              legend.title.shape=NULL, legend.col=1, legend.row=0, 
@@ -513,9 +521,11 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
                       scales=facet.scales, space=facet.space, shrink=facet.shrink, 
                       drop=facet.drop, verbose=verbose)
   
-  p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=colour.id, 
-                 text.size=text.size, text.hjust=text.hjust, text.vjust=text.vjust, 
-                 text.alpha=text.alpha)
+  p <- ggOptText(p, col.names, text.id=text.id, text.data=text.data, colour.id=text.colour.id, 
+                 text.repel=text.repel, text.size=text.size, text.alpha=text.alpha, 
+                 text.hjust=text.hjust, text.vjust=text.vjust, text.avoid.overlap=text.avoid.overlap, 
+                 box.padding=box.padding, point.padding=point.padding, arrow=arrow, 
+                 force=force, verbose=verbose)
   
   p <- ggOptCoordCartesian(p, df, x.id, y.id, x.lim.cart=x.lim.cart, y.lim.cart=y.lim.cart, 
                            coord.flip=coord.flip, verbose=verbose)

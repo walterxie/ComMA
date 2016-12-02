@@ -39,32 +39,35 @@ ggHistogram(df, x.id, fill.id = NULL, bar.pos = "stack", bins = NULL,
   verbose = TRUE)
 
 ggScatterPlot(df, x.id, y.id, colour.id = NULL, text.colour.id = NULL,
-  shape.id = NULL, shapes = NULL, point.size = 3, point.alpha = 1,
-  link.id = NULL, ellipsed.id = NULL, text.id = NULL, text.data = NULL,
-  text.size = 3, text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
-  text.or.point = 2, text.avoid.overlap = FALSE, x.trans = "identity",
-  x.scale = "continuous", auto.scale.x = FALSE, y.trans = "identity",
-  y.scale = "continuous", auto.scale.y = FALSE, x.facet.id = NULL,
-  y.facet.id = NULL, facet.scales = "fixed", facet.space = "fixed",
-  facet.shrink = TRUE, facet.drop = TRUE, xintercept = NULL,
-  yintercept = NULL, line.type = 2, x.lim.cart = NULL,
-  y.lim.cart = NULL, palette = NULL, scale.limits.min = NULL,
-  legend.title.colour = NULL, legend.title.shape = NULL,
-  legend.title.size = NULL, legend.col = 1, legend.row = 0,
-  title = "Scatter Plot", title.size = 10, x.lab = NULL, y.lab = NULL,
-  no.legend = NULL, legend.position = "right",
+  shape.id = NULL, shapes = NULL, link.id = NULL, ellipsed.id = NULL,
+  text.id = NULL, text.or.point = 2, point.size = 3, point.alpha = 1,
+  text.data = NULL, text.size = 3, text.alpha = 0.5, text.hjust = -0.1,
+  text.vjust = -0.2, text.avoid.overlap = FALSE, text.repel = FALSE,
+  box.padding = unit(0.25, "lines"), point.padding = unit(1e-06, "lines"),
+  arrow = NULL, force = 1, x.trans = "identity", x.scale = "continuous",
+  auto.scale.x = FALSE, y.trans = "identity", y.scale = "continuous",
+  auto.scale.y = FALSE, x.facet.id = NULL, y.facet.id = NULL,
+  facet.scales = "fixed", facet.space = "fixed", facet.shrink = TRUE,
+  facet.drop = TRUE, xintercept = NULL, yintercept = NULL,
+  line.type = 2, x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
+  scale.limits.min = NULL, legend.title.colour = NULL,
+  legend.title.shape = NULL, legend.title.size = NULL, legend.col = 1,
+  legend.row = 0, title = "Scatter Plot", title.size = 10, x.lab = NULL,
+  y.lab = NULL, no.legend = NULL, legend.position = "right",
   legend.direction = "vertical", coord.flip = FALSE, x.text.angle = 0,
   x.text = TRUE, y.text = TRUE, no.panel.border = FALSE, verbose = TRUE)
 
 ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
-  shape.id = NULL, shapes = NULL, line.or.point = 3, line.size = 0.5,
-  line.type = 1, line.alpha = 1, point.data = NULL, point.size = 3,
-  point.alpha = 1, x.facet.id = NULL, y.facet.id = NULL,
-  facet.scales = "fixed", facet.space = "fixed", facet.shrink = TRUE,
-  facet.drop = TRUE, x.trans = "identity", x.scale = "continuous",
-  auto.scale.x = FALSE, y.trans = "identity", y.scale = "continuous",
-  auto.scale.y = FALSE, text.id = NULL, text.data = NULL, text.size = 3,
-  text.hjust = -0.1, text.vjust = -0.2, text.alpha = 0.5,
+  shape.id = NULL, shapes = NULL, text.id = NULL, line.or.point = 3,
+  line.size = 0.5, line.type = 1, line.alpha = 1, text.or.point = 2,
+  point.size = 3, point.alpha = 1, point.data = NULL, text.data = NULL,
+  text.size = 3, text.alpha = 0.5, text.hjust = -0.1, text.vjust = -0.2,
+  text.avoid.overlap = FALSE, text.repel = FALSE, box.padding = unit(0.25,
+  "lines"), point.padding = unit(1e-06, "lines"), arrow = NULL, force = 1,
+  x.facet.id = NULL, y.facet.id = NULL, facet.scales = "fixed",
+  facet.space = "fixed", facet.shrink = TRUE, facet.drop = TRUE,
+  x.trans = "identity", x.scale = "continuous", auto.scale.x = FALSE,
+  y.trans = "identity", y.scale = "continuous", auto.scale.y = FALSE,
   x.lim.cart = NULL, y.lim.cart = NULL, palette = NULL,
   legend.title.group = NULL, legend.title.colour = NULL,
   legend.title.shape = NULL, legend.col = 1, legend.row = 0, title = "",
@@ -199,9 +202,6 @@ define how the data points are coloured, shaped, or linked according their value
 \item{shapes}{Manually define the shapes of points. Refer to \code{\link{scale_shape_manual}}, 
 and \url{http://www.cookbook-r.com/Graphs/Shapes_and_line_types/}.}
 
-\item{point.size, point.alpha}{The feature of points for \code{\link{geom_point}}. 
-Default size to 3, alpha to 1.}
-
 \item{ellipsed.id}{The column name in \code{df} to define 
 how to draw ellipse over data points, which is normally same as 
 \code{colour.id} to show clusters.}
@@ -209,13 +209,20 @@ how to draw ellipse over data points, which is normally same as
 \item{text.id}{Label the data points according \code{text.id} column, 
 such as "Row.names" column after \code{\link{merge}}.}
 
-\item{text.size, text.hjust, text.vjust, text.alpha}{The arguments to adjust text in \code{\link{geom_text}} in the line or scatter plot.}
-
 \item{text.or.point}{If 1, then display the text only; if 2, the default, then only points; 
 if 3, then both the text and points.}
 
+\item{point.size, point.alpha}{The feature of points for \code{\link{geom_point}}. 
+Default size to 3, alpha to 1.}
+
+\item{text.size, text.hjust, text.vjust, text.alpha}{The arguments to adjust text in \code{\link{geom_text}} in the line or scatter plot.}
+
 \item{text.avoid.overlap}{If TRUE, text that overlaps previous text 
 in the same layer will not be plotted. Use it carefully. Default to FALSE.}
+
+\item{text.repel}{Apply \code{\link{geom_text_repel}} in \pkg{ggrepel}.
+It is better than \code{text.avoid.overlap} which removes overlapped text.
+Default to FALSE.}
 
 \item{scale.limits.min}{Manually set the minimum data range of the scale 
 given colours to \code{c(scale.limits.min, max(df[,colour.id]))}. 

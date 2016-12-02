@@ -69,9 +69,13 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL,
 #' or maximum dimension of the space in \code{\link{cmdscale}}. Default to 2.
 #' @param ... Other arguments passed to \code{\link{ggScatterPlot}}.
 
+#' @note 
+#' If the points are overlapped to the edge box, then use \code{\link{expand_limits}}, 
+#' such as \code{gg???(...) + expand_limits(x = c(?, ?), y=c(?, ?))},
+#' to expand the x y axis limits. 
 #' @details 
-#' NMDS plot \code{gtNMDSPlot} uses \code{\link{metaMDS}} in \code{\link{vegan}}
-#' to create Nonmetric Multidimensional Scaling (NMDS) plot.
+#' NMDS plot \code{ggNMDSPlot} and \code{gtNMDSPlot} uses \code{\link{metaMDS}} 
+#' in \code{\link{vegan}} to create Nonmetric Multidimensional Scaling (NMDS) plot.
 #' 
 #' @param comm Community data for NMDS plot. 
 #' It is dissimilarities either as a \code{\link{dist}} structure 

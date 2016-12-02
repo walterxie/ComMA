@@ -89,37 +89,44 @@ ggOptPointAndShape <- function(p, col.names, shape.id=NULL, data=NULL, shapes=NU
 # add text.id before ggOptText, such as df$row.names <- rownames(df)
 # If check_overlap=TRUE, text that overlaps previous text in the same layer will not be plotted
 ggOptText <- function(p, col.names, text.id=NULL, text.data=NULL, colour.id=NULL, 
-                      text.size=3, text.hjust=-0.1, text.vjust=-0.2, 
-                      text.alpha=0.5, text.avoid.overlap=TRUE, verbose=TRUE) {
+                      text.repel=FALSE, text.size=3, text.alpha=0.5,
+                      text.hjust=-0.1, text.vjust=-0.2, text.avoid.overlap=FALSE, 
+                      box.padding = unit(0.25, "lines"), point.padding = unit(1e-06, "lines"),
+                      arrow = NULL, force = 1, verbose=TRUE) {
   if (! is.null(text.id)) {
     if (!is.element(tolower(text.id), tolower(col.names)))
       stop("Data frame do NOT have column name \"", text.id, "\" !")
     
-    aes.string <- paste0("aes(label=", text.id)
+    if(text.repel) require(ggrepel)
+    aes.string <- paste0(ifelse(text.repel, "geom_text_repel( ", "geom_text( "), 
+                         "aes(label=", text.id)
     if (! is.null(colour.id)) {
       if (!is.element(tolower(colour.id), tolower(col.names)))
         stop("Data frame do NOT have column name \"", colour.id, "\" !")
       aes.string <- paste0(aes.string, ", colour=", colour.id)
     }
     
-    if (verbose)
-      cat("geom_text(", aes.string, ", ...\n")
-    
-    if (length(text.size) > 1) {
+    if (length(text.size) > 1) { # text.size is vector
       # prevent Error: Aesthetics must be either length 1 or the same as the data (5): size
       if (is.null(text.data))
         stop("Data for text cannot be NULL if given size vector !")
       # geom_text(data=df, aes(size = text.size))
-      aes.string <- paste0(aes.string, ", size=text.size)") 
-      p <- p + geom_text(eval(parse(text = aes.string)), data=text.data, 
-                         hjust=text.hjust, vjust=text.vjust, alpha=text.alpha, 
-                         check_overlap = text.avoid.overlap)
-    } else {
-      aes.string <- paste0(aes.string, ")") 
-      p <- p + geom_text(eval(parse(text = aes.string)), data=text.data, size=text.size, 
-                         hjust=text.hjust, vjust=text.vjust, alpha=text.alpha, 
-                         check_overlap = text.avoid.overlap)
+      aes.string <- paste0(aes.string, ", size=text.size), ")
+    } else { # text.size is integer
+      aes.string <- paste0(aes.string, "), size=text.size, ") 
     }
+    aes.string <- paste0(aes.string, "data=text.data, alpha=text.alpha, ")
+    if (text.repel) {
+      aes.string <- paste0(aes.string, "box.padding=box.padding, ", 
+                           "point.padding=point.padding, arrow=arrow, force=force )")
+    } else {
+      aes.string <- paste0(aes.string, "hjust=text.hjust, vjust=text.vjust, ", 
+                           "check_overlap = text.avoid.overlap )")
+    }
+    
+    if (verbose)
+      cat("text : ", aes.string, "\n")
+    p <- p + eval(parse(text = aes.string))
   }
   return(p)
 }
