@@ -20,8 +20,9 @@ pdf.plot(plot, fig.path, width = 6, height = 6, useDingbats = TRUE)
 
 unclip.ggplot(gg.plot)
 
-grid_arrange_shared_legend(..., legend.position = "bottom", ncol = 2,
-  nrow = 1, unclip.ggplot = TRUE)
+grid_arrange_shared_legend(..., input.list = FALSE,
+  legend.position = "bottom", ncol = 2, nrow = 2, widths = c(1, 0.1),
+  unclip.ggplot = TRUE)
 }
 \arguments{
 \item{gg.plot}{A \code{\link{ggplot}} object.}
@@ -38,10 +39,16 @@ Refer to \code{\link{pdf}}.}
 
 \item{...}{The list of \code{\link{ggplot}} objects.}
 
+\item{input.list}{Default to FALSE to unwrap list(...) to 
+get the actual list if the input is a list of plots}
+
 \item{legend.position}{The position of legends 
 ("none", "left", "right", "bottom", "top", or two-element numeric vector)}
 
 \item{ncol, nrow}{Specify the grid.}
+
+\item{widths}{A unit vector giving the width of each column in \code{\link{gtable}}. 
+\code{length(widths) == ncol}, for example, widths=c(1, 0.1, 0.1) for 3 columns.}
 
 \item{gtable}{A \code{\link{gtable}} object.}
 }
@@ -85,6 +92,8 @@ p2 <- qplot(cut, price, data=dsamp, colour=clarity)
 p3 <- qplot(color, price, data=dsamp, colour=clarity)
 p4 <- qplot(depth, price, data=dsamp, colour=clarity)
 grid_arrange_shared_legend(p1, p2, p3, p4)
+
+grid_arrange_shared_legend(list(p1, p2, p3, p4), input.list=T)
 
 }
 \keyword{graph}

@@ -96,9 +96,13 @@ unclip.ggplot <- function(gg.plot) {
 #' \url{http://rpubs.com/sjackman/grid_arrange_shared_legend}.
 #' 
 #' @param ... The list of \code{\link{ggplot}} objects.
+#' @param input.list Default to FALSE to unwrap list(...) to 
+#' get the actual list if the input is a list of plots 
 #' @param legend.position The position of legends 
 #' ("none", "left", "right", "bottom", "top", or two-element numeric vector)
 #' @param ncol,nrow Specify the grid.
+#' @param widths A unit vector giving the width of each column in \code{\link{gtable}}. 
+#' \code{length(widths) == ncol}, for example, widths=c(1, 0.1, 0.1) for 3 columns.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -110,9 +114,14 @@ unclip.ggplot <- function(gg.plot) {
 #' p4 <- qplot(depth, price, data=dsamp, colour=clarity)
 #' grid_arrange_shared_legend(p1, p2, p3, p4)
 #' 
+#' grid_arrange_shared_legend(list(p1, p2, p3, p4), input.list=T)
+#' 
 #' @rdname pdf
-grid_arrange_shared_legend <- function(..., legend.position="bottom", ncol=2, nrow=1, unclip.ggplot=TRUE) {
-  plots <- list(...)
+grid_arrange_shared_legend <- function(..., input.list=FALSE, legend.position="bottom", 
+                                       ncol=2, nrow=2, widths=c(1, 0.1), unclip.ggplot=TRUE) {
+  plots <- unwrapInputList(..., input.list=input.list) 
+  cat("Grid arrange", length(plots), "plots.\n")
+  
   if ( !(length(plots) != ncol*nrow || length(plots) != ncol*nrow-1) )
     stop("Incorrect grid ", ncol, " * ", nrow, " for total ", length(plots), " plots !")
   
@@ -127,7 +136,7 @@ grid_arrange_shared_legend <- function(..., legend.position="bottom", ncol=2, nr
   require(gridExtra)
   grid.arrange(
     do.call(arrangeGrob, args.list),
-    legend, ncol=ncol, widths=c(1, 0.11))
+    legend, ncol=ncol, widths=widths)
 }
 
 #' Defining the scale change.
