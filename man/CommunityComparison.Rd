@@ -6,6 +6,7 @@
 \alias{mantelComparison}
 \alias{plotProcrustes}
 \alias{procrustesComparison}
+\alias{sublistByPairs}
 \title{Compare community structure}
 \usage{
 getDissimilarityList(cm.list, metric = "jaccard", ...)
@@ -15,7 +16,10 @@ mantelComparison(dist.list, method = "pearson", permutations = 999)
 procrustesComparison(dist.list, scale = TRUE, symmetric = TRUE,
   permutations = 999)
 
-plotProcrustes(proc.list, attr.df, colour.id = "Elevation")
+sublistByPairs(m.p.list, pairs, subset.pairs)
+
+plotProcrustes(proc.list, attr.df, colour.id = "Elevation",
+  title.list = list(), proc.list.pairs = list())
 }
 \arguments{
 \item{cm.list}{A list of community matrices.}
@@ -31,6 +35,14 @@ which can be calculated by \code{\link{getDissimilarityList}}.}
 
 \item{scale, symmetric, permutations}{Parameters used in 
 \code{\link{procrustes}} and \code{\link{protest}}.}
+
+\item{m.p.list}{Either \code{m.list} of the output from \code{mantelComparison}, 
+or \code{proc.list} or \code{prot.list} from \code{procrustesComparison}.}
+
+\item{pairs, subset.pairs}{The list of the list of two pairs of community names, 
+see example. 
+The string names have to be exaclty same in order to find matches, 
+but the order of the pair does not matter the 1st or 2nd come first.}
 
 \item{proc.list}{The list of \code{\link{procrustes}} results.}
 }
@@ -48,6 +60,9 @@ between the overall community structure.
 \code{procrustesComparison} makes Procrustes comparisons 
 between the overall community structure.
 
+\code{sublistByPairs} takes a subset result from comparisons 
+given the subset of pairwised communities.
+
 \code{plotProcrustes} plots Procrustes correlations between pairwised communities.
 }
 \examples{
@@ -63,7 +78,10 @@ prot.tri <- getTriMatrix(procrustes$prot.df, order.by=order.by)
 # Mantel test (lower triangle) and Procrustes test (upper triangle)
 corrs <- combineTriMatrix(mantel.tri, prot.tri)
 
-plotProcrustes(procrustes$proc)
+sub.proc <- sublistByPairs(procrustes$proc.list, procrustes$pairs, subset.pairs=list(list("16S bacteria","18S protists"),list("18S animals","COI−300 animals")) )
+sub.proc$sub.list
+
+plotProcrustes(procrustes$proc.list)
 
 }
 \keyword{comparison}

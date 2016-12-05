@@ -109,8 +109,54 @@ procrustesComparison <- function(dist.list, scale = TRUE, symmetric = TRUE, perm
   }
   p.result <- do.call("rbind", lapply(prot.list, data.frame))
   
-  list(proc = proc.list, prot.df=p.result, prot.list=prot.list, pairs=label.matched$pairs, 
+  list(proc.list = proc.list, prot.df=p.result, prot.list=prot.list, pairs=label.matched$pairs, 
        samples=label.matched$samples, same.samples=label.matched$same.samples)
+}
+
+#' @details
+#' \code{sublistByPairs} takes a subset result from comparisons 
+#' given the subset of pairwised communities.  
+#' 
+#' @param m.p.list Either \code{m.list} of the output from \code{mantelComparison}, 
+#' or \code{proc.list} or \code{prot.list} from \code{procrustesComparison}.
+#' @param pairs,subset.pairs The list of the list of two pairs of community names, 
+#' see example. 
+#' The string names have to be exaclty same in order to find matches, 
+#' but the order of the pair does not matter the 1st or 2nd come first.
+#' @export
+#' @examples 
+#' sub.proc <- sublistByPairs(procrustes$proc.list, procrustes$pairs, subset.pairs=list(list("16S bacteria","18S protists"),list("18S animals","COI−300 animals")) )
+#' sub.proc$sub.list
+#' 
+#' @rdname CommunityComparison
+sublistByPairs <- function(m.p.list, pairs, subset.pairs) {
+  if (length(m.p.list) != length(pairs))
+    stop("length(m.p.list) has to be same as length(pairs) !\n", 
+         "m.p.list is either m.list of the output from function mantelComparison, ", 
+         "or proc.list/prot.list from procrustesComparison.")
+  m1 <- do.call("rbind", pairs)
+  v1 <- paste(m1[,1], m1[,2])
+  m2 <- do.call("rbind", subset.pairs)
+  v2 <- paste(m2[,1], m2[,2])
+  # check the reverse pair
+  v3 <- paste(m2[,2], m2[,1])
+  
+  id.match2 <- match(tolower(v2), tolower(v1))
+  id.match3 <- match(tolower(v3), tolower(v1))
+  # merge two id vectors by non NA values
+  id.match <- pmin(id.match2, id.match3, na.rm = TRUE)
+  id.match <- id.match[!is.na(id.match)] 
+  if (length(id.match) < 1) {
+    warning("Cannot match subset.pairs to pairs !\n", 
+            "subset.pairs = ", paste(subset.pairs, collapse = ","), 
+            "\npais = ", paste(pairs, collapse = ","))
+    return(list())
+  }
+  if (length(id.match) != length(v2))
+    warning(length(id.match), " selected pairs != ", length(v2), " given subset pairs !\nSelected pairs are ", 
+        paste(v1[id.match], collapse = ", "), ".\n")
+  subset.list <- m.p.list[id.match]
+  list(sub.list = subset.list, sub.pairs=subset.pairs)
 }
 
 #' @details
@@ -119,10 +165,17 @@ procrustesComparison <- function(dist.list, scale = TRUE, symmetric = TRUE, perm
 #' @param proc.list The list of \code{\link{procrustes}} results.
 #' @export
 #' @examples 
-#' plotProcrustes(procrustes$proc)
+#' plotProcrustes(procrustes$proc.list)
 #' 
 #' @rdname CommunityComparison
-plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation") {
+plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation", 
+                           title.list=list(), proc.list.pairs=list()) {
+  if (length(title.list) > 0 && length(title.list) != length(proc.list))
+    stop("length(title.list) has to be same as length(proc.list) !")
+  if (length(proc.list.pairs) > 0 && length(proc.list.pairs) != length(proc.list))
+    stop("length(proc.list.pairs) has to be same as length(proc.list) !")
+  
+  require(ggplot2)
   plot.list <- list()
   for(i in 1:length(proc.list)){
     pro <- proc.list[[i]]
@@ -146,9 +199,19 @@ plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation") {
       #geom_text(aes(x = xMDS1, y = xMDS2, label = pts.mds$Row.names, colour = Elevation), size = 1.5, vjust = 1.5, alpha = 0.5) + 
       scale_colour_gradientn(colours = c("blue", "orange")) + labs(colour="Elevation (m)") +
       theme(panel.grid = element_blank(), plot.title = element_text(size = 8), 
-            plot.margin = unit(c(0.1,0.1,0.1,0), "cm"), legend.key.width = unit(0.65, "cm")) +
-      #ggtitle(paste0(letters[[i]], ". ", labels(x[[i]])[[1]], " vs. ", labels(x[[i]])[[2]])) #, ", ", metric, " distance")) #+
-      ggtitle(paste0(letters[[i]], ". ", names(proc.list)[[i]]))
+            plot.margin = unit(c(0.1,0.1,0.1,0), "cm"), legend.key.width = unit(0.65, "cm")) 
+   
+    title <- NULL
+    if (length(title.list) > 0) {
+      title <- title.list[[i]]
+    } else if (length(proc.list.pairs) > 0) {
+      title <- paste0(letters[[i]], ". ", proc.list.pairs[[i]][[1]], " vs. ", proc.list.pairs[[i]][[2]]) #, ", ", metric, " distance")) #+
+    } else if (!is.null(names(proc.list))) {     
+      title <- paste0(letters[[i]], ". ", names(proc.list)[[i]])
+    }
+    if (!is.null(title))
+      p <- p + ggtitle(title)
+    
     #coord_fixed()
     tmp <- ggplot_gtable(ggplot_build(p))
     leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
@@ -156,6 +219,7 @@ plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation") {
     
     p <- p + theme(legend.position = "none")
     plot.list[[i]] <- p
+    cat("Add Procrustes i=", i, ", title=", title, "\n")
   }
   return(list(plot.list, legend))
 }
