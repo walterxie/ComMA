@@ -12,6 +12,7 @@
 #' Refer to \url{http://stackoverflow.com/questions/2261079/how-to-trim-leading-and-trailing-whitespace-in-r}.
 #'  
 #' @param x The string.
+#' @param y The string of a replacement, default is the empty string.
 #' @keywords utils
 #' @export
 #' @examples 
@@ -20,7 +21,7 @@
 #' [1] "foo bar  baz 3"
 #'
 #' @rdname stringUtils
-trimStartEndSpace <- function (x) gsub("^\\s+|\\s+$", "", x)
+trimStartEndSpace <- function (x, y="") gsub("^\\s+|\\s+$", y, x)
 
 #' @details \code{trimSpace} removes all whitespace from a string.
 #' Refer to \url{http://stackoverflow.com/questions/5992082/how-to-remove-all-whitespace-from-a-string}.
@@ -33,8 +34,8 @@ trimStartEndSpace <- function (x) gsub("^\\s+|\\s+$", "", x)
 #' [1] "foobarbaz3"
 #'
 #' @rdname stringUtils
-trimSpace <- function (x) gsub("[[:space:]]", "", x)
-trimSpace.old <- function (x) gsub("\\s", "", x)
+trimSpace <- function (x, y="") gsub("[[:space:]]", y, x)
+trimSpace.old <- function (x, y="") gsub("\\s", y, x)
 
 #' @details \code{substrLast} extracts the last n characters from a string x.
 #' Refer to \url{http://stackoverflow.com/questions/7963898/extracting-the-last-n-characters-from-a-string-in-r}.

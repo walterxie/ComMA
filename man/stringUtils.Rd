@@ -16,9 +16,9 @@
 \alias{trimStartEndSpace}
 \title{Utils to deal with strings and characters}
 \usage{
-trimStartEndSpace(x)
+trimStartEndSpace(x, y = "")
 
-trimSpace(x)
+trimSpace(x, y = "")
 
 substrLast(x, n)
 
@@ -44,6 +44,8 @@ pasteDF(df, ..., sep = " ", collapse = NULL, stringsAsFactors = FALSE,
 }
 \arguments{
 \item{x}{The string.}
+
+\item{y}{The string of a replacement, default is the empty string.}
 
 \item{n}{The last n characters}
 
