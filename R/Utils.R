@@ -48,31 +48,6 @@ prettyNumbers <- function(df, digits = 2, drop.0.tail=TRUE) {
   return(df)
 }
 
-#' Get plural by adding 's' except special plural.
-#' 
-#' @param singular The singular of a word in string.
-#' @return 
-#' The plural of given singular. 
-#' But it needs to add special plural manully in the code.
-#' @keywords utils
-#' @export
-#' @examples 
-#' getPlural("species")
-#' [1] "species"
-#' getPlural("phylumn")
-#' [1] "phyla"
-getPlural <- function (...) {
-  plurals <- c()
-  for (singular in list(...)) {
-    plurals <- c(plurals, 
-                switch(tolower(singular),
-                       species = singular,
-                       phylumn = "phyla",
-                       paste0(singular,"s") ))
-  }
-  return(plurals) 
-}
-
 #' Generate coordinates for 2 clusters. 
 #' 
 #' @source \url{http://stackoverflow.com/questions/2397097/how-can-a-data-ellipse-be-superimposed-on-a-ggplot2-scatterplot}.

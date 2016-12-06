@@ -107,6 +107,31 @@ simpleCap <- function(x) {
   paste(toupper(substring(s, 1,1)), substring(s, 2), sep="", collapse=" ")
 }
 
+#' Get plural by adding 's' except special plural.
+#' 
+#' @param singular The singular of a word in string.
+#' @return 
+#' The plural of given singular. 
+#' But it needs to add special plural manully in the code.
+#' @keywords utils
+#' @export
+#' @examples 
+#' getPlural("species")
+#' [1] "species"
+#' getPlural("phylumn")
+#' [1] "phyla"
+getPlural <- function (...) {
+  plurals <- c()
+  for (singular in list(...)) {
+    plurals <- c(plurals, 
+                 switch(tolower(singular),
+                        species = singular,
+                        phylumn = "phyla",
+                        paste0(singular,"s") ))
+  }
+  return(plurals) 
+}
+
 #' @details \code{getFirstNInString} returns the first \code{n} elements in a string, 
 #' using \code{\link{paste}}. 
 #' If \code{n} is greater than length,

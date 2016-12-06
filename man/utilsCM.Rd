@@ -2,7 +2,6 @@
 % Please edit documentation in R/CMUtils.R
 \name{utilsCM}
 \alias{cmYAcrossX}
-\alias{mergeRowsByColumnValue}
 \alias{mostAbundantRows}
 \alias{rmMinAbundance}
 \alias{spilt.df}
@@ -23,8 +22,6 @@ mostAbundantRows(community.matrix, most.abund = 150, row.decreasing = TRUE,
 cmYAcrossX(community.matrix, terms = c("OTUs", "samples", "reads"))
 
 sumColumns(community.matrix, sep = "-", nth = 1)
-
-mergeRowsByColumnValue(community.matrix, ..., FUN = sum)
 }
 \arguments{
 \item{community.matrix}{Community matrix (OTU table), where rows are 
@@ -58,11 +55,6 @@ Please be careful of the order if any change.}
 \item{sep}{The seperator to get the \emph{n}th substring from column names. Default to dash '-'.}
 
 \item{nth}{The \emph{n}th substring. Default to 1 (first).}
-
-\item{...}{The community matrix column names for \code{mergeRowsByColumnValue}.}
-
-\item{FUN}{The function to compute the summary statistics 
-which can be applied to all data subsets. Refer to \code{\link{aggregate}}.}
 }
 \description{
 Utils to preprocess community matrix, 
@@ -91,10 +83,6 @@ the 'OTUs' is the number of OTUs simultaneously appeared only in that number of 
 and the 'reads' is the number of reads assigned to those OTUs.
 
 \code{sumColumns} sums the columns by the \emph{n}th substring defined in column names.
-
-\code{mergeRowsByColumnValue} \code{\link{aggregate}}s 
-given community matrix by applying a specified function (e.g. sum) 
-to the values of given columns.
 }
 \examples{
 # remove singletons 
@@ -116,7 +104,6 @@ community.matrix <- getCommunityMatrix("16S", isPlot=FALSE, minAbund=1)
 colSums(community.matrix)
 communityMatrix1 <- sumColumns(community.matrix)
 colSums(communityMatrix1)
-
 
 }
 \keyword{community}

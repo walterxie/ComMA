@@ -214,20 +214,5 @@ sumColumns <- function(community.matrix, sep="-", nth=1) {
   return(communityMatrix1)
 }
 
-#' @details \code{mergeRowsByColumnValue} \code{\link{aggregate}}s 
-#' given community matrix by applying a specified function (e.g. sum) 
-#' to the values of given columns.
-#' 
-#' @param ... The community matrix column names for \code{mergeRowsByColumnValue}.
-#' @param FUN The function to compute the summary statistics 
-#' which can be applied to all data subsets. Refer to \code{\link{aggregate}}.
-#' @keywords community matrix
-#' @export
-#' @examples 
-#'
-#' @rdname utilsCM
-mergeRowsByColumnValue <- function(community.matrix, ..., FUN=sum) {
-  cols <- paste(list(...), collapse="+")
-  
-  aggregate(as.formula(paste(". ~", cols)), data=community.matrix, FUN=FUN)
-}
+
+# aggregate(as.formula(paste(". ~", cols)), data=community.matrix, FUN=FUN)

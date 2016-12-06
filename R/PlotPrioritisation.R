@@ -207,6 +207,9 @@ getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(),
         pd.df2 <- as.data.frame(pd.list[[div]][[i]])
         colnames(pd.df2) <- paste(colnames(pd.df2), cm.name, sep = ".")
         pd.df.merge <- merge(pd.df, pd.df2, by="row.names")
+        # mv Row.names col to rownames
+        rownames(pd.df.merge) <- pd.df.merge$Row.names
+        pd.df.merge <- pd.df.merge[,-1]
         if (nrow(pd.df.merge) != nrow(pd.df))
           warning("Lossing samples after merge ! ", nrow(pd.df.merge), " != ", nrow(pd.df))
         pd.df <- pd.df.merge
