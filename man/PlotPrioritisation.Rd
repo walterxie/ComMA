@@ -2,6 +2,7 @@
 % Please edit documentation in R/PlotPrioritisation.R
 \name{PlotPrioritisation}
 \alias{PlotPrioritisation}
+\alias{getPlotPrior}
 \alias{getPlotPrior.JostDiver}
 \alias{getPlotPrior.PhyloAlpha}
 \title{Plot prioritisation}
@@ -11,6 +12,10 @@ getPlotPrior.JostDiver(t.community.matrix, lev = c("alpha", "beta", "gamma"),
 
 getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree, taxa.match = TRUE,
   order.by = c("sample", "rank", "diversity"), ...)
+
+getPlotPrior(..., input.list = FALSE, is.transposed = FALSE,
+  phylo.tree = NA, diversities = c("gamma0", "gamma1", "beta0", "beta1",
+  "pd.alpha", "sp.rich"))
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, 
@@ -26,6 +31,26 @@ Defaults to the Shannon case where q = 1.}
 Choose from 'sample', 'rank', or 'diversity'.}
 
 \item{phylo.tree, ...}{The parameters passed to \code{\link{phylo.alpha}}.}
+
+\item{taxa.match}{Logical, if taxa in phylogenies do not match OTUs in the community. 
+If TRUE, as default, to use t.community.matrix and phylo.tree directly, 
+otherwise to call \code{\link{match.phylo.comm}} 
+before calculate phylogenetic alpha diversity.}
+
+\item{..., input.list}{Input of a list of \em{transposed} community matrices, 
+or comma separated multi-inputs. If the former, it must set 
+input.list=TRUE to unwrap list(...) to get the actual input list.}
+
+\item{is.transposed}{If TRUE, then the community matrix is already
+transposed to be the valid input of \code{\link{vegdist}}.  
+Default to FASLE.}
+
+\item{diversities}{The vector of diversities used to compute plot prioritisation.
+The values are 'gamma0','gamma1','beta0','beta1','pd.alpha','sp.rich'. 
+The first two are calculated by \code{\link{d}}, 
+the last two by \code{\link{pd}}.}
+
+\item{phylo.tree}{A phylo tree object for 'pd.alpha' and 'sp.rich'.}
 }
 \value{
 A data frame with 2 columns: \emph{rank, diversity}. 
@@ -58,11 +83,17 @@ by phylogenetic alpha diversity from \code{\link{phylo.alpha}}.
 It also can return the ranks based on species richness (SR), 
 but they may be different to ranks calculated from 
 \code{getPlotPrior.JostDiver} using gamma0 (also species richness).
+
+\code{getPlotPrior} is a generic function including both 
+\code{getPlotPrior.JostDiver} and \code{getPlotPrior.PhyloAlpha}, 
+and it also handles multiple communities.
 }
 \examples{
 plot.prior.g1 <- getPlotPrior.JostDiver(t.community.matrix, lev="gamma", q=1)
 
 phylo.alpha <- getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree)
+
+plot.prior <- getPlotPrior(cm.list, input.list=TRUE, is.transposed=FALSE, phylo.tree=tre, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
 
 }
 \keyword{plot}

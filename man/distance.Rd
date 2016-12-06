@@ -23,8 +23,8 @@ TurnoverDist(t.community.matrix)
 to caculate \code{\link{UniFrac}}. It cannot be NA, as default, 
 for method="unwt.unif" or "wt.unif".}
 
-\item{is.transposed}{If TRUE, then \code{cm} is already
-the transposed matrix of \code{\link{vegdist}} input. 
+\item{is.transposed}{If TRUE, then the community matrix is already
+transposed to be the valid input of \code{\link{vegdist}}.  
 Default to FASLE.}
 
 \item{progressBar}{Whether to print progress bar 

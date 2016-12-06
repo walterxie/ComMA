@@ -17,8 +17,8 @@
 #' @param tree The \pkg{\link{ape}} tree object required 
 #' to caculate \code{\link{UniFrac}}. It cannot be NA, as default, 
 #' for method="unwt.unif" or "wt.unif".
-#' @param is.transposed If TRUE, then \code{cm} is already
-#' the transposed matrix of \code{\link{vegdist}} input. 
+#' @param is.transposed If TRUE, then the community matrix is already
+#' transposed to be the valid input of \code{\link{vegdist}}.  
 #' Default to FASLE.
 #' @param method The method to calculate similarity/dissimilarity distance. 
 #' The options are jaccard, horn.morisita, 

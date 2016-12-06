@@ -101,6 +101,10 @@ getPlotPrior.JostDiver <- function(t.community.matrix, lev=c("alpha","beta","gam
 #' \code{getPlotPrior.JostDiver} using gamma0 (also species richness).
 #' 
 #' @param phylo.tree,... The parameters passed to \code{\link{phylo.alpha}}.
+#' @param taxa.match Logical, if taxa in phylogenies do not match OTUs in the community. 
+#' If TRUE, as default, to use t.community.matrix and phylo.tree directly, 
+#' otherwise to call \code{\link{match.phylo.comm}} 
+#' before calculate phylogenetic alpha diversity.
 #' @export
 #' @keywords plot prioritisation
 #' @examples 
@@ -110,25 +114,111 @@ getPlotPrior.JostDiver <- function(t.community.matrix, lev=c("alpha","beta","gam
 getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=TRUE,
                                     order.by=c("sample","rank","diversity"), ...) {
   if (!taxa.match) {
-    combined <- match.phylo.comm(phylo.tree, t.communityMatrix)
+    combined <- match.phylo.comm(phylo.tree, t.community.matrix)
     pd.alpha <- ComMA::phylo.alpha(combined$comm, combined$phy, ...)
   } else {
-    phylo.alpha <- ComMA::phylo.alpha(t.community.matrix, phylo.tree, ...)
+    pd.alpha <- ComMA::phylo.alpha(t.community.matrix, phylo.tree, ...)
   }
   
   # add rank
-  phylo.alpha <- phylo.alpha[order(phylo.alpha$PD, decreasing = T),]
-  pd.df <- phylo.alpha["PD", drop=FALSE]
-  pd.df$rank <- 1:nrow(pd.df) 
+  pd.alpha <- pd.alpha[order(pd.alpha$PD, decreasing = T),]
+  pd.df <- data.frame(row.names=rownames(pd.alpha), rank=1:nrow(pd.alpha), diversity=pd.alpha$PD) 
   pd.df <- orderDiversityDF(pd.df, order.by)
   
-  phylo.alpha <- phylo.alpha[order(phylo.alpha$SR, decreasing = T),]
-  sr.df <- phylo.alpha["SR", drop=FALSE]
-  sr.df$rank <- 1:nrow(sr.df) 
+  pd.alpha <- pd.alpha[order(pd.alpha$SR, decreasing = T),]
+  sr.df <- data.frame(row.names=rownames(pd.alpha), rank=1:nrow(pd.alpha), diversity=pd.alpha$SR) 
   sr.df <- orderDiversityDF(sr.df, order.by)
   
   list(PD=pd.df, SR=sr.df)
 }
+
+#' @details \code{getPlotPrior} is a generic function including both 
+#' \code{getPlotPrior.JostDiver} and \code{getPlotPrior.PhyloAlpha}, 
+#' and it also handles multiple communities.
+#' 
+#' @param ...,input.list Input of a list of \em{transposed} community matrices, 
+#' or comma separated multi-inputs. If the former, it must set 
+#' input.list=TRUE to unwrap list(...) to get the actual input list. 
+#' @param is.transposed If TRUE, then the community matrix is already
+#' transposed to be the valid input of \code{\link{vegdist}}.  
+#' Default to FASLE.
+#' @param phylo.tree A phylo tree object for 'pd.alpha' and 'sp.rich'. 
+#' @param diversities The vector of diversities used to compute plot prioritisation.
+#' The values are 'gamma0','gamma1','beta0','beta1','pd.alpha','sp.rich'. 
+#' The first two are calculated by \code{\link{d}}, 
+#' the last two by \code{\link{pd}}.
+#' @export
+#' @keywords plot prioritisation
+#' @examples 
+#' plot.prior <- getPlotPrior(cm.list, input.list=TRUE, is.transposed=FALSE, phylo.tree=tre, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
+#' 
+#' @rdname PlotPrioritisation
+getPlotPrior <- function(..., input.list=FALSE, is.transposed=FALSE, phylo.tree=NA,
+                         diversities=c("gamma0","gamma1","beta0","beta1","pd.alpha","sp.rich")) {
+  cm.list <- unwrapInputList(..., input.list=input.list) 
+  cat("Plot prioritisation at", length(cm.list), "data sets.\n") 
+  
+  if (is.null(names(cm.list)))
+    names(cm.list) <- 1:length(cm.list)
+  
+  pd.list <- list()
+  for (i in 1:length(cm.list)) {
+    cm.name <- names(cm.list)[i]
+    
+    if (!is.transposed)
+      t.cm <- ComMA::transposeDF(cm.list[[i]])
+    else
+      t.cm <- cm.list[[i]]
+    
+    for (d in 1:length(diversities)) {
+      div <- diversities[d]
+      if (div=="gamma0") {
+        plot.prior <- ComMA::getPlotPrior.JostDiver(t.cm, lev="gamma", q=0)
+      } else if (div=="gamma1") {
+        plot.prior <- ComMA::getPlotPrior.JostDiver(t.cm, lev="gamma", q=1)
+      } else if (div=="beta0") {
+        plot.prior <- ComMA::getPlotPrior.JostDiver(t.cm, lev="beta", q=0)
+      } else if (div=="beta1") {
+        plot.prior <- ComMA::getPlotPrior.JostDiver(t.cm, lev="beta", q=1)
+      } else if (div=="pd.alpha" || div=="sp.rich") { 
+        if(is.na(phylo.tree))
+          stop("'phylo.tree' is required for 'pd.alpha' !")
+        plot.prior.2 <- ComMA::getPlotPrior.PhyloAlpha(t.cm, phylo.tree)
+        if (div=="pd.alpha")
+          plot.prior <- plot.prior.2$PD
+        else
+          plot.prior <- plot.prior.2$SR
+      } else {
+        plot.prior <- NULL
+        warning("Invalid diversity : ", div, " !")
+      }
+      pd.list[[div]][[cm.name]] <- plot.prior
+    }
+  }
+  
+  for (d in 1:length(diversities)) {
+    div <- diversities[d]
+    pd.df <- as.data.frame(pd.list[[div]][[1]])
+    colnames(pd.df) <- paste(colnames(pd.df), names(cm.list)[1], sep = ".")
+    
+    if (length(cm.list) > 1) { # multiple cm
+      for (i in 2:length(cm.list)) {
+        cm.name <- names(cm.list)[i]
+        pd.df2 <- as.data.frame(pd.list[[div]][[i]])
+        colnames(pd.df2) <- paste(colnames(pd.df2), cm.name, sep = ".")
+        pd.df.merge <- merge(pd.df, pd.df2, by="row.names")
+        if (nrow(pd.df.merge) != nrow(pd.df))
+          warning("Lossing samples after merge ! ", nrow(pd.df.merge), " != ", nrow(pd.df))
+        pd.df <- pd.df.merge
+      }
+    }
+    pd.list[[div]][["all"]] <- pd.df
+  }
+  
+  return(pd.list)
+}
+
+
 
 ############ internal #############
 orderDiversityDF <- function(div.df, order.by=c("sample","rank","diversity")) {
