@@ -142,7 +142,8 @@ getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=T
 #' @param is.transposed If TRUE, then the community matrix is already
 #' transposed to be the valid input of \code{\link{vegdist}}.  
 #' Default to FASLE.
-#' @param phylo.tree A phylo tree object for 'pd.alpha' and 'sp.rich'. 
+#' @param phylo.tree A phylo tree object for 'pd.alpha' and 'sp.rich'.
+#' Default to NA. 
 #' @param diversities The vector of diversities used to compute plot prioritisation.
 #' The values are 'gamma0','gamma1','beta0','beta1','pd.alpha','sp.rich'. 
 #' The first two are calculated by \code{\link{d}}, 

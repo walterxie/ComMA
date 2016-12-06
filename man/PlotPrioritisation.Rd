@@ -50,7 +50,8 @@ The values are 'gamma0','gamma1','beta0','beta1','pd.alpha','sp.rich'.
 The first two are calculated by \code{\link{d}}, 
 the last two by \code{\link{pd}}.}
 
-\item{phylo.tree}{A phylo tree object for 'pd.alpha' and 'sp.rich'.}
+\item{phylo.tree}{A phylo tree object for 'pd.alpha' and 'sp.rich'.
+Default to NA.}
 }
 \value{
 A data frame with 2 columns: \emph{rank, diversity}. 
