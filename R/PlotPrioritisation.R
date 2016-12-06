@@ -154,16 +154,16 @@ getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=T
 #' @rdname PlotPrioritisation
 getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(), 
                          diversities=c("gamma0","gamma1","beta0","beta1","pd.alpha","sp.rich")) {
-  cm.list <- unwrapInputList(..., input.list=input.list) 
-  cat("Plot prioritisation at", length(cm.list), "data sets.\n") 
-  
+  cat("Plot prioritisation at", length(cm.list), "data sets", 
+      ifelse(length(tre.list)>0, paste(", and", length(tre.list), "trees"), ""), ".\n") 
+  # add names
   if (is.null(names(cm.list)))
     names(cm.list) <- 1:length(cm.list)
   
   pd.list <- list()
   for (i in 1:length(cm.list)) {
     cm.name <- names(cm.list)[i]
-    
+    # if transposed
     if (!is.transposed)
       t.cm <- ComMA::transposeDF(cm.list[[i]])
     else
