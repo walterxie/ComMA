@@ -149,8 +149,8 @@ getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=T
 #' @export
 #' @keywords plot prioritisation
 #' @examples 
-#' plot.prior <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
-#' 
+#' plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, diversities=c("gamma1","beta1"))
+#' plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
 #' @rdname PlotPrioritisation
 getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(), 
                          diversities=c("gamma0","gamma1","beta0","beta1","pd.alpha","sp.rich")) {
@@ -160,7 +160,7 @@ getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(),
   if (is.null(names(cm.list)))
     names(cm.list) <- 1:length(cm.list)
   
-  pd.list <- list()
+  plot.prior.list <- list()
   for (i in 1:length(cm.list)) {
     cm.name <- names(cm.list)[i]
     # if transposed
@@ -192,35 +192,40 @@ getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(),
         plot.prior <- NULL
         warning("Invalid diversity : ", div, " !")
       }
-      pd.list[[div]][[cm.name]] <- plot.prior
+      plot.prior.list[[div]][[cm.name]] <- plot.prior
     }
   }
-  
-  for (d in 1:length(diversities)) {
-    div <- diversities[d]
-    pd.df <- as.data.frame(pd.list[[div]][[1]])
-    colnames(pd.df) <- paste(colnames(pd.df), names(cm.list)[1], sep = ".")
-    
-    if (length(cm.list) > 1) { # multiple cm
-      for (i in 2:length(cm.list)) {
-        cm.name <- names(cm.list)[i]
-        pd.df2 <- as.data.frame(pd.list[[div]][[i]])
-        colnames(pd.df2) <- paste(colnames(pd.df2), cm.name, sep = ".")
-        pd.df.merge <- merge(pd.df, pd.df2, by="row.names")
-        # mv Row.names col to rownames
-        rownames(pd.df.merge) <- pd.df.merge$Row.names
-        pd.df.merge <- pd.df.merge[,-1]
-        if (nrow(pd.df.merge) != nrow(pd.df))
-          warning("Lossing samples after merge ! ", nrow(pd.df.merge), " != ", nrow(pd.df))
-        pd.df <- pd.df.merge
-      }
-    }
-    pd.list[[div]][["all"]] <- pd.df
-  }
-  
-  return(pd.list)
+  plot.prior.list[["diversities"]] <- diversities
+  plot.prior.list[["cm.names"]] <- names(cm.list)
+  return(plot.prior.list)
 }
 
+#' @details \code{mergePlotPriorListOfDF} merges a list of data frames  
+#' produced by \code{getPlotPrior} into one.
+#' 
+#' @param plot.prior.list The output from \code{getPlotPrior}. 
+#' @param suffixes The vector of suffixes added to distinguish colmun names 
+#' merged by different data frames. Its length must equal to \code{plot.prior.list}.  
+#' @export
+#' @keywords plot prioritisation
+#' @examples 
+#' pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
+#' 
+#' @rdname PlotPrioritisation
+mergePlotPriorListOfDF <- function(plot.prior.list, suffixes=c()) {
+  diversities <- plot.prior.list[["diversities"]]
+  if (length(suffixes) == 0)
+    suffixes <- plot.prior.list[["cm.names"]]
+  pp.df.list <- list()
+  for (d in 1:length(diversities)) {
+    div <- diversities[d]
+    if (length(plot.prior.list[[div]]) != length(suffixes))
+      stop("Invalid list : length(plot.prior.list[[div]]) != length(suffixes) !")
+    pp.df <- ComMA::mergeListOfDF(plot.prior.list[[div]], suffixes=suffixes)
+    pp.df.list[[div]] <- pp.df
+  }
+  return(pp.df.list)
+}
 
 
 ############ internal #############

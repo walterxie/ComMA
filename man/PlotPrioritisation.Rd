@@ -5,6 +5,7 @@
 \alias{getPlotPrior}
 \alias{getPlotPrior.JostDiver}
 \alias{getPlotPrior.PhyloAlpha}
+\alias{mergePlotPriorListOfDF}
 \title{Plot prioritisation}
 \usage{
 getPlotPrior.JostDiver(t.community.matrix, lev = c("alpha", "beta", "gamma"),
@@ -16,6 +17,8 @@ getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree, taxa.match = TRUE,
 getPlotPrior(cm.list, is.transposed = FALSE, tre.list = list(),
   diversities = c("gamma0", "gamma1", "beta0", "beta1", "pd.alpha",
   "sp.rich"))
+
+mergePlotPriorListOfDF(plot.prior.list, suffixes = c())
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, 
@@ -50,6 +53,11 @@ corresponding to \code{cm.list}. Default to an empty list.}
 The values are 'gamma0','gamma1','beta0','beta1','pd.alpha','sp.rich'. 
 The first two are calculated by \code{\link{d}}, 
 the last two by \code{\link{pd}}.}
+
+\item{plot.prior.list}{The output from \code{getPlotPrior}.}
+
+\item{suffixes}{The vector of suffixes added to distinguish colmun names 
+merged by different data frames. Its length must equal to \code{plot.prior.list}.}
 }
 \value{
 A data frame with 2 columns: \emph{rank, diversity}. 
@@ -86,13 +94,18 @@ but they may be different to ranks calculated from
 \code{getPlotPrior} is a generic function including both 
 \code{getPlotPrior.JostDiver} and \code{getPlotPrior.PhyloAlpha}, 
 and it also handles multiple communities.
+
+\code{mergePlotPriorListOfDF} merges a list of data frames  
+produced by \code{getPlotPrior} into one.
 }
 \examples{
 plot.prior.g1 <- getPlotPrior.JostDiver(t.community.matrix, lev="gamma", q=1)
 
 phylo.alpha <- getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree)
 
-plot.prior <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
+plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, diversities=c("gamma1","beta1"))
+plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
+pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
 
 }
 \keyword{plot}
