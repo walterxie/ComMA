@@ -72,7 +72,7 @@ getTriMatrix <- function(df, row.col=c("l1", "l2"), value="corr", na.to.0=TRUE, 
   return(m)
 }
 
-#' \code{combineTriMatrix} combines two symmetric triangular matrices into one.
+#' @details \code{combineTriMatrix} combines two symmetric triangular matrices into one.
 #' The 1st matrix goes to the lower triangle in the combined matrix,
 #' and the 2nd to upper triangle.
 #' 
@@ -96,7 +96,7 @@ combineTriMatrix <- function(tri.m1, tri.m2) {
 }
 
 
-#' \code{combineTwoDF} combines two data frames or matrices with a same structure in one, 
+#' @details \code{combineTwoDF} combines two data frames or matrices with a same structure in one, 
 #' put all values in 2nd data frame into brackets.
 #' 
 #' @param dfm A data frame or matrix.
@@ -126,23 +126,78 @@ combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, ...) {
   return(dfm.comb)
 }
 
-#' \code{mergeByRownames} merges two data frames by 'row.names' using \code{\link{merge}}.
+#' @details \code{mergeBy} is an improved function of 
+#' \code{\link{merge}} \code{by} column(s).
 #' 
 #' @param x,y data frames, or objects to be coerced to one.
-#' @param warning.msg logical; if TRUE, then print warning message when rows are missing after merge.
-#' @param ... pass to \code{\link{merge}}.
+#' @param warning.msg Logical; if TRUE as default, then print warning message 
+#' if any row is dropped after merge.
+#' @param by,... Specifications of the column(s) used for merging, 
+#' and more arguments passed to \code{\link{merge}}.
+#' @param rm.by Logical; if TRUE, then remove the column(s) specified
+#' by \code{by} after merge. Default to FALSE. 
+#' But if \code{by="row.names"}, then copy the column 'Row.names' created 
+#' by \code{\link{merge}} into rownames before drop it.
 #' @keywords utils
 #' @export
 #' @examples 
-#' df <- mergeByRownames(df, df2)
+#' df <- mergeBy(df, df2)
 #' 
 #' @rdname UtilsCombine 
-mergeByRownames <- function(x, y, warning.msg=TRUE, ...) {
-  xy <- merge(x, y, by = "row.names", ...)
+mergeBy <- function(x, y, by="row.names", rm.by=FALSE, warning.msg=TRUE, ...) {
+  xy <- merge(x, y, by=by, ...)
   
   if ( warning.msg && (nrow(xy) != nrow(x) || nrow(xy) != nrow(y)) ) 
-    warning(paste("Rows are missing after merge ! nrow(xy) =", 
-                  nrow(xy), ", nrow(x) =", nrow(x), ", nrow(y) =", nrow(y) ))
+    warning("Lossing rows after merge !  nrow(xy) = ", nrow(xy), 
+            ", nrow(x) = ", nrow(x), ", nrow(y) = ", nrow(y), " !")
+  
+  if (rm.by) {
+    # mv 'by' such as Row.names to rownames, if it is only 1 col 
+    if (tolower(by[1]) == "row.names") {
+      rownames(df.merge) <- df.merge$Row.names
+      by="Row.names"
+    } 
+    df.merge <- df.merge[,-which(colnames(df.merge) %in% by)]
+    cat("Drop column(s)", paste(by, collapse = ","), "after merge.\n")
+  }
+
   return(xy)
 }
+
+
+#' @details \code{mergeListOfDF} merges a list of data frames into one 
+#' using \code{\link{mergeBy}}.
+#' 
+#' @param df.list a list of data frames, or objects to be coerced to one.
+#' @param suffixes The vector of suffixes added to distinguish colmun names 
+#' merged by different data frames. Its length must equal to \code{df.list}.   
+#' @keywords utils
+#' @export
+#' @examples 
+#' df <- mergeListOfDF(df.list, suffixes=names(df.list))
+#' df <- mergeListOfDF(df.list, by="gene", suffixes=c("16S","18S","ITS"))
+#' 
+#' @rdname UtilsCombine 
+mergeListOfDF <- function(df.list, by="row.names", rm.by=TRUE, suffixes=c(), ...) {
+  df.whole <- as.data.frame(df.list[[1]])
+  if (length(suffixes) > 0) {
+    if (length(suffixes) != length(df.list))
+      stop("Invalid inputs : length(suffixes) != length(df.list) !")
+    suffixes <- ComMA::trimSpace(suffixes, ".") # replace space to .
+    colnames(df.whole) <- paste(colnames(df.whole), suffixes, sep = ".")
+  }
+  
+  if (length(df.list) > 1) { # multiple cm
+    for (i in 2:length(df.list)) {
+      cm.name <- names(df.list)[i]
+      df.tmp <- as.data.frame(df.list[[i]])
+      if (length(suffixes) > 0)
+        colnames(df.tmp) <- paste(colnames(df.tmp), suffixes, sep = ".")
+      # mv Row.names col to rownames
+      df.whole <- ComMA::mergeBy(df.whole, df.tmp, by=by, rm.by=rm.by)
+    }
+  }
+  return(df.whole)
+}
+
 

@@ -118,3 +118,6 @@ convertType <- function(df, FUN=as.numeric, stringsAsFactors=FALSE, check.names=
 firstN <- function(vect, n) {
   vect[1:ifelse(length(vect) < n, length(vect), n)]
 }
+
+
+

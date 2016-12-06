@@ -361,7 +361,7 @@ plotClusterAbundence <- function(data, data.cluster, fig.path=NA, cluster.colour
 #' @rdname enterotype
 corrEnterotypeToGroup <- function(data.dist, k, attr.data, group.id, simulate.p.value=TRUE) {
   k.clusters <- pam.clustering(data.dist, k, as.vector=F)$clustering
-  df.merge <- ComMA::mergeByRownames(as.data.frame(k.clusters), attr.data)
+  df.merge <- ComMA::mergeBy(as.data.frame(k.clusters), attr.data)
   
   clusters.id <- "k.clusters"
    # data frame bug: cannot use df.merge[, c(clusters.id, group.id)]
@@ -445,7 +445,7 @@ plotSamples <- function(points.df, attr.data=data.frame(), fig.path=NA, addLabel
   if (addLabel) {
     text.id="Row.names"
     if (nrow(attr.data) > 0) {
-      points.df <- ComMA::mergeByRownames(points.df, attr.data)
+      points.df <- ComMA::mergeBy(points.df, attr.data, rm)
       #points.df[,] <- factor(points.df[,], levels = attr.levels)
     } else {
       points.df$Row.names <- rownames(points.df)

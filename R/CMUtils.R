@@ -1,5 +1,9 @@
 # Author: Walter Xie, Andrew Dopheide
 # Accessed on 20 Apr 2016
+# 
+# some tricks :
+# aggregate(as.formula(paste(". ~", cols)), data=community.matrix, FUN=function(x) sum(x>0))
+# df <- do.call(rbind, lapply(list, data.frame))
 
 #' @name utilsCM
 #' @title Utils to preprocess community matrix
@@ -214,5 +218,3 @@ sumColumns <- function(community.matrix, sep="-", nth=1) {
   return(communityMatrix1)
 }
 
-
-# aggregate(as.formula(paste(". ~", cols)), data=community.matrix, FUN=FUN)

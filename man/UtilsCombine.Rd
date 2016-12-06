@@ -5,7 +5,8 @@
 \alias{combineTriMatrix}
 \alias{combineTwoDF}
 \alias{getTriMatrix}
-\alias{mergeByRownames}
+\alias{mergeBy}
+\alias{mergeListOfDF}
 \title{Utils to combine data frames or matrices into the required data format}
 \usage{
 getTriMatrix(df, row.col = c("l1", "l2"), value = "corr", na.to.0 = TRUE,
@@ -15,7 +16,10 @@ combineTriMatrix(tri.m1, tri.m2)
 
 combineTwoDF(dfm, dfm2, rm.zero = TRUE, return.df = TRUE, ...)
 
-mergeByRownames(x, y, warning.msg = TRUE, ...)
+mergeBy(x, y, by = "row.names", rm.by = FALSE, warning.msg = TRUE, ...)
+
+mergeListOfDF(df.list, by = "row.names", rm.by = TRUE, suffixes = c(),
+  ...)
 }
 \arguments{
 \item{df}{The data frame containing pairwised comparison result, 
@@ -46,25 +50,27 @@ which can be the output from \code{getTriMatrix}.}
 
 \item{return.df, ...}{Default to TRUE to return a data frame, otherwise a matrix.}
 
-\item{...}{pass to \code{\link{merge}}.}
-
 \item{x, y}{data frames, or objects to be coerced to one.}
 
-\item{warning.msg}{logical; if TRUE, then print warning message when rows are missing after merge.}
+\item{by, ...}{Specifications of the column(s) used for merging, 
+and more arguments passed to \code{\link{merge}}.}
+
+\item{rm.by}{Logical; if TRUE, then remove the column(s) specified
+by \code{by} after merge. Default to FALSE. 
+But if \code{by="row.names"}, then copy the column 'Row.names' created 
+by \code{\link{merge}} into rownames before drop it.}
+
+\item{warning.msg}{Logical; if TRUE as default, then print warning message 
+if any row is dropped after merge.}
+
+\item{df.list}{a list of data frames, or objects to be coerced to one.}
+
+\item{suffixes}{The vector of suffixes added to distinguish colmun names 
+merged by different data frames. Its length must equal to \code{df.list}.}
 
 \item{key}{Two column names containing the pair names,
 which determine the output matrix's row names and column names.
 It must make row and column names same.}
-}
-\description{
-\code{combineTriMatrix} combines two symmetric triangular matrices into one.
-The 1st matrix goes to the lower triangle in the combined matrix,
-and the 2nd to upper triangle.
-
-\code{combineTwoDF} combines two data frames or matrices with a same structure in one, 
-put all values in 2nd data frame into brackets.
-
-\code{mergeByRownames} merges two data frames by 'row.names' using \code{\link{merge}}.
 }
 \details{
 \code{getTriMatrix} converts pairwised comparison result 
@@ -74,6 +80,19 @@ Two of their columns must have pair names in the same order,
 which determine the matrix's row names and column names.
 The 1st data frame goes to the lower triangle of the matrix, 
 and the 2nd is in upper triangle.
+
+\code{combineTriMatrix} combines two symmetric triangular matrices into one.
+The 1st matrix goes to the lower triangle in the combined matrix,
+and the 2nd to upper triangle.
+
+\code{combineTwoDF} combines two data frames or matrices with a same structure in one, 
+put all values in 2nd data frame into brackets.
+
+\code{mergeBy} is an improved function of 
+\code{\link{merge}} \code{by} column(s).
+
+\code{mergeListOfDF} merges a list of data frames into one 
+using \code{\link{mergeBy}}.
 }
 \examples{
 corr.tri <- getTriMatrix(corr.df)
@@ -82,7 +101,10 @@ corr.sign.tri <- combineTriMatrix(corr.tri, sign.tri)
 
 df <- combineTwoDF(df, df2, stringsAsFactors=FALSE)
 
-df <- mergeByRownames(df, df2)
+df <- mergeBy(df, df2)
+
+df <- mergeListOfDF(df.list, suffixes=names(df.list))
+df <- mergeListOfDF(df.list, by="gene", suffixes=c("16S","18S","ITS"))
 
 }
 \keyword{utils}
