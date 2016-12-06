@@ -136,14 +136,12 @@ getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=T
 #' \code{getPlotPrior.JostDiver} and \code{getPlotPrior.PhyloAlpha}, 
 #' and it also handles multiple communities.
 #' 
-#' @param ...,input.list Input of a list of \em{transposed} community matrices, 
-#' or comma separated multi-inputs. If the former, it must set 
-#' input.list=TRUE to unwrap list(...) to get the actual input list. 
+#' @param cm.list The list of community matrices. 
 #' @param is.transposed If TRUE, then the community matrix is already
 #' transposed to be the valid input of \code{\link{vegdist}}.  
-#' Default to FASLE.
-#' @param phylo.tree A phylo tree object for 'pd.alpha' and 'sp.rich'.
-#' Default to NA. 
+#' Default to FASLE to transpose.
+#' @param tre.list A list of phylo tree objects for 'pd.alpha' and 'sp.rich',
+#' corresponding to \code{cm.list}. Default to an empty list. 
 #' @param diversities The vector of diversities used to compute plot prioritisation.
 #' The values are 'gamma0','gamma1','beta0','beta1','pd.alpha','sp.rich'. 
 #' The first two are calculated by \code{\link{d}}, 
@@ -151,10 +149,10 @@ getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=T
 #' @export
 #' @keywords plot prioritisation
 #' @examples 
-#' plot.prior <- getPlotPrior(cm.list, input.list=TRUE, is.transposed=FALSE, phylo.tree=tre, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
+#' plot.prior <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
 #' 
 #' @rdname PlotPrioritisation
-getPlotPrior <- function(..., input.list=FALSE, is.transposed=FALSE, phylo.tree=NA,
+getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(), 
                          diversities=c("gamma0","gamma1","beta0","beta1","pd.alpha","sp.rich")) {
   cm.list <- unwrapInputList(..., input.list=input.list) 
   cat("Plot prioritisation at", length(cm.list), "data sets.\n") 
@@ -182,9 +180,10 @@ getPlotPrior <- function(..., input.list=FALSE, is.transposed=FALSE, phylo.tree=
       } else if (div=="beta1") {
         plot.prior <- ComMA::getPlotPrior.JostDiver(t.cm, lev="beta", q=1)
       } else if (div=="pd.alpha" || div=="sp.rich") { 
-        if(is.na(phylo.tree))
-          stop("'phylo.tree' is required for 'pd.alpha' !")
-        plot.prior.2 <- ComMA::getPlotPrior.PhyloAlpha(t.cm, phylo.tree)
+        if(length(tre.list) < 1 || length(tre.list) != length(cm.list))
+          stop("Invalid 'tre.list': a phylo tree object is required ", 
+               "for each cm to caculate 'pd.alpha' or 'sp.rich' !")
+        plot.prior.2 <- ComMA::getPlotPrior.PhyloAlpha(t.cm, tre.list[[i]])
         if (div=="pd.alpha")
           plot.prior <- plot.prior.2$PD
         else
