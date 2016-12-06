@@ -228,6 +228,24 @@ mergePlotPriorListOfDF <- function(plot.prior.list, suffixes=c()) {
 }
 
 
+plotPrioritisation <- function(pp.df.list, x.levels=c(), y.levels=c(), ...) {
+  heatmap.list <- list()
+  if (is.null(names(heatmap.list)))
+    names(heatmap.list) <- 1:length(heatmap.list)
+  
+  for (i in 1:length(pp.df.list)) {
+    pp.df <- pp.df.list[[i]]
+    pp.df$samples <- rownames(pp.df)
+    p.hm <- ComMA::ggHeatmap(pp.df, melt.id="samples", title="", no.legend="fill", 
+                             x.levels=x.levels, y.levels=y.levels, label.digits=3,
+                             high = "#f46d43", mid = "#ffffbf", low = "#3288bd" )
+    heatmap.list[[names(heatmap.list)[i]]] <- p.hm
+  }
+  
+  return(heatmap.list)
+}
+
+
 ############ internal #############
 orderDiversityDF <- function(div.df, order.by=c("sample","rank","diversity")) {
   order.by <- match.arg(order.by)

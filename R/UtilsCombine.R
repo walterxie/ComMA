@@ -154,10 +154,10 @@ mergeBy <- function(x, y, by="row.names", rm.by=FALSE, warning.msg=TRUE, ...) {
   if (rm.by) {
     # mv 'by' such as Row.names to rownames, if it is only 1 col 
     if (tolower(by[1]) == "row.names") {
-      rownames(df.merge) <- df.merge$Row.names
+      rownames(xy) <- xy$Row.names
       by="Row.names"
     } 
-    df.merge <- df.merge[,-which(colnames(df.merge) %in% by)]
+    xy <- xy[,-which(colnames(xy) %in% by)]
     cat("Drop column(s)", paste(by, collapse = ","), "after merge.\n")
   }
 
@@ -180,19 +180,27 @@ mergeBy <- function(x, y, by="row.names", rm.by=FALSE, warning.msg=TRUE, ...) {
 #' @rdname UtilsCombine 
 mergeListOfDF <- function(df.list, by="row.names", rm.by=TRUE, suffixes=c(), ...) {
   df.whole <- as.data.frame(df.list[[1]])
+  
   if (length(suffixes) > 0) {
     if (length(suffixes) != length(df.list))
       stop("Invalid inputs : length(suffixes) != length(df.list) !")
     suffixes <- ComMA::trimSpace(suffixes, ".") # replace space to .
-    colnames(df.whole) <- paste(colnames(df.whole), suffixes, sep = ".")
+    cm.names <- suffixes
+    # add suffix to 1st df cols 
+    colnames(df.whole) <- paste(colnames(df.whole), suffixes[1], sep = ".")
+  } else if (is.null(names(df.list))) {
+    cm.names <- 1:length(df.list)
+  } else {
+    cm.names <- names(df.list)
   }
+  cat("Load data 1 : ", cm.names[1], "\n")
   
   if (length(df.list) > 1) { # multiple cm
     for (i in 2:length(df.list)) {
-      cm.name <- names(df.list)[i]
       df.tmp <- as.data.frame(df.list[[i]])
+      cat("Load data", i, ": ", cm.names[i], "\n")
       if (length(suffixes) > 0)
-        colnames(df.tmp) <- paste(colnames(df.tmp), suffixes, sep = ".")
+        colnames(df.tmp) <- paste(colnames(df.tmp), suffixes[i], sep = ".")
       # mv Row.names col to rownames
       df.whole <- ComMA::mergeBy(df.whole, df.tmp, by=by, rm.by=rm.by)
     }
