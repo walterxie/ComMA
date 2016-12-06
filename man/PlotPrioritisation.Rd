@@ -3,22 +3,35 @@
 \name{PlotPrioritisation}
 \alias{PlotPrioritisation}
 \alias{getPlotPrior.JostDiver}
+\alias{getPlotPrior.PhyloAlpha}
 \title{Plot prioritisation}
 \usage{
 getPlotPrior.JostDiver(t.community.matrix, lev = c("alpha", "beta", "gamma"),
-  q)
+  q = 1, order.by = c("sample", "rank", "diversity"))
+
+getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree, taxa.match = TRUE,
+  order.by = c("sample", "rank", "diversity"), ...)
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, 
 where rows are plots (Use plots instead of subplots.), columns are OTUs.}
 
-\item{lev}{Level of diversity to be calculated. Will accept: 'alpha,' 'beta,' or 'gamma.'}
+\item{lev}{Level of diversity to be calculated. 
+Will accept: 'alpha', 'beta', or 'gamma'.}
 
-\item{q}{Order of the diversity measure. Defaults to the Shannon case where q = 1.}
+\item{q}{Order of the diversity measure. 
+Defaults to the Shannon case where q = 1.}
+
+\item{order.by}{How the result is ordered. 
+Choose from 'sample', 'rank', or 'diversity'.}
+
+\item{phylo.tree, ...}{The parameters passed to \code{\link{phylo.alpha}}.}
 }
 \value{
-A data frame with 2 columns: \emph{rank, diversity}. Rank 1 is the most important plot, 
-\emph{n} is the least important, and row.names are plot names. For example,
+A data frame with 2 columns: \emph{rank, diversity}. 
+Rank 1 is the most important plot, 
+\emph{n} is the least important, and row.names are plot names. 
+For example,
 \tabular{rrr}{
    \tab rank \tab diversity\cr
   CM30c39 \tab 28 \tab 1845.785714\cr
@@ -31,17 +44,25 @@ Ranking of sample plots by their contributions
 to the total biodiversity.
 }
 \details{
-Plot prioritisation by Jost diversity calculated from 
-\pkg{vegetarian} \code{\link{d}}.
+\code{getPlotPrior.JostDiver} computes plot prioritisation 
+by Jost diversity calculated from \pkg{vegetarian} \code{\link{d}}.
 It uses a greedy algorithm to remove plots sequentially 
 so as to minimize the loss of diversity among the remaining plots,
 which always chooses the 1st plot if there are multi-results 
 in each prioritisation loop.
 Rank 1 is the most important plot and removed at the last, 
 \emph{n} is the least important and removed in the beginning.
+
+\code{getPlotPrior.PhyloAlpha} calculates plot prioritisation 
+by phylogenetic alpha diversity from \code{\link{phylo.alpha}}.
+It also can return the ranks based on species richness (SR), 
+but they may be different to ranks calculated from 
+\code{getPlotPrior.JostDiver} using gamma0 (also species richness).
 }
 \examples{
 plot.prior.g1 <- getPlotPrior.JostDiver(t.community.matrix, lev="gamma", q=1)
+
+phylo.alpha <- getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree)
 
 }
 \keyword{plot}

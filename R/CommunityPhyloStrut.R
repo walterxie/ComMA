@@ -12,10 +12,17 @@
 #' @details \code{phylo.alpha} returns a data frame of the PD and species richness (SR) 
 #' values for all samples from \code{\link{pd}} in \pkg{picante}. 
 #' Phylogenetic alpha diversity (PD) index is proposed by Faith (1992).
-#' @param t.community.matrix A transposed matrix from community matrix, where rows are samples, columns are OTUs
+#' @param t.community.matrix A transposed matrix from community matrix, 
+#' where rows are samples, columns are OTUs.
 #' @param phylo.tree A rooted tree of phylo object
 #' @param ORD.RES The function how to order the sample names in the result
 #' @param verbose default TRUE
+#' @note If taxa in phylogenies do not match OTUs in the community, 
+#' then use \code{\link{match.phylo.comm}} before \code{phylo.alpha}. 
+#' See examples. But prefer \code{comm > phy} in practical, 
+#' otherwise \code{combined$phy} will be unrooted tree. 
+#' Therefore, in the case of single-species samples the PD will 
+#' be equal to NA (include.root=FALSE), see \code{\link{pd}}.
 #' @export
 #' @examples 
 #' pd.alpha <- phylo.alpha(t.community.matrix, phylo.tree)
@@ -27,22 +34,28 @@
 #'   CM30b60 \tab 554.9873 \tab 2931
 #' }
 #' 
+#' combined <- match.phylo.comm(phylo.tree, t.communityMatrix)
+#' pd.alpha <- phylo.alpha(combined$comm, combined$phy, ...) 
+#' 
 #' @rdname CommunityPhyloStru
-phylo.alpha <- function(t.community.matrix, phylo.tree, ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
-  if ( ! all( sort(colnames(t.community.matrix)) == sort(phylo.tree$tip.label) ) ) 
-    cat("Warning: community OTU names do not match tree tip labels !\n")
-  
+phylo.alpha <- function(t.community.matrix, phylo.tree, include.root = TRUE,
+                        ORD.RES=function(res) {res[order(rownames(res)),]}, verbose=TRUE) {
   if(verbose) {
     cat("Input community", nrow(t.community.matrix), "samples", ncol(t.community.matrix), "OTUs", 
         ", phylogenetic tree with", length(phylo.tree$tip.label), "tips and", phylo.tree$Nnode, "internal nodes.\n") 
     cat("Analysis: Faith's phylogenetic alpha diversity.\n") 
   }
+  if ( ! all( sort(colnames(t.community.matrix)) == sort(phylo.tree$tip.label) ) ) 
+    warning("community OTU names do not match tree tip labels !",
+            "\nPlease apply match.phylo.comm before this.")
   
   require(picante)
-  
+  if (!is.rooted(phylo.tree) && include.root) {
+    warning("phylo.tree is unrooted, set include.root=FALSE !")
+    include.root=FALSE
+  }
   # phylogenetic alpha diversity (PD) index proposed by Faith (1992)
-  pd.result <- pd(t.community.matrix, phylo.tree, include.root = TRUE)
-  
+  pd.result <- pd(t.community.matrix, phylo.tree, include.root = include.root)
   pd.result <- ORD.RES(pd.result)
   pd.result
 }

@@ -11,8 +11,9 @@
 \alias{printResult}
 \title{Community Phylogenetic Structure from \pkg{picante} Package}
 \usage{
-phylo.alpha(t.community.matrix, phylo.tree, ORD.RES = function(res) {    
-  res[order(rownames(res)), ] }, verbose = TRUE)
+phylo.alpha(t.community.matrix, phylo.tree, include.root = TRUE,
+  ORD.RES = function(res) {     res[order(rownames(res)), ] },
+  verbose = TRUE)
 
 phylo.mpd(t.community.matrix, phylo.tree, ORD.RES = function(res) {    
   res[order(rownames(res)), ] }, verbose = TRUE)
@@ -31,7 +32,8 @@ plotPDBeta(pd.beta.dist, title = "Phylogenetic beta diversity", xlab = "",
   sub = "", ...)
 }
 \arguments{
-\item{t.community.matrix}{A transposed matrix from community matrix, where rows are samples, columns are OTUs}
+\item{t.community.matrix}{A transposed matrix from community matrix, 
+where rows are samples, columns are OTUs.}
 
 \item{phylo.tree}{A rooted tree of phylo object}
 
@@ -82,6 +84,14 @@ returns dist object from \pkg{picante} \code{\link{unifrac}}.
 
 \code{plotPDBeta} plots the dendrogram of phylogenetic beta diversity (Steven Kembel)
 }
+\note{
+If taxa in phylogenies do not match OTUs in the community, 
+then use \code{\link{match.phylo.comm}} before \code{phylo.alpha}. 
+See examples. But prefer \code{comm > phy} in practical, 
+otherwise \code{combined$phy} will be unrooted tree. 
+Therefore, in the case of single-species samples the PD will 
+be equal to NA (include.root=FALSE), see \code{\link{pd}}.
+}
 \examples{
 pd.alpha <- phylo.alpha(t.community.matrix, phylo.tree)
 pd.alpha
@@ -91,6 +101,9 @@ pd.alpha
   CM30b58 \\tab 456.4397 \\tab 2634\\cr
   CM30b60 \\tab 554.9873 \\tab 2931
 }
+
+combined <- match.phylo.comm(phylo.tree, t.communityMatrix)
+pd.alpha <- phylo.alpha(combined$comm, combined$phy, ...) 
 
 pd.mpd <- phylo.mpd(t.community.matrix, phylo.tree)
 

@@ -8,8 +8,8 @@
 #' @description Ranking of sample plots by their contributions 
 #' to the total biodiversity.
 #' 
-#' @details Plot prioritisation by Jost diversity calculated from 
-#' \pkg{vegetarian} \code{\link{d}}.
+#' @details \code{getPlotPrior.JostDiver} computes plot prioritisation 
+#' by Jost diversity calculated from \pkg{vegetarian} \code{\link{d}}.
 #' It uses a greedy algorithm to remove plots sequentially 
 #' so as to minimize the loss of diversity among the remaining plots,
 #' which always chooses the 1st plot if there are multi-results 
@@ -19,11 +19,17 @@
 #' 
 #' @param t.community.matrix A transposed matrix from community matrix, 
 #' where rows are plots (Use plots instead of subplots.), columns are OTUs.
-#' @param lev Level of diversity to be calculated. Will accept: 'alpha,' 'beta,' or 'gamma.'
-#' @param q Order of the diversity measure. Defaults to the Shannon case where q = 1.
+#' @param lev Level of diversity to be calculated. 
+#' Will accept: 'alpha', 'beta', or 'gamma'.
+#' @param q Order of the diversity measure. 
+#' Defaults to the Shannon case where q = 1.
+#' @param order.by How the result is ordered. 
+#' Choose from 'sample', 'rank', or 'diversity'.
 #' @return 
-#' A data frame with 2 columns: \emph{rank, diversity}. Rank 1 is the most important plot, 
-#' \emph{n} is the least important, and row.names are plot names. For example,
+#' A data frame with 2 columns: \emph{rank, diversity}. 
+#' Rank 1 is the most important plot, 
+#' \emph{n} is the least important, and row.names are plot names. 
+#' For example,
 #' \tabular{rrr}{
 #'    \tab rank \tab diversity\cr
 #'   CM30c39 \tab 28 \tab 1845.785714\cr
@@ -36,24 +42,26 @@
 #' plot.prior.g1 <- getPlotPrior.JostDiver(t.community.matrix, lev="gamma", q=1)
 #' 
 #' @rdname PlotPrioritisation
-getPlotPrior.JostDiver <- function(t.community.matrix, lev=c("alpha","beta","gamma"), q){
+getPlotPrior.JostDiver <- function(t.community.matrix, lev=c("alpha","beta","gamma"), 
+                                   q=1, order.by=c("sample","rank","diversity")){
   tmpCM <- t.community.matrix
   removedSites <- c()
   
   lev <- match.arg(lev)
   require(vegetarian)
-  jost.diver <- d(t.community.matrix, lev, q)
-  cat("Original community Jost diversity : ", lev, " ", q, "=", jost.diver, " for ", nrow(t.community.matrix), "samples.\n")
+  jost.diver <- d(t.community.matrix, lev=lev, q=q)
+  cat("Original community", paste0(lev, "(", q, ")"), "=", jost.diver, 
+      "for", nrow(t.community.matrix), "samples.\n")
   # add orignal diversity
   maxRemainedDiversities <- c(jost.diver)
   
   for (ra in nrow(t.community.matrix):2) {
-    if(ra != nrow(tmpCM)) stop(paste("incorrect nrow(tmpCM) ", nrow(tmpCM), " !=  ra ", ra, sep=""))
+    if(ra != nrow(tmpCM)) stop("incorrect nrow(tmpCM) ", nrow(tmpCM), " !=  ra ", ra, " !")
     
     maxRemainedDiv = 0
     removedSiteId = 0
     for (siteId in 1:nrow(tmpCM)) {
-      tmpDiv <- d(tmpCM[-siteId,], lev, q)
+      tmpDiv <- d(tmpCM[-siteId,], lev=lev, q=q)
       if (tmpDiv > maxRemainedDiv) {
         maxRemainedDiv = tmpDiv
         removedSiteId = siteId
@@ -61,27 +69,82 @@ getPlotPrior.JostDiver <- function(t.community.matrix, lev=c("alpha","beta","gam
       # print(paste("siteId = ", siteId, ", remove siteId = ", removedSiteId, ", maxRemainedDiv = ", maxRemainedDiv, sep=""))  
     }
     
-    if(maxRemainedDiv < 1 | removedSiteId < 1) stop(paste("incorrect max remained ", lev, "(", q, ") = ", maxRemainedDiv, ", when sites = ", nrow(tmpCM), sep=""))
+    if(maxRemainedDiv < 1 | removedSiteId < 1) 
+      stop("incorrect max remained ", lev, "(", q, ") = ", maxRemainedDiv, 
+           ", when sites = ", nrow(tmpCM), " !")
+    cat("remove sample", rownames(tmpCM)[removedSiteId], ": max remained", 
+        paste0(lev, "(", q, ")"), "=", maxRemainedDiv, "\n")  
     
-    print(paste("remove site ", rownames(tmpCM)[removedSiteId], ", max remained ", lev, "(", q, ") = ", maxRemainedDiv, sep=""))  
     removedSites <- c(removedSites, rownames(tmpCM)[removedSiteId])
     maxRemainedDiversities <- c(maxRemainedDiversities, maxRemainedDiv)
-    
+    # remove sample from cm
     tmpCM <- tmpCM[-removedSiteId,]       
   }
   removedSites <- c(removedSites, rownames(tmpCM)[1]) # the last
-  print(paste("Last site remained", rownames(tmpCM)[1]))
+  cat("Last sample remained :", rownames(tmpCM)[1], "\n")
   
   if(length(removedSites) != length(maxRemainedDiversities)) 
-    stop(paste("length of maxRemainedDiversities ", length(maxRemainedDiversities), " - 1 != sites ", length(maxDiv$rank), sep=""))
+    stop("length(maxRemainedDiversities) ", length(maxRemainedDiversities), 
+         " - 1 != sites ", length(div.df$rank), " !")
   
-  # 1st removed (biggest rank) maxDiv$rank is the least important
-  maxDiv <- data.frame(row.names=removedSites, rank=nrow(t.community.matrix):1, diversity=maxRemainedDiversities) 
-  maxDiv <- maxDiv[order(rownames(maxDiv)),]
-  
-  return(maxDiv)
+  # 1st removed (biggest rank) div.df$rank is the least important
+  div.df <- data.frame(row.names=removedSites, rank=nrow(t.community.matrix):1, 
+                       diversity=maxRemainedDiversities) 
+  div.df <- orderDiversityDF(div.df, order.by)
+  return(div.df)
 }
 
+#' @details \code{getPlotPrior.PhyloAlpha} calculates plot prioritisation 
+#' by phylogenetic alpha diversity from \code{\link{phylo.alpha}}.
+#' It also can return the ranks based on species richness (SR), 
+#' but they may be different to ranks calculated from 
+#' \code{getPlotPrior.JostDiver} using gamma0 (also species richness).
+#' 
+#' @param phylo.tree,... The parameters passed to \code{\link{phylo.alpha}}.
+#' @export
+#' @keywords plot prioritisation
+#' @examples 
+#' phylo.alpha <- getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree)
+#' 
+#' @rdname PlotPrioritisation
+getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=TRUE,
+                                    order.by=c("sample","rank","diversity"), ...) {
+  if (!taxa.match) {
+    combined <- match.phylo.comm(phylo.tree, t.communityMatrix)
+    pd.alpha <- ComMA::phylo.alpha(combined$comm, combined$phy, ...)
+  } else {
+    phylo.alpha <- ComMA::phylo.alpha(t.community.matrix, phylo.tree, ...)
+  }
+  
+  # add rank
+  phylo.alpha <- phylo.alpha[order(phylo.alpha$PD, decreasing = T),]
+  pd.df <- phylo.alpha["PD", drop=FALSE]
+  pd.df$rank <- 1:nrow(pd.df) 
+  pd.df <- orderDiversityDF(pd.df, order.by)
+  
+  phylo.alpha <- phylo.alpha[order(phylo.alpha$SR, decreasing = T),]
+  sr.df <- phylo.alpha["SR", drop=FALSE]
+  sr.df$rank <- 1:nrow(sr.df) 
+  sr.df <- orderDiversityDF(sr.df, order.by)
+  
+  list(PD=pd.df, SR=sr.df)
+}
+
+############ internal #############
+orderDiversityDF <- function(div.df, order.by=c("sample","rank","diversity")) {
+  order.by <- match.arg(order.by)
+  if (order.by=="rank") {
+    div.df <- div.df[order(div.df$rank),]
+  } else if (order.by=="diversity") {
+    div.df <- div.df[order(div.df$rank, decreasing = T),]
+  } else {
+    div.df <- div.df[order(rownames(div.df)),]
+  }
+  return(div.df)
+}
+
+
+############ old code #############
 
 # maximum and minimum Jost diversity of all possible combinations of m_comb plots
 # TODO old code, need to re-write 
@@ -189,9 +252,9 @@ getPlotPrior.JostDiver2 <- function(t.community.matrix, lev, q){
   if(length(ranks) != length(maxRemainedDiversities)) 
     stop(paste("length of maxRemainedDiversities ", length(maxRemainedDiversities), " - 1 != sites ", length(ranks), sep=""))
   
-  # 1st removed (biggest rank) maxDiv$rank is the least important
-  maxDiv <- data.frame(row.names=removedSites, rank=ranks, diversity=maxRemainedDiversities)
-  maxDiv <- maxDiv[order(rownames(maxDiv)),]
+  # 1st removed (biggest rank) div.df$rank is the least important
+  div.df <- data.frame(row.names=removedSites, rank=ranks, diversity=maxRemainedDiversities)
+  div.df <- div.df[order(rownames(div.df)),]
   
-  return(maxDiv)
+  return(div.df)
 }
