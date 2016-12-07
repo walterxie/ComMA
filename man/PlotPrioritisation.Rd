@@ -7,6 +7,7 @@
 \alias{getPlotPrior.PhyloAlpha}
 \alias{mergePlotPriorListOfDF}
 \alias{plotPrioritisation}
+\alias{plotPrioritisation.Attribute}
 \title{Plot prioritisation}
 \usage{
 getPlotPrior.JostDiver(t.community.matrix, lev = c("alpha", "beta", "gamma"),
@@ -19,11 +20,14 @@ getPlotPrior(cm.list, is.transposed = FALSE, tre.list = list(),
   diversities = c("gamma0", "gamma1", "beta0", "beta1", "pd.alpha",
   "sp.rich"))
 
-mergePlotPriorListOfDF(plot.prior.list, suffixes = c())
+mergePlotPriorListOfDF(plot.prior.list, suffixes = c(), rm.prefix = TRUE)
 
 plotPrioritisation(pp.df.list, at = c("rank", "diversity"),
   guide = "colourbar", x.levels = c(), y.levels = c(),
   add.label = FALSE, label.digits = 1, ...)
+
+plotPrioritisation.Attribute(pp.df, attr.df, y2.id = "Elevation",
+  y2.lab = "Elevation (m)", ...)
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, 
@@ -68,6 +72,13 @@ merged by different data frames. Its length must equal to \code{plot.prior.list}
 
 \item{at}{The values of heatmap, choose from "rank" or "diversity".}
 
+\item{pp.df}{One element of the 'rank' list from \code{mergePlotPriorListOfDF}.}
+
+\item{attr.df}{Environmental meta-data. Rows are samples, 
+and must include all rownames from \code{pp.df}}
+
+\item{y2.id, y2.lab}{For the 2nd plot.}
+
 \item{row.id}{What row names are representing.}
 }
 \value{
@@ -110,7 +121,13 @@ and it also handles multiple communities.
 produced by \code{getPlotPrior} into one. Their columns must contain
 'rank' and 'diversity'.
 
-\code{plotPrioritisation} produces the list of \code{\link{ggHeatmap}}.
+\code{plotPrioritisation} produces the list of \code{\link{ggHeatmap}}
+given a list of output from \code{mergePlotPriorListOfDF}.
+
+\code{plotPrioritisation.Attribute} produces 
+one clusterd heatmap using \code{\link{NeatMap}} 
+and attaches an additional plot of a selected attribute  
+from environmental meta-data, such as Elevation.
 }
 \examples{
 plot.prior.g1 <- getPlotPrior.JostDiver(t.community.matrix, lev="gamma", q=1)
@@ -122,6 +139,9 @@ plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list,
 pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
 
 heatmap.list <- plotPrioritisation(pp.df.list, add.label=T)
+
+hm.elv <- plotPrioritisation.Attribute(pp.df.list[["rank"]][[1]], env.plot)
+plot(hm.elv$heatmap)
 
 }
 \keyword{plot}

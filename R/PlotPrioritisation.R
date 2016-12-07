@@ -213,7 +213,7 @@ getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(),
 #' pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
 #' 
 #' @rdname PlotPrioritisation
-mergePlotPriorListOfDF <- function(plot.prior.list, suffixes=c()) {
+mergePlotPriorListOfDF <- function(plot.prior.list, suffixes=c(), rm.prefix=TRUE) {
   diversities <- plot.prior.list[["diversities"]]
   if (length(suffixes) == 0)
     suffixes <- plot.prior.list[["cm.names"]]
@@ -225,13 +225,18 @@ mergePlotPriorListOfDF <- function(plot.prior.list, suffixes=c()) {
     pp.df <- ComMA::mergeListOfDF(plot.prior.list[[div]], suffixes=suffixes)
     rank.df <- pp.df[, grepl("^rank", colnames(pp.df))]
     div.df <- pp.df[, grepl("^diversity", colnames(pp.df))]
+    if (rm.prefix) {
+      colnames(rank.df) <- gsub("rank.", "", colnames(rank.df), ignore.case = T)
+      colnames(div.df) <- gsub("diversity.", "", colnames(div.df), ignore.case = T)
+    }
     pp.df.list[["rank"]][[div]] <- rank.df
     pp.df.list[["diversity"]][[div]] <- div.df
   }
   return(pp.df.list)
 }
 
-#' @details \code{plotPrioritisation} produces the list of \code{\link{ggHeatmap}}.
+#' @details \code{plotPrioritisation} produces the list of \code{\link{ggHeatmap}}
+#' given a list of output from \code{mergePlotPriorListOfDF}.
 #' 
 #' @param pp.df.list The output from \code{mergePlotPriorListOfDF}. 
 #' @param at The values of heatmap, choose from "rank" or "diversity".  
@@ -251,7 +256,6 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colo
   heatmap.list <- list()
   for (i in 1:length(rank.df.list)) {
     pp.df <- rank.df.list[[i]]
-    colnames(pp.df) <- gsub("rank.", "", colnames(pp.df), ignore.case = T)
     midpoint <- round(mean(c(max(b), min(b))))
     pp.df[,"samples"] <- rownames(pp.df)
     p.hm <- ComMA::ggHeatmap(pp.df, melt.id="samples", title="", x.levels=x.levels, y.levels=y.levels, 
@@ -263,6 +267,80 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colo
   return(heatmap.list)
 }
 
+#' @details \code{plotPrioritisation.Attribute} produces 
+#' one clusterd heatmap using \code{\link{NeatMap}} 
+#' and attaches an additional plot of a selected attribute  
+#' from environmental meta-data, such as Elevation.
+#' 
+#' @param pp.df One element of the 'rank' list from \code{mergePlotPriorListOfDF}. 
+#' @param attr.df Environmental meta-data. Rows are samples, 
+#' and must include all rownames from \code{pp.df} 
+#' @param y2.id,y2.lab For the 2nd plot.
+#' @export
+#' @keywords plot prioritisation
+#' @examples 
+#' hm.elv <- plotPrioritisation.Attribute(pp.df.list[["rank"]][[1]], env.plot)
+#' plot(hm.elv$heatmap)
+#' 
+#' @rdname PlotPrioritisation
+plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.lab="Elevation (m)", ...) {
+  if (! y2.id %in% colnames(attr.df) )
+    stop("Invalid y2.id,", y2.id,  "not exsit in meta data column names !\n")
+  
+  midpoint <- mean(c(max(pp.df), min(pp.df)))
+  require("NeatMap")
+  p <- make.heatmap1(as.matrix(pp.df), 
+                     column.method = "complete", column.metric="euclidean", # Column ordering method
+                     row.method  ="complete", row.metric = "euclidean", 
+                     #column.cluster.method = "none", # Column clustering method
+                     #row.cluster.method = "none",
+                     column.cluster.method = "complete", # Column clustering method
+                     row.cluster.method = "complete",
+                     column.labels = colnames(pp.df), row.labels = rownames(pp.df),
+                     column.label.size = 2.5, row.label.size = 2.5) +
+    scale_fill_gradient2(low="#f46d43", mid="#ffffbf", high="#3288bd", midpoint = midpoint) + 
+    xlab("") + ylab("") + #coord_flip() +
+    theme(panel.grid = element_blank(), panel.border = element_blank(),
+          axis.text = element_blank(), axis.ticks = element_blank(), legend.position="none",
+          plot.margin = unit(c(0,2,2,0),"cm"), strip.text.x = element_text(colour = "red"))
+  
+  # Turn off clipping
+  gg1 <- ggplotGrob(p)
+  gg1$layout[grepl("panel", gg1$layout$name), ]$clip <- "off"
+  
+  ### Get data for secondary plot ###
+  gb = ggplot_build(p)
+  #grid.draw(gb)
+  
+  #build$data[[4]]$y
+  #build$data[[4]]$label
+  #p.ord <- as.data.frame(gb$data[[2]]) # Without clusters
+  p.ord <- as.data.frame(gb$data[[4]]) # With clusters
+  #colnames(p.ord)[[1]] <- "Plot"
+  p.ord <- p.ord[order(p.ord$y), ]
+  p.ord$label <- factor(p.ord$label, levels = p.ord$label, ordered = TRUE)
+  p.ord[,y2.id] <- attr.df[match(p.ord$label, rownames(attr.df)),y2.id]
+  
+  p2 <- ggplot(data = p.ord, aes_string("label", y2.id, group = "1")) + geom_line() + 
+    coord_flip() + ylab(y2.lab) + xlab("") + 
+    theme(axis.text.x = element_text(size = 8), 
+          axis.text.y = element_blank(), axis.ticks.y = element_blank(),
+          plot.margin = unit(c(0,2,2,0),"cm"))
+  gg2 <- ggplotGrob(p2)
+  
+  #build$data[[3]]$label <- gsub(" ", "\n", build$data[[3]]$label)
+  #build$data[[3]]$angle <- "-45"
+  #build$data[[3]]$vjust <- "1"
+  #build$data[[3]]$hjust <- "1.5"
+  #grid.draw(ggplot_gtable(build))
+  
+  maxHeight = grid::unit.pmax(gg1$heights[2:5], gg2$heights[2:5])
+  gg1$heights[2:5] <- as.list(maxHeight)
+  gg2$heights[2:5] <- as.list(maxHeight)
+  
+  list(heatmap=grid.arrange(gg1, gg2, ncol=2, widths = c(8, 1.75)), 
+       gg1=gg1, gg2=gg2)
+}
 
 ############ internal #############
 orderDiversityDF <- function(div.df, order.by=c("sample","rank","diversity")) {
