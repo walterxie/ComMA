@@ -201,7 +201,8 @@ getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(),
 }
 
 #' @details \code{mergePlotPriorListOfDF} merges a list of data frames  
-#' produced by \code{getPlotPrior} into one.
+#' produced by \code{getPlotPrior} into one. Their columns must contain
+#' 'rank' and 'diversity'.
 #' 
 #' @param plot.prior.list The output from \code{getPlotPrior}. 
 #' @param suffixes The vector of suffixes added to distinguish colmun names 
@@ -222,23 +223,40 @@ mergePlotPriorListOfDF <- function(plot.prior.list, suffixes=c()) {
     if (length(plot.prior.list[[div]]) != length(suffixes))
       stop("Invalid list : length(plot.prior.list[[div]]) != length(suffixes) !")
     pp.df <- ComMA::mergeListOfDF(plot.prior.list[[div]], suffixes=suffixes)
-    pp.df.list[[div]] <- pp.df
+    rank.df <- pp.df[, grepl("^rank", colnames(pp.df))]
+    div.df <- pp.df[, grepl("^diversity", colnames(pp.df))]
+    pp.df.list[["rank"]][[div]] <- rank.df
+    pp.df.list[["diversity"]][[div]] <- div.df
   }
   return(pp.df.list)
 }
 
-
-plotPrioritisation <- function(pp.df.list, x.levels=c(), y.levels=c(), ...) {
-  heatmap.list <- list()
-  if (is.null(names(heatmap.list)))
-    names(heatmap.list) <- 1:length(heatmap.list)
+#' @details \code{plotPrioritisation} produces the list of \code{\link{ggHeatmap}}.
+#' 
+#' @param pp.df.list The output from \code{mergePlotPriorListOfDF}. 
+#' @param at The values of heatmap, choose from "rank" or "diversity".  
+#' @param row.id What row names are representing.
+#' @export
+#' @keywords plot prioritisation
+#' @examples 
+#' pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
+#' 
+#' @rdname PlotPrioritisation
+plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colourbar", 
+                               x.levels=c(), y.levels=c(), add.label=FALSE, label.digits=1, ...) {
+  rank.df.list <-pp.df.list[[match.arg(at)]] 
+  if (is.null(names(rank.df.list)))
+    names(rank.df.list) <- 1:length(rank.df.list)
   
-  for (i in 1:length(pp.df.list)) {
-    pp.df <- pp.df.list[[i]]
-    pp.df$samples <- rownames(pp.df)
-    p.hm <- ComMA::ggHeatmap(pp.df, melt.id="samples", title="", no.legend="fill", 
-                             x.levels=x.levels, y.levels=y.levels, label.digits=3,
-                             high = "#f46d43", mid = "#ffffbf", low = "#3288bd" )
+  heatmap.list <- list()
+  for (i in 1:length(rank.df.list)) {
+    pp.df <- rank.df.list[[i]]
+    colnames(pp.df) <- gsub("rank.", "", colnames(pp.df), ignore.case = T)
+    midpoint <- round(mean(c(max(b), min(b))))
+    pp.df[,"samples"] <- rownames(pp.df)
+    p.hm <- ComMA::ggHeatmap(pp.df, melt.id="samples", title="", x.levels=x.levels, y.levels=y.levels, 
+                             add.label=add.label, label.digits=label.digits, guide=guide,
+                             midpoint=midpoint, low="#f46d43", mid="#ffffbf", high="#3288bd" )
     heatmap.list[[names(heatmap.list)[i]]] <- p.hm
   }
   

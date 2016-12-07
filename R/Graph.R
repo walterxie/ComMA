@@ -570,6 +570,9 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
 #' to add value into the tiles of heatmap. 
 #' \code{label.digits} determines the digit of the label.
 #' @param x.levels,y.levels The levels to order x or y.
+#' @param guide Type of legend. Use "colourbar" as default for continuous colour bar, 
+#' or "legend" for discrete colour legend, or set "FALSE" to turn off legend. 
+#' See \code{\link{scale_fill_gradient}}.
 #' @keywords graph
 #' @export
 #' @examples 
@@ -589,7 +592,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = 
                       title="Heatmap", title.hjust=0.5, title.size = 10, x.lab="", y.lab="",
                       log.scale.colour=FALSE, legend.title="Counts",
                       x.lim.cart=NULL, y.lim.cart=NULL, coord.flip=FALSE,
-                      no.legend=NULL, legend.position="right", legend.direction="vertical",
+                      guide="colourbar", legend.position="right", legend.direction="vertical",
                       x.text.angle=90, x.text=TRUE, y.text=TRUE,
                       x.levels=c(), y.levels=c(), 
                       no.panel.border=FALSE, verbose=TRUE) {
@@ -640,11 +643,12 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = 
   }
   if (log.scale.colour) {
     p <- p + scale_fill_gradient(trans='log', na.value=na.value, low=low, high=high, 
-                                 name=legend.title, breaks=breaks, limits=limits) 
+                                 name=legend.title, breaks=breaks, limits=limits, guide=guide) 
   } else {
     if (!is.null(midpoint)) {
-      p <- p + scale_fill_gradient2(midpoint=midpoint, na.value=na.value, low=low, high=high, 
-                                    mid =mid, name=legend.title, breaks=breaks, limits=limits)
+      p <- p + scale_fill_gradient2(midpoint=midpoint, na.value=na.value,   
+                                    low=low, high=high, mid =mid, name=legend.title, 
+                                    breaks=breaks, limits=limits, guide=guide)
     } else if (!is.null(colours)) {
       if (auto.breaks.length > 1 && !is.null(values) && length(values) < 1) {
         require(scales)
@@ -658,10 +662,10 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = 
         }
       }
       p <- p + scale_fill_gradientn(colours=colours, na.value=na.value, values=values, 
-                                    name=legend.title, breaks=breaks, limits=limits)
+                                    name=legend.title, breaks=breaks, limits=limits, guide=guide)
     } else {
       p <- p + scale_fill_gradient(na.value=na.value, low=low, high=high, 
-                                   name=legend.title, breaks=breaks, limits=limits) 
+                                   name=legend.title, breaks=breaks, limits=limits, guide=guide) 
     }
   }
   cat("The final breaks are : ", paste(breaks, collapse = ","), ".\n")

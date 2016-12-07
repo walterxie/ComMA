@@ -6,6 +6,7 @@
 \alias{getPlotPrior.JostDiver}
 \alias{getPlotPrior.PhyloAlpha}
 \alias{mergePlotPriorListOfDF}
+\alias{plotPrioritisation}
 \title{Plot prioritisation}
 \usage{
 getPlotPrior.JostDiver(t.community.matrix, lev = c("alpha", "beta", "gamma"),
@@ -19,6 +20,10 @@ getPlotPrior(cm.list, is.transposed = FALSE, tre.list = list(),
   "sp.rich"))
 
 mergePlotPriorListOfDF(plot.prior.list, suffixes = c())
+
+plotPrioritisation(pp.df.list, at = c("rank", "diversity"),
+  guide = "colourbar", x.levels = c(), y.levels = c(),
+  add.label = FALSE, label.digits = 1, ...)
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, 
@@ -58,6 +63,12 @@ the last two by \code{\link{pd}}.}
 
 \item{suffixes}{The vector of suffixes added to distinguish colmun names 
 merged by different data frames. Its length must equal to \code{plot.prior.list}.}
+
+\item{pp.df.list}{The output from \code{mergePlotPriorListOfDF}.}
+
+\item{at}{The values of heatmap, choose from "rank" or "diversity".}
+
+\item{row.id}{What row names are representing.}
 }
 \value{
 A data frame with 2 columns: \emph{rank, diversity}. 
@@ -96,7 +107,10 @@ but they may be different to ranks calculated from
 and it also handles multiple communities.
 
 \code{mergePlotPriorListOfDF} merges a list of data frames  
-produced by \code{getPlotPrior} into one.
+produced by \code{getPlotPrior} into one. Their columns must contain
+'rank' and 'diversity'.
+
+\code{plotPrioritisation} produces the list of \code{\link{ggHeatmap}}.
 }
 \examples{
 plot.prior.g1 <- getPlotPrior.JostDiver(t.community.matrix, lev="gamma", q=1)
@@ -105,6 +119,8 @@ phylo.alpha <- getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree)
 
 plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, diversities=c("gamma1","beta1"))
 plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
+pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
+
 pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
 
 }

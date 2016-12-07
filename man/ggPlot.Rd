@@ -85,7 +85,7 @@ ggHeatmap(df.to.melt, melt.id, low = "white", high = "steelblue",
   breaks.digits = 0, title = "Heatmap", title.hjust = 0.5,
   title.size = 10, x.lab = "", y.lab = "", log.scale.colour = FALSE,
   legend.title = "Counts", x.lim.cart = NULL, y.lim.cart = NULL,
-  coord.flip = FALSE, no.legend = NULL, legend.position = "right",
+  coord.flip = FALSE, guide = "colourbar", legend.position = "right",
   legend.direction = "vertical", x.text.angle = 90, x.text = TRUE,
   y.text = TRUE, x.levels = c(), y.levels = c(),
   no.panel.border = FALSE, verbose = TRUE)
@@ -280,6 +280,10 @@ such as 2 in this case.}
 
 \item{log.scale.colour}{If TRUE, then use log scale to the colour of heat map.
 Default to FALSE.}
+
+\item{guide}{Type of legend. Use "colourbar" as default for continuous colour bar, 
+or "legend" for discrete colour legend, or set "FALSE" to turn off legend. 
+See \code{\link{scale_fill_gradient}}.}
 
 \item{x.levels, y.levels}{The levels to order x or y.}
 

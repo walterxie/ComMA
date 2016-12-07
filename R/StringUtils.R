@@ -203,17 +203,17 @@ findDuplicates <- function(x) {
   n_occur[n_occur$Freq > 1,1]
 }
 
-#' @details \code{gusbDF} applies \code{\link{gsub}} to 
+#' @details \code{gsubDF} applies \code{\link{gsub}} to 
 #' the entire data frame.
 #' 
 #' @param df Data frame as the input.
 #' @param pattern,replacement,... Arguemnts for \code{\link{gsub}}.
 #' @export
 #' @examples 
-#' gusbDF(".00", "", df)
+#' gsubDF(".00", "", df)
 #' 
 #' @rdname stringUtils
-gusbDF <- function(pattern, replacement, df, stringsAsFactors=FALSE, check.names=FALSE, ...) {
+gsubDF <- function(pattern, replacement, df, stringsAsFactors=FALSE, check.names=FALSE, ...) {
   df1 <- data.frame(apply(df, 2, function(x) gsub(pattern, replacement, as.character(x), ...)), 
                     stringsAsFactors=stringsAsFactors, check.names=check.names)
   rownames(df1) <- rownames(df)
