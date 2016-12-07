@@ -5,7 +5,7 @@
 \alias{findDuplicates}
 \alias{freqUniqueValue}
 \alias{getFirstNInString}
-\alias{gusbDF}
+\alias{gsubDF}
 \alias{pasteDF}
 \alias{simpleCap}
 \alias{stringUtils}
@@ -36,7 +36,7 @@ freqUniqueValue(x)
 
 findDuplicates(x)
 
-gusbDF(pattern, replacement, df, stringsAsFactors = FALSE,
+gsubDF(pattern, replacement, df, stringsAsFactors = FALSE,
   check.names = FALSE, ...)
 
 pasteDF(df, ..., sep = " ", collapse = NULL, stringsAsFactors = FALSE,
@@ -108,7 +108,7 @@ Refere to \url{http://stackoverflow.com/questions/16905425/find-duplicate-values
 \code{findDuplicates} uses \code{freqUniqueValue} to 
 find the duplicates in a vector \code{x}.
 
-\code{gusbDF} applies \code{\link{gsub}} to 
+\code{gsubDF} applies \code{\link{gsub}} to 
 the entire data frame.
 
 \code{pasteDF} \code{\link{paste}} strings to 
@@ -163,7 +163,7 @@ freqUniqueValue(data.frame(x=c(1, 1, 2), y=c(3, 4, 3)))
 
 findDuplicates(c("a", "b", "a"))
 
-gusbDF(".00", "", df)
+gsubDF(".00", "", df)
 
 pasteDF(df, "\%")
 
