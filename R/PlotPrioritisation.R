@@ -239,7 +239,7 @@ mergePlotPriorListOfDF <- function(plot.prior.list, suffixes=c()) {
 #' @export
 #' @keywords plot prioritisation
 #' @examples 
-#' pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
+#' heatmap.list <- plotPrioritisation(pp.df.list, add.label=T)
 #' 
 #' @rdname PlotPrioritisation
 plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colourbar", 
@@ -257,7 +257,7 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colo
     p.hm <- ComMA::ggHeatmap(pp.df, melt.id="samples", title="", x.levels=x.levels, y.levels=y.levels, 
                              add.label=add.label, label.digits=label.digits, guide=guide,
                              midpoint=midpoint, low="#f46d43", mid="#ffffbf", high="#3288bd" )
-    heatmap.list[[names(heatmap.list)[i]]] <- p.hm
+    heatmap.list[[names(rank.df.list)[i]]] <- p.hm
   }
   
   return(heatmap.list)

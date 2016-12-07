@@ -121,7 +121,7 @@ plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, diversities=c("gam
 plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
 pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
 
-pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
+heatmap.list <- plotPrioritisation(pp.df.list, add.label=T)
 
 }
 \keyword{plot}
