@@ -152,7 +152,7 @@ getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=T
 #' plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, diversities=c("gamma1","beta1"))
 #' plot.prior.list <- getPlotPrior(cm.list, is.transposed=FALSE, tre.list=tre.list, diversities=c("gamma1","beta1","pd.alpha","sp.rich"))
 #' @rdname PlotPrioritisation
-getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(), 
+getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(), taxa.match=TRUE,
                          diversities=c("gamma0","gamma1","beta0","beta1","pd.alpha","sp.rich")) {
   cat("Plot prioritisation at", length(cm.list), "data sets", 
       ifelse(length(tre.list)>0, paste(", and", length(tre.list), "trees"), ""), ".\n") 
@@ -183,7 +183,7 @@ getPlotPrior <- function(cm.list, is.transposed=FALSE, tre.list=list(),
         if(length(tre.list) < 1 || length(tre.list) != length(cm.list))
           stop("Invalid 'tre.list': a phylo tree object is required ", 
                "for each cm to caculate 'pd.alpha' or 'sp.rich' !")
-        plot.prior.2 <- ComMA::getPlotPrior.PhyloAlpha(t.cm, tre.list[[i]])
+        plot.prior.2 <- ComMA::getPlotPrior.PhyloAlpha(t.cm, tre.list[[i]], taxa.match=taxa.match)
         if (div=="pd.alpha")
           plot.prior <- plot.prior.2$PD
         else
