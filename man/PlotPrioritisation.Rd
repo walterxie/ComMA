@@ -17,8 +17,8 @@ getPlotPrior.PhyloAlpha(t.community.matrix, phylo.tree, taxa.match = TRUE,
   order.by = c("sample", "rank", "diversity"), ...)
 
 getPlotPrior(cm.list, is.transposed = FALSE, tre.list = list(),
-  diversities = c("gamma0", "gamma1", "beta0", "beta1", "pd.alpha",
-  "sp.rich"))
+  taxa.match = TRUE, diversities = c("gamma0", "gamma1", "beta0", "beta1",
+  "pd.alpha", "sp.rich"))
 
 mergePlotPriorListOfDF(plot.prior.list, suffixes = c(), rm.prefix = TRUE)
 

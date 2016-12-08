@@ -1,25 +1,26 @@
 # A Caution Regarding Rules of Thumb for Variance Inflation Factors
 # http://link.springer.com/article/10.1007/s11135-006-9018-6
 
-#' Redundancy Analysis using \pkg{vegan} \code{\link{capscale}}
+#' @name RDA
+#' @title Redundancy Analysis
+#'
+#' @description Redundancy Analysis using \pkg{vegan} 
+#' \code{\link{capscale}}.
 #' 
-#' Constrained Analysis of Principal Coordinates for eDNA data set 
-#' given environmental variables.
+#' @details \code{proceedRDA} makes Constrained Analysis of Principal Coordinates for 
+#' eDNA data sets given environmental variables.
 #' 
 #' @param cm.or.dist A data frame or dist. Rows are samples.
-#' @param env The enviornmental data, where rows are samples, and must be same as rownames(cm.or.dist) inlcuding order.
-#' @param matrix.name The string to locate the matrix from its file name. 
-#' Only used for table name and label here.
-#' @param taxa.group The taxonomic group. Only used for table name and label here. 
-#' @param table.file If NULL, then print the results to console, 
-#' otherwise print them to the file. Default to NULL.
+#' @param env The enviornmental data, where rows are samples, 
+#' and must be same as rownames(cm.or.dist) inlcuding order.
 #' @param verbose More details. Default to TRUE.
-#' @return 
-#' A list of results from RDA including 3 data frames. 
+#' @keywords rda
 #' @export
 #' @examples 
-#' rda.list <- proceedRDA(cm.or.dist, env, matrix.name="16S", taxa.group="BACTERIA")
-proceedRDA <- function(cm.or.dist, env, matrix.name="", taxa.group="", table.file=NULL, verbose=TRUE) {
+#' rda <- proceedRDA(cm.or.dist, env)
+#' 
+#' @rdname RDA
+proceedRDA <- function(cm.or.dist, env, verbose=TRUE) {
   if ( all( tolower(rownames(env)) != tolower(rownames(as.matrix(cm.or.dist))) ) ) 
     stop("Site names in community matrix and environmental data file not matched !")
   
@@ -43,7 +44,7 @@ proceedRDA <- function(cm.or.dist, env, matrix.name="", taxa.group="", table.fil
   #	plot(rda_1, display = c("wa", "bp")) # Note correlation of biplot arrows
   
   # Variance inflation factor - indicates highly correlated variables
-  print(vif.cca(rda_1))
+  if (verbose) print(vif.cca(rda_1))
   
   rda_table$Inertia <- c(round(rda_1$CCA$tot.chi, 3), round(rda_1$CA$tot.chi, 3))
   rda_table$Proportion <- c(rda_1$CCA$tot.chi/rda_1$tot.chi, rda_1$CA$tot.chi/rda_1$tot.chi)
@@ -71,7 +72,7 @@ proceedRDA <- function(cm.or.dist, env, matrix.name="", taxa.group="", table.fil
   # Build model after stepwise removal of collinear variables (vif >= 10; requires vif_function.R) 
   # variance inflation factor (VIF) quantifies the severity of multicollinearity in an ordinary least squares regression analysis. 
   env_reduced <- vif_func(in_frame = env)
-  print(env_reduced) # Remaining variables
+  if (verbose) print(env_reduced) # Remaining variables
   
   # Build model automatically from reduced variable set
   # (Unsure how to pass env_reduced variables to capscale formula; paste() doesn't work...)
@@ -123,25 +124,37 @@ proceedRDA <- function(cm.or.dist, env, matrix.name="", taxa.group="", table.fil
   anova_table[anova_table == 0] <- ""
   anova_table$Proportion <- gsub("%", "\\\\%", anova_table$Proportion)
   
-  printXTable(anova_table, caption = paste("Distance-based redundancy analysis and their ANOVA tests 
-          in each step for the eDNA biodiversity data sets", matrix.name, taxa.group), 
-          label = paste("tab:rdaAnova", matrix.name, taxa.group, sep = ":"), file=table.file)
-  
   rda_table$Proportion <- gsub("%", "\\\\%", rda_table$Proportion)
   rda_table$Proportion.R <- gsub("%", "\\\\%", rda_table$Proportion.R)
   rda_table$Proportion.F <- gsub("%", "\\\\%", rda_table$Proportion.F)
   rda_table$Proportion.B <- gsub("%", "\\\\%", rda_table$Proportion.B)
   
-  printXTable(rda_table, caption = paste("The constrained and unconstrained inertia changes during 
-          distance-based redundancy analysis for the eDNA biodiversity data sets", matrix.name, taxa.group), 
-          label = paste("tab:rda", matrix.name, taxa.group, sep = ":"), file=table.file)
-  
   # Return a list 
-  list(
-    rda_reduced = rda_reduced,
-    rda_forward = rda_forward,
-    rda_backward = rda_backward
-  )
+  list( reduced = rda_reduced, forward = rda_forward, backward = rda_backward,
+        anova.summary=anova_table, model.summary=rda_table)
 }
 
-
+#' @details \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
+#' 
+#' @param rda The list of results from \code{proceedRDA}.
+#' @param matrix.name The string to locate the matrix from its file name. 
+#' Only used for table name and label here.
+#' @param taxa.group The taxonomic group. Only used for table name and label here. 
+#' @param table.file If NULL, then print the results to console, 
+#' otherwise print them to the file. Default to NULL.
+#' @examples 
+#' printXTable.RDA(rda, table.file=NULL, matrix.name="16S", taxa.group="BACTERIA")
+#' 
+#' @rdname RDA
+printXTable.RDA <- function(rda, table.file=NULL, invalid.char=FALSE, matrix.name="", taxa.group="") {
+  
+  ComMA::printXTable(rda$anova.summary, invalid.char=invalid.char,
+              caption = paste("Distance-based redundancy analysis and their ANOVA tests 
+                              in each step for the eDNA biodiversity data sets", matrix.name, taxa.group), 
+              label = paste("tab:rdaAnova", matrix.name, taxa.group, sep = ":"), file=table.file)
+  
+  ComMA::printXTable(rda$model.summary, invalid.char=invalid.char,
+              caption = paste("The constrained and unconstrained inertia changes during 
+          distance-based redundancy analysis for the eDNA biodiversity data sets", matrix.name, taxa.group), 
+              label = paste("tab:rda", matrix.name, taxa.group, sep = ":"), file=table.file)
+}
