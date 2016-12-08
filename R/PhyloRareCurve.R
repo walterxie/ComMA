@@ -1,6 +1,3 @@
-
-
-
 #' Rarefaction curve of Phylogenetic Diversity
 #'
 #' Use \code{\link{phylorare}} from David Nipperess's code 
