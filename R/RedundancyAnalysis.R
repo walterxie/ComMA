@@ -7,21 +7,24 @@
 #' @description Redundancy Analysis using \pkg{vegan} 
 #' \code{\link{capscale}}.
 #' 
-#' @details \code{proceedRDA} makes Constrained Analysis of Principal Coordinates for 
+#' @details \code{proceedRDA} makes Constrained Analysis 
+#' of Principal Coordinates for 
 #' eDNA data sets given environmental variables.
 #' 
-#' @param cm.or.dist A data frame or dist. Rows are samples.
-#' @param env The enviornmental data, where rows are samples, 
-#' and must be same as rownames(cm.or.dist) inlcuding order.
+#' @param tcm.or.dist A transposed community matrix 
+#' or dist object of distances between samples. 
+#' Rows are samples.
+#' @param env The enviornmental meta-data, where rows are samples, 
+#' and they must be same as rownames(tcm.or.dist) inlcuding order.
 #' @param verbose More details. Default to TRUE.
 #' @keywords rda
 #' @export
 #' @examples 
-#' rda <- proceedRDA(cm.or.dist, env)
+#' rda <- proceedRDA(tcm.or.dist, env)
 #' 
 #' @rdname RDA
-proceedRDA <- function(cm.or.dist, env, verbose=TRUE) {
-  if ( all( tolower(rownames(env)) != tolower(rownames(as.matrix(cm.or.dist))) ) ) 
+proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
+  if (! all( tolower(rownames(env)) == tolower(rownames(as.matrix(tcm.or.dist))) ) ) 
     stop("Site names in community matrix and environmental data file not matched !")
   
   require(vegan)
@@ -35,10 +38,10 @@ proceedRDA <- function(cm.or.dist, env, verbose=TRUE) {
   # Distance-based redundancy analysis, using capscale
   # Constrained Analysis of Principal Coordinates (CAP) is an ordination method similar to Redundancy Analysis (rda).
   # DB-RDA, empty model
-  rda_0 <- capscale(cm.or.dist ~ 1, env, distance = "jaccard")
+  rda_0 <- capscale(tcm.or.dist ~ 1, env, distance = "jaccard")
   
   # DB-RDA, maximal model (bad idea - only use for auto model building)
-  rda_1 <- capscale(cm.or.dist ~ ., env, distance = "jaccard")
+  rda_1 <- capscale(tcm.or.dist ~ ., env, distance = "jaccard")
   if (verbose) head(summary(rda_1))
   # sp = species scores, wa = site scores, bp = biplot arrows, lc = linear constraints 
   #	plot(rda_1, display = c("wa", "bp")) # Note correlation of biplot arrows
@@ -54,7 +57,7 @@ proceedRDA <- function(cm.or.dist, env, verbose=TRUE) {
   constrained_proportion <- c()
   # Test each variable individually
   for (i in 1:length(colnames(env))) {
-    rda_individual <- capscale(formula = as.formula(paste("cm.or.dist", colnames(env)[i], sep=" ~ ")), 
+    rda_individual <- capscale(formula = as.formula(paste("tcm.or.dist", colnames(env)[i], sep=" ~ ")), 
                                env, distance = "jaccard")
     constrained_inertia <- c(constrained_inertia, rda_individual$CCA$tot.chi)
     constrained_proportion <- c(constrained_proportion, rda_individual$CCA$tot.chi/rda_individual$tot.chi)
@@ -76,9 +79,9 @@ proceedRDA <- function(cm.or.dist, env, verbose=TRUE) {
   
   # Build model automatically from reduced variable set
   # (Unsure how to pass env_reduced variables to capscale formula; paste() doesn't work...)
-  #	rda_reduced <- capscale(cm.or.dist ~ slope.degree + Mean.Temp + Northness + Eastness + 
+  #	rda_reduced <- capscale(tcm.or.dist ~ slope.degree + Mean.Temp + Northness + Eastness + 
   #							pH + C.N.ratio + NO3.N + NH4.N + Olsen.P, env, distance = "jaccard")
-  rda_reduced <- capscale(formula = as.formula(paste("cm.or.dist", paste(env_reduced, collapse=" + "), sep=" ~ ")), 
+  rda_reduced <- capscale(formula = as.formula(paste("tcm.or.dist", paste(env_reduced, collapse=" + "), sep=" ~ ")), 
                           env, distance = "jaccard")
   if (verbose) head(summary(rda_reduced))
   anova_reduced <- anova(rda_reduced, by = "terms")
@@ -133,6 +136,40 @@ proceedRDA <- function(cm.or.dist, env, verbose=TRUE) {
   list( reduced = rda_reduced, forward = rda_forward, backward = rda_backward,
         anova.summary=anova_table, model.summary=rda_table)
 }
+
+#' @details \code{preprocessRDA} preprocesses .
+#' 
+#' @param tcm.or.dist A transposed community matrix 
+#' or dist object of distances between samples. 
+#' Rows are samples.
+#' @param env The enviornmental meta-data, where rows are samples, 
+#' and they must be same as rownames(tcm.or.dist) inlcuding order.
+#' @param verbose More details. Default to TRUE.
+#' @keywords rda
+#' @export
+#' @examples 
+#' tcm.env <- preprocessRDA(tcm, env)
+#' 
+#' @rdname RDA
+preprocessRDA <- function(tcm, env) {
+  if (! all( tolower(rownames(env)) == tolower(rownames(tcm)) ) ) { # Rows don't match
+    both <- intersect(rownames(tcm), rownames(env)) # Matching rows
+    if (length(both)<1) 
+      stop("Invalid transposed community matrix and enviornmental meta-data : no row names matching !")
+    # Subset to matching rows
+    if (length(both) < nrow(tcm)) {
+      tcm <- tcm[both, ]
+      cat("Drop samples not present in env : ", paste(setdiff(rownames(tcm), both), collapse = ","), "\n")
+    }
+    if (length(both) < nrow(env)) {
+      env <- env[both, ]
+      cat("Drop samples not present in tcm : ", paste(setdiff(rownames(env), both), collapse = ","), "\n")
+    }
+  }
+  list(tcm=tcm, env=env)
+}
+
+
 
 #' @details \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 #' 
