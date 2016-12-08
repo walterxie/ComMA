@@ -27,7 +27,7 @@ plotPrioritisation(pp.df.list, at = c("rank", "diversity"),
   add.label = FALSE, label.digits = 1, ...)
 
 plotPrioritisation.Attribute(pp.df, attr.df, y2.id = "Elevation",
-  y2.lab = "Elevation (m)", ...)
+  y2.lab = "Elevation (m)", grid.widths = c(8, 3), ...)
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, 
@@ -77,7 +77,11 @@ merged by different data frames. Its length must equal to \code{plot.prior.list}
 \item{attr.df}{Environmental meta-data. Rows are samples, 
 and must include all rownames from \code{pp.df}}
 
-\item{y2.id, y2.lab}{For the 2nd plot.}
+\item{y2.id, y2.lab}{The column of \code{attr.df} used 
+to plot the 2nd figure on the right side, default to "Elevation".}
+
+\item{grid.widths}{A unit vector giving the width of each two columns,
+used by \code{\link{grid.arrange}} and default to \code{c(8, 3)}.}
 
 \item{row.id}{What row names are representing.}
 }
@@ -140,7 +144,7 @@ pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
 
 heatmap.list <- plotPrioritisation(pp.df.list, add.label=T)
 
-hm.elv <- plotPrioritisation.Attribute(pp.df.list[["rank"]][[1]], env.plot)
+hm.elv <- plotPrioritisation.Attribute(pp.df.list[["rank"]][[1]], env.plot, grid.widths = c(10,2))
 plot(hm.elv$heatmap)
 
 }

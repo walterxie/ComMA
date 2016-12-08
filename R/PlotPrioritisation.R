@@ -275,15 +275,19 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colo
 #' @param pp.df One element of the 'rank' list from \code{mergePlotPriorListOfDF}. 
 #' @param attr.df Environmental meta-data. Rows are samples, 
 #' and must include all rownames from \code{pp.df} 
-#' @param y2.id,y2.lab For the 2nd plot.
+#' @param y2.id,y2.lab The column of \code{attr.df} used 
+#' to plot the 2nd figure on the right side, default to "Elevation".
+#' @param grid.widths A unit vector giving the width of each two columns,
+#' used by \code{\link{grid.arrange}} and default to \code{c(8, 3)}.
 #' @export
 #' @keywords plot prioritisation
 #' @examples 
-#' hm.elv <- plotPrioritisation.Attribute(pp.df.list[["rank"]][[1]], env.plot)
+#' hm.elv <- plotPrioritisation.Attribute(pp.df.list[["rank"]][[1]], env.plot, grid.widths = c(10,2))
 #' plot(hm.elv$heatmap)
 #' 
 #' @rdname PlotPrioritisation
-plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.lab="Elevation (m)", ...) {
+plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.lab="Elevation (m)", 
+                                         grid.widths = c(8, 3), ...) {
   if (! y2.id %in% colnames(attr.df) )
     stop("Invalid y2.id,", y2.id,  "not exsit in meta data column names !\n")
   
@@ -338,7 +342,7 @@ plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.l
   gg1$heights[2:5] <- as.list(maxHeight)
   gg2$heights[2:5] <- as.list(maxHeight)
   
-  list(heatmap=grid.arrange(gg1, gg2, ncol=2, widths = c(8, 1.75)), 
+  list(heatmap=grid.arrange(gg1, gg2, ncol=2, widths = grid.widths), 
        gg1=gg1, gg2=gg2)
 }
 

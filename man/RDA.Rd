@@ -2,20 +2,25 @@
 % Please edit documentation in R/RedundancyAnalysis.R
 \name{RDA}
 \alias{RDA}
+\alias{preprocessRDA}
 \alias{printXTable.RDA}
 \alias{proceedRDA}
 \title{Redundancy Analysis}
 \usage{
-proceedRDA(cm.or.dist, env, verbose = TRUE)
+proceedRDA(tcm.or.dist, env, verbose = TRUE)
+
+preprocessRDA(tcm, env)
 
 printXTable.RDA(rda, table.file = NULL, invalid.char = FALSE,
   matrix.name = "", taxa.group = "")
 }
 \arguments{
-\item{cm.or.dist}{A data frame or dist. Rows are samples.}
+\item{tcm.or.dist}{A transposed community matrix 
+or dist object of distances between samples. 
+Rows are samples.}
 
-\item{env}{The enviornmental data, where rows are samples, 
-and must be same as rownames(cm.or.dist) inlcuding order.}
+\item{env}{The enviornmental meta-data, where rows are samples, 
+and they must be same as rownames(tcm.or.dist) inlcuding order.}
 
 \item{verbose}{More details. Default to TRUE.}
 
@@ -28,19 +33,33 @@ otherwise print them to the file. Default to NULL.}
 Only used for table name and label here.}
 
 \item{taxa.group}{The taxonomic group. Only used for table name and label here.}
+
+\item{tcm.or.dist}{A transposed community matrix 
+or dist object of distances between samples. 
+Rows are samples.}
+
+\item{env}{The enviornmental meta-data, where rows are samples, 
+and they must be same as rownames(tcm.or.dist) inlcuding order.}
+
+\item{verbose}{More details. Default to TRUE.}
 }
 \description{
 Redundancy Analysis using \pkg{vegan} 
 \code{\link{capscale}}.
 }
 \details{
-\code{proceedRDA} makes Constrained Analysis of Principal Coordinates for 
+\code{proceedRDA} makes Constrained Analysis 
+of Principal Coordinates for 
 eDNA data sets given environmental variables.
+
+\code{preprocessRDA} preprocesses .
 
 \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 }
 \examples{
-rda <- proceedRDA(cm.or.dist, env)
+rda <- proceedRDA(tcm.or.dist, env)
+
+tcm.env <- preprocessRDA(tcm, env)
 
 printXTable.RDA(rda, table.file=NULL, matrix.name="16S", taxa.group="BACTERIA")
 
