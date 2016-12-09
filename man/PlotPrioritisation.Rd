@@ -27,7 +27,8 @@ plotPrioritisation(pp.df.list, at = c("rank", "diversity"),
   add.label = FALSE, label.digits = 1, ...)
 
 plotPrioritisation.Attribute(pp.df, attr.df, y2.id = "Elevation",
-  y2.lab = "Elevation (m)", grid.widths = c(8, 3), ...)
+  y2.lab = "Elevation (m)", x.lab = "", y.lab = "", grid.widths = c(8,
+  3), ...)
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, 

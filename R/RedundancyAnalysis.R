@@ -29,8 +29,6 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
   
   require(vegan)
   #require(VIF)
-  source("R/vif_function.R", local=TRUE)
-  
   # Constrained ordination ------------------------------------------------------
   rda_table <- data.frame(row.names=c("Constrained","Unconstrained"))
   anova_table <- data.frame(row.names=colnames(env))
@@ -137,32 +135,56 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
         anova.summary=anova_table, model.summary=rda_table)
 }
 
-#' @details \code{preprocessRDA} preprocesses data for \code{proceedRDA}.
-#' It is required, if samples in community matrix are not matching 
+#' @details \code{preprocessRDA} subsets variables and samples to 
+#' be included in analysis \code{proceedRDA}.
+#' It is required that samples in community matrix must match 
 #' the enviornmental meta-data, including the order. 
-#' It does not handle dist object of distances.
+#' Teh function does not handle dist object of distances.
 #' 
-#' @param tcm A transposed community matrix. 
-#' Rows are samples.
+#' @param cm A community matrix. 
+#' @param is.transposed If TRUE, then the community matrix is already
+#' transposed to be the valid input of \code{\link{vegdist}}.  
+#' Default to FASLE.
+#' @param env.var The vector of selected environmental variables, 
+#' which can be colnames(env) or their indices. 
+#' Defaul to an empty vector to choose all variables.
+#' @param rm Remove specified samples, it can be a keyword shared in sample names.
+#' Use '|' to separate multi-samples. Default to empty string.
 #' @export
 #' @examples 
-#' tcm.env <- preprocessRDA(tcm, env)
+#' tcm.env <- preprocessRDA(cm, env, is.transposed=FASLE)
+#' tcm.env <- preprocessRDA(cm, env, env.var=c(4,5,8,9,14:22), rm="CM30b51|CM30b58")
 #' 
 #' @rdname RDA
-preprocessRDA <- function(tcm, env) {
+preprocessRDA <- function(cm, env, is.transposed=FASLE, env.var=c(), rm="") {
+  if (!is.transposed)
+    tcm <- ComMA::transposeDF(cm)
+  else 
+    tcm <- cm
+  
+  # select environmental variables
+  if (length(env.var) > 0) {
+    env <- env[, env.var]
+    cat("Select environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
+  }
+  # remove specified samples, it can be keywords.
+  if (nchar(rm) > 0) {
+    env <- env[!grepl(rm, rownames(env), ignore.case = T), ]
+    tcm <- tcm[!grepl(rm, rownames(tcm), ignore.case = T), ]
+    cat("Drop specified samples : ", gsub("\\|", ", ", rm), "\n") 
+  }
+  
   if (! all( tolower(rownames(env)) == tolower(rownames(tcm)) ) ) { # Rows don't match
     both <- intersect(rownames(tcm), rownames(env)) # Matching rows
     if (length(both)<1) 
       stop("Invalid transposed community matrix and enviornmental meta-data : no row names matching !")
     # Subset to matching rows
-    if (length(both) < nrow(tcm)) {
-      tcm <- tcm[both, ]
-      cat("Drop samples not present in env : ", paste(setdiff(rownames(tcm), both), collapse = ","), "\n")
-    }
-    if (length(both) < nrow(env)) {
-      env <- env[both, ]
-      cat("Drop samples not present in tcm : ", paste(setdiff(rownames(env), both), collapse = ","), "\n")
-    }
+    if (length(both) < nrow(tcm)) 
+      cat("Drop samples not present in tcm : ", paste(setdiff(rownames(tcm), both), collapse = ","), "\n")
+    tcm <- tcm[match(both, rownames(tcm)),]
+    if (length(both) < nrow(env)) 
+      cat("Drop samples not present in env : ", paste(setdiff(rownames(env), both), collapse = ","), "\n")
+    env <- env[match(both, rownames(env)),] 
   }
   list(tcm=tcm, env=env)
 }

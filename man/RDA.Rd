@@ -9,7 +9,7 @@
 \usage{
 proceedRDA(tcm.or.dist, env, verbose = TRUE)
 
-preprocessRDA(tcm, env)
+preprocessRDA(cm, env, is.transposed = FASLE, env.var = c(), rm = "")
 
 printXTable.RDA(rda, table.file = NULL, invalid.char = FALSE,
   matrix.name = "", taxa.group = "")
@@ -24,8 +24,18 @@ and they must be same as rownames(tcm.or.dist) inlcuding order.}
 
 \item{verbose}{More details. Default to TRUE.}
 
-\item{tcm}{A transposed community matrix. 
-Rows are samples.}
+\item{cm}{A community matrix.}
+
+\item{is.transposed}{If TRUE, then the community matrix is already
+transposed to be the valid input of \code{\link{vegdist}}.  
+Default to FASLE.}
+
+\item{env.var}{The vector of selected environmental variables, 
+which can be colnames(env) or their indices. 
+Defaul to an empty vector to choose all variables.}
+
+\item{rm}{Remove specified samples, it can be a keyword shared in sample names.
+Use '|' to separate multi-samples. Default to empty string.}
 
 \item{rda}{The list of results from \code{proceedRDA}.}
 
@@ -46,17 +56,19 @@ Redundancy Analysis using \pkg{vegan}
 of Principal Coordinates for 
 eDNA data sets given environmental variables.
 
-\code{preprocessRDA} preprocesses data for \code{proceedRDA}.
-It is required, if samples in community matrix are not matching 
+\code{preprocessRDA} subsets variables and samples to 
+be included in analysis \code{proceedRDA}.
+It is required that samples in community matrix must match 
 the enviornmental meta-data, including the order. 
-It does not handle dist object of distances.
+Teh function does not handle dist object of distances.
 
 \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 }
 \examples{
 rda <- proceedRDA(tcm.or.dist, env)
 
-tcm.env <- preprocessRDA(tcm, env)
+tcm.env <- preprocessRDA(cm, env, is.transposed=FASLE)
+tcm.env <- preprocessRDA(cm, env, env.var=c(4,5,8,9,14:22), rm="CM30b51|CM30b58")
 
 printXTable.RDA(rda, table.file=NULL, matrix.name="16S", taxa.group="BACTERIA")
 
