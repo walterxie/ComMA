@@ -2,6 +2,7 @@
 % Please edit documentation in R/RedundancyAnalysis.R
 \name{RDA}
 \alias{RDA}
+\alias{plotCorrelations}
 \alias{preprocessRDA}
 \alias{printXTable.RDA}
 \alias{proceedRDA}
@@ -9,7 +10,10 @@
 \usage{
 proceedRDA(tcm.or.dist, env, verbose = TRUE)
 
-preprocessRDA(cm, env, is.transposed = FASLE, env.var = c(), rm = "")
+preprocessRDA(cm, env, is.transposed = FASLE, rm = "", env.var = c(),
+  log.var = c(), log.base = 2)
+
+plotCorrelations(df.numeric, corr.gram = TRUE)
 
 printXTable.RDA(rda, table.file = NULL, invalid.char = FALSE,
   matrix.name = "", taxa.group = "")
@@ -30,12 +34,21 @@ and they must be same as rownames(tcm.or.dist) inlcuding order.}
 transposed to be the valid input of \code{\link{vegdist}}.  
 Default to FASLE.}
 
+\item{rm}{Remove specified samples, it can be a keyword shared in sample names.
+Use '|' to separate multi-samples. Default to empty string.}
+
 \item{env.var}{The vector of selected environmental variables, 
 which can be colnames(env) or their indices. 
 Defaul to an empty vector to choose all variables.}
 
-\item{rm}{Remove specified samples, it can be a keyword shared in sample names.
-Use '|' to separate multi-samples. Default to empty string.}
+\item{log.var, log.base}{It normally needs log transform to soil chemistry variables.
+Use \code{\link{plotCorrelations}} to visualize variables and determine 
+whether log transform should be applied. Default to no log transform.}
+
+\item{df.numeric}{The data frame or matrix containing 
+numeric variables (columns) to plot.}
+
+\item{corr.gram}{Logical, if use \code{\link{corrgram}}.}
 
 \item{rda}{The list of results from \code{proceedRDA}.}
 
@@ -62,6 +75,8 @@ It is required that samples in community matrix must match
 the enviornmental meta-data, including the order. 
 Teh function does not handle dist object of distances.
 
+\code{plotCorrelations} plots numeric variables (columns).
+
 \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 }
 \examples{
@@ -69,6 +84,9 @@ rda <- proceedRDA(tcm.or.dist, env)
 
 tcm.env <- preprocessRDA(cm, env, is.transposed=FASLE)
 tcm.env <- preprocessRDA(cm, env, env.var=c(4,5,8,9,14:22), rm="CM30b51|CM30b58")
+
+# before RDA
+plotCorrelations(tcm.env$env, corr.gram=FASLE)
 
 printXTable.RDA(rda, table.file=NULL, matrix.name="16S", taxa.group="BACTERIA")
 

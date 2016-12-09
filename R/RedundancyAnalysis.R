@@ -145,33 +145,43 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
 #' @param is.transposed If TRUE, then the community matrix is already
 #' transposed to be the valid input of \code{\link{vegdist}}.  
 #' Default to FASLE.
+#' @param rm Remove specified samples, it can be a keyword shared in sample names.
+#' Use '|' to separate multi-samples. Default to empty string.
 #' @param env.var The vector of selected environmental variables, 
 #' which can be colnames(env) or their indices. 
 #' Defaul to an empty vector to choose all variables.
-#' @param rm Remove specified samples, it can be a keyword shared in sample names.
-#' Use '|' to separate multi-samples. Default to empty string.
+#' @param log.var,log.base It normally needs log transform to soil chemistry variables.
+#' Use \code{\link{plotCorrelations}} to visualize variables and determine 
+#' whether log transform should be applied. Default to no log transform. 
 #' @export
 #' @examples 
 #' tcm.env <- preprocessRDA(cm, env, is.transposed=FASLE)
 #' tcm.env <- preprocessRDA(cm, env, env.var=c(4,5,8,9,14:22), rm="CM30b51|CM30b58")
 #' 
 #' @rdname RDA
-preprocessRDA <- function(cm, env, is.transposed=FASLE, env.var=c(), rm="") {
+preprocessRDA <- function(cm, env, is.transposed=FASLE, rm="", env.var=c(), log.var=c(), log.base=2) {
   if (!is.transposed)
     tcm <- ComMA::transposeDF(cm)
   else 
     tcm <- cm
   
-  # select environmental variables
-  if (length(env.var) > 0) {
-    env <- env[, env.var]
-    cat("Select environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
-  }
   # remove specified samples, it can be keywords.
   if (nchar(rm) > 0) {
     env <- env[!grepl(rm, rownames(env), ignore.case = T), ]
     tcm <- tcm[!grepl(rm, rownames(tcm), ignore.case = T), ]
     cat("Drop specified samples : ", gsub("\\|", ", ", rm), "\n") 
+  }
+  # select environmental variables
+  if (length(env.var) > 0) {
+    env <- env[, env.var]
+    cat("Select", length(env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
+  }
+  # select environmental variables
+  if (length(log.var) > 0) {
+    env[,log.var] <- log(env[,log.var], log.base)
+    env[env == "-Inf"] <- 0 # Replace inf with zero
+    cat("Log transform", length(log.var), "variables : ", paste(colnames(env[,log.var]), collapse = ","), 
+        "at base", log.base, "\n") 
   }
   
   if (! all( tolower(rownames(env)) == tolower(rownames(tcm)) ) ) { # Rows don't match
@@ -189,7 +199,28 @@ preprocessRDA <- function(cm, env, is.transposed=FASLE, env.var=c(), rm="") {
   list(tcm=tcm, env=env)
 }
 
-
+#' @details \code{plotCorrelations} plots numeric variables (columns).
+#' 
+#' @param df.numeric The data frame or matrix containing 
+#' numeric variables (columns) to plot.
+#' @param corr.gram Logical, if use \code{\link{corrgram}}. 
+#' @export
+#' @examples 
+#' # before RDA
+#' plotCorrelations(tcm.env$env, corr.gram=FASLE)
+#' 
+#' @rdname RDA
+plotCorrelations <- function(df.numeric, corr.gram=TRUE) {
+  if (corr.gram) {
+    require(corrgram)
+    plot(df.numeric, gap = 0, lower.panel = panel.smooth, upper.panel = panel.conf, 
+         cex.axis = 0.75, col.smooth = "purple", col = "#333333")
+    corrgram(df.numeric, gap = 0, lower.panel = panel.pts, upper.panel = panel.conf, 
+             cex.axis = 0.75, col = "#333333")
+  } else {
+    plot(df.numeric, gap = 0, panel = panel.smooth) 
+  }
+}
 
 #' @details \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 #' 
