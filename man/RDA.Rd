@@ -24,6 +24,9 @@ and they must be same as rownames(tcm.or.dist) inlcuding order.}
 
 \item{verbose}{More details. Default to TRUE.}
 
+\item{tcm}{A transposed community matrix. 
+Rows are samples.}
+
 \item{rda}{The list of results from \code{proceedRDA}.}
 
 \item{table.file}{If NULL, then print the results to console, 
@@ -33,15 +36,6 @@ otherwise print them to the file. Default to NULL.}
 Only used for table name and label here.}
 
 \item{taxa.group}{The taxonomic group. Only used for table name and label here.}
-
-\item{tcm.or.dist}{A transposed community matrix 
-or dist object of distances between samples. 
-Rows are samples.}
-
-\item{env}{The enviornmental meta-data, where rows are samples, 
-and they must be same as rownames(tcm.or.dist) inlcuding order.}
-
-\item{verbose}{More details. Default to TRUE.}
 }
 \description{
 Redundancy Analysis using \pkg{vegan} 
@@ -52,7 +46,10 @@ Redundancy Analysis using \pkg{vegan}
 of Principal Coordinates for 
 eDNA data sets given environmental variables.
 
-\code{preprocessRDA} preprocesses .
+\code{preprocessRDA} preprocesses data for \code{proceedRDA}.
+It is required, if samples in community matrix are not matching 
+the enviornmental meta-data, including the order. 
+It does not handle dist object of distances.
 
 \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 }

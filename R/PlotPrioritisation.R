@@ -287,7 +287,7 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colo
 #' 
 #' @rdname PlotPrioritisation
 plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.lab="Elevation (m)", 
-                                         grid.widths = c(8, 3), ...) {
+                                         x.lab="", y.lab="", grid.widths = c(8, 3), ...) {
   if (! y2.id %in% colnames(attr.df) )
     stop("Invalid y2.id,", y2.id,  "not exsit in meta data column names !\n")
   
@@ -303,7 +303,7 @@ plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.l
                      column.labels = colnames(pp.df), row.labels = rownames(pp.df),
                      column.label.size = 2.5, row.label.size = 2.5) +
     scale_fill_gradient2(low="#f46d43", mid="#ffffbf", high="#3288bd", midpoint = midpoint) + 
-    xlab("") + ylab("") + #coord_flip() +
+    xlab(x.lab) + ylab(y.lab) + #coord_flip() +
     theme(panel.grid = element_blank(), panel.border = element_blank(),
           axis.text = element_blank(), axis.ticks = element_blank(), legend.position="none",
           plot.margin = unit(c(0,2,2,0),"cm"), strip.text.x = element_text(colour = "red"))

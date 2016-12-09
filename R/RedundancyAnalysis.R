@@ -137,15 +137,13 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
         anova.summary=anova_table, model.summary=rda_table)
 }
 
-#' @details \code{preprocessRDA} preprocesses .
+#' @details \code{preprocessRDA} preprocesses data for \code{proceedRDA}.
+#' It is required, if samples in community matrix are not matching 
+#' the enviornmental meta-data, including the order. 
+#' It does not handle dist object of distances.
 #' 
-#' @param tcm.or.dist A transposed community matrix 
-#' or dist object of distances between samples. 
+#' @param tcm A transposed community matrix. 
 #' Rows are samples.
-#' @param env The enviornmental meta-data, where rows are samples, 
-#' and they must be same as rownames(tcm.or.dist) inlcuding order.
-#' @param verbose More details. Default to TRUE.
-#' @keywords rda
 #' @export
 #' @examples 
 #' tcm.env <- preprocessRDA(tcm, env)
