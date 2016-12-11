@@ -114,6 +114,7 @@ getPlotPrior.JostDiver <- function(t.community.matrix, lev=c("alpha","beta","gam
 getPlotPrior.PhyloAlpha <- function(t.community.matrix, phylo.tree, taxa.match=TRUE,
                                     order.by=c("sample","rank","diversity"), ...) {
   if (!taxa.match) {
+    require(picante)
     combined <- match.phylo.comm(phylo.tree, t.community.matrix)
     pd.alpha <- ComMA::phylo.alpha(combined$comm, combined$phy, ...)
   } else {
