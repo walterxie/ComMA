@@ -116,6 +116,9 @@ such as \code{gg???(...) + expand_limits(x = c(?, ?), y=c(?, ?))},
 to expand the x y axis limits.
 }
 \examples{
+# display text only and use ggrepel, also expand the x y axis limits
+nmds.plot <- ggNMDSPlot(comm, text.or.point=1, text.repel=T) + expand_limits(x = c(-2, 2), y=c(-2, 2)) 
+# turns off clipping
 nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", text.or.point=2)
 plot(nmds.plot)
 

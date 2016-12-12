@@ -223,7 +223,7 @@ Default size to 3, alpha to 1.}
 \item{text.size, text.hjust, text.vjust, text.alpha}{The arguments to adjust text in \code{\link{geom_text}} in the line or scatter plot.}
 
 \item{text.avoid.overlap}{If TRUE, text that overlaps previous text 
-in the same layer will not be plotted. Use it carefully. Default to FALSE.}
+in the same layer will not be plotted. Not recommended. Default to FALSE.}
 
 \item{text.repel}{Apply \code{\link{geom_text_repel}} in \pkg{ggrepel}.
 It is better than \code{text.avoid.overlap} which removes overlapped text.

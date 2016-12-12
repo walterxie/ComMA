@@ -294,7 +294,7 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
 #' It is better than \code{text.avoid.overlap} which removes overlapped text.
 #' Default to FALSE.
 #' @param text.avoid.overlap If TRUE, text that overlaps previous text 
-#' in the same layer will not be plotted. Use it carefully. Default to FALSE.
+#' in the same layer will not be plotted. Not recommended. Default to FALSE.
 #' @keywords graph
 #' @export
 #' @examples 

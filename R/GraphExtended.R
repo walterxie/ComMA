@@ -89,6 +89,9 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL,
 #' \code{\link{metaMDS}} to the title.
 #' @keywords graph
 #' @export
+#' @examples 
+#' # display text only and use ggrepel, also expand the x y axis limits
+#' nmds.plot <- ggNMDSPlot(comm, text.or.point=1, text.repel=T) + expand_limits(x = c(-2, 2), y=c(-2, 2)) 
 #' @rdname extScatterPlot
 ggNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
                        text.id=NULL, text.or.point=3, text.size.id=NULL, text.size=3,
@@ -166,6 +169,7 @@ ggNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
 #' @keywords graph
 #' @export
 #' @examples
+#' # turns off clipping
 #' nmds.plot <- gtNMDSPlot(comm, env, colour.id="FishSpecies", shape.id="FeedingPattern", text.or.point=2)
 #' plot(nmds.plot)
 #' 
