@@ -58,6 +58,7 @@ get the actual list if the input is a list of plots}
 \code{pdf.gtable} creates pdf for gtable object.
 
 \code{pdf.plot} creates pdf for the list returned from \code{\link{plot}}.
+Tip: use \code{\link{"\%<a-\%"}} in \pkg{pryr} to save plots.
 
 \code{plot.gtable} \code{\link{require}(\link{grid})} 
 and plot gtable object in console.

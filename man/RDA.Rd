@@ -10,10 +10,11 @@
 \usage{
 proceedRDA(tcm.or.dist, env, verbose = TRUE)
 
-preprocessRDA(cm, env, is.transposed = FASLE, rm = "", env.var = c(),
-  log.var = c(), log.base = 2)
+preprocessRDA(cm, env, is.transposed = FALSE, rm.samples = c(),
+  min.abund = 0, sel.env.var = c(), log.var = c(), log.base = 2)
 
-plotCorrelations(df.numeric, corr.gram = TRUE)
+plotCorrelations(df.numeric, corr.gram = FALSE, cex.axis = 0.75,
+  cex.cor = 0.9, col = "#333333")
 
 printXTable.RDA(rda, table.file = NULL, invalid.char = FALSE,
   matrix.name = "", taxa.group = "")
@@ -24,7 +25,9 @@ or dist object of distances between samples.
 Rows are samples.}
 
 \item{env}{The enviornmental meta-data, where rows are samples, 
-and they must be same as rownames(tcm.or.dist) inlcuding order.}
+and they must be same as rownames(tcm.or.dist) inlcuding order.
+In addition, make sure rownames (enviornmental variables) 
+are valid to \code{\link{formula}}.}
 
 \item{verbose}{More details. Default to TRUE.}
 
@@ -34,10 +37,16 @@ and they must be same as rownames(tcm.or.dist) inlcuding order.}
 transposed to be the valid input of \code{\link{vegdist}}.  
 Default to FASLE.}
 
-\item{rm}{Remove specified samples, it can be a keyword shared in sample names.
-Use '|' to separate multi-samples. Default to empty string.}
+\item{rm.samples}{Remove specified samples in a vector, 
+it can be a keyword shared in sample names.
+The vector will convert to a string separated by '|' to multi-samples. 
+Default to empty vector to do nothing.}
 
-\item{env.var}{The vector of selected environmental variables, 
+\item{min.abund}{Exclude any samples with excessively 
+low abundance. Defaul 0 to exaclude none.
+The code is \code{tcm <- tcm[rowSums(tcm) > min.abund, ]}.}
+
+\item{sel.env.var}{The vector of selected environmental variables, 
 which can be colnames(env) or their indices. 
 Defaul to an empty vector to choose all variables.}
 
@@ -48,7 +57,8 @@ whether log transform should be applied. Default to no log transform.}
 \item{df.numeric}{The data frame or matrix containing 
 numeric variables (columns) to plot.}
 
-\item{corr.gram}{Logical, if use \code{\link{corrgram}}.}
+\item{corr.gram}{Logical, if use \code{\link{corrgram}} 
+instead of \code{\link{plot}}.}
 
 \item{rda}{The list of results from \code{proceedRDA}.}
 
@@ -77,16 +87,20 @@ Teh function does not handle dist object of distances.
 
 \code{plotCorrelations} plots numeric variables (columns).
 
+Tip: use \code{\link{"\%<a-\%"}} in \pkg{pryr} to save plots.
+
 \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 }
 \examples{
 rda <- proceedRDA(tcm.or.dist, env)
 
-tcm.env <- preprocessRDA(cm, env, is.transposed=FASLE)
-tcm.env <- preprocessRDA(cm, env, env.var=c(4,5,8,9,14:22), rm="CM30b51|CM30b58")
+tcm.env <- preprocessRDA(tcm, env, is.transposed=T)
+# Note colSums(cm) are based on samples
+tcm.env <- preprocessRDA(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=mean(colSums(cm))*0.025, sel.env.var=c(4,5,8,9,14:22))
 
 # before RDA
-plotCorrelations(tcm.env$env, corr.gram=FASLE)
+require(pryr)
+p \%<a-\% plotCorrelations(tcm.env$env)
 
 printXTable.RDA(rda, table.file=NULL, matrix.name="16S", taxa.group="BACTERIA")
 

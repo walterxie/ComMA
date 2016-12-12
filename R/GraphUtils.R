@@ -41,6 +41,7 @@ pdf.gtable <- function(g.table, fig.path, width=6, height=6, useDingbats=TRUE) {
 }
 
 #' @details \code{pdf.plot} creates pdf for the list returned from \code{\link{plot}}.
+#' Tip: use \code{\link{"\%<a-\%"}} in \pkg{pryr} to save plots.
 #' 
 #' @param plot The list returned from \code{\link{plot}}.
 #' @keywords graph

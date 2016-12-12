@@ -16,6 +16,8 @@
 #' Rows are samples.
 #' @param env The enviornmental meta-data, where rows are samples, 
 #' and they must be same as rownames(tcm.or.dist) inlcuding order.
+#' In addition, make sure rownames (enviornmental variables) 
+#' are valid to \code{\link{formula}}.
 #' @param verbose More details. Default to TRUE.
 #' @keywords rda
 #' @export
@@ -145,9 +147,14 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
 #' @param is.transposed If TRUE, then the community matrix is already
 #' transposed to be the valid input of \code{\link{vegdist}}.  
 #' Default to FASLE.
-#' @param rm Remove specified samples, it can be a keyword shared in sample names.
-#' Use '|' to separate multi-samples. Default to empty string.
-#' @param env.var The vector of selected environmental variables, 
+#' @param rm.samples Remove specified samples in a vector, 
+#' it can be a keyword shared in sample names.
+#' The vector will convert to a string separated by '|' to multi-samples. 
+#' Default to empty vector to do nothing.
+#' @param min.abund Exclude any samples with excessively 
+#' low abundance. Defaul 0 to exaclude none.
+#' The code is \code{tcm <- tcm[rowSums(tcm) > min.abund, ]}. 
+#' @param sel.env.var The vector of selected environmental variables, 
 #' which can be colnames(env) or their indices. 
 #' Defaul to an empty vector to choose all variables.
 #' @param log.var,log.base It normally needs log transform to soil chemistry variables.
@@ -155,26 +162,42 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
 #' whether log transform should be applied. Default to no log transform. 
 #' @export
 #' @examples 
-#' tcm.env <- preprocessRDA(cm, env, is.transposed=FASLE)
-#' tcm.env <- preprocessRDA(cm, env, env.var=c(4,5,8,9,14:22), rm="CM30b51|CM30b58")
+#' tcm.env <- preprocessRDA(tcm, env, is.transposed=T)
+#' # Note colSums(cm) are based on samples
+#' tcm.env <- preprocessRDA(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=mean(colSums(cm))*0.025, sel.env.var=c(4,5,8,9,14:22))
 #' 
 #' @rdname RDA
-preprocessRDA <- function(cm, env, is.transposed=FASLE, rm="", env.var=c(), log.var=c(), log.base=2) {
-  if (!is.transposed)
+preprocessRDA <- function(cm, env, is.transposed=FALSE, rm.samples=c(), min.abund=0, 
+                          sel.env.var=c(), log.var=c(), log.base=2) {
+  if (!is.transposed) {
+    print(ComMA::summaryCM(cm))
     tcm <- ComMA::transposeDF(cm)
-  else 
+  } else {
+    print(ComMA::summaryCM(t(cm)))
     tcm <- cm
+  } 
   
   # remove specified samples, it can be keywords.
-  if (nchar(rm) > 0) {
+  if (length(rm.samples) > 0) {
+    rm <- paste(rm.samples, collapse = "|")
     env <- env[!grepl(rm, rownames(env), ignore.case = T), ]
+    n.samples <- nrow(tcm)
     tcm <- tcm[!grepl(rm, rownames(tcm), ignore.case = T), ]
-    cat("Drop specified samples : ", gsub("\\|", ", ", rm), "\n") 
+    cat("Drop", n.samples-nrow(tcm), "samples containing : ", paste(rm.samples, collapse = ","), "\n") 
   }
+  # exclude any samples with excessively low abundance
+  if (min.abund > 0) {
+    print(summary(rowSums(tcm)))
+    n.samples <- nrow(tcm)
+    tcm <- tcm[rowSums(tcm) > min.abund, ]
+    tcm <- tcm[, colSums(tcm) > 0] # Exclude any empty col 
+    cat("Drop", n.samples-nrow(tcm), "samples with low abundance <= ", min.abund, "\n") 
+  }
+  
   # select environmental variables
-  if (length(env.var) > 0) {
-    env <- env[, env.var]
-    cat("Select", length(env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
+  if (length(sel.env.var) > 0) {
+    env <- env[, sel.env.var]
+    cat("Select", length(sel.env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
   }
   # select environmental variables
   if (length(log.var) > 0) {
@@ -196,30 +219,37 @@ preprocessRDA <- function(cm, env, is.transposed=FASLE, rm="", env.var=c(), log.
       cat("Drop samples not present in env : ", paste(setdiff(rownames(env), both), collapse = ","), "\n")
     env <- env[match(both, rownames(env)),] 
   }
+  cat("After preprocessing, tcm has", nrow(tcm), "samples,", ncol(tcm), "OTUs; env has", 
+      nrow(env), "samples,", ncol(env), "enviornmental variables.\n\n")
+  # replace invalid char for formula  
+  colnames(env) <- gsub("-", ".", colnames(env))
+  colnames(env) <- gsub("/", ".", colnames(env))
   list(tcm=tcm, env=env)
 }
 
 #' @details \code{plotCorrelations} plots numeric variables (columns).
 #' 
+#' Tip: use \code{\link{"\%<a-\%"}} in \pkg{pryr} to save plots.
+#' 
 #' @param df.numeric The data frame or matrix containing 
 #' numeric variables (columns) to plot.
-#' @param corr.gram Logical, if use \code{\link{corrgram}}. 
+#' @param corr.gram Logical, if use \code{\link{corrgram}} 
+#' instead of \code{\link{plot}}. 
 #' @export
 #' @examples 
 #' # before RDA
-#' plotCorrelations(tcm.env$env, corr.gram=FASLE)
+#' require(pryr)
+#' p %<a-% plotCorrelations(tcm.env$env)
 #' 
 #' @rdname RDA
-plotCorrelations <- function(df.numeric, corr.gram=TRUE) {
-  if (corr.gram) {
-    require(corrgram)
-    plot(df.numeric, gap = 0, lower.panel = panel.smooth, upper.panel = panel.conf, 
-         cex.axis = 0.75, col.smooth = "purple", col = "#333333")
+plotCorrelations <- function(df.numeric, corr.gram=FALSE, cex.axis = 0.75, 
+                             cex.cor = 0.9, col = "#333333") {
+  if (corr.gram) 
     corrgram(df.numeric, gap = 0, lower.panel = panel.pts, upper.panel = panel.conf, 
-             cex.axis = 0.75, col = "#333333")
-  } else {
-    plot(df.numeric, gap = 0, panel = panel.smooth) 
-  }
+             cex.axis = cex.axis, cex.cor = cex.cor, col = col)
+  else 
+    plot(df.numeric, gap = 0, lower.panel = panel.smooth, upper.panel = panel.conf, 
+         cex.axis = cex.axis, cex.cor = cex.cor, col.smooth = "purple", col = col)
 }
 
 #' @details \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
