@@ -23,10 +23,7 @@ summReadsOTUsPipeline(cm.taxa.list, taxa.ref = ComMA::taxa.ref.PLOSONE.2015,
   taxa.rank = "phylum", group.rank = "kingdom", col.ranks = c("kingdom",
   "phylum", "class", "order"), gene.levels = c("16S", "18S", "26S", "ITS",
   "COI-300", "COI-650"), group.levels = c("ARCHAEA", "BACTERIA", "EUKARYOTA",
-  "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"),
-  x.lab = "Phylum (or higher-level taxon)",
-  y.lab = "Number of sequences or OTUs", title = "", legend.title = NULL,
-  palette = NULL)
+  "PROTOZOA", "CHROMISTA", "FUNGI", "PLANTAE", "ANIMALIA", "Unknown"), ...)
 }
 \arguments{
 \item{...}{Input of a list of community matrices, or comma separated multi-inputs.}
@@ -57,9 +54,7 @@ mostly in RDP classification, when using \code{taxa.ref.PLOSONE.2015}. The defau
 
 \item{group.levels}{The level to order 'gene' column.}
 
-\item{x.lab, y.lab}{Label for x or y axis.}
-
-\item{palette}{The detail in \code{\link{ggPlot}}.}
+\item{x.lab, y.lab, title, title.size, legend.title, palette}{See \code{\link{ggPlot}}.}
 
 \item{cm.taxa.list}{A list of \code{cm.taxa} merged by \code{\link{mergeCMTaxa}}. 
 Require proper names of the list.}

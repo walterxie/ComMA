@@ -98,8 +98,7 @@ getCountsSums <- function(..., input.list=FALSE, taxa.rank="phylum", group.rank=
 #' sequences and OTUs excluding singleton OTUs. 
 #' If 1, as default, just do not plot sequences excluding singleton. 
 #' If 2, then plot all (including/excluding singleton).
-#' @param x.lab,y.lab Label for x or y axis.
-#' @param palette The detail in \code{\link{ggPlot}}. 
+#' @param x.lab,y.lab,title,title.size,legend.title,palette See \code{\link{ggPlot}}.
 #' @keywords taxonomy
 #' @export
 #' @examples 
@@ -200,13 +199,11 @@ summReadsOTUsPipeline <- function(cm.taxa.list, taxa.ref=ComMA::taxa.ref.PLOSONE
                                   col.ranks=c("kingdom", "phylum", "class", "order"), 
                                   gene.levels=c("16S", "18S", "26S", "ITS", "COI-300", "COI-650"),
                                   group.levels=c("ARCHAEA","BACTERIA","EUKARYOTA","PROTOZOA","CHROMISTA","FUNGI","PLANTAE","ANIMALIA","Unknown"),
-                                  x.lab="Phylum (or higher-level taxon)", y.lab="Number of sequences or OTUs",
-                                  title="", legend.title=NULL, palette=NULL){
+                                  ...){
   all.counts.sums <- ComMA::getCountsSums(cm.taxa.list, input.list=T, taxa.rank=taxa.rank, group.rank=group.rank)
   
   p <- ComMA::plotTaxonomy(all.counts.sums, taxa.ref=taxa.ref, gene.levels=gene.levels, 
-                           group.levels=group.levels, x.lab=x.lab, y.lab=y.lab, title=title, 
-                           legend.title=legend.title, palette=palette)
+                           group.levels=group.levels, ...)
   
   list(ggplot=p, all.counts.sums=all.counts.sums) 
 }
