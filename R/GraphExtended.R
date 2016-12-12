@@ -91,7 +91,7 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL,
 #' @export
 #' @examples 
 #' # display text only and use ggrepel, also expand the x y axis limits
-#' nmds.plot <- ggNMDSPlot(comm, text.or.point=1, text.repel=T) + expand_limits(x = c(-2, 2), y=c(-2, 2)) 
+#' nmds.plot <- ggNMDSPlot(correlations, text.or.point=1, text.repel=T) + expand_limits(x = c(-1, 1), y=c(-1, 1)) 
 #' @rdname extScatterPlot
 ggNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
                        text.id=NULL, text.or.point=3, text.size.id=NULL, text.size=3,
