@@ -293,6 +293,7 @@ plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.l
     stop("Invalid y2.id,", y2.id,  "not exsit in meta data column names !\n")
   
   midpoint <- mean(c(max(pp.df), min(pp.df)))
+  require(ggplot2)
   require("NeatMap")
   p <- make.heatmap1(as.matrix(pp.df), 
                      column.method = "complete", column.metric="euclidean", # Column ordering method
@@ -333,6 +334,7 @@ plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.l
           plot.margin = unit(c(0,2,2,0),"cm"))
   gg2 <- ggplotGrob(p2)
   
+  require(grid)
   #build$data[[3]]$label <- gsub(" ", "\n", build$data[[3]]$label)
   #build$data[[3]]$angle <- "-45"
   #build$data[[3]]$vjust <- "1"
@@ -343,6 +345,7 @@ plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.l
   gg1$heights[2:5] <- as.list(maxHeight)
   gg2$heights[2:5] <- as.list(maxHeight)
   
+  require(gridExtra)
   list(heatmap=grid.arrange(gg1, gg2, ncol=2, widths = grid.widths), 
        gg1=gg1, gg2=gg2)
 }
