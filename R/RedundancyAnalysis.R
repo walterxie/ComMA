@@ -137,7 +137,38 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
         anova.summary=anova_table, model.summary=rda_table)
 }
 
-#' @details \code{preprocessRDA} subsets variables and samples to 
+#' @details \code{preprocessEnv} subsets the enviornmental variables 
+#' and make log transform to soil chemistry variables.
+#' 
+#' @param sel.env.var The vector of selected environmental variables, 
+#' which can be colnames(env) or their indices. 
+#' Defaul to an empty vector to choose all variables.
+#' @param log.var,log.base It normally needs log transform to soil chemistry variables.
+#' Use \code{\link{plotCorrelations}} to visualize variables and determine 
+#' whether log transform should be applied. Default to no log transform. 
+#' @export
+#' @examples 
+#' env <- preprocessEnv(env, sel.env.var=c(4,5,8,9,14:22), log.var=c(5:8,9:11))
+#' 
+#' @rdname RDA
+preprocessEnv <- function(env, sel.env.var=c(), log.var=c(), log.base=2) {
+  # select environmental variables
+  if (length(sel.env.var) > 0) {
+    env <- env[, sel.env.var]
+    cat("Select", length(sel.env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
+  }
+  # select environmental variables
+  if (length(log.var) > 0) {
+    env[,log.var] <- log(env[,log.var], log.base)
+    env[env == "-Inf"] <- 0 # Replace inf with zero
+    cat("Log transform", length(log.var), "variables : ", paste(colnames(env[,log.var]), collapse = ","), 
+        "at base", log.base, "\n") 
+  }
+  return(env)
+}
+
+
+#' @details \code{mergeCMEnv} subsets variables and samples to 
 #' be included in analysis \code{proceedRDA}.
 #' It is required that samples in community matrix must match 
 #' the enviornmental meta-data, including the order. 
@@ -162,13 +193,13 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
 #' whether log transform should be applied. Default to no log transform. 
 #' @export
 #' @examples 
-#' tcm.env <- preprocessRDA(tcm, env, is.transposed=T)
+#' tcm.env <- mergeCMEnv(tcm, env, is.transposed=T)
 #' # Note colSums(cm) are based on samples
-#' tcm.env <- preprocessRDA(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=mean(colSums(cm))*0.025, sel.env.var=c(4,5,8,9,14:22))
+#' tcm.env <- mergeCMEnv(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=mean(colSums(cm))*0.025)
 #' 
 #' @rdname RDA
-preprocessRDA <- function(cm, env, is.transposed=FALSE, rm.samples=c(), min.abund=0, 
-                          sel.env.var=c(), log.var=c(), log.base=2) {
+mergeCMEnv <- function(cm, env, is.transposed=FALSE, rm.samples=c(), min.abund=0, prep.env=FALSE,
+                       sel.env.var=c(), log.var=c(), log.base=2) {
   if (!is.transposed) {
     print(ComMA::summaryCM(cm))
     tcm <- ComMA::transposeDF(cm)
@@ -194,18 +225,8 @@ preprocessRDA <- function(cm, env, is.transposed=FALSE, rm.samples=c(), min.abun
     cat("Drop", n.samples-nrow(tcm), "samples with low abundance <= ", min.abund, "\n") 
   }
   
-  # select environmental variables
-  if (length(sel.env.var) > 0) {
-    env <- env[, sel.env.var]
-    cat("Select", length(sel.env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
-  }
-  # select environmental variables
-  if (length(log.var) > 0) {
-    env[,log.var] <- log(env[,log.var], log.base)
-    env[env == "-Inf"] <- 0 # Replace inf with zero
-    cat("Log transform", length(log.var), "variables : ", paste(colnames(env[,log.var]), collapse = ","), 
-        "at base", log.base, "\n") 
-  }
+  if (prep.env)
+    env <- ComMA::preprocessEnv(env, sel.env.var=sel.env.var, log.var=log.var, log.base=log.base)
   
   if (! all( tolower(rownames(env)) == tolower(rownames(tcm)) ) ) { # Rows don't match
     both <- intersect(rownames(tcm), rownames(env)) # Matching rows

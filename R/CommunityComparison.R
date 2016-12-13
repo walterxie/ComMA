@@ -174,6 +174,8 @@ plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation",
     stop("length(title.list) has to be same as length(proc.list) !")
   if (length(proc.list.pairs) > 0 && length(proc.list.pairs) != length(proc.list))
     stop("length(proc.list.pairs) has to be same as length(proc.list) !")
+  if (! colour.id %in% colnames(attr.df))
+    stop("Invalid colour.id,", colour.id,  "not exsit in meta data column names !\n")
   
   require(ggplot2)
   plot.list <- list()
@@ -187,10 +189,10 @@ plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation",
     r1 = acos(pro$rotation[1,1]) # X axis rotation (radians)
     r2 = r1 + (pi/2) # Y axis rotation (radians)
     p <- ggplot(pts) +
-      geom_point(aes(x = yMDS1, y = yMDS2, colour = Elevation), shape = 1.5, size = 1.5, alpha = 0.75) + # rotated i.e. d2 (circles)
-      geom_point(aes(x = xMDS1, y = xMDS2, colour = Elevation), shape = 2, size = 1, alpha = 0.75) + # target i.e. d1 (triangles)
+      geom_point(aes_string(x = "yMDS1", y = "yMDS2", colour = colour.id), shape = 1.5, size = 1.5, alpha = 0.75) + # rotated i.e. d2 (circles)
+      geom_point(aes_string(x = "xMDS1", y = "xMDS2", colour = colour.id), shape = 2, size = 1, alpha = 0.75) + # target i.e. d1 (triangles)
       scale_shape(solid = FALSE) + xlab("") + ylab("") +
-      geom_segment(aes(x = yMDS1, y = yMDS2, xend = xMDS1, yend = xMDS2, colour = Elevation), alpha = 0.75) +
+      geom_segment(aes_string(x = "yMDS1", y = "yMDS2", xend = "xMDS1", yend = "xMDS2", colour = colour.id), alpha = 0.75) +
       #arrow = arrow(length = unit(0.2,"cm")), alpha = 0.75) + 
       #geom_hline(yintercept = 0, linetype = "dashed", colour = "grey") + 
       #geom_vline(xintercept = 0, linetype = "dashed", colour = "grey") +
