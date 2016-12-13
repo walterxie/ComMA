@@ -19,7 +19,9 @@ procrustesComparison(dist.list, scale = TRUE, symmetric = TRUE,
 sublistByPairs(m.p.list, pairs, subset.pairs)
 
 plotProcrustes(proc.list, attr.df, colour.id = "Elevation",
-  title.list = list(), proc.list.pairs = list())
+  proc.list.pairs = list(), title.list = list(), plot.title.size = 8,
+  colours = c("blue", "orange"), limits = NULL,
+  legend.title = "Elevation (m)", legend.key.width = unit(0.65, "cm"))
 }
 \arguments{
 \item{cm.list}{A list of community matrices.}
@@ -45,6 +47,15 @@ The string names have to be exaclty same in order to find matches,
 but the order of the pair does not matter the 1st or 2nd come first.}
 
 \item{proc.list}{The list of \code{\link{procrustes}} results.}
+
+\item{attr.df, colour.id}{A data frame of meta data to define 
+how the plot is coloured by \code{colour.id}. Default to "Elevation".}
+
+\item{title.list, proc.list.pairs}{The list of strings to make titles. 
+Use \code{title.list} first, and then \code{proc.list.pairs} if \code{title.list} is empty, 
+and then \code{names(proc.list)} if both are empty.}
+
+\item{colours, legend.title, legend.key.width}{The properties of colour legend}
 }
 \description{
 Multivariate patterns of sample similarity were compared between pairwised community matrices 

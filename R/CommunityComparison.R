@@ -163,13 +163,20 @@ sublistByPairs <- function(m.p.list, pairs, subset.pairs) {
 #' \code{plotProcrustes} plots Procrustes correlations between pairwised communities.  
 #' 
 #' @param proc.list The list of \code{\link{procrustes}} results.
+#' @param title.list,proc.list.pairs The list of strings to make titles. 
+#' Use \code{title.list} first, and then \code{proc.list.pairs} if \code{title.list} is empty, 
+#' and then \code{names(proc.list)} if both are empty.
+#' @param attr.df,colour.id A data frame of meta data to define 
+#' how the plot is coloured by \code{colour.id}. Default to "Elevation".
+#' @param colours,legend.title,legend.key.width The properties of colour legend
 #' @export
 #' @examples 
 #' plotProcrustes(procrustes$proc.list)
 #' 
 #' @rdname CommunityComparison
-plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation", 
-                           title.list=list(), proc.list.pairs=list()) {
+plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation", proc.list.pairs=list(),  
+                           title.list=list(), plot.title.size=8, colours = c("blue", "orange"), 
+                           limits=NULL, legend.title="Elevation (m)", legend.key.width = unit(0.65, "cm")) {
   if (length(title.list) > 0 && length(title.list) != length(proc.list))
     stop("length(title.list) has to be same as length(proc.list) !")
   if (length(proc.list.pairs) > 0 && length(proc.list.pairs) != length(proc.list))
@@ -189,8 +196,10 @@ plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation",
     r1 = acos(pro$rotation[1,1]) # X axis rotation (radians)
     r2 = r1 + (pi/2) # Y axis rotation (radians)
     p <- ggplot(pts) +
-      geom_point(aes_string(x = "yMDS1", y = "yMDS2", colour = colour.id), shape = 1.5, size = 1.5, alpha = 0.75) + # rotated i.e. d2 (circles)
-      geom_point(aes_string(x = "xMDS1", y = "xMDS2", colour = colour.id), shape = 2, size = 1, alpha = 0.75) + # target i.e. d1 (triangles)
+      geom_point(aes_string(x = "yMDS1", y = "yMDS2", colour = colour.id), 
+                 shape = 1.5, size = 1.5, alpha = 0.75) + # rotated i.e. d2 (circles)
+      geom_point(aes_string(x = "xMDS1", y = "xMDS2", colour = colour.id), 
+                 shape = 2, size = 1, alpha = 0.75) + # target i.e. d1 (triangles)
       scale_shape(solid = FALSE) + xlab("") + ylab("") +
       geom_segment(aes_string(x = "yMDS1", y = "yMDS2", xend = "xMDS1", yend = "xMDS2", colour = colour.id), alpha = 0.75) +
       #arrow = arrow(length = unit(0.2,"cm")), alpha = 0.75) + 
@@ -199,9 +208,9 @@ plotProcrustes <- function(proc.list, attr.df, colour.id="Elevation",
       #geom_abline(intercept = 0, slope = tan(r1), colour = "grey") + 
       #geom_abline(intercept = 0, slope = tan(r2), colour = "grey") +
       #geom_text(aes(x = xMDS1, y = xMDS2, label = pts.mds$Row.names, colour = Elevation), size = 1.5, vjust = 1.5, alpha = 0.5) + 
-      scale_colour_gradientn(colours = c("blue", "orange")) + labs(colour="Elevation (m)") +
-      theme(panel.grid = element_blank(), plot.title = element_text(size = 8), 
-            plot.margin = unit(c(0.1,0.1,0.1,0), "cm"), legend.key.width = unit(0.65, "cm")) 
+      scale_colour_gradientn(colours = colours, limits=limits) + labs(colour=legend.title) +
+      theme(panel.grid = element_blank(), plot.title = element_text(size = plot.title.size), 
+            plot.margin = unit(c(0.1,0.1,0.1,0), "cm"), legend.key.width = legend.key.width) 
    
     title <- NULL
     if (length(title.list) > 0) {
