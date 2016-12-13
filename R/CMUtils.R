@@ -70,6 +70,84 @@ transposeDF <- function(community.matrix, to.numeric=TRUE) {
   t.community.matrix <- as.data.frame(t(as.matrix(community.matrix)))  
 }
 
+#' @details \code{preprocessCM} exclude any samples with 
+#' excessively low abundance.
+#' 
+#' @param cm A community matrix not transposed,
+#' Columns are samples.
+#' @param rm.samples Remove specified samples in a vector, 
+#' it can be a keyword shared in sample names.
+#' The vector will convert to a string separated by '|' to multi-samples. 
+#' Default to empty vector to do nothing.
+#' @param min.abund,mean.abund.thr Exclude any samples with excessively 
+#' low abundance. Defaul \code{min.abund=5, mean.abund.thr=0.025}.
+#' The final threshold takes the maximun value of 
+#' \code{max(min.abund, mean(colSums(cm))*mean.abund.thr)}. 
+#' @export
+#' @examples 
+#' cm <- preprocessCM(cm, rm.samples=c("CM30b51","CM30b58"))
+#' 
+#' @rdname utilsCM
+preprocessCM <- function(cm, rm.samples=c(), min.abund=5, mean.abund.thr=0.025) {
+  # remove specified samples, it can be keywords.
+  if (length(rm.samples) > 0) {
+    rm <- paste(rm.samples, collapse = "|")
+    n.samples <- ncol(cm)
+    cm <- cm[, !grepl(rm, colnames(cm), ignore.case = T)]
+    cat("Drop", n.samples-ncol(cm), "samples containing : ", paste(rm.samples, collapse = ","), "\n") 
+  }
+  # exclude any samples with excessively low abundance
+  print(summary(colSums(cm)))
+  if (min.abund > 0 || mean.abund.thr > 0) {
+    n.samples <- ncol(cm)
+    max.thr <- max(min.abund, mean(colSums(cm))*mean.abund.thr)
+    cm <- cm[, colSums(cm) > max.thr]
+    cm <- cm[rowSums(cm) > 0, ] # Exclude any empty col 
+    cat("Drop", n.samples-nrow(cm), "samples with low abundance <= ", max.thr, "\n") 
+  }
+  return(cm) 
+}
+
+#' @details \code{preprocessEnv} subsets the enviornmental variables 
+#' and make log transform to soil chemistry variables.
+#' 
+#' @param env The enviornmental meta-data, where rows are samples 
+#' and columns are enviornmental variables.
+#' @param sel.env.var The vector of selected environmental variables, 
+#' which can be colnames(env) or their indices. 
+#' Defaul to an empty vector to choose all variables.
+#' @param log.var,log.base It normally needs log transform to soil chemistry variables.
+#' Use \code{\link{plotCorrelations}} to visualize variables and determine 
+#' whether log transform should be applied. Default to no log transform. 
+#' @export
+#' @examples 
+#' env <- preprocessEnv(env, sel.env.var=c(4,5,8,9,14:22), log.var=c(5:8,9:11))
+#' 
+#' @rdname utilsCM
+preprocessEnv <- function(env, rm.samples=c(), sel.env.var=c(), log.var=c(), log.base=2) {
+  # remove specified samples, it can be keywords.
+  if (length(rm.samples) > 0) {
+    rm <- paste(rm.samples, collapse = "|")
+    n.samples <- nrow(env)
+    env <- env[!grepl(rm, rownames(env), ignore.case = T), ]
+    cat("Drop", n.samples-nrow(env), "samples containing : ", paste(rm.samples, collapse = ","), "\n") 
+  }
+  # select environmental variables
+  if (length(sel.env.var) > 0) {
+    env <- env[, sel.env.var]
+    cat("Select", length(sel.env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
+  }
+  # select environmental variables
+  if (length(log.var) > 0) {
+    env[,log.var] <- log(env[,log.var], log.base)
+    env[env == "-Inf"] <- 0 # Replace inf with zero
+    cat("Log transform", length(log.var), "variables : ", paste(colnames(env[,log.var]), collapse = ","), 
+        "at base", log.base, "\n") 
+  }
+  return(env)
+}
+
+
 #' @details \code{spilt.df} spilt a data frame into chunks of data frames 
 #' having equal rows/columns.
 #' 

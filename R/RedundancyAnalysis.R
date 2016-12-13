@@ -137,36 +137,6 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
         anova.summary=anova_table, model.summary=rda_table)
 }
 
-#' @details \code{preprocessEnv} subsets the enviornmental variables 
-#' and make log transform to soil chemistry variables.
-#' 
-#' @param sel.env.var The vector of selected environmental variables, 
-#' which can be colnames(env) or their indices. 
-#' Defaul to an empty vector to choose all variables.
-#' @param log.var,log.base It normally needs log transform to soil chemistry variables.
-#' Use \code{\link{plotCorrelations}} to visualize variables and determine 
-#' whether log transform should be applied. Default to no log transform. 
-#' @export
-#' @examples 
-#' env <- preprocessEnv(env, sel.env.var=c(4,5,8,9,14:22), log.var=c(5:8,9:11))
-#' 
-#' @rdname RDA
-preprocessEnv <- function(env, sel.env.var=c(), log.var=c(), log.base=2) {
-  # select environmental variables
-  if (length(sel.env.var) > 0) {
-    env <- env[, sel.env.var]
-    cat("Select", length(sel.env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
-  }
-  # select environmental variables
-  if (length(log.var) > 0) {
-    env[,log.var] <- log(env[,log.var], log.base)
-    env[env == "-Inf"] <- 0 # Replace inf with zero
-    cat("Log transform", length(log.var), "variables : ", paste(colnames(env[,log.var]), collapse = ","), 
-        "at base", log.base, "\n") 
-  }
-  return(env)
-}
-
 
 #' @details \code{mergeCMEnv} subsets variables and samples to 
 #' be included in analysis \code{proceedRDA}.
@@ -195,11 +165,15 @@ preprocessEnv <- function(env, sel.env.var=c(), log.var=c(), log.base=2) {
 #' @examples 
 #' tcm.env <- mergeCMEnv(tcm, env, is.transposed=T)
 #' # Note colSums(cm) are based on samples
-#' tcm.env <- mergeCMEnv(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=mean(colSums(cm))*0.025)
+#' tcm.env <- mergeCMEnv(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=5, mean.abund.thr=0.025)
 #' 
 #' @rdname RDA
-mergeCMEnv <- function(cm, env, is.transposed=FALSE, rm.samples=c(), min.abund=0, prep.env=FALSE,
-                       sel.env.var=c(), log.var=c(), log.base=2) {
+mergeCMEnv <- function(cm, env, is.transposed=FALSE, prep.cm=FALSE, rm.samples=c(), 
+                       min.abund=5, mean.abund.thr=0.025, prep.env=FALSE, sel.env.var=c(), 
+                       log.var=c(), log.base=2) {
+  if (prep.cm)
+    cm <- ComMA::preprocessCM(cm, rm.samples=rm.samples, min.abund=min.abund, mean.abund.thr=mean.abund.thr)
+  
   if (!is.transposed) {
     print(ComMA::summaryCM(cm))
     tcm <- ComMA::transposeDF(cm)
@@ -207,23 +181,6 @@ mergeCMEnv <- function(cm, env, is.transposed=FALSE, rm.samples=c(), min.abund=0
     print(ComMA::summaryCM(t(cm)))
     tcm <- cm
   } 
-  
-  # remove specified samples, it can be keywords.
-  if (length(rm.samples) > 0) {
-    rm <- paste(rm.samples, collapse = "|")
-    env <- env[!grepl(rm, rownames(env), ignore.case = T), ]
-    n.samples <- nrow(tcm)
-    tcm <- tcm[!grepl(rm, rownames(tcm), ignore.case = T), ]
-    cat("Drop", n.samples-nrow(tcm), "samples containing : ", paste(rm.samples, collapse = ","), "\n") 
-  }
-  # exclude any samples with excessively low abundance
-  if (min.abund > 0) {
-    print(summary(rowSums(tcm)))
-    n.samples <- nrow(tcm)
-    tcm <- tcm[rowSums(tcm) > min.abund, ]
-    tcm <- tcm[, colSums(tcm) > 0] # Exclude any empty col 
-    cat("Drop", n.samples-nrow(tcm), "samples with low abundance <= ", min.abund, "\n") 
-  }
   
   if (prep.env)
     env <- ComMA::preprocessEnv(env, sel.env.var=sel.env.var, log.var=log.var, log.base=log.base)

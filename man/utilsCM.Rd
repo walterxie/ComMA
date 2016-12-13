@@ -3,6 +3,8 @@
 \name{utilsCM}
 \alias{cmYAcrossX}
 \alias{mostAbundantRows}
+\alias{preprocessCM}
+\alias{preprocessEnv}
 \alias{rmMinAbundance}
 \alias{spilt.df}
 \alias{sumColumns}
@@ -13,6 +15,11 @@
 rmMinAbundance(community.matrix, minAbund = 2, MARGIN = 1, verbose = TRUE)
 
 transposeDF(community.matrix, to.numeric = TRUE)
+
+preprocessCM(cm, rm.samples = c(), min.abund = 5, mean.abund.thr = 0.025)
+
+preprocessEnv(env, rm.samples = c(), sel.env.var = c(), log.var = c(),
+  log.base = 2)
 
 spilt.df(community.matrix, spilt.to = 2, MARGIN = 1, verbose = TRUE)
 
@@ -35,6 +42,30 @@ then remove all empty rows/columns. Default to 2 (singletons).}
 \item{MARGIN}{1 indicates rows, 2 indicates columns. Default to 1.}
 
 \item{verbose}{More details. Default to TRUE.}
+
+\item{cm}{A community matrix not transposed,
+Columns are samples.}
+
+\item{rm.samples}{Remove specified samples in a vector, 
+it can be a keyword shared in sample names.
+The vector will convert to a string separated by '|' to multi-samples. 
+Default to empty vector to do nothing.}
+
+\item{min.abund, mean.abund.thr}{Exclude any samples with excessively 
+low abundance. Defaul \code{min.abund=5, mean.abund.thr=0.025}.
+The final threshold takes the maximun value of 
+\code{max(min.abund, mean(colSums(cm))*mean.abund.thr)}.}
+
+\item{env}{The enviornmental meta-data, where rows are samples 
+and columns are enviornmental variables.}
+
+\item{sel.env.var}{The vector of selected environmental variables, 
+which can be colnames(env) or their indices. 
+Defaul to an empty vector to choose all variables.}
+
+\item{log.var, log.base}{It normally needs log transform to soil chemistry variables.
+Use \code{\link{plotCorrelations}} to visualize variables and determine 
+whether log transform should be applied. Default to no log transform.}
 
 \item{spilt.to}{The number of sub-data-frame to spilt. It must >= 2.
 Default to 2.}
@@ -68,6 +99,12 @@ by removing rows or colums whose sum of abundance is less than the minimum abund
 \code{transposeDF} returns a transposed data frame, 
 such as transposed community matrix for \pkg{vegan} package.
 
+\code{preprocessCM} exclude any samples with 
+excessively low abundance.
+
+\code{preprocessEnv} subsets the enviornmental variables 
+and make log transform to soil chemistry variables.
+
 \code{spilt.df} spilt a data frame into chunks of data frames 
 having equal rows/columns.
 
@@ -89,6 +126,10 @@ and the 'reads' is the number of reads assigned to those OTUs.
 ComMA::rmMinAbundance(community.matrix, minAbund=2)
 
 t.community.matrix <- transposeDF(community.matrix)
+
+cm <- preprocessCM(cm, rm.samples=c("CM30b51","CM30b58"))
+
+env <- preprocessEnv(env, sel.env.var=c(4,5,8,9,14:22), log.var=c(5:8,9:11))
 
 cm.list <- spiltCM(community.matrix)
 

@@ -4,18 +4,15 @@
 \alias{RDA}
 \alias{mergeCMEnv}
 \alias{plotCorrelations}
-\alias{preprocessEnv}
 \alias{printXTable.RDA}
 \alias{proceedRDA}
 \title{Redundancy Analysis}
 \usage{
 proceedRDA(tcm.or.dist, env, verbose = TRUE)
 
-preprocessEnv(env, sel.env.var = c(), log.var = c(), log.base = 2)
-
-mergeCMEnv(cm, env, is.transposed = FALSE, rm.samples = c(),
-  min.abund = 0, prep.env = FALSE, sel.env.var = c(), log.var = c(),
-  log.base = 2)
+mergeCMEnv(cm, env, is.transposed = FALSE, prep.cm = FALSE,
+  rm.samples = c(), min.abund = 5, mean.abund.thr = 0.025,
+  prep.env = FALSE, sel.env.var = c(), log.var = c(), log.base = 2)
 
 plotCorrelations(df.numeric, corr.gram = FALSE, cex.axis = 0.75,
   cex.cor = 0.9, col = "#333333")
@@ -35,14 +32,6 @@ are valid to \code{\link{formula}}.}
 
 \item{verbose}{More details. Default to TRUE.}
 
-\item{sel.env.var}{The vector of selected environmental variables, 
-which can be colnames(env) or their indices. 
-Defaul to an empty vector to choose all variables.}
-
-\item{log.var, log.base}{It normally needs log transform to soil chemistry variables.
-Use \code{\link{plotCorrelations}} to visualize variables and determine 
-whether log transform should be applied. Default to no log transform.}
-
 \item{cm}{A community matrix.}
 
 \item{is.transposed}{If TRUE, then the community matrix is already
@@ -57,6 +46,14 @@ Default to empty vector to do nothing.}
 \item{min.abund}{Exclude any samples with excessively 
 low abundance. Defaul 0 to exaclude none.
 The code is \code{tcm <- tcm[rowSums(tcm) > min.abund, ]}.}
+
+\item{sel.env.var}{The vector of selected environmental variables, 
+which can be colnames(env) or their indices. 
+Defaul to an empty vector to choose all variables.}
+
+\item{log.var, log.base}{It normally needs log transform to soil chemistry variables.
+Use \code{\link{plotCorrelations}} to visualize variables and determine 
+whether log transform should be applied. Default to no log transform.}
 
 \item{df.numeric}{The data frame or matrix containing 
 numeric variables (columns) to plot.}
@@ -73,14 +70,6 @@ otherwise print them to the file. Default to NULL.}
 Only used for table name and label here.}
 
 \item{taxa.group}{The taxonomic group. Only used for table name and label here.}
-
-\item{sel.env.var}{The vector of selected environmental variables, 
-which can be colnames(env) or their indices. 
-Defaul to an empty vector to choose all variables.}
-
-\item{log.var, log.base}{It normally needs log transform to soil chemistry variables.
-Use \code{\link{plotCorrelations}} to visualize variables and determine 
-whether log transform should be applied. Default to no log transform.}
 }
 \description{
 Redundancy Analysis using \pkg{vegan} 
@@ -90,9 +79,6 @@ Redundancy Analysis using \pkg{vegan}
 \code{proceedRDA} makes Constrained Analysis 
 of Principal Coordinates for 
 eDNA data sets given environmental variables.
-
-\code{preprocessEnv} subsets the enviornmental variables 
-and make log transform to soil chemistry variables.
 
 \code{mergeCMEnv} subsets variables and samples to 
 be included in analysis \code{proceedRDA}.
@@ -109,11 +95,9 @@ Tip: use \code{\link{"\%<a-\%"}} in \pkg{pryr} to save plots.
 \examples{
 rda <- proceedRDA(tcm.or.dist, env)
 
-env <- preprocessEnv(env, sel.env.var=c(4,5,8,9,14:22), log.var=c(5:8,9:11))
-
 tcm.env <- mergeCMEnv(tcm, env, is.transposed=T)
 # Note colSums(cm) are based on samples
-tcm.env <- mergeCMEnv(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=mean(colSums(cm))*0.025)
+tcm.env <- mergeCMEnv(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=5, mean.abund.thr=0.025)
 
 # before RDA
 require(pryr)
