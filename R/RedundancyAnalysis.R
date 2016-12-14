@@ -222,12 +222,14 @@ mergeCMEnv <- function(cm, env, is.transposed=FALSE, prep.cm=FALSE, rm.samples=c
 #' @rdname RDA
 plotCorrelations <- function(df.numeric, corr.gram=FALSE, cex.axis = 0.75, 
                              cex.cor = 0.9, col = "#333333") {
-  if (corr.gram) 
+  require(corrgram)
+  if (corr.gram) {
     corrgram(df.numeric, gap = 0, lower.panel = panel.pts, upper.panel = panel.conf, 
              cex.axis = cex.axis, cex.cor = cex.cor, col = col)
-  else 
+  } else { 
     plot(df.numeric, gap = 0, lower.panel = panel.smooth, upper.panel = panel.conf, 
          cex.axis = cex.axis, cex.cor = cex.cor, col.smooth = "purple", col = col)
+  }
 }
 
 #' @details \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
