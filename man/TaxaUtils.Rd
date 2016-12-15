@@ -16,7 +16,8 @@ subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE, ignore.case = TRUE)
 
 subsetCM(community.matrix, taxa.table, taxa.group = NA, rank = NA,
-  drop.taxa = T, ...)
+  include = TRUE, ignore.case = TRUE, verbose = TRUE, drop.taxa = TRUE,
+  merged.by = "row.names", ...)
 
 prepTaxonomy(taxa.table, col.ranks = c("kingdom", "phylum", "class", "order",
   "family"), txt.unclassified = "unclassified", verbose = TRUE,
@@ -65,6 +66,8 @@ Default to TRUE.}
 \item{community.matrix}{Community matrix (OTU table), where rows are 
 OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.}
 
+\item{verbose}{More details. Default to TRUE.}
+
 \item{drop.taxa}{TRUE, as default, to drop all taxonomy columns, 
 and only keep \code{community.matrix} samples.}
 
@@ -74,8 +77,6 @@ which will determine the aggregated abundence matrix. They have to be full set o
 Default to \code{c("kingdom", "phylum", "class", "order", "family")}.}
 
 \item{txt.unclassified}{The key word to represent unclassified taxonomy.}
-
-\item{verbose}{More details. Default to TRUE.}
 
 \item{pattern}{The pattern for \code{\link{gsub}} "perl = TRUE". 
 Default to "(\\s\\[|\\()(\\=|\\.|\\,|\\s|\\w|\\?)*(\\]|\\))".
@@ -174,10 +175,11 @@ and make it easy for visualization.
 
 \code{subsetCM} returns a subset community matrix 
 regarding \code{taxa.group} at a given \code{rank} column 
-in \code{taxa.table}. 
-Set either \code{taxa.group} or \code{rank} to NA, as default, 
-to use the whole \code{taxa.table}.
-\code{subsetTaxaTable} and \code{\link{merge}} are used.
+in \code{taxa.table}, which is also the alternative choice 
+of \code{mergeCMTaxa} if only simply \code{\link{merge}} is required. 
+If either \code{taxa.group} or \code{rank} is NA, as default, 
+then use the whole \code{taxa.table}, otherwise take the subset
+of \code{taxa.table} by \code{subsetTaxaTable}.
 
 \code{prepTaxonomy} replace repeated high rank taxa to 
 unclassified high rank in MEGAN result, 

@@ -60,10 +60,11 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom",
 
 #' @details \code{subsetCM} returns a subset community matrix 
 #' regarding \code{taxa.group} at a given \code{rank} column 
-#' in \code{taxa.table}. 
-#' Set either \code{taxa.group} or \code{rank} to NA, as default, 
-#' to use the whole \code{taxa.table}.
-#' \code{subsetTaxaTable} and \code{\link{merge}} are used.
+#' in \code{taxa.table}, which is also the alternative choice 
+#' of \code{mergeCMTaxa} if only simply \code{\link{merge}} is required. 
+#' If either \code{taxa.group} or \code{rank} is NA, as default, 
+#' then use the whole \code{taxa.table}, otherwise take the subset
+#' of \code{taxa.table} by \code{subsetTaxaTable}.
 #' 
 #' @param drop.taxa TRUE, as default, to drop all taxonomy columns, 
 #' and only keep \code{community.matrix} samples.
@@ -73,15 +74,22 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom",
 #' sub.cm <- subsetCM(cm, tt, taxa.group="BACTERIA", rank="kingdom")
 #' 
 #' @rdname TaxaUtils 
-subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA, drop.taxa=T, ...) {
+subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA, include=TRUE,  
+                     ignore.case=TRUE, verbose=TRUE, drop.taxa=TRUE, merged.by="row.names",  ...) {
   if (is.na(taxa.group) || is.na(rank))
     tt.sub <- taxa.table
   else
-    tt.sub <- ComMA::subsetTaxaTable(taxa.table, taxa.group=taxa.group, rank=rank)
+    tt.sub <- ComMA::subsetTaxaTable(taxa.table, taxa.group=taxa.group, rank=rank,
+                                     include=include, ignore.case=ignore.case)
   
-  cm.taxa <- merge(community.matrix, tt.sub, ...)
+  cm.taxa <- merge(community.matrix, tt.sub, by = merged.by, ...)
   if (drop.taxa)
     cm.taxa <- cm.taxa[,colnames(community.matrix)]
+  
+  if (verbose)
+    cat("Merge", nrow(community.matrix), "rows of community matrix with", 
+        nrow(taxa.table), "rows of taxa table, get merged", nrow(cm.taxa), "rows.\n")
+  
   return(cm.taxa)
 }
 
