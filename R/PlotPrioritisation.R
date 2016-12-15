@@ -248,8 +248,8 @@ mergePlotPriorListOfDF <- function(plot.prior.list, suffixes=c(), rm.prefix=TRUE
 #' heatmap.list <- plotPrioritisation(pp.df.list, add.label=T)
 #' 
 #' @rdname PlotPrioritisation
-plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colourbar", 
-                               x.levels=c(), y.levels=c(), add.label=FALSE, label.digits=1, ...) {
+plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), x.levels=c(), y.levels=c(), 
+                               add.label=FALSE, label.digits=1, guide="colourbar", ...) {
   rank.df.list <-pp.df.list[[match.arg(at)]] 
   if (is.null(names(rank.df.list)))
     names(rank.df.list) <- 1:length(rank.df.list)
@@ -257,7 +257,7 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colo
   heatmap.list <- list()
   for (i in 1:length(rank.df.list)) {
     pp.df <- rank.df.list[[i]]
-    midpoint <- round(mean(c(max(b), min(b))))
+    midpoint <- round(mean(c(max(pp.df), min(pp.df))))
     pp.df[,"samples"] <- rownames(pp.df)
     p.hm <- ComMA::ggHeatmap(pp.df, melt.id="samples", title="", x.levels=x.levels, y.levels=y.levels, 
                              add.label=add.label, label.digits=label.digits, guide=guide,
@@ -268,8 +268,8 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colo
   return(heatmap.list)
 }
 
-#' @details \code{plotPrioritisation.Attribute} produces 
-#' one clusterd heatmap using \code{\link{NeatMap}} 
+#' @details \code{plotPrioritisation.Phyloseq} produces 
+#' one clusterd heatmap using \code{\link{phyloseq}} \code{\link{plot_heatmap}} 
 #' and attaches an additional plot of a selected attribute  
 #' from environmental meta-data, such as Elevation.
 #' 
@@ -279,16 +279,66 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), guide="colo
 #' @param y2.id,y2.lab The column of \code{attr.df} used 
 #' to plot the 2nd figure on the right side, default to "Elevation".
 #' @param grid.widths A unit vector giving the width of each two columns,
-#' used by \code{\link{grid.arrange}} and default to \code{c(8, 3)}.
+#' used by \code{\link{plot_grid}} in \pkg{cowplot} and default to \code{c(8, 2)}.
+#' 
+#' @note Use \code{theme_set(theme_bw(base_size=8))} to remove the grey backgroud.
 #' @export
 #' @keywords plot prioritisation
 #' @examples 
-#' hm.elv <- plotPrioritisation.Attribute(pp.df.list[["rank"]][[1]], env.plot, grid.widths = c(10,2))
+#' hm.elv <- plotPrioritisation.Phyloseq(pp.df.list[["rank"]][[1]], env.plot, grid.widths = c(10,2))
 #' plot(hm.elv$heatmap)
 #' 
 #' @rdname PlotPrioritisation
-plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.lab="Elevation (m)", 
-                                         x.lab="", y.lab="", grid.widths = c(8, 3), ...) {
+plotPrioritisation.Phyloseq <- function(pp.df, attr.df, y2.id="Elevation", y2.lab="Elevation (m)", 
+                                         x.lab="Amplicon dataset", y.lab="Sample plot", 
+                                        grid.widths = c(8, 2), ...) {
+  if (! y2.id %in% colnames(attr.df) )
+    stop("Invalid y2.id,", y2.id,  "not exsit in meta data column names !\n")
+  
+  midpoint <- mean(c(max(pp.df), min(pp.df)))
+  require(phyloseq)
+  phy <- phyloseq(otu_table(pp.df, taxa_are_rows = FALSE))
+  ph <- plot_heatmap(phy, method = "RDA", distance = "euclidean") 
+  require(ggplot2)
+  ph <- ph + scale_fill_gradient2(low="#f46d43", mid="#ffffbf", high="#3288bd", midpoint = midpoint) + 
+    xlab(x.lab) + ylab(y.lab) + coord_flip() +
+    theme(legend.position="none", axis.text.x=element_text(size = 8, angle = -45, vjust = 1),
+          axis.text.y = element_text(size = 8),
+          panel.margin = unit(c(0,-0.5,0,0), "cm"))
+  
+  ### Extract data for secondary plot ###
+  gb = ggplot_build(ph)
+  p.ord <- as.data.frame(gb$data[[1]])
+  # Sample col is defined by phyloseq
+  p.ord$Sample <- gb$plot$data$Sample
+  p.ord[,y2.id] <- attr.df[match(p.ord$Sample, rownames(attr.df)), y2.id]
+  
+  p2 <- ggplot(data = p.ord, aes_string("Sample", y2.id, group = "1")) + geom_line() + 
+    coord_flip() + ylab(y2.lab) + xlab("") + 
+    theme(axis.text.x = element_text(size = 8), 
+          axis.text.y = element_blank(), axis.ticks.y = element_blank(),
+          panel.margin = unit(c(0,0,0,-0.5), "cm"))
+  
+  require(cowplot)
+  list(heatmap=plot_grid(ph, p2, align = 'h', rel_widths = grid.widths), 
+       gg1=ph, gg2=p2)
+}
+
+#' @details \code{plotPrioritisation.NeatMap} produces 
+#' one clusterd heatmap using \code{\link{NeatMap}} 
+#' and attaches an additional plot of a selected attribute  
+#' from environmental meta-data, such as Elevation.
+#' 
+#' @export
+#' @keywords plot prioritisation
+#' @examples 
+#' hm.elv <- plotPrioritisation.NeatMap(pp.df.list[["rank"]][[1]], env.plot, grid.widths = c(10,2))
+#' plot(hm.elv$heatmap)
+#' 
+#' @rdname PlotPrioritisation
+plotPrioritisation.NeatMap <- function(pp.df, attr.df, y2.id="Elevation", y2.lab="Elevation (m)", 
+                                       x.lab="Amplicon dataset", y.lab="Sample plot", 
+                                       grid.widths = c(8, 3), ...) {
   if (! y2.id %in% colnames(attr.df) )
     stop("Invalid y2.id,", y2.id,  "not exsit in meta data column names !\n")
   
@@ -310,10 +360,6 @@ plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.l
           axis.text = element_blank(), axis.ticks = element_blank(), legend.position="none",
           plot.margin = unit(c(0,2,2,0),"cm"), strip.text.x = element_text(colour = "red"))
   
-  # Turn off clipping
-  gg1 <- ggplotGrob(p)
-  gg1$layout[grepl("panel", gg1$layout$name), ]$clip <- "off"
-  
   ### Get data for secondary plot ###
   gb = ggplot_build(p)
   #grid.draw(gb)
@@ -332,23 +378,12 @@ plotPrioritisation.Attribute <- function(pp.df, attr.df, y2.id="Elevation", y2.l
     theme(axis.text.x = element_text(size = 8), 
           axis.text.y = element_blank(), axis.ticks.y = element_blank(),
           plot.margin = unit(c(0,2,2,0),"cm"))
-  gg2 <- ggplotGrob(p2)
   
-  require(grid)
-  #build$data[[3]]$label <- gsub(" ", "\n", build$data[[3]]$label)
-  #build$data[[3]]$angle <- "-45"
-  #build$data[[3]]$vjust <- "1"
-  #build$data[[3]]$hjust <- "1.5"
-  #grid.draw(ggplot_gtable(build))
-  
-  maxHeight = grid::unit.pmax(gg1$heights[2:5], gg2$heights[2:5])
-  gg1$heights[2:5] <- as.list(maxHeight)
-  gg2$heights[2:5] <- as.list(maxHeight)
-  
-  require(gridExtra)
-  list(heatmap=grid.arrange(gg1, gg2, ncol=2, widths = grid.widths), 
-       gg1=gg1, gg2=gg2)
+  require(cowplot)
+  list(heatmap=plot_grid(p, p2, align = 'h', rel_widths = grid.widths), 
+       gg1=p, gg2=p2)
 }
+
 
 ############ internal #############
 orderDiversityDF <- function(div.df, order.by=c("sample","rank","diversity")) {

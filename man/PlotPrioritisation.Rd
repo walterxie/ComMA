@@ -7,7 +7,8 @@
 \alias{getPlotPrior.PhyloAlpha}
 \alias{mergePlotPriorListOfDF}
 \alias{plotPrioritisation}
-\alias{plotPrioritisation.Attribute}
+\alias{plotPrioritisation.NeatMap}
+\alias{plotPrioritisation.Phyloseq}
 \title{Plot prioritisation}
 \usage{
 getPlotPrior.JostDiver(t.community.matrix, lev = c("alpha", "beta", "gamma"),
@@ -22,13 +23,17 @@ getPlotPrior(cm.list, is.transposed = FALSE, tre.list = list(),
 
 mergePlotPriorListOfDF(plot.prior.list, suffixes = c(), rm.prefix = TRUE)
 
-plotPrioritisation(pp.df.list, at = c("rank", "diversity"),
-  guide = "colourbar", x.levels = c(), y.levels = c(),
-  add.label = FALSE, label.digits = 1, ...)
+plotPrioritisation(pp.df.list, at = c("rank", "diversity"), x.levels = c(),
+  y.levels = c(), add.label = FALSE, label.digits = 1,
+  guide = "colourbar", ...)
 
-plotPrioritisation.Attribute(pp.df, attr.df, y2.id = "Elevation",
-  y2.lab = "Elevation (m)", x.lab = "", y.lab = "", grid.widths = c(8,
-  3), ...)
+plotPrioritisation.Phyloseq(pp.df, attr.df, y2.id = "Elevation",
+  y2.lab = "Elevation (m)", x.lab = "Amplicon dataset",
+  y.lab = "Sample plot", grid.widths = c(8, 2), ...)
+
+plotPrioritisation.NeatMap(pp.df, attr.df, y2.id = "Elevation",
+  y2.lab = "Elevation (m)", x.lab = "Amplicon dataset",
+  y.lab = "Sample plot", grid.widths = c(8, 3), ...)
 }
 \arguments{
 \item{t.community.matrix}{A transposed matrix from community matrix, 
@@ -82,7 +87,7 @@ and must include all rownames from \code{pp.df}}
 to plot the 2nd figure on the right side, default to "Elevation".}
 
 \item{grid.widths}{A unit vector giving the width of each two columns,
-used by \code{\link{grid.arrange}} and default to \code{c(8, 3)}.}
+used by \code{\link{plot_grid}} in \pkg{cowplot} and default to \code{c(8, 2)}.}
 
 \item{row.id}{What row names are representing.}
 }
@@ -129,10 +134,18 @@ produced by \code{getPlotPrior} into one. Their columns must contain
 \code{plotPrioritisation} produces the list of \code{\link{ggHeatmap}}
 given a list of output from \code{mergePlotPriorListOfDF}.
 
-\code{plotPrioritisation.Attribute} produces 
+\code{plotPrioritisation.Phyloseq} produces 
+one clusterd heatmap using \code{\link{phyloseq}} \code{\link{plot_heatmap}} 
+and attaches an additional plot of a selected attribute  
+from environmental meta-data, such as Elevation.
+
+\code{plotPrioritisation.NeatMap} produces 
 one clusterd heatmap using \code{\link{NeatMap}} 
 and attaches an additional plot of a selected attribute  
 from environmental meta-data, such as Elevation.
+}
+\note{
+Use \code{theme_set(theme_bw(base_size=8))} to remove the grey backgroud.
 }
 \examples{
 plot.prior.g1 <- getPlotPrior.JostDiver(t.community.matrix, lev="gamma", q=1)
@@ -145,7 +158,10 @@ pp.df.list <- mergePlotPriorListOfDF(plot.prior.list)
 
 heatmap.list <- plotPrioritisation(pp.df.list, add.label=T)
 
-hm.elv <- plotPrioritisation.Attribute(pp.df.list[["rank"]][[1]], env.plot, grid.widths = c(10,2))
+hm.elv <- plotPrioritisation.Phyloseq(pp.df.list[["rank"]][[1]], env.plot, grid.widths = c(10,2))
+plot(hm.elv$heatmap)
+
+hm.elv <- plotPrioritisation.NeatMap(pp.df.list[["rank"]][[1]], env.plot, grid.widths = c(10,2))
 plot(hm.elv$heatmap)
 
 }

@@ -95,7 +95,8 @@ validateAttr <- function(attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL,
 #' @rdname extScatterPlot
 ggNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NULL, 
                        text.id=NULL, text.or.point=3, text.size.id=NULL, text.size=3,
-                       distance="bray", k = 2, title="NMDS", title.add.stress=TRUE, 
+                       distance="bray", k = 2, title="NMDS", 
+                       title.add.stress=TRUE, stress.digits=2,
                        colour.levels=c(), shape.levels=c(), verbose=TRUE, ...) {
   if (! missing(attr.df)) {
     if (! all(rownames(as.matrix(comm)) %in% rownames(attr.df)) )
@@ -114,7 +115,7 @@ ggNMDSPlot <- function(comm, attr.df, colour.id=NULL, shape.id=NULL, link.id=NUL
   df.points <- df.points[order(rownames(df.points)),]
   
   if (title != "" && title.add.stress)
-    title <- paste0(title, " (stress ", round(mds$stress, 2), ")")
+    title <- paste0(title, " (stress ", round(mds$stress, stress.digits), ")")
   
   if (! missing(attr.df)) {
     #rownames(df.points) <- tolower(rownames(df.points))

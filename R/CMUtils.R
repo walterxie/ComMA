@@ -89,6 +89,7 @@ transposeDF <- function(community.matrix, to.numeric=TRUE) {
 #' 
 #' @rdname utilsCM
 preprocessCM <- function(cm, rm.samples=c(), min.abund=5, mean.abund.thr=0.025) {
+  cm <- as.data.frame(cm)
   # remove specified samples, it can be keywords.
   if (length(rm.samples) > 0) {
     rm <- paste(rm.samples, collapse = "|")
@@ -102,8 +103,8 @@ preprocessCM <- function(cm, rm.samples=c(), min.abund=5, mean.abund.thr=0.025) 
     n.samples <- ncol(cm)
     max.thr <- max(min.abund, mean(colSums(cm))*mean.abund.thr)
     cm <- cm[, colSums(cm) > max.thr]
-    cm <- cm[rowSums(cm) > 0, ] # Exclude any empty col 
-    cat("Drop", n.samples-nrow(cm), "samples with low abundance <= ", max.thr, "\n") 
+    cm <- cm[rowSums(cm) > 0, ] # Exclude any empty row 
+    cat("Drop", n.samples-ncol(cm), "samples with low abundance <= ", max.thr, "\n") 
   }
   return(cm) 
 }
