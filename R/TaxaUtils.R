@@ -59,24 +59,29 @@ subsetTaxaTable <- function(taxa.table, taxa.group="assigned", rank="kingdom",
 }
 
 #' @details \code{subsetCM} returns a subset community matrix 
-#' regarding \code{taxa.group}. 
+#' regarding \code{taxa.group} at a given \code{rank} column 
+#' in \code{taxa.table}. 
 #' Set either \code{taxa.group} or \code{rank} to NA, as default, 
 #' to use the whole \code{taxa.table}.
+#' \code{subsetTaxaTable} and \code{\link{merge}} are used.
 #' 
+#' @param drop.taxa TRUE, as default, to drop all taxonomy columns, 
+#' and only keep \code{community.matrix} samples.
 #' @keywords taxonomy
 #' @export
 #' @examples 
 #' sub.cm <- subsetCM(cm, tt, taxa.group="BACTERIA", rank="kingdom")
 #' 
 #' @rdname TaxaUtils 
-subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA, 
-                     col.ranks=c("kingdom", "phylum", "class", "order", "family")) {
+subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA, drop.taxa=T, ...) {
   if (is.na(taxa.group) || is.na(rank))
     tt.sub <- taxa.table
   else
-    tt.sub <- ComMA::subsetTaxaTable(taxa.table, taxa.group=taxa.group, rank=rank)	
-  cm.taxa <- ComMA::mergeCMTaxa(community.matrix, tt.sub, col.ranks=col.ranks, has.total=0)
-  cm.taxa <- cm.taxa[,colnames(community.matrix)]
+    tt.sub <- ComMA::subsetTaxaTable(taxa.table, taxa.group=taxa.group, rank=rank)
+  
+  cm.taxa <- merge(community.matrix, tt.sub, ...)
+  if (drop.taxa)
+    cm.taxa <- cm.taxa[,colnames(community.matrix)]
   return(cm.taxa)
 }
 

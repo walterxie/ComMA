@@ -16,7 +16,7 @@ subsetTaxaTable(taxa.table, taxa.group = "assigned", rank = "kingdom",
   include = TRUE, ignore.case = TRUE)
 
 subsetCM(community.matrix, taxa.table, taxa.group = NA, rank = NA,
-  col.ranks = c("kingdom", "phylum", "class", "order", "family"))
+  drop.taxa = T, ...)
 
 prepTaxonomy(taxa.table, col.ranks = c("kingdom", "phylum", "class", "order",
   "family"), txt.unclassified = "unclassified", verbose = TRUE,
@@ -64,6 +64,9 @@ Default to TRUE.}
 
 \item{community.matrix}{Community matrix (OTU table), where rows are 
 OTUs or individual species and columns are sites or samples. See \code{\link{ComMA}}.}
+
+\item{drop.taxa}{TRUE, as default, to drop all taxonomy columns, 
+and only keep \code{community.matrix} samples.}
 
 \item{col.ranks}{A vector or string of column name(s) of taxonomic ranks in the taxa table, 
 which will determine the aggregated abundence matrix. They have to be full set or subset of 
@@ -170,9 +173,11 @@ and make it easy for visualization.
 \code{subsetTaxaTable} takes or excludes a subset of given a taxa table at given rank.
 
 \code{subsetCM} returns a subset community matrix 
-regarding \code{taxa.group}. 
+regarding \code{taxa.group} at a given \code{rank} column 
+in \code{taxa.table}. 
 Set either \code{taxa.group} or \code{rank} to NA, as default, 
 to use the whole \code{taxa.table}.
+\code{subsetTaxaTable} and \code{\link{merge}} are used.
 
 \code{prepTaxonomy} replace repeated high rank taxa to 
 unclassified high rank in MEGAN result, 
