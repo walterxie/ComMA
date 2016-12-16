@@ -111,6 +111,8 @@ Because functions of computing NMDS \code{\link{metaMDS}},
 PCoA \code{\link{cmdscale}}, and PCA \code{\link{prcomp}} 
 take different input data, please make sure you give a valid input to plot.
 
+Set \code{text.repel=T} to use \code{\link{geom_text_repel}}, if too much text labels.
+
 If the points are overlapped to the edge box, then use \code{\link{expand_limits}}, 
 such as \code{gg???(...) + expand_limits(x = c(?, ?), y=c(?, ?))},
 to expand the x y axis limits.
