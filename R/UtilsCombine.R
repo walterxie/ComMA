@@ -50,7 +50,7 @@ getTriMatrix <- function(df, row.col=c("l1", "l2"), value="corr", na.to.0=TRUE, 
   rownames(m) <- m[,row.col[1]]
   # rm column l1
   m <- m[ , -which(colnames(m) %in% row.col)]
-
+  
   # order rows and columns
   if (length(order.by) > 1) {
     if ( !all( is.element(order.by, rownames(m)) ) )
@@ -71,6 +71,8 @@ getTriMatrix <- function(df, row.col=c("l1", "l2"), value="corr", na.to.0=TRUE, 
          "Colnames: ", paste(rownames(m), collapse = ","))
   return(m)
 }
+
+
 
 #' @details \code{combineTriMatrix} combines two symmetric triangular matrices into one.
 #' The 1st matrix goes to the lower triangle in the combined matrix,
@@ -95,6 +97,64 @@ combineTriMatrix <- function(tri.m1, tri.m2) {
   return(m)
 }
 
+#' @details \code{nmdsTriMatrix} makes a NMDS plot for one of 
+#' symmetric triangular.
+#' 
+#' @param tri.m A symmetric triangular matrix from \code{getTriMatrix}.
+#' @param text.or.point,text.size,text.repel,title,title.add.stress,...
+#' See \code{\link{ggNMDSPlot}}.
+#' @keywords utils
+#' @export
+#' @examples 
+#' nmds <- nmdsTriMatrix(corr.tri) + expand_limits(x = c(-1, 1), y=c(-1, 1))
+#' 
+#' @rdname UtilsCombine 
+nmdsTriMatrix <- function(tri.m, text.or.point=1, text.size=5, text.repel=T, 
+                          title="NDMS plot", title.add.stress=F, ...) {
+  nmds <- ComMA::ggNMDSPlot(dist(tri.m), text.or.point=text.or.point, text.size=text.size, 
+                            text.repel=text.repel, title=title, title.add.stress=title.add.stress, 
+                            title.hjust=0.5, ...) 
+  return(nmds)
+}
+
+#' @details \code{plotCombinedTriMatrix} plot a heatmap on the combined 
+#' symmetric triangular matrix.
+#' 
+#' @param tri.m1.m2 The combined symmetric triangular matrix 
+#' from \code{combineTriMatrix}.
+#' @param lower.lim,upper.lim,breaks.by To configure the legend bar.
+#' @param label.digits,data.levels,high,mid,low,title,legend.title,... 
+#' See \code{\link{ggHeatmap}}.
+#' @keywords utils
+#' @export
+#' @examples 
+#' hm <- plotCombinedTriMatrix(corr.sign.tri)
+#' 
+#' @rdname UtilsCombine 
+plotCombinedTriMatrix <- function(tri.m1.m2, label.digits=3, lower.lim=NA, upper.lim=NA, breaks.by=NA,
+                                  data.levels=c(), high = "#f46d43", mid = "#ffffbf", low = "#3288bd",
+                                  title="", legend.title="Correlations", ...) {
+  cat("min non-zero value is ", min(tri.m1.m2[tri.m1.m2>0]), "max is ", max(tri.m1.m2), "\n.")
+  if (is.na(lower.lim))
+    lower.lim <- min(tri.m1.m2[tri.m1.m2>0])
+  if (is.na(upper.lim))  
+    upper.lim <- max(tri.m1.m2)
+  if (is.na(breaks.by))  
+    breaks = waiver()
+  else
+    breaks = seq(lower.lim, upper.lim, by=breaks.by)
+  
+  tri.m1.m2$dataset <- rownames(tri.m1.m2)
+  tri.m1.m2[tri.m1.m2==0] <- NA
+  
+  p.hm <- ComMA::ggHeatmap(tri.m1.m2, melt.id="dataset", title=title, legend.title=legend.title, 
+                           x.levels=data.levels, y.levels=rev(data.levels), label.digits=label.digits,
+                           high = high, mid = mid, low = low, 
+                           midpoint = mean(c(lower.lim, upper.lim)), limit = c(lower.lim, upper.lim), 
+                           breaks = breaks, ... )
+  return(p.hm)
+}
+
 
 #' @details \code{combineTwoDF} combines two data frames or matrices with a same structure in one, 
 #' put all values in 2nd data frame into brackets.
@@ -116,7 +176,7 @@ combineTwoDF <- function(dfm, dfm2, rm.zero=TRUE, return.df=TRUE, ...) {
   dfm <- as.matrix(dfm)
   dfm2 <- as.matrix(dfm2)
   dfm.comb <- matrix( paste0(trimSpace(dfm), " (", trimSpace(dfm2), ")"), 
-          nrow=nrow(dfm), dimnames=dimnames(dfm) )
+                      nrow=nrow(dfm), dimnames=dimnames(dfm) )
   
   if (rm.zero) 
     dfm.comb <- gsub(" \\(0\\)", "", dfm.comb)
@@ -160,7 +220,7 @@ mergeBy <- function(x, y, by="row.names", rm.by=FALSE, warning.msg=TRUE, ...) {
     xy <- xy[,-which(colnames(xy) %in% by)]
     cat("Drop column(s)", paste(by, collapse = ","), "after merge.\n")
   }
-
+  
   return(xy)
 }
 

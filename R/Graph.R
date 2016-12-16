@@ -622,7 +622,7 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = 
   # value is ranks for each group
   p <- ggplot(df.melt, aes_string(x="variable", y=melt.id)) + geom_tile(aes(fill=value)) 
   
-  if (length(breaks) == 0 && auto.breaks.length > 1) {
+  if (!is(breaks,"waiver") && length(breaks) == 0 && auto.breaks.length > 1) {
     min.v <- min(df.melt$value)
     max.v <- max(df.melt$value)
     breaks <- round(seq(min.v, max.v, length.out = auto.breaks.length), digits = breaks.digits)

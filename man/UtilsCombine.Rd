@@ -7,12 +7,22 @@
 \alias{getTriMatrix}
 \alias{mergeBy}
 \alias{mergeListOfDF}
+\alias{nmdsTriMatrix}
+\alias{plotCombinedTriMatrix}
 \title{Utils to combine data frames or matrices into the required data format}
 \usage{
 getTriMatrix(df, row.col = c("l1", "l2"), value = "corr", na.to.0 = TRUE,
   order.by = c())
 
 combineTriMatrix(tri.m1, tri.m2)
+
+nmdsTriMatrix(tri.m, text.or.point = 1, text.size = 5, text.repel = T,
+  title = "NDMS plot", title.add.stress = F, ...)
+
+plotCombinedTriMatrix(tri.m1.m2, label.digits = 3, lower.lim = NA,
+  upper.lim = NA, breaks.by = NA, data.levels = c(), high = "#f46d43",
+  mid = "#ffffbf", low = "#3288bd", title = "",
+  legend.title = "Correlations", ...)
 
 combineTwoDF(dfm, dfm2, rm.zero = TRUE, return.df = TRUE, ...)
 
@@ -41,6 +51,17 @@ It must be a subset or same as their names.}
 
 \item{tri.m1, tri.m2}{Two symmetric triangular matrices, 
 which can be the output from \code{getTriMatrix}.}
+
+\item{tri.m}{A symmetric triangular matrix from \code{getTriMatrix}.}
+
+\item{text.or.point, text.size, text.repel, title, title.add.stress, ...}{See \code{\link{ggNMDSPlot}}.}
+
+\item{tri.m1.m2}{The combined symmetric triangular matrix 
+from \code{combineTriMatrix}.}
+
+\item{label.digits, data.levels, high, mid, low, title, legend.title, ...}{See \code{\link{ggHeatmap}}.}
+
+\item{lower.lim, upper.lim, breaks.by}{To configure the legend bar.}
 
 \item{dfm}{A data frame or matrix.}
 
@@ -85,6 +106,12 @@ and the 2nd is in upper triangle.
 The 1st matrix goes to the lower triangle in the combined matrix,
 and the 2nd to upper triangle.
 
+\code{nmdsTriMatrix} makes a NMDS plot for one of 
+symmetric triangular.
+
+\code{plotCombinedTriMatrix} plot a heatmap on the combined 
+symmetric triangular matrix.
+
 \code{combineTwoDF} combines two data frames or matrices with a same structure in one, 
 put all values in 2nd data frame into brackets.
 
@@ -98,6 +125,10 @@ using \code{\link{mergeBy}}.
 corr.tri <- getTriMatrix(corr.df)
 
 corr.sign.tri <- combineTriMatrix(corr.tri, sign.tri)
+
+nmds <- nmdsTriMatrix(corr.tri) + expand_limits(x = c(-1, 1), y=c(-1, 1))
+
+hm <- plotCombinedTriMatrix(corr.sign.tri)
 
 df <- combineTwoDF(df, df2, stringsAsFactors=FALSE)
 
