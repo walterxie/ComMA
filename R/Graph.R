@@ -332,7 +332,7 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
                           no.legend=NULL, legend.position="right", legend.direction="vertical",
                           title="Scatter Plot", title.size = 10, title.hjust=0.5,  
                           x.lab=NULL, y.lab=NULL, x.text=TRUE, y.text=TRUE, x.text.angle=0, 
-                          coord.flip=FALSE, no.panel.border=FALSE, verbose=TRUE) {
+                          coord.flip=FALSE, plot.margin.cm=NULL, no.panel.border=FALSE, verbose=TRUE) {
   p <- ggInit(df=df, x.id=x.id, y.id=y.id, colour.id=colour.id, verbose=verbose)
   col.names <- colnames(df)
   
@@ -436,7 +436,7 @@ ggScatterPlot <- function(df, x.id, y.id, colour.id=NULL, text.colour.id=NULL,
   
   p <- ggThemeOthers(p, x.text.angle=x.text.angle, legend.position=legend.position, 
                      legend.direction=legend.direction, x.text=x.text, y.text=y.text, 
-                     title.hjust=title.hjust, verbose=verbose)
+                     plot.margin.cm=plot.margin.cm, title.hjust=title.hjust, verbose=verbose)
   return(p)
 }
 

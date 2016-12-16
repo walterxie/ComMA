@@ -9,7 +9,7 @@ ggInit <- function(df, x.id, y.id=NULL, fill.id=NULL, group.id=NULL, colour.id=N
   col.names <- colnames(df)
   if (!is.element(tolower(x.id), tolower(col.names)))
     stop("Data frame do NOT have column name \"", x.id, "\" !")
-
+  
   suppressMessages(suppressWarnings(require(ggplot2)))
   aes.string <- paste0("aes(x=", x.id)
   if (! is.null(y.id)) {
@@ -178,7 +178,7 @@ ggOptPalette <- function(p, scale.to="colour", scale.type=NULL, palette=NULL,
 # breaks=c(start, 10, 100, ...), default start=c(0.1, 1) in get_breaks_positive_values.
 # 2) breaks.interval > 0, seq(interval.min, interval.max, breaks.interval)
 ggOptScaleAxis <- function(p, axis="y", scale="continuous", trans="identity", 
-                           expand=c(0,0), breaks=waiver(), labels=waiver(), 
+                           expand=waiver(), breaks=waiver(), labels=waiver(), 
                            auto.scale.max=NULL, breaks.start=c(0), verbose=TRUE) {
   if ( ! is.element(axis, c("x", "y")) )
     stop("Incorrect axis ", axis, ", use x or y !")
@@ -286,7 +286,7 @@ ggOptLegend <- function(p, legend.title.fill=NULL, legend.title.colour=NULL,
     if (verbose) 
       cat("no.legend = ", no.legend, "\n")
   }
-    
+  
   return(p)
 }
 
@@ -319,28 +319,27 @@ ggThemeOthers <- function(p, x.text=TRUE, y.text=TRUE, x.ticks=TRUE, y.ticks=TRU
     theme.string <- paste(theme.string, "axis.ticks.x = element_blank()", sep = ",")
   if (!y.ticks)
     theme.string <- paste(theme.string, "axis.ticks.y = element_blank()", sep = ",")
+  if (! is.null(plot.margin.cm)) 
+    theme.string <- paste0(theme.string, ", plot.margin=ggplot2::unit(c(", 
+                          paste(plot.margin.cm, collapse = ","), "), 'cm')")
   # default title in middle
   theme.string <- paste0(theme.string, ", plot.title = element_text(hjust=", title.hjust, ")", " )")
+  
   
   if (verbose)
     cat("theme : ", theme.string, "\n")
   
   p <- p + eval(parse(text = theme.string))
-  
-  if (! is.null(plot.margin.cm)) {
-    suppressMessages(suppressWarnings(require(grid)))
-    p <- p + theme(plot.margin=unit(plot.margin.cm,"cm"))
-  }
   return(p)
 }
 
 ggThemePanelBorder <- function(p, title.size=10) {
   p <- p + theme(plot.title = element_text(size = title.size), panel.grid.major = element_blank(), 
-          panel.grid.minor = element_blank(), panel.background = element_blank()) 
+                 panel.grid.minor = element_blank(), panel.background = element_blank()) 
   return(p)
 }
 
-# This funcion is broken in ggplot2, bug in axis.line
+# This is broken in ggplot2, bug in axis.line, use theme_set(theme_bw(base_size=8)) instead
 ggThemeAxis <- function(p, title.size=10) {
   p <- p + theme(plot.title = element_text(size = title.size), panel.grid.major = element_blank(), 
                  panel.grid.minor = element_blank(), panel.background = element_blank(), 

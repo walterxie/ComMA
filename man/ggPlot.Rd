@@ -57,7 +57,7 @@ ggScatterPlot(df, x.id, y.id, colour.id = NULL, text.colour.id = NULL,
   legend.direction = "vertical", title = "Scatter Plot", title.size = 10,
   title.hjust = 0.5, x.lab = NULL, y.lab = NULL, x.text = TRUE,
   y.text = TRUE, x.text.angle = 0, coord.flip = FALSE,
-  no.panel.border = FALSE, verbose = TRUE)
+  plot.margin.cm = NULL, no.panel.border = FALSE, verbose = TRUE)
 
 ggLineWithPoints(df, x.id, y.id, group.id = NULL, colour.id = NULL,
   shape.id = NULL, shapes = NULL, text.id = NULL, line.or.point = 3,
