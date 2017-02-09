@@ -210,7 +210,7 @@ ggBarChart <- function(df, x.id, y.id, fill.id=NULL,
 #' @keywords graph
 #' @export
 #' @examples
-#' ggHistogram(model.test.mac, x.id="performance", fill.id="model", x.text.angle=90)
+#' ggHistogram(model.test[model.test$performance<3,], x.id="performance", fill.id="model", binwidth=0.1, x.text.angle=90, verbose=F)
 #'  
 #' @rdname ggPlot
 ggHistogram <- function(df, x.id, fill.id=NULL, 

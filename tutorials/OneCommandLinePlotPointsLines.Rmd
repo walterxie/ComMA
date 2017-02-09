@@ -1,5 +1,5 @@
 ---
-title: "One Command Line Plot - Scatter Plot"
+title: "One Command Line Plot - Points and Lines"
 author: "Walter Xie"
 date: "09/02/2017"
 output:
@@ -54,8 +54,7 @@ ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="g
 Load the example data *reads.phyla*, where *x* is one of genetic marks, and the numbers are eDNA sequences (reads) identified as the phylum listed in *y*:
 
 ```{r reads.phyla}
-data(reads.phyla)
-reads.phyla[1:2,]
+
 ```
 
 Because the functions to compute NMDS *metaMDS*, PCoA *cmdscale*, and PCA *prcomp* take different input data, please make sure you give a valid input for different NMDS plots.
@@ -64,13 +63,8 @@ Because the functions to compute NMDS *metaMDS*, PCoA *cmdscale*, and PCA *prcom
 
 It is also known as principal coordinates analysis (Gower, 1966).
 
-```{r NMDS1, warning=FALSE}
-nmds <- gtNMDSPlot(df.clusters, colour.id="group", text.id="labels", text.or.point=1, text.repel=T) + 
-  expand_limits(x = c(-1, 1), y=c(-1, 1)) 
-plot(nmds)
-```
 
 
-
+## Line with points
 
 
