@@ -1,5 +1,5 @@
 ---
-title: "One Command Line Plot - The Rest"
+title: "One Command Line Plot - Bar Chart"
 author: "Walter Xie"
 date: "09/02/2017"
 output:
