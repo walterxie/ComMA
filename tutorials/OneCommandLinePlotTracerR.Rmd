@@ -1,0 +1,110 @@
+---
+title: "One Command Line Plot - Tracer R"
+author: "Walter Xie"
+date: "10/02/2017"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+One of the feature of [**ComMA**](http://github.com/walterxie/ComMA) package is to simplify [ggplot2](http://docs.ggplot2.org/current/) codes into one-line functions, and also to provide some other useful utility functions.
+
+```{r library, warning=FALSE}
+library(ComMA)
+#getwd()
+```
+
+## Load a MCMC log
+
+Load a MCMC log from *../data-raw/star.beast.log*, the default to move the 1st data column into *row.names*, but using <code>row.names=NULL</code> to automatically generate row names and keep the 1st column in the data object:
+
+```{r mcmc.log}
+mcmc.log <- readMCMCLog("../data-raw/star.beast.log")
+names(mcmc.log)
+```
+
+```{r mcmc.log2}
+mcmc.log$state <- as.double(rownames(mcmc.log))
+# remove burnin 10% 
+burnin <- nrow(mcmc.log) * 0.1
+mcmc.log <- mcmc.log[burnin:nrow(mcmc.log),]
+# too many points, take the first 100 after burnin
+mcmc.log100 <- mcmc.log[1:100, c("TreeHeight.Species", "state")]
+mcmc.log100[1:3,]
+```
+
+## Plot traces
+
+Plot the trace of the parameter *TreeHeight.Species*:
+
+```{r LineWithPoints1, warning=FALSE}
+lwp <- ggLineWithPoints(mcmc.log100, x.id="state", y.id="TreeHeight.Species", verbose=F)
+# turns off clipping
+gt.lwp <- unclip.ggplot(lwp) 
+plot(gt.lwp)
+```
+
+### Adjust line and points
+
+Show only line:
+
+```{r LineWithPoints2, warning=FALSE}
+ggLineWithPoints(mcmc.log100, x.id="state", y.id="TreeHeight.Species", line.or.point=1, verbose=F)
+```                 
+                 
+Show only points:
+
+```{r LineWithPoints3, warning=FALSE}
+ggLineWithPoints(mcmc.log100, x.id="state", y.id="TreeHeight.Species", line.or.point=2, 
+                 point.size=1, verbose=F)
+```
+
+## Kernel density estimate
+
+```{r mcmc.log3, message=FALSE}
+require(reshape2)
+df.melt <- melt(mcmc.log, id="state")
+# rename column "variable" to "parameters"
+colnames(df.melt)[which(names(df.melt) == "variable")] <- "parameters"
+# 3 TreeHeight
+df.TreeHeight <- df.melt[grep("TreeHeight", df.melt[,"parameters"]),]
+unique(df.TreeHeight$parameters)
+df.TreeHeight[1:3,]
+```
+
+KDE for 3 parameters having the "TreeHeight" keyword:
+
+```{r DensityEstimate1, warning=FALSE}
+ggDensityEstimate(df.TreeHeight, x.id="value", colour.id="parameters", verbose=F)
+```
+
+Fill in colour:
+
+```{r DensityEstimate2, warning=FALSE}
+ggDensityEstimate(df.TreeHeight, x.id="value", fill.id="parameters", colour.id="parameters", verbose=F)
+```
+
+Stacked density plot to lose marginal densities:
+
+```{r DensityEstimate3, warning=FALSE}
+ggDensityEstimate(df.TreeHeight, x.id="value", fill.id="parameters", density.pos="stack", density.alpha=1, verbose=F)
+```
+
+Conditional density plot to preserve marginal densities:
+
+```{r DensityEstimate4, warning=FALSE}
+ggDensityEstimate(df.TreeHeight, x.id="value", y.id="..count..", fill.id="parameters", density.pos="stack", density.alpha=1, verbose=F)
+```                  
+                  
+Percentage scale:
+
+```{r DensityEstimate5, warning=FALSE}
+ggDensityEstimate(df.TreeHeight, x.id="value", fill.id="parameters", density.pos="fill", density.alpha=1, verbose=F)        
+```                  
+                  
+                

@@ -49,6 +49,36 @@ ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", ellipsed.id="g
               title="Clusters", palette="Set1", verbose=F)
 ```
 
+<code>text.or.point</code> controls appearance of labels and points:
+
+* if 1, then display the texts only; 
+* if 2, then only points; 
+* if 3, the default, then both the texts and points. 
+
+For example, show only labels:
+
+```{r ScatterPlot3, warning=FALSE, message=FALSE}
+ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", text.id="labels", 
+              text.or.point=1, title="Clusters", palette="Set1", verbose=F)
+```
+
+<code>text.repel</code> uses *geom_text_repel* from *ggrepel* package to avoid overlapped texts. 
+It is better than <code>text.avoid.overlap</code>, where the latter sometime removes overlapped texts.
+
+```{r ScatterPlot4, warning=FALSE, message=FALSE}
+ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", text.id="labels", 
+              text.or.point=1, text.repel=T, title="Clusters (text.repel=T)", 
+              palette="Set1", verbose=F)
+```
+
+<code>text.avoid.overlap</code> uses *check_overlap* in *geom_text* from *ggplot2* package:
+
+```{r ScatterPlot5, warning=FALSE, message=FALSE}
+ggScatterPlot(df.clusters, x.id="x", y.id="y", colour.id="group", text.id="labels", 
+              text.or.point=1, text.avoid.overlap=T, title="Clusters (text.avoid.overlap=T)", 
+              palette="Set1", verbose=F)
+```
+
 ## Non-metric multidimensional scaling
 
 Load the example data *reads.phyla*, where *x* is one of genetic marks, and the numbers are eDNA sequences (reads) identified as the phylum listed in *y*:
@@ -63,8 +93,20 @@ Because the functions to compute NMDS *metaMDS*, PCoA *cmdscale*, and PCA *prcom
 
 It is also known as principal coordinates analysis (Gower, 1966).
 
+### PCoA using *cmdscale* 
+
+
+### PCA using *prcomp* 
+
+
 
 
 ## Line with points
+
+The basic tutorial of line with points is avaible in another tutorial [**Plot traces**](<https://cdn.rawgit.com/walterxie/ComMA/master/tutorials/OneCommandLinePlotPointsLines.html>) subsection.
+
+### Rarefaction curves for multi-sample
+
+
 
 

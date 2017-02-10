@@ -226,7 +226,8 @@ Default size to 3, alpha to 1.}
 in the same layer will not be plotted. Not recommended. Default to FALSE.}
 
 \item{text.repel}{Apply \code{\link{geom_text_repel}} in \pkg{ggrepel}.
-It is better than \code{text.avoid.overlap} which removes overlapped text.
+It is better than \code{text.avoid.overlap}, 
+where the latter sometime removes overlapped texts.
 Default to FALSE.}
 
 \item{scale.limits.min}{Manually set the minimum data range of the scale 
@@ -285,7 +286,9 @@ Default to FALSE.}
 or "legend" for discrete colour legend, or set "FALSE" to turn off legend. 
 See \code{\link{scale_fill_gradient}}.}
 
-\item{x.levels, y.levels}{The levels to order x or y.}
+\item{x.levels, y.levels}{The levels to order x or y. 
+The deafult y.levels=c() makes y labels sorted by alphabetical order, 
+but if y.levels is NA, there is no sorting applied.}
 
 \item{outlier.colour}{The colour of outliers in box whiskers plot 
 used for \code{outlier.colour} in \code{\link{geom_boxplot}}. 
@@ -381,7 +384,7 @@ ggBarChart(model.test.mac, x.id="test", y.id="performance", fill.id="model", x.t
 ggBarChart(model.test.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="stack")
 ggBarChart(model.test.mac, x.id="test", y.id="performance", fill.id="model", x.text.angle=90, bar.pos="fill", y.trans="per")
 
-ggHistogram(model.test.mac, x.id="performance", fill.id="model", x.text.angle=90)
+ggHistogram(model.test[model.test$performance<3,], x.id="performance", fill.id="model", binwidth=0.1, x.text.angle=90, verbose=F)
  
 # plot 2 clusters
 df.clusters <- random2Clusters()

@@ -139,7 +139,7 @@ This bar chart introduced in the supplymentary data of <https://doi.org/10.1186/
 
 ```{r y-xbar1, warning=FALSE}
 ggYAcrossXBar(reads.phyla[,1:6], terms=c("phyla", "datasets", "reads"), title="", 
-              x.lab="Number of datasets crossed", y.lab="Number of phyla/reads", verbose=F)
+              x.lab="Number of markers crossed", y.lab="Number of phyla/reads", verbose=F)
 ```
 
 

@@ -291,7 +291,8 @@ ggHistogram <- function(df, x.id, fill.id=NULL,
 #' @param xintercept,yintercept,linetype Add horizontal or vertical line. 
 #' Refer to \code{\link{geom_hline}} or \code{\link{geom_vline}}.
 #' @param text.repel Apply \code{\link{geom_text_repel}} in \pkg{ggrepel}.
-#' It is better than \code{text.avoid.overlap} which removes overlapped text.
+#' It is better than \code{text.avoid.overlap}, 
+#' where the latter sometime removes overlapped texts.
 #' Default to FALSE.
 #' @param text.avoid.overlap If TRUE, text that overlaps previous text 
 #' in the same layer will not be plotted. Not recommended. Default to FALSE.
@@ -569,7 +570,9 @@ ggLineWithPoints <- function(df, x.id, y.id, group.id=NULL, colour.id=NULL,
 #' @param add.label,label.digits \code{add.label} is logical, default to TRUE, 
 #' to add value into the tiles of heatmap. 
 #' \code{label.digits} determines the digit of the label.
-#' @param x.levels,y.levels The levels to order x or y.
+#' @param x.levels,y.levels The levels to order x or y. 
+#' The deafult y.levels=c() makes y labels sorted by alphabetical order, 
+#' but if y.levels is NA, there is no sorting applied.
 #' @param guide Type of legend. Use "colourbar" as default for continuous colour bar, 
 #' or "legend" for discrete colour legend, or set "FALSE" to turn off legend. 
 #' See \code{\link{scale_fill_gradient}}.
@@ -613,6 +616,8 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = 
     if (length(y.levels) != length(unique(df.melt[,melt.id])))
       warning("y.levels length != y unique values !")
     df.melt[,melt.id] <- factor(df.melt[,melt.id], ordered = TRUE, levels = y.levels)
+  } else if (anyNA(y.levels)) {
+    df.melt[,melt.id] <- factor(df.melt[,melt.id], levels=unique(df.melt[,melt.id]))
   } else {
     df.melt[,melt.id] <- factor(df.melt[,melt.id], levels=sort(unique(df.melt[,melt.id]), decreasing = T))
   }
@@ -668,7 +673,8 @@ ggHeatmap <- function(df.to.melt, melt.id, low="white", high="steelblue", mid = 
                                    name=legend.title, breaks=breaks, limits=limits, guide=guide) 
     }
   }
-  cat("The final breaks are : ", paste(breaks, collapse = ","), ".\n")
+  if (verbose)
+    cat("The final breaks are : ", paste(breaks, collapse = ","), ".\n")
   if (length(breaks) > 2 && length(unique(breaks)) <= 2)
     warning("breaks are not set properly ! Try breaks.digits = 2")
   
