@@ -8,14 +8,36 @@ Authors@R: c(person("Walter", "Xie", email = "walter@cs.auckland.ac.nz", role = 
 			person("Alexei", "Drummond", role = c("aut", "cph")))
 Description: Community Matrix Analysis
 Depends:
-    R (>= 3.2.3)
+    R (>= 3.0.0)
 License: GNU3
 LazyData: TRUE
 Imports:
-    tools,
-    vegan,
-    vegetarian,
-    cluster,
     ape,
-    picante
+    cluster,
+    clusterSim,
+    colorspace,
+    cowplot,
+    corrgram,
+    data.table,
+    gg1L,
+    ggdendro,
+    ggplot2 (>= 2.2.0),
+    ggrepel (>= 0.6.0),
+    glmnet,
+    grid,
+    gridExtra,
+    Matrix,
+    NeatMap,
+    picante,
+    plyr,
+    RColorBrewer,
+    reshape2,
+    scales,
+    tools,
+    vegan (>= 2.4.0),
+    vegetarian,
+    VIF,
+    xtable
 RoxygenNote: 5.0.1
+
+

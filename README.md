@@ -25,10 +25,10 @@ devtools::install_github("walterxie/ComMA")
 library("ComMA")
 ```
 
-##Tutorial
+##Tutorials
 
 It may take time to load the page from GitHub.
 
-1. [One-line plotting] (https://github.com/walterxie/ComMA/blob/master/tutorials/OneCommandLinePlot.ipynb)
+1. [One-line plotting] (https://github.com/walterxie/gg1L)
 
 2. [RDP + Greengenes vs. BLAST + MEGAN] (https://github.com/walterxie/ComMA/blob/master/tutorials/GreengenesVsBLAST.ipynb)
