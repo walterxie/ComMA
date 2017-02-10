@@ -8,7 +8,7 @@ The package contains functions to read, write, manipulate, visualize, analyse co
 such as taxonomy, environment variables, phylogenetic trees. The analyses aim to assessing diversities,
 finding primary effective metadata, discover the pattern of high related samples, etc.   
 
-This package also includes one-line plotting functions derived from ggplot.
+This package also import package [gg1L](https://github.com/walterxie/gg1L) providing one-line plotting functions.
 
 To see all exported functions:
 ```R
