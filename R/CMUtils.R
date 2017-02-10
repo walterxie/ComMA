@@ -268,6 +268,53 @@ cmYAcrossX <- function(community.matrix, terms=c("OTUs", "samples", "reads")) {
   return(cm.aggre)
 }
 
+#' Y Across X Bar Chart
+#'
+#' The bar chart shows the number of OTUs/reads in the bar,
+#' which simultaneously appeared at the number of samples in the value of x-axis.
+#' Given a data matrix whose structure is same as community matrix defined in \code{\link{ComMA}},
+#' this function uses \code{\link{cmYAcrossX}} to aggregate it into another abundance matrix,
+#' and uses \code{\link{ggBarChart}} to plot.
+#'
+#' @param community.matrix Community matrix (OTU table), where rows are
+#' OTUs or individual species and columns are sites or samples.
+#' @param terms The terms of matrix for x, y, and cells.
+#' Default to \code{c("OTUs", "samples", "reads")}.
+#' @param title Graph title
+#' @param x.lab,y.lab The label of x-axis or y-axis, such as plot names.
+#' @param low, high Refer to \pkg{ggplot2} \code{\link{scale_fill_gradient}}.
+#' Default to low="white", high="steelblue".
+#' @param autoWidth If TRUE, then use number of bars and legend columns
+#' to estimate pdf width automatically. Default to TRUE.
+#' @param ... Other arguments passed to \code{\link{ggBarChart}}.
+#' @keywords graph
+#' @export
+#' @examples
+#' community.matrix <- getCommunityMatrix("16S", isPlot=TRUE, minAbund=1)
+#' bar.yx <- ggYAcrossXBar(community.matrix)
+ggYAcrossXBar <- function(community.matrix, terms=c("OTUs", "samples", "reads"),
+                          title="The number of OTUs/reads across the number of samples",
+                          x.lab="Number of samples crossed", y.lab="Number of OTUs/reads",
+                          y.trans="log", auto.scale.y=TRUE, x.scale="discrete", x.interval=1,
+                          x.text.angle=0, legend.title="", ...) {
+  cm.aggre <- ComMA::cmYAcrossX(community.matrix, terms=terms)
+  suppressMessages(suppressWarnings(require(reshape2)))
+  y.term <- terms[2]
+  df <- melt(cm.aggre, id=y.term)
+  
+  if (x.scale=="discrete") {
+    df[,y.term] <- as.character(df[,y.term])
+    df[,y.term] <- factor(df[,y.term], unique(df[,y.term]))
+  }
+  
+  p <- gg1L::ggBarChart(df, x.id=y.term, y.id="value", fill.id="variable",
+                        y.trans=y.trans, auto.scale.y=auto.scale.y,
+                        title=title, x.lab=x.lab, y.lab=y.lab,
+                        x.text.angle=x.text.angle, x.scale=x.scale, x.interval=x.interval,
+                        legend.title=legend.title, ...)
+  
+  return(p)
+}
 
 
 #' @details \code{sumColumns} sums the columns by the \emph{n}th substring defined in column names.
