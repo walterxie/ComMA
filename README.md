@@ -10,6 +10,11 @@ finding primary effective metadata, discover the pattern of high related samples
 
 This package also import package [gg1L](https://github.com/walterxie/gg1L) providing one-line plotting functions.
 
+read introduction:
+```R
+package?ComMA
+```
+
 To see all exported functions:
 ```R
 help(package = "ComMA")
