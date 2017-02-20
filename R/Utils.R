@@ -48,27 +48,6 @@ prettyNumbers <- function(df, digits = 2, drop.0.tail=TRUE) {
   return(df)
 }
 
-#' Generate coordinates for 2 clusters. 
-#' 
-#' @source \url{http://stackoverflow.com/questions/2397097/how-can-a-data-ellipse-be-superimposed-on-a-ggplot2-scatterplot}.
-#' 
-#' @param n The number of points. Default to 100.
-#' @param seed An integer seed for \code{\link{set.seed}}. Default to 101.
-#' @keywords utils
-#' @export
-#' @examples 
-#' df.clusters <- random2Clusters()
-random2Clusters <- function(n=100, seed=101) {
-  #bootstrap
-  set.seed(seed)
-  x <- rnorm(n, mean=2)
-  y <- 1.5 + 0.4*x + rnorm(n)
-  df <- data.frame(x=x, y=y, group="A")
-  x <- rnorm(n, mean=2)
-  y <- 1.5*x + 0.4 + rnorm(n)
-  df <- rbind(df, data.frame(x=x, y=y, group="B"))
-}
-
 #' normalize given vector. 
 #' 
 #' @source \url{https://stat.ethz.ch/pipermail/r-help//2012-October/336676.html}.
