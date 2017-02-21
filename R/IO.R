@@ -12,9 +12,11 @@
 mkDir <- function(dir.path) {
   require(tools)
   if (!file.exists(dir.path)) {    
-    dir.create(dir.path)    
+    dir.create(dir.path)   
+    cat("Config : create folder", dir.path, "\n")
+  } else {
+    cat("Folder", dir.path, "exists.\n")
   }
-  cat("\nConfig : setup", dir.path, "\n")
 }
 
 #' Split a file path into folder names vector
