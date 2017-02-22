@@ -118,8 +118,9 @@ mkdir(pdFilePath)
 fileStem <- paste("16S", postfix(taxa.group, isPlot, sep="-"), sep = "-")
 printResult(pd.alpha, pd.mpd, pd.mntd, pd.beta.dist, pdFilePath, fileStem, tableFile)
 
-plotPDBeta(pd.beta.dist)
-pdf.plot(plot, fig.path="pd-beta.pdf", width=10, height=5)  
+library(pryr);library(gg1L)
+p \%<a-\% plotPDBeta(pd.beta.dist)
+gg1L::pdf.plot(p, fig.path="pd-beta.pdf", width=10, height=5)  
 
 }
 

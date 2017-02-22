@@ -7,7 +7,7 @@
 #' @description Redundancy Analysis using \pkg{vegan} 
 #' \code{\link{capscale}}.
 #' 
-#' @details \code{proceedRDA} makes Constrained Analysis 
+#' @details \code{doRDA} makes Constrained Analysis 
 #' of Principal Coordinates for 
 #' eDNA data sets given environmental variables.
 #' 
@@ -42,10 +42,10 @@
 #' tcm.env <- matchCMEnv(cm.prep, env.prep)
 #' 
 #' # 4. RDA
-#' rda <- proceedRDA(tcm.env$tcm, tcm.env$env)
+#' rda <- doRDA(tcm.env$tcm, tcm.env$env)
 #' 
 #' @rdname RDA
-proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
+doRDA <- function(tcm.or.dist, env, verbose=TRUE) {
   if (! all( tolower(rownames(env)) == tolower(rownames(as.matrix(tcm.or.dist))) ) ) 
     stop("Site names in community matrix and environmental data file not matched !")
   if (anyNA(env) || anyNA(tcm.or.dist)) 
@@ -163,7 +163,7 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
 
 #' @details \code{matchCMEnv} matches the sample names between 
 #' community matrix and the enviornmental meta-data including the order, 
-#' in order to provide the valid input to RDA analysis \code{proceedRDA}.
+#' in order to provide the valid input to RDA analysis \code{doRDA}.
 #' 
 #' Preprecessing can be applied by \code{\link{preprocessCM}} 
 #' and \code{\link{preprocessEnv}}.
@@ -238,12 +238,13 @@ plotCorrelations <- function(df.numeric, corr.gram=FALSE, cex.axis = 0.75,
 
 #' @details \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 #' 
-#' @param rda The list of results from \code{proceedRDA}.
+#' @param rda The list of results from \code{doRDA}.
 #' @param matrix.name The string to locate the matrix from its file name. 
 #' Only used for table name and label here.
 #' @param taxa.group The taxonomic group. Only used for table name and label here. 
 #' @param table.file If NULL, then print the results to console, 
 #' otherwise print them to the file. Default to NULL.
+#' @export
 #' @examples 
 #' printXTable.RDA(rda, table.file=NULL, matrix.name="16S", taxa.group="BACTERIA")
 #' 
@@ -254,7 +255,7 @@ printXTable.RDA <- function(rda, table.file=NULL, invalid.char=FALSE, matrix.nam
               caption = paste("Distance-based redundancy analysis and their ANOVA tests 
                               in each step for the eDNA biodiversity data sets", matrix.name, taxa.group), 
               label = paste("tab:rdaAnova", matrix.name, taxa.group, sep = ":"), file=table.file)
-  
+  cat("\n")
   ComMA::printXTable(rda$model.summary, invalid.char=invalid.char,
               caption = paste("The constrained and unconstrained inertia changes during 
           distance-based redundancy analysis for the eDNA biodiversity data sets", matrix.name, taxa.group), 

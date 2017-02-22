@@ -2,13 +2,13 @@
 % Please edit documentation in R/RedundancyAnalysis.R
 \name{RDA}
 \alias{RDA}
+\alias{doRDA}
 \alias{matchCMEnv}
 \alias{plotCorrelations}
 \alias{printXTable.RDA}
-\alias{proceedRDA}
 \title{Redundancy Analysis}
 \usage{
-proceedRDA(tcm.or.dist, env, verbose = TRUE)
+doRDA(tcm.or.dist, env, verbose = TRUE)
 
 matchCMEnv(cm, env, is.transposed = FALSE, verbose = TRUE)
 
@@ -42,7 +42,7 @@ numeric variables (columns) to plot.}
 \item{corr.gram}{Logical, if use \code{\link{corrgram}} 
 instead of \code{\link{plot}}.}
 
-\item{rda}{The list of results from \code{proceedRDA}.}
+\item{rda}{The list of results from \code{doRDA}.}
 
 \item{table.file}{If NULL, then print the results to console, 
 otherwise print them to the file. Default to NULL.}
@@ -57,13 +57,13 @@ Redundancy Analysis using \pkg{vegan}
 \code{\link{capscale}}.
 }
 \details{
-\code{proceedRDA} makes Constrained Analysis 
+\code{doRDA} makes Constrained Analysis 
 of Principal Coordinates for 
 eDNA data sets given environmental variables.
 
 \code{matchCMEnv} matches the sample names between 
 community matrix and the enviornmental meta-data including the order, 
-in order to provide the valid input to RDA analysis \code{proceedRDA}.
+in order to provide the valid input to RDA analysis \code{doRDA}.
 
 Preprecessing can be applied by \code{\link{preprocessCM}} 
 and \code{\link{preprocessEnv}}.
@@ -96,7 +96,7 @@ sapply(env, class)
 tcm.env <- matchCMEnv(cm.prep, env.prep)
 
 # 4. RDA
-rda <- proceedRDA(tcm.env$tcm, tcm.env$env)
+rda <- doRDA(tcm.env$tcm, tcm.env$env)
 
 tcm.env <- matchCMEnv(tcm, env, is.transposed=T)
 # Note colSums(cm) are based on samples
