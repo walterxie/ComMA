@@ -316,7 +316,7 @@ plotClusterAbundence <- function(data, data.cluster, fig.path=NA, cluster.colour
   
   # TODO: cannot order by cluster and median in one data frame
   plot.list <- list()
-  require(ggplot2)
+  require(gg1L)
   for (cl in sort(unique(data.cluster))) {
     gg <- da.cl.melt[da.cl.melt$cluster==cl,]
     cat("Cluster", cl, "samples:", paste(rownames(da.cl[da.cl$cluster==cl,]), collapse = ", "), ".\n") 
@@ -331,13 +331,13 @@ plotClusterAbundence <- function(data, data.cluster, fig.path=NA, cluster.colour
     else
       cl.col <- NULL
     
-    p <- ComMA::ggBoxWhiskersPlot(gg, x.id="variable", y.id="value", fill.id="cluster",
+    p <- gg1L::ggBoxWhiskersPlot(gg, x.id="variable", y.id="value", fill.id="cluster",
                                   palette=cl.col, scale.type="manual",
                                   x.lab=x.lab, y.lab=y.lab, title=paste("Cluster", cl), 
                                   x.text.angle=90, no.legend="fill")
     plot.list[[cl]] <- p
     if(!is.na(fig.path))
-      pdf.ggplot(p, fig.path = file.path(fig.path, paste0("enterotype-",k,"-",cl,".pdf")), width=width, height=height)
+      gg1L::pdf.ggplot(p, fig.path = file.path(fig.path, paste0("enterotype-",k,"-",cl,".pdf")), width=width, height=height)
   }
   return(plot.list)
 }
@@ -453,13 +453,13 @@ plotSamples <- function(points.df, attr.data=data.frame(), fig.path=NA, addLabel
   } else {
     text.id=NULL
   }
-  
-  p <- ComMA::ggScatterPlot(points.df, x.id=x.id, y.id=y.id, colour.id=colour.id, ellipsed.id=ellipsed.id,
+  require(gg1L)
+  p <- gg1L::ggScatterPlot(points.df, x.id=x.id, y.id=y.id, colour.id=colour.id, ellipsed.id=ellipsed.id,
                             shape.id=shape.id, text.id=text.id, text.colour.id=text.colour.id, 
                             palette=palette, title=title, xintercept=0, yintercept=0, verbose=verbose, ...)
-  gt <- unclip.ggplot(p)  
+  gt <- gg1L::unclip.ggplot(p)  
   if(!is.na(fig.path))
-    pdf.gtable(gt, fig.path=file.path(fig.path, paste0(prefix, k,".pdf")), width=width, height=height) 
+    gg1L::pdf.gtable(gt, fig.path=file.path(fig.path, paste0(prefix, k,".pdf")), width=width, height=height) 
   return(p)
 }
 

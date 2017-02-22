@@ -214,8 +214,9 @@ printResult <- function(pd.alpha=NULL, pd.mpd=NULL, pd.mntd=NULL, pd.beta.dist=N
 #' @details \code{plotPDBeta} plots the dendrogram of phylogenetic beta diversity (Steven Kembel)
 #' @export
 #' @examples 
-#' plotPDBeta(pd.beta.dist)
-#' pdf.plot(plot, fig.path="pd-beta.pdf", width=10, height=5)  
+#' library(pryr);library(gg1L)
+#' p %<a-% plotPDBeta(pd.beta.dist)
+#' gg1L::pdf.plot(p, fig.path="pd-beta.pdf", width=10, height=5)  
 #' 
 #' @rdname CommunityPhyloStru
 plotPDBeta <- function(pd.beta.dist, title="Phylogenetic beta diversity", xlab="", sub ="", ...) {

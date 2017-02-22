@@ -158,6 +158,7 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
   if (is.null(legend.title))
     legend.title <- group.rank
   require(ggplot2)
+  require(gg1L)
   p <- ggplot(z) +  
     geom_point(data = z[z$variable == "count.1",], aes(x = taxa, y = value, colour = group), shape = 1, size = 2) +
     geom_point(data = z[z$variable == "sum.1",], aes(x = taxa, y = value, colour = group), shape = 5, size = 2, show.legend = NA)
@@ -169,10 +170,10 @@ plotTaxonomy <- function(all.counts.sums, taxa.ref=ComMA::taxa.ref.PLOSONE.2015,
   p <- p + geom_line(data = z, aes(x = taxa, y = value, group=interaction(taxa, gene), colour = group), size = 0.5, alpha = 0.5) +
     facet_grid( ~ gene) + guides(fill = guide_legend(reverse = FALSE)) +
     coord_flip() + theme_bw() + ylab(y.lab) + xlab(x.lab) + labs(colour=legend.title) + ggtitle(title) +
-    scale_y_log10(breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000), label=ComMA::scientific_10)
+    scale_y_log10(breaks = c(1, 10, 100, 1000, 10000, 100000, 1000000), label=gg1L::scientific_10)
   
   #scale_color_manual(values = pal(length(unique(z$group)))) +
-  p <- ggOptPalette(p, palette=palette, verbose=verbose)
+  p <- gg1L::ggOptPalette(p, palette=palette, verbose=verbose)
   
   p <- p + theme(strip.background = element_blank(), plot.title = element_text(size = title.size),
                  #plot.margin=unit(c(0.2,0.5,0.2,0.8), "cm"), panel.margin = unit(0.8, "lines"), 

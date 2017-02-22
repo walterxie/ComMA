@@ -111,7 +111,8 @@ combineTriMatrix <- function(tri.m1, tri.m2) {
 #' @rdname UtilsCombine 
 nmdsTriMatrix <- function(tri.m, text.or.point=1, text.size=5, text.repel=T, 
                           title="NDMS plot", title.add.stress=F, ...) {
-  nmds <- ComMA::ggNMDSPlot(dist(tri.m), text.or.point=text.or.point, text.size=text.size, 
+  require(gg1L)
+  nmds <- gg1L::ggNMDSPlot(dist(tri.m), text.or.point=text.or.point, text.size=text.size, 
                             text.repel=text.repel, title=title, title.add.stress=title.add.stress, 
                             title.hjust=0.5, ...) 
   return(nmds)
@@ -147,7 +148,8 @@ plotCombinedTriMatrix <- function(tri.m1.m2, label.digits=3, lower.lim=NA, upper
   tri.m1.m2$dataset <- rownames(tri.m1.m2)
   tri.m1.m2[tri.m1.m2==0] <- NA
   
-  p.hm <- ComMA::ggHeatmap(tri.m1.m2, melt.id="dataset", title=title, legend.title=legend.title, 
+  require(gg1L)
+  p.hm <- gg1L::ggHeatmap(tri.m1.m2, melt.id="dataset", title=title, legend.title=legend.title, 
                            x.levels=data.levels, y.levels=rev(data.levels), label.digits=label.digits,
                            high = high, mid = mid, low = low, 
                            midpoint = mean(c(lower.lim, upper.lim)), limit = c(lower.lim, upper.lim), 

@@ -230,8 +230,8 @@ ggDiverRare <- function(diver.rare, multi.cm=FALSE, diversity=c(),
 #  if (multi.cm)
 #    melt.df[,colour.id] <- factor(melt.df[,colour.id], levels = sort(unique(melt.df[,colour.id])))
   
-  require(ComMA)
-  gg.plot <- ComMA::ggLineWithPoints(melt.df, x.id=melt.id, y.id="value", 
+  require(gg1L)
+  gg.plot <- gg1L::ggLineWithPoints(melt.df, x.id=melt.id, y.id="value", 
                                      group.id=group.id, colour.id=colour.id, 
                                      point.size=point.size, line.or.point=line.or.point,
                                      x.scale="continuous", x.facet.id="variable", facet.scales="free",

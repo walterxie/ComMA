@@ -254,12 +254,13 @@ plotPrioritisation <- function(pp.df.list, at=c("rank","diversity"), x.levels=c(
   if (is.null(names(rank.df.list)))
     names(rank.df.list) <- 1:length(rank.df.list)
   
+  require(gg1L)
   heatmap.list <- list()
   for (i in 1:length(rank.df.list)) {
     pp.df <- rank.df.list[[i]]
     midpoint <- round(mean(c(max(pp.df), min(pp.df))))
     pp.df[,"samples"] <- rownames(pp.df)
-    p.hm <- ComMA::ggHeatmap(pp.df, melt.id="samples", title="", x.levels=x.levels, y.levels=y.levels, 
+    p.hm <- gg1L::ggHeatmap(pp.df, melt.id="samples", title="", x.levels=x.levels, y.levels=y.levels, 
                              add.label=add.label, label.digits=label.digits, guide=guide,
                              midpoint=midpoint, low="#f46d43", mid="#ffffbf", high="#3288bd" )
     heatmap.list[[names(rank.df.list)[i]]] <- p.hm
