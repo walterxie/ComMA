@@ -11,6 +11,13 @@
 #' of Principal Coordinates for 
 #' eDNA data sets given environmental variables.
 #' 
+#' @note Make sure you are using the correct data type 
+#' for both the community matrix and enviornmental meta-data.
+#' Run \code{sapply(env, class)} to check if the value 
+#' should be discrete(character) or numeric. 
+#' \code{\link{convertType}} will convert data frame columns 
+#' to different type easily.
+#' 
 #' @param tcm.or.dist A transposed community matrix 
 #' or dist object of distances between samples. 
 #' Rows are samples.
@@ -22,12 +29,27 @@
 #' @keywords rda
 #' @export
 #' @examples 
-#' rda <- proceedRDA(tcm.or.dist, env)
+#' # 1. get the community matrix and enviornmental meta-data
+#' cm <- getCommunityMatrix("16S", min2=T, by.plot=F)
+#' env <- getEnvData(by.plot=F)
+#' 
+#' # 2. preprocessing
+#' cm.prep <- preprocessCM(cm, rm.samples=c("CM30b51","CM30b58"), min.abund=5, mean.abund.thr=0.025) 
+#' env.prep <- preprocessEnv(env, rm.samples=c("CM30b51","CM30b58"), log.var=c(14:20), sel.env.var=c(4,5,8,9,14:22))
+#' sapply(env, class)
+#'  
+#' # 3. match samples and transpose cm
+#' tcm.env <- matchCMEnv(cm.prep, env.prep)
+#' 
+#' # 4. RDA
+#' rda <- proceedRDA(tcm.env$tcm, tcm.env$env)
 #' 
 #' @rdname RDA
 proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
   if (! all( tolower(rownames(env)) == tolower(rownames(as.matrix(tcm.or.dist))) ) ) 
     stop("Site names in community matrix and environmental data file not matched !")
+  if (anyNA(env) || anyNA(tcm.or.dist)) 
+    stop("Cannot handle NA in community matrix or environmental data for RDA !")
   
   require(vegan)
   #require(VIF)
@@ -51,6 +73,7 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
   
   rda_table$Inertia <- c(round(rda_1$CCA$tot.chi, 3), round(rda_1$CA$tot.chi, 3))
   rda_table$Proportion <- c(rda_1$CCA$tot.chi/rda_1$tot.chi, rda_1$CA$tot.chi/rda_1$tot.chi)
+  require(scales)
   rda_table$Proportion <- percent(rda_table$Proportion) # %
   
   constrained_inertia <- c()
@@ -138,52 +161,33 @@ proceedRDA <- function(tcm.or.dist, env, verbose=TRUE) {
 }
 
 
-#' @details \code{mergeCMEnv} subsets variables and samples to 
-#' be included in analysis \code{proceedRDA}.
-#' It is required that samples in community matrix must match 
-#' the enviornmental meta-data, including the order. 
-#' Teh function does not handle dist object of distances.
+#' @details \code{matchCMEnv} matches the sample names between 
+#' community matrix and the enviornmental meta-data including the order, 
+#' in order to provide the valid input to RDA analysis \code{proceedRDA}.
+#' 
+#' Preprecessing can be applied by \code{\link{preprocessCM}} 
+#' and \code{\link{preprocessEnv}}.
 #' 
 #' @param cm A community matrix. 
 #' @param is.transposed If TRUE, then the community matrix is already
 #' transposed to be the valid input of \code{\link{vegdist}}.  
 #' Default to FASLE.
-#' @param rm.samples Remove specified samples in a vector, 
-#' it can be a keyword shared in sample names.
-#' The vector will convert to a string separated by '|' to multi-samples. 
-#' Default to empty vector to do nothing.
-#' @param min.abund Exclude any samples with excessively 
-#' low abundance. Defaul 0 to exaclude none.
-#' The code is \code{tcm <- tcm[rowSums(tcm) > min.abund, ]}. 
-#' @param sel.env.var The vector of selected environmental variables, 
-#' which can be colnames(env) or their indices. 
-#' Defaul to an empty vector to choose all variables.
-#' @param log.var,log.base It normally needs log transform to soil chemistry variables.
-#' Use \code{\link{plotCorrelations}} to visualize variables and determine 
-#' whether log transform should be applied. Default to no log transform. 
 #' @export
 #' @examples 
-#' tcm.env <- mergeCMEnv(tcm, env, is.transposed=T)
+#' tcm.env <- matchCMEnv(tcm, env, is.transposed=T)
 #' # Note colSums(cm) are based on samples
-#' tcm.env <- mergeCMEnv(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=5, mean.abund.thr=0.025)
+#' tcm.env <- matchCMEnv(cm, env)
 #' 
 #' @rdname RDA
-mergeCMEnv <- function(cm, env, is.transposed=FALSE, prep.cm=FALSE, rm.samples=c(), 
-                       min.abund=5, mean.abund.thr=0.025, prep.env=FALSE, sel.env.var=c(), 
-                       log.var=c(), log.base=2) {
-  if (prep.cm)
-    cm <- ComMA::preprocessCM(cm, rm.samples=rm.samples, min.abund=min.abund, mean.abund.thr=mean.abund.thr)
-  
-  if (!is.transposed) {
-    print(ComMA::summaryCM(cm))
+matchCMEnv <- function(cm, env, is.transposed=FALSE, verbose=TRUE) {
+  if (!is.transposed) 
     tcm <- ComMA::transposeDF(cm)
-  } else {
-    print(ComMA::summaryCM(t(cm)))
+  else 
     tcm <- cm
-  } 
   
-  if (prep.env)
-    env <- ComMA::preprocessEnv(env, sel.env.var=sel.env.var, log.var=log.var, log.base=log.base)
+  if (verbose)
+    cat("Before matching, tcm has", nrow(tcm), "samples,", ncol(tcm), "OTUs; env has", 
+        nrow(env), "samples,", ncol(env), "enviornmental variables.\n")
   
   if (! all( tolower(rownames(env)) == tolower(rownames(tcm)) ) ) { # Rows don't match
     both <- intersect(rownames(tcm), rownames(env)) # Matching rows
@@ -197,7 +201,7 @@ mergeCMEnv <- function(cm, env, is.transposed=FALSE, prep.cm=FALSE, rm.samples=c
       cat("Drop samples not present in env : ", paste(setdiff(rownames(env), both), collapse = ","), "\n")
     env <- env[match(both, rownames(env)),] 
   }
-  cat("After preprocessing, tcm has", nrow(tcm), "samples,", ncol(tcm), "OTUs; env has", 
+  cat("After matching, tcm has", nrow(tcm), "samples,", ncol(tcm), "OTUs; env has", 
       nrow(env), "samples,", ncol(env), "enviornmental variables.\n\n")
   # replace invalid char for formula  
   colnames(env) <- gsub("-", ".", colnames(env))

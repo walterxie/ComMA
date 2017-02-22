@@ -89,7 +89,8 @@ transposeDF <- function(community.matrix, to.numeric=TRUE) {
 #' 
 #' @rdname utilsCM
 preprocessCM <- function(cm, rm.samples=c(), min.abund=5, mean.abund.thr=0.025) {
-  cm <- as.data.frame(cm)
+  # make sure all numeric
+  cm <- ComMA::convertType(cm)
   # remove specified samples, it can be keywords.
   if (length(rm.samples) > 0) {
     rm <- paste(rm.samples, collapse = "|")
@@ -102,8 +103,9 @@ preprocessCM <- function(cm, rm.samples=c(), min.abund=5, mean.abund.thr=0.025) 
   if (min.abund > 0 || mean.abund.thr > 0) {
     n.samples <- ncol(cm)
     max.thr <- max(min.abund, mean(colSums(cm))*mean.abund.thr)
+    # Exclude any samples with fewer than x OTUs, or with excessively low abundance
     cm <- cm[, colSums(cm) > max.thr]
-    cm <- cm[rowSums(cm) > 0, ] # Exclude any empty row 
+    cm <- cm[rowSums(cm) > 0, ] # Exclude any empty OTU 
     cat("Drop", n.samples-ncol(cm), "samples with low abundance <= ", max.thr, "\n") 
   }
   return(cm) 
@@ -114,18 +116,21 @@ preprocessCM <- function(cm, rm.samples=c(), min.abund=5, mean.abund.thr=0.025) 
 #' 
 #' @param env The enviornmental meta-data, where rows are samples 
 #' and columns are enviornmental variables.
-#' @param sel.env.var The vector of selected environmental variables, 
-#' which can be colnames(env) or their indices. 
+#' @param sel.env.var The vector of selected environmental variables 
+#' to output, which can be colnames(env) or their indices. 
 #' Defaul to an empty vector to choose all variables.
-#' @param log.var,log.base It normally needs log transform to soil chemistry variables.
+#' @param log.var,log.base The vector of selected environmental variables 
+#' to log. They are the same or a subset of indices or names used in 
+#' \code{sel.env.var}.
+#' It normally needs log transform to soil chemistry variables.
 #' Use \code{\link{plotCorrelations}} to visualize variables and determine 
 #' whether log transform should be applied. Default to no log transform. 
 #' @export
 #' @examples 
-#' env <- preprocessEnv(env, sel.env.var=c(4,5,8,9,14:22), log.var=c(5:8,9:11))
+#' env <- preprocessEnv(env, log.var=c(5:8,9:11), sel.env.var=c(4,5,8,9,14:22))
 #' 
 #' @rdname utilsCM
-preprocessEnv <- function(env, rm.samples=c(), sel.env.var=c(), log.var=c(), log.base=2) {
+preprocessEnv <- function(env, rm.samples=c(), log.var=c(), sel.env.var=c(), log.base=2) {
   # remove specified samples, it can be keywords.
   if (length(rm.samples) > 0) {
     rm <- paste(rm.samples, collapse = "|")
@@ -133,17 +138,17 @@ preprocessEnv <- function(env, rm.samples=c(), sel.env.var=c(), log.var=c(), log
     env <- env[!grepl(rm, rownames(env), ignore.case = T), ]
     cat("Drop", n.samples-nrow(env), "samples containing : ", paste(rm.samples, collapse = ","), "\n") 
   }
-  # select environmental variables
-  if (length(sel.env.var) > 0) {
-    env <- env[, sel.env.var]
-    cat("Select", length(sel.env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
-  }
-  # select environmental variables
+  # log transform chem variables
   if (length(log.var) > 0) {
     env[,log.var] <- log(env[,log.var], log.base)
     env[env == "-Inf"] <- 0 # Replace inf with zero
     cat("Log transform", length(log.var), "variables : ", paste(colnames(env[,log.var]), collapse = ","), 
         "at base", log.base, "\n") 
+  }
+  # select environmental variables
+  if (length(sel.env.var) > 0) {
+    env <- env[, sel.env.var]
+    cat("Select", length(sel.env.var), "environmental variables : ", paste(colnames(env), collapse = ","), "\n") 
   }
   return(env)
 }

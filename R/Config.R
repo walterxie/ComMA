@@ -14,7 +14,7 @@ installAllPackages <- function() {
   ###CommunityPhyloStru
   install.packages(c("ape", "picante", "plyr"))
   ###RDA
-  install.packages(c("VIF", "scales", "corrgram", "pryr"))
+  install.packages(c("VIF", "fmsb", "scales", "corrgram", "pryr"))
   ###lasso
   install.packages(c("glmnet"))
 }

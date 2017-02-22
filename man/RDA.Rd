@@ -2,7 +2,7 @@
 % Please edit documentation in R/RedundancyAnalysis.R
 \name{RDA}
 \alias{RDA}
-\alias{mergeCMEnv}
+\alias{matchCMEnv}
 \alias{plotCorrelations}
 \alias{printXTable.RDA}
 \alias{proceedRDA}
@@ -10,9 +10,7 @@
 \usage{
 proceedRDA(tcm.or.dist, env, verbose = TRUE)
 
-mergeCMEnv(cm, env, is.transposed = FALSE, prep.cm = FALSE,
-  rm.samples = c(), min.abund = 5, mean.abund.thr = 0.025,
-  prep.env = FALSE, sel.env.var = c(), log.var = c(), log.base = 2)
+matchCMEnv(cm, env, is.transposed = FALSE, verbose = TRUE)
 
 plotCorrelations(df.numeric, corr.gram = FALSE, cex.axis = 0.75,
   cex.cor = 0.9, col = "#333333")
@@ -37,23 +35,6 @@ are valid to \code{\link{formula}}.}
 \item{is.transposed}{If TRUE, then the community matrix is already
 transposed to be the valid input of \code{\link{vegdist}}.  
 Default to FASLE.}
-
-\item{rm.samples}{Remove specified samples in a vector, 
-it can be a keyword shared in sample names.
-The vector will convert to a string separated by '|' to multi-samples. 
-Default to empty vector to do nothing.}
-
-\item{min.abund}{Exclude any samples with excessively 
-low abundance. Defaul 0 to exaclude none.
-The code is \code{tcm <- tcm[rowSums(tcm) > min.abund, ]}.}
-
-\item{sel.env.var}{The vector of selected environmental variables, 
-which can be colnames(env) or their indices. 
-Defaul to an empty vector to choose all variables.}
-
-\item{log.var, log.base}{It normally needs log transform to soil chemistry variables.
-Use \code{\link{plotCorrelations}} to visualize variables and determine 
-whether log transform should be applied. Default to no log transform.}
 
 \item{df.numeric}{The data frame or matrix containing 
 numeric variables (columns) to plot.}
@@ -80,11 +61,12 @@ Redundancy Analysis using \pkg{vegan}
 of Principal Coordinates for 
 eDNA data sets given environmental variables.
 
-\code{mergeCMEnv} subsets variables and samples to 
-be included in analysis \code{proceedRDA}.
-It is required that samples in community matrix must match 
-the enviornmental meta-data, including the order. 
-Teh function does not handle dist object of distances.
+\code{matchCMEnv} matches the sample names between 
+community matrix and the enviornmental meta-data including the order, 
+in order to provide the valid input to RDA analysis \code{proceedRDA}.
+
+Preprecessing can be applied by \code{\link{preprocessCM}} 
+and \code{\link{preprocessEnv}}.
 
 \code{plotCorrelations} plots numeric variables (columns).
 
@@ -92,12 +74,33 @@ Tip: use \code{\link{"\%<a-\%"}} in \pkg{pryr} to save plots.
 
 \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 }
+\note{
+Make sure you are using the correct data type 
+for both the community matrix and enviornmental meta-data.
+Run \code{sapply(env, class)} to check if the value 
+should be discrete(character) or numeric. 
+\code{\link{convertType}} will convert data frame columns 
+to different type easily.
+}
 \examples{
-rda <- proceedRDA(tcm.or.dist, env)
+# 1. get the community matrix and enviornmental meta-data
+cm <- getCommunityMatrix("16S", min2=T, by.plot=F)
+env <- getEnvData(by.plot=F)
 
-tcm.env <- mergeCMEnv(tcm, env, is.transposed=T)
+# 2. preprocessing
+cm.prep <- preprocessCM(cm, rm.samples=c("CM30b51","CM30b58"), min.abund=5, mean.abund.thr=0.025) 
+env.prep <- preprocessEnv(env, rm.samples=c("CM30b51","CM30b58"), log.var=c(14:20), sel.env.var=c(4,5,8,9,14:22))
+sapply(env, class)
+ 
+# 3. match samples and transpose cm
+tcm.env <- matchCMEnv(cm.prep, env.prep)
+
+# 4. RDA
+rda <- proceedRDA(tcm.env$tcm, tcm.env$env)
+
+tcm.env <- matchCMEnv(tcm, env, is.transposed=T)
 # Note colSums(cm) are based on samples
-tcm.env <- mergeCMEnv(cm, env, rm.samples=c("CM30b51","CM30b58"), min.abund=5, mean.abund.thr=0.025)
+tcm.env <- matchCMEnv(cm, env)
 
 # before RDA
 require(pryr)

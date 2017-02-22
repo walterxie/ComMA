@@ -17,7 +17,7 @@ transposeDF(community.matrix, to.numeric = TRUE)
 
 preprocessCM(cm, rm.samples = c(), min.abund = 5, mean.abund.thr = 0.025)
 
-preprocessEnv(env, rm.samples = c(), sel.env.var = c(), log.var = c(),
+preprocessEnv(env, rm.samples = c(), log.var = c(), sel.env.var = c(),
   log.base = 2)
 
 spilt.df(community.matrix, spilt.to = 2, MARGIN = 1, verbose = TRUE)
@@ -56,13 +56,16 @@ The final threshold takes the maximun value of
 \item{env}{The enviornmental meta-data, where rows are samples 
 and columns are enviornmental variables.}
 
-\item{sel.env.var}{The vector of selected environmental variables, 
-which can be colnames(env) or their indices. 
-Defaul to an empty vector to choose all variables.}
-
-\item{log.var, log.base}{It normally needs log transform to soil chemistry variables.
+\item{log.var, log.base}{The vector of selected environmental variables 
+to log. They are the same or a subset of indices or names used in 
+\code{sel.env.var}.
+It normally needs log transform to soil chemistry variables.
 Use \code{\link{plotCorrelations}} to visualize variables and determine 
 whether log transform should be applied. Default to no log transform.}
+
+\item{sel.env.var}{The vector of selected environmental variables 
+to output, which can be colnames(env) or their indices. 
+Defaul to an empty vector to choose all variables.}
 
 \item{spilt.to}{The number of sub-data-frame to spilt. It must >= 2.
 Default to 2.}
@@ -115,7 +118,7 @@ t.community.matrix <- transposeDF(community.matrix)
 
 cm <- preprocessCM(cm, rm.samples=c("CM30b51","CM30b58"))
 
-env <- preprocessEnv(env, sel.env.var=c(4,5,8,9,14:22), log.var=c(5:8,9:11))
+env <- preprocessEnv(env, log.var=c(5:8,9:11), sel.env.var=c(4,5,8,9,14:22))
 
 cm.list <- spiltCM(community.matrix)
 

@@ -19,6 +19,7 @@ Imports:
     cowplot,
     corrgram,
     data.table,
+    fmsb,
     gg1L,
     ggdendro,
     ggplot2 (>= 2.2.0),
@@ -36,7 +37,6 @@ Imports:
     tools,
     vegan (>= 2.4.0),
     vegetarian,
-    VIF,
     xtable
 RoxygenNote: 5.0.1
 
