@@ -1,12 +1,15 @@
 Package: ComMA
 Type: Package
 Title: Community Matrix Analysis
-Date: 2016-05-29
-Version: 0.0.0.9000
+Date: 2017-02-22
+Version: 0.1.0
 Authors@R: c(person("Walter", "Xie", email = "walter@cs.auckland.ac.nz", role = c("aut", "cre", "cph")),
 			person("Andrew", "Dopheide", role = c("aut")),
 			person("Alexei", "Drummond", role = c("aut", "cph")))
-Description: Community Matrix Analysis
+Description: This package contains functions to read, write, manipulate, visualize, 
+analyse community data and its meta data, such as taxonomy, environment variables, phylogenetic trees. 
+The analyses aim to assessing diversities, finding primary effective metadata, 
+discover the pattern of high related samples, etc.   
 Depends:
     R (>= 3.3.1)
 License: GNU3
