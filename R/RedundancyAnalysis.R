@@ -245,13 +245,18 @@ plotCorrelations <- function(df.numeric, corr.gram=FALSE, cex.axis = 0.75,
 }
 
 #' @details \code{plotRDA} plots a ordination result from \code{doRDA}.
+#' However, there are still two columns "Plot" and "shortIDs" in the 
+#' intermediate data "sites" hard coded to be able to make shorter texts.
+#' \code{sites$Plot <- gsub("-[A-Z]", "", rownames(sites))} and  
+#' \code{sites$shortIDs <- gsub("(CM30|CM31|Plot)", "", rownames(sites))}
+#' This is expecting to be improved in future.
 #' 
 #' @param rda The ordination result from \code{doRDA}.
 #' @param colour.id The column name in \code{env} to colour points and texts.
 #' @param title,x.lab,y.lab Title, x, y label.
 #' @param palette Refer to \code{\link{ggOptPalette}} in \pkg{gg1L}. 
 #' Default to c("blue", "orange").
-#' @param no.legend,legend.title Configure legend
+#' @param no.legend,legend.title Configure legend.
 #' @param scale.limits.min Manually set the minimum data range of the colour scale, 
 #' for example, in legend. The code set \code{limits} in \code{\link{discrete_scale}}
 #' to \code{c(scale.limits.min, max(df[,colour.id]))}.

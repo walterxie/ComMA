@@ -94,6 +94,11 @@ and \code{\link{preprocessEnv}}.
 Tip: use \code{\link{"\%<a-\%"}} in \pkg{pryr} to save plots.
 
 \code{plotRDA} plots a ordination result from \code{doRDA}.
+However, there are still two columns "Plot" and "shortIDs" in the 
+intermediate data "sites" hard coded to be able to make shorter texts.
+\code{sites$Plot <- gsub("-[A-Z]", "", rownames(sites))} and  
+\code{sites$shortIDs <- gsub("(CM30|CM31|Plot)", "", rownames(sites))}
+This is expecting to be improved in future.
 
 \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 }
