@@ -331,12 +331,11 @@ plotRDA <- function(rda, env, colour.id="Elevation",
 #' 
 #' @rdname RDA
 printXTable.RDA <- function(rda, matrix.name="", taxa.group="", table.file=NULL, invalid.char=FALSE) {
-  
   ComMA::printXTable(rda$anova.summary, invalid.char=invalid.char,
               caption = paste("Distance-based redundancy analysis and their ANOVA tests 
                               in each step for the eDNA biodiversity data sets", matrix.name, taxa.group), 
               label = paste("tab:rdaAnova", matrix.name, taxa.group, sep = ":"), file=table.file)
-  cat("\n")
+
   ComMA::printXTable(rda$model.summary, invalid.char=invalid.char,
               caption = paste("The constrained and unconstrained inertia changes during 
           distance-based redundancy analysis for the eDNA biodiversity data sets", matrix.name, taxa.group), 

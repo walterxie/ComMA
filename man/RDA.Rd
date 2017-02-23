@@ -61,7 +61,7 @@ Default to c("blue", "orange").}
 for example, in legend. The code set \code{limits} in \code{\link{discrete_scale}}
 to \code{c(scale.limits.min, max(df[,colour.id]))}.}
 
-\item{no.legend, legend.title}{Configure legend}
+\item{no.legend, legend.title}{Configure legend.}
 
 \item{matrix.name}{The string to locate the matrix from its file name. 
 Only used for table name and label here.}
