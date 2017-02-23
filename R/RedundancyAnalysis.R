@@ -307,7 +307,7 @@ plotRDA <- function(rda, env, colour.id="Elevation",
 
   p <- gg1L::ggLabTitle(p, title=title, x.lab=x.lab, y.lab=y.lab)
   p <- gg1L::ggThemePanelBorder(p, title.size=8)
-  p <- gg1L::ggThemeOthers(p, plot.margin.cm=c(0,0.25,0.25,0)) + labs(colour=legend.title) 
+  p <- gg1L::ggThemeOthers(p, plot.margin.cm=c(0.25,0.25,0.1,0)) + labs(colour=legend.title) 
   
   legend <- gg1L::gLegend(p)  # Get legend
   
