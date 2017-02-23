@@ -44,6 +44,11 @@
 #' # 4. RDA
 #' rda <- doRDA(tcm.env$tcm, tcm.env$env)
 #' 
+#' # 5. result
+#' 
+#' printXTable.RDA(rda, matrix.name="16S", taxa.group="all")
+#' 
+#' 
 #' @rdname RDA
 doRDA <- function(tcm.or.dist, env, verbose=TRUE) {
   if (! all( tolower(rownames(env)) == tolower(rownames(as.matrix(tcm.or.dist))) ) ) 
@@ -236,6 +241,70 @@ plotCorrelations <- function(df.numeric, corr.gram=FALSE, cex.axis = 0.75,
   }
 }
 
+#' @details \code{plotRDA} plots a ordination result from \code{doRDA}.
+#' 
+#' 
+#' 
+#' @param rda The ordination result from \code{doRDA}.
+#' @export
+#' @examples 
+#'
+#' 
+#' plotRDA(rda)
+#' 
+#' @rdname RDA
+plotRDA <- function(rda, env, colour.id="Elevation", 
+                    title="Backward RDA, Jaccard distance", x.lab="", y.lab="", 
+                    palette=c("blue", "orange"), scale.limits.min=NULL, 
+                    no.legend=FALSE, legend.title="Elevation (m)", verbose=TRUE,...) {
+  sites <- as.data.frame(scores(rda, display = "wa"))
+  sites$Elevation <- env$Elevation[match(rownames(sites), rownames(env))]
+  sites$Plot <- gsub("-[A-Z]", "", rownames(sites)) 
+  sites$shortIDs <- gsub("(CM30|CM31|Plot)", "", rownames(sites))
+  biplots <- as.data.frame(scores(rda, display = "bp", scaling = "symmetric"))
+  biplots$x <- 0
+  biplots$y <- 0
+  biplots$lengths <- sqrt(biplots[,1]^2 + biplots[,2]^2) # Biplot arrow length
+  #if(colnames(biplots)[2] == "MDS1"){ # Glitch when only one variable identified? (Need to reverse angle calculation?)
+  #  biplots$angles <- atan2(biplots[,2], biplots[,1]) # Biplot arrow angle (radians)
+  #}else{
+  biplots$angles <- atan2(biplots[,2], biplots[,1]) # Biplot arrow angle (radians)
+  #}
+  #species <- as.data.frame(scores(rda, display = "sp"))  
+  #constraints <- as.data.frame(scores(rda, display = "lc"))
+  
+  require(ggplot2)
+  require(gg1L)
+  p <- ggplot(data = sites) + 
+    geom_point(aes_string(x = "sites[,1]", y = "sites[,2]", colour = colour.id), 
+               shape = 1, size = 2, alpha = 0.6) +
+    geom_text(data = sites, aes_string(x = "sites[,1]", y = "sites[,2]", label = "shortIDs", colour = colour.id), 
+              alpha = 0.6, vjust = 2.5, size = 2) +
+    #geom_polygon(data = sites, aes(x = CAP1, y = CAP2, mapping = Plot, colour = Elevation), alpha = 0.25) +
+    #geom_segment(data = biplots, aes(x = 0, xend = CAP1, y = 0, yend = CAP2),
+    #              arrow = arrow(length = unit(0.25, "cm")), colour="blue") +
+    geom_spoke(data = biplots, aes(x, y, angle = angles, radius = lengths*2), 
+               arrow = arrow(length = unit(0.25, "cm")), colour = "blue") +
+    geom_text(data = biplots, aes(x = biplots[,1]*2.2, y = biplots[,2]*2.2, label = rownames(biplots)), 
+              size = 4, colour = "blue", alpha = 0.75) 
+    
+  colour.limits <- NULL
+  if (!is.null(scale.limits.min))
+    colour.limits <- c(scale.limits.min, max(sites[,colour.id]))
+  p <- ggOptPalette(p, palette=palette, limits=colour.limits, verbose=verbose)
+
+  p <- gg1L::ggLabTitle(p, title=title, x.lab=x.lab, y.lab=y.lab)
+  p <- gg1L::ggThemePanelBorder(p, title.size=8)
+  p <- gg1L::ggThemeOthers(p, plot.margin.cm=c(0,0.25,0.25,0)) + labs(colour=legend.title) 
+  
+  legend <- gg1L::gLegend(p)  # Get legend
+  
+  if (no.legend)
+    p <- p + theme(legend.position = "none")
+  
+  list(plot=p, legend=legend, sites=sites, biplots=biplots)
+}
+
 #' @details \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 #' 
 #' @param rda The list of results from \code{doRDA}.
@@ -246,10 +315,10 @@ plotCorrelations <- function(df.numeric, corr.gram=FALSE, cex.axis = 0.75,
 #' otherwise print them to the file. Default to NULL.
 #' @export
 #' @examples 
-#' printXTable.RDA(rda, table.file=NULL, matrix.name="16S", taxa.group="BACTERIA")
+#' printXTable.RDA(rda, matrix.name="16S", taxa.group="BACTERIA")
 #' 
 #' @rdname RDA
-printXTable.RDA <- function(rda, table.file=NULL, invalid.char=FALSE, matrix.name="", taxa.group="") {
+printXTable.RDA <- function(rda, matrix.name="", taxa.group="", table.file=NULL, invalid.char=FALSE) {
   
   ComMA::printXTable(rda$anova.summary, invalid.char=invalid.char,
               caption = paste("Distance-based redundancy analysis and their ANOVA tests 

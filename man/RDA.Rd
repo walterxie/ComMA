@@ -5,6 +5,7 @@
 \alias{doRDA}
 \alias{matchCMEnv}
 \alias{plotCorrelations}
+\alias{plotRDA}
 \alias{printXTable.RDA}
 \title{Redundancy Analysis}
 \usage{
@@ -15,8 +16,13 @@ matchCMEnv(cm, env, is.transposed = FALSE, verbose = TRUE)
 plotCorrelations(df.numeric, corr.gram = FALSE, cex.axis = 0.75,
   cex.cor = 0.9, col = "#333333")
 
-printXTable.RDA(rda, table.file = NULL, invalid.char = FALSE,
-  matrix.name = "", taxa.group = "")
+plotRDA(rda, env, colour.id = "Elevation",
+  title = "Backward RDA, Jaccard distance", x.lab = "", y.lab = "",
+  palette = c("blue", "orange"), scale.limits.min = NULL,
+  no.legend = FALSE, legend.title = "Elevation (m)", verbose = TRUE, ...)
+
+printXTable.RDA(rda, matrix.name = "", taxa.group = "", table.file = NULL,
+  invalid.char = FALSE)
 }
 \arguments{
 \item{tcm.or.dist}{A transposed community matrix 
@@ -42,15 +48,17 @@ numeric variables (columns) to plot.}
 \item{corr.gram}{Logical, if use \code{\link{corrgram}} 
 instead of \code{\link{plot}}.}
 
-\item{rda}{The list of results from \code{doRDA}.}
-
-\item{table.file}{If NULL, then print the results to console, 
-otherwise print them to the file. Default to NULL.}
+\item{rda}{The ordination result from \code{doRDA}.}
 
 \item{matrix.name}{The string to locate the matrix from its file name. 
 Only used for table name and label here.}
 
 \item{taxa.group}{The taxonomic group. Only used for table name and label here.}
+
+\item{table.file}{If NULL, then print the results to console, 
+otherwise print them to the file. Default to NULL.}
+
+\item{rda}{The list of results from \code{doRDA}.}
 }
 \description{
 Redundancy Analysis using \pkg{vegan} 
@@ -71,6 +79,8 @@ and \code{\link{preprocessEnv}}.
 \code{plotCorrelations} plots numeric variables (columns).
 
 Tip: use \code{\link{"\%<a-\%"}} in \pkg{pryr} to save plots.
+
+\code{plotRDA} plots a ordination result from \code{doRDA}.
 
 \code{printXTable.RDA} prints \code{\link{xtable}} given rda results.
 }
@@ -98,6 +108,11 @@ tcm.env <- matchCMEnv(cm.prep, env.prep)
 # 4. RDA
 rda <- doRDA(tcm.env$tcm, tcm.env$env)
 
+# 5. result
+
+printXTable.RDA(rda, matrix.name="16S", taxa.group="all")
+
+
 tcm.env <- matchCMEnv(tcm, env, is.transposed=T)
 # Note colSums(cm) are based on samples
 tcm.env <- matchCMEnv(cm, env)
@@ -106,7 +121,11 @@ tcm.env <- matchCMEnv(cm, env)
 require(pryr)
 p \%<a-\% plotCorrelations(tcm.env$env)
 
-printXTable.RDA(rda, table.file=NULL, matrix.name="16S", taxa.group="BACTERIA")
+
+
+plotRDA(rda)
+
+printXTable.RDA(rda, matrix.name="16S", taxa.group="BACTERIA")
 
 }
 \keyword{rda}
