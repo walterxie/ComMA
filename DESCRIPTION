@@ -2,7 +2,7 @@ Package: ComMA
 Type: Package
 Title: Community Matrix Analysis
 Date: 2017-02-22
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(person("Walter", "Xie", email = "walter@cs.auckland.ac.nz", role = c("aut", "cre", "cph")),
 			person("Andrew", "Dopheide", role = c("aut")),
 			person("Alexei", "Drummond", role = c("aut", "cph")))
