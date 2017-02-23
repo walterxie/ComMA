@@ -45,7 +45,8 @@
 #' rda <- doRDA(tcm.env$tcm, tcm.env$env)
 #' 
 #' # 5. result
-#' 
+#' rda.pl <- plotRDA(rda[["backward"]], tcm.env$env)
+#' rda.pl$plot
 #' printXTable.RDA(rda, matrix.name="16S", taxa.group="all")
 #' 
 #' 
@@ -179,6 +180,8 @@ doRDA <- function(tcm.or.dist, env, verbose=TRUE) {
 #' Default to FASLE.
 #' @export
 #' @examples 
+#' 
+#' # already transposed
 #' tcm.env <- matchCMEnv(tcm, env, is.transposed=T)
 #' # Note colSums(cm) are based on samples
 #' tcm.env <- matchCMEnv(cm, env)
@@ -243,14 +246,18 @@ plotCorrelations <- function(df.numeric, corr.gram=FALSE, cex.axis = 0.75,
 
 #' @details \code{plotRDA} plots a ordination result from \code{doRDA}.
 #' 
-#' 
-#' 
 #' @param rda The ordination result from \code{doRDA}.
+#' @param colour.id The column name in \code{env} to colour points and texts.
+#' @param title,x.lab,y.lab Title, x, y label.
+#' @param palette Refer to \code{\link{ggOptPalette}} in \pkg{gg1L}. 
+#' Default to c("blue", "orange").
+#' @param no.legend,legend.title Configure legend
+#' @param scale.limits.min Manually set the minimum data range of the colour scale, 
+#' for example, in legend. The code set \code{limits} in \code{\link{discrete_scale}}
+#' to \code{c(scale.limits.min, max(df[,colour.id]))}.
 #' @export
 #' @examples 
-#'
-#' 
-#' plotRDA(rda)
+#' rda.pl <- plotRDA(rda.list[[1]][["backward"]], env.prep, scale.limits.min=0)
 #' 
 #' @rdname RDA
 plotRDA <- function(rda, env, colour.id="Elevation", 
@@ -258,7 +265,7 @@ plotRDA <- function(rda, env, colour.id="Elevation",
                     palette=c("blue", "orange"), scale.limits.min=NULL, 
                     no.legend=FALSE, legend.title="Elevation (m)", verbose=TRUE,...) {
   sites <- as.data.frame(scores(rda, display = "wa"))
-  sites$Elevation <- env$Elevation[match(rownames(sites), rownames(env))]
+  sites[,colour.id] <- env[match(rownames(sites), rownames(env)),colour.id]
   sites$Plot <- gsub("-[A-Z]", "", rownames(sites)) 
   sites$shortIDs <- gsub("(CM30|CM31|Plot)", "", rownames(sites))
   biplots <- as.data.frame(scores(rda, display = "bp", scaling = "symmetric"))
@@ -291,7 +298,7 @@ plotRDA <- function(rda, env, colour.id="Elevation",
   colour.limits <- NULL
   if (!is.null(scale.limits.min))
     colour.limits <- c(scale.limits.min, max(sites[,colour.id]))
-  p <- ggOptPalette(p, palette=palette, limits=colour.limits, verbose=verbose)
+  p <- gg1L::ggOptPalette(p, palette=palette, limits=colour.limits, verbose=verbose)
 
   p <- gg1L::ggLabTitle(p, title=title, x.lab=x.lab, y.lab=y.lab)
   p <- gg1L::ggThemePanelBorder(p, title.size=8)

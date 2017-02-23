@@ -50,6 +50,19 @@ instead of \code{\link{plot}}.}
 
 \item{rda}{The ordination result from \code{doRDA}.}
 
+\item{colour.id}{The column name in \code{env} to colour points and texts.}
+
+\item{title, x.lab, y.lab}{Title, x, y label.}
+
+\item{palette}{Refer to \code{\link{ggOptPalette}} in \pkg{gg1L}. 
+Default to c("blue", "orange").}
+
+\item{scale.limits.min}{Manually set the minimum data range of the colour scale, 
+for example, in legend. The code set \code{limits} in \code{\link{discrete_scale}}
+to \code{c(scale.limits.min, max(df[,colour.id]))}.}
+
+\item{no.legend, legend.title}{Configure legend}
+
 \item{matrix.name}{The string to locate the matrix from its file name. 
 Only used for table name and label here.}
 
@@ -109,10 +122,13 @@ tcm.env <- matchCMEnv(cm.prep, env.prep)
 rda <- doRDA(tcm.env$tcm, tcm.env$env)
 
 # 5. result
-
+rda.pl <- plotRDA(rda[["backward"]], tcm.env$env)
+rda.pl$plot
 printXTable.RDA(rda, matrix.name="16S", taxa.group="all")
 
 
+
+# already transposed
 tcm.env <- matchCMEnv(tcm, env, is.transposed=T)
 # Note colSums(cm) are based on samples
 tcm.env <- matchCMEnv(cm, env)
@@ -121,9 +137,7 @@ tcm.env <- matchCMEnv(cm, env)
 require(pryr)
 p \%<a-\% plotCorrelations(tcm.env$env)
 
-
-
-plotRDA(rda)
+rda.pl <- plotRDA(rda.list[[1]][["backward"]], env.prep, scale.limits.min=0)
 
 printXTable.RDA(rda, matrix.name="16S", taxa.group="BACTERIA")
 
