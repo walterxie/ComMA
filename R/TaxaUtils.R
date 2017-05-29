@@ -450,6 +450,40 @@ summaryTaxaAssign <- function(ta.list, ta.OTU.list=list(), exclude.rank=c(-1), e
 }
 
 #' @details 
+#' \code{combineTaxaAssign} combines the total of taxonomy matching a given each of \code{keywords}
+#' with the row names of the taxonomy assignment in the list from \code{assignTaxaByRank}.
+#' The function is only working for the taxonomy assignment having 1 column "total" at the moment.  
+#' 
+#' @param keywords The vector of keywords for \code{\link{grep}}. 
+#' The combined row will use the keyword as new row name.
+#' @param ignore.case Default to TRUE, same to \code{ignore.case} in \code{\link{grep}}.
+#' @keywords taxonomy
+#' @export
+#' @examples 
+#' combined.ta.list <- combineTaxaAssign(ta.list, c("Fungi", "Eukaryota", "Streptophyta|Viridiplantae", "Bacteria"))
+#' 
+#' @rdname TaxaUtils
+combineTaxaAssign <- function(ta.list, keywords=c("Eukaryota"), ignore.case=TRUE) {
+  total.column="total"
+  combined.ta.list <- ta.list
+  for (r in names(ta.list)) {
+    # 1-column df 
+    ta <- ta.list[[r]]
+    for (k in keywords) {
+      rows <- grep(k, rownames(ta), ignore.case=ignore.case)
+      total <- sum(ta[rows, total.column])
+      if (total > 0) {
+        # combine these rows into one
+        ta <- ta[-rows, ,drop=FALSE]
+        ta[k, ] <- total
+        combined.ta.list[[r]] <- ta
+      }
+    }
+  }
+  combined.ta.list
+}
+
+#' @details 
 #' \code{summaryRank} directly converts the result of \code{assignTaxaByRank} 
 #' at a given \code{rank} into a data frame as the summary.
 #' 

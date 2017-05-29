@@ -3,6 +3,7 @@
 \name{TaxaUtils}
 \alias{TaxaUtils}
 \alias{assignTaxaByRank}
+\alias{combineTaxaAssign}
 \alias{groupsTaxaMembers}
 \alias{mergeCMTaxa}
 \alias{prepTaxonomy}
@@ -34,6 +35,8 @@ assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum,
 
 summaryTaxaAssign(ta.list, ta.OTU.list = list(), exclude.rank = c(-1),
   exclude.unclassified = TRUE, sort.rank = getRanks())
+
+combineTaxaAssign(ta.list, keywords = c("Eukaryota"), ignore.case = TRUE)
 
 summaryRank(ta.list, rank = "kingdom", exclude.unclassified = TRUE)
 
@@ -142,6 +145,9 @@ having the "unclassified" keyword.}
 \item{sort.rank}{The order used to sort the summary dataframe by "rank" column, 
 default to \code{c("superkingdom", "kingdom", "phylum", "class", "order", "family", "genus", "species")}.}
 
+\item{keywords}{The vector of keywords for \code{\link{grep}}. 
+The combined row will use the keyword as new row name.}
+
 \item{taxa.assign}{The data frame of taxonomic assignments with abundance
 at the \code{rank}, where rownames are taxonomy at that rank, 
 and columns are the sample names (may include total). It can be 
@@ -154,6 +160,8 @@ See the detail.}
 to remove or replace annotation from original labels. 
 Default to \code{regex1="(\\|[0-9]+)", regex2=""}, 
 which removes size annotation seperated by "|".}
+
+\item{ignore.case}{Default to TRUE, same to \code{ignore.case} in \code{\link{grep}}.}
 
 \item{rank}{The rank given to select the list of taxa assignments 
 produced by \code{assignTaxaByRank}.}
@@ -207,6 +215,10 @@ abundance into taxonomy based on the rank in \code{col.ranks}.
 \code{summaryTaxaAssign} summarises the number of reads, OTUs, and taxonomy
 from the result of \code{assignTaxaByRank}.
 
+\code{combineTaxaAssign} combines the total of taxonomy matching a given each of \code{keywords}
+with the row names of the taxonomy assignment in the list from \code{assignTaxaByRank}.
+The function is only working for the taxonomy assignment having 1 column "total" at the moment.
+
 \code{summaryRank} directly converts the result of \code{assignTaxaByRank} 
 at a given \code{rank} into a data frame as the summary.
 
@@ -237,6 +249,8 @@ ta.rdp <- assignTaxaByRank(cm.taxa, unclassified=2)
 colSums(ta.rdp[["phylum"]])
 
 summary.ta.df <- summaryTaxaAssign(ta.list, ta.OTU.list)
+
+combined.ta.list <- combineTaxaAssign(ta.list, c("Fungi", "Eukaryota", "Streptophyta|Viridiplantae", "Bacteria"))
 
 summary.kingdom.df <- summaryRank(ta.list, rank="kingdom")
 
