@@ -472,8 +472,9 @@ combineTaxaAssign <- function(ta.list, keywords=c("Eukaryota"), ignore.case=TRUE
     for (k in keywords) {
       rows <- grep(k, rownames(ta), ignore.case=ignore.case)
       total <- sum(ta[rows, total.column])
-      if (total > 0) {
-        # combine these rows into one
+      # combine multi-rows into one
+      if (total > 0 && length(rows) > 1) {
+        cat("Combine {", paste(rownames(ta)[rows], collapse = ", "), "} into", k, "in", r, "\n")
         ta <- ta[-rows, ,drop=FALSE]
         ta[k, ] <- total
         combined.ta.list[[r]] <- ta
