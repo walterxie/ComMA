@@ -457,13 +457,18 @@ summaryTaxaAssign <- function(ta.list, ta.OTU.list=list(), exclude.rank=c(-1), e
 #' @param keywords The vector of keywords for \code{\link{grep}}. 
 #' The combined row will use the keyword as new row name.
 #' @param ignore.case Default to TRUE, same to \code{ignore.case} in \code{\link{grep}}.
+#' @param min.row.comb The minimun number of rows from \code{\link{grep}} to combine. 
+#' Default to 2, to ignore the single row selected by \code{\link{grep}} given a keyword.
+#' Set to 1 to inlcude it in the combination process.
 #' @keywords taxonomy
 #' @export
 #' @examples 
 #' combined.ta.list <- combineTaxaAssign(ta.list, c("Fungi", "Eukaryota", "Streptophyta|Viridiplantae", "Bacteria"))
 #' 
 #' @rdname TaxaUtils
-combineTaxaAssign <- function(ta.list, keywords=c("Eukaryota"), ignore.case=TRUE) {
+combineTaxaAssign <- function(ta.list, keywords=c("Eukaryota"), ignore.case=TRUE, min.row.comb=2) {
+  if (min.row.comb < 1)
+    stop("min.row.comb in function combineTaxaAssign must > 0 !")
   total.column="total"
   combined.ta.list <- ta.list
   for (r in names(ta.list)) {
@@ -473,7 +478,7 @@ combineTaxaAssign <- function(ta.list, keywords=c("Eukaryota"), ignore.case=TRUE
       rows <- grep(k, rownames(ta), ignore.case=ignore.case)
       total <- sum(ta[rows, total.column])
       # combine multi-rows into one
-      if (total > 0 && length(rows) > 1) {
+      if (total > 0 && length(rows) >= min.row.comb) {
         cat("Combine {", paste(rownames(ta)[rows], collapse = ", "), "} into", k, "in", r, "\n")
         ta <- ta[-rows, ,drop=FALSE]
         ta[k, ] <- total

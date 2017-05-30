@@ -36,7 +36,8 @@ assignTaxaByRank(cm.taxa, unclassified = 0, aggre.FUN = sum,
 summaryTaxaAssign(ta.list, ta.OTU.list = list(), exclude.rank = c(-1),
   exclude.unclassified = TRUE, sort.rank = getRanks())
 
-combineTaxaAssign(ta.list, keywords = c("Eukaryota"), ignore.case = TRUE)
+combineTaxaAssign(ta.list, keywords = c("Eukaryota"), ignore.case = TRUE,
+  min.row.comb = 2)
 
 summaryRank(ta.list, rank = "kingdom", exclude.unclassified = TRUE)
 
@@ -147,6 +148,10 @@ default to \code{c("superkingdom", "kingdom", "phylum", "class", "order", "famil
 
 \item{keywords}{The vector of keywords for \code{\link{grep}}. 
 The combined row will use the keyword as new row name.}
+
+\item{min.row.comb}{The minimun number of rows from \code{\link{grep}} to combine. 
+Default to 2, to ignore the single row selected by \code{\link{grep}} given a keyword.
+Set to 1 to inlcude it in the combination process.}
 
 \item{taxa.assign}{The data frame of taxonomic assignments with abundance
 at the \code{rank}, where rownames are taxonomy at that rank, 
