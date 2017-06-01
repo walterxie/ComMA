@@ -37,7 +37,7 @@ summaryTaxaAssign(ta.list, ta.OTU.list = list(), exclude.rank = c(-1),
   exclude.unclassified = TRUE, sort.rank = getRanks())
 
 combineTaxaAssign(ta.list, keywords = c("Eukaryota"), ignore.case = TRUE,
-  min.row.comb = 2)
+  replace.to = c(), min.row.comb = 2)
 
 summaryRank(ta.list, rank = "kingdom", exclude.unclassified = TRUE)
 
@@ -149,6 +149,10 @@ default to \code{c("superkingdom", "kingdom", "phylum", "class", "order", "famil
 \item{keywords}{The vector of keywords for \code{\link{grep}}. 
 The combined row will use the keyword as new row name.}
 
+\item{replace.to}{The new names are used for combined rows, 
+which should be either empty or the same length of the vector \code{keywords}.
+If replace.to=c() as default, use the \code{keywords} as new row names.}
+
 \item{min.row.comb}{The minimun number of rows from \code{\link{grep}} to combine. 
 Default to 2, to ignore the single row selected by \code{\link{grep}} given a keyword.
 Set to 1 to inlcude it in the combination process.}
@@ -256,6 +260,7 @@ colSums(ta.rdp[["phylum"]])
 summary.ta.df <- summaryTaxaAssign(ta.list, ta.OTU.list)
 
 combined.ta.list <- combineTaxaAssign(ta.list, c("Fungi", "Eukaryota", "Streptophyta|Viridiplantae", "Bacteria"))
+combined.ta.list <- combineTaxaAssign(ta.list, c("Streptophyta|Viridiplantae"), replace.to=c("Plant"))
 
 summary.kingdom.df <- summaryRank(ta.list, rank="kingdom")
 
