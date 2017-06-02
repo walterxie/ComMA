@@ -83,6 +83,8 @@ subsetCM <- function(community.matrix, taxa.table, taxa.group=NA, rank=NA, inclu
                                      include=include, ignore.case=ignore.case)
   
   cm.taxa <- merge(community.matrix, tt.sub, by = merged.by, ...)
+  # add row names back after merge
+  rownames(cm.taxa) <- cm.taxa$Row.names
   if (drop.taxa)
     cm.taxa <- cm.taxa[,colnames(community.matrix)]
   
