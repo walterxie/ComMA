@@ -2,24 +2,41 @@
 % Please edit documentation in R/SpatialUtils.R
 \name{spatial}
 \alias{deg2rad}
+\alias{gcd}
+\alias{gcd.hf}
+\alias{gcd.slc}
+\alias{gcd.vif}
 \alias{geodesicDist.hf}
 \alias{geodesicDist.slc}
 \alias{spatial}
-\title{Utils related to spatial distances}
+\title{Great-circle distance calculations in R}
 \source{
 \url{http://www.r-bloggers.com/great-circle-distance-calculations-in-r/}
 }
 \usage{
 deg2rad(deg)
 
-geodesicDist.slc(lati.long, file = NA, sep = "\\t")
+gcd.slc(long1, lat1, long2, lat2)
 
-geodesicDist.hf(lati.long, file = NA, sep = "\\t")
+gcd.hf(long1, lat1, long2, lat2)
+
+gcd.vif(long1, lat1, long2, lat2)
+
+gcd(long1.dg, lat1.dg, long2.dg, lat2.dg, distance = c("slc", "hf", "vif"))
+
+geodesicDist.slc(lati.long.degrees, file = NA, sep = "\\t")
+
+geodesicDist.hf(lati.long.degrees, file = NA, sep = "\\t")
 }
 \arguments{
 \item{deg}{The degrees.}
 
-\item{lati.long}{A 2-column data frame contains latitude/longitude coordinates.}
+\item{long1, lat1, long2, lat2}{radian longitude or latitude of two points.}
+
+\item{long1.dg, lat1.dg, long2.dg, lat2.dg}{degrees longitude or latitude of two points.}
+
+\item{lati.long.degrees}{A 2-column data frame contains degrees latitude/longitude coordinates.
+The 1st col is latitude and 2nd is longitude.}
 
 \item{file}{Either a character string naming a file or a connection open for writing. 
 "" indicates output to the console. If NA, as default, then do nothing.}
@@ -27,26 +44,52 @@ geodesicDist.hf(lati.long, file = NA, sep = "\\t")
 \item{sep}{The field separator string.}
 }
 \description{
-The functions related to spatial distances.
+The functions to calculate the spatial distance (meters) between 
+a large number of longitude and latitude locations.
 }
 \details{
 Converts degrees to radians
 
-\code{geodesicDist.slc} calculates the geodesic distance (km) 
-between two points specified by radian latitude/longitude 
-using the Spherical Law of Cosines (slc).
+\code{gcd.slc} calculates the geodesic distance (meters) between two points  
+specified by radian latitude/longitude using the spherical Law of Cosines (slc).
 
-\code{geodesicDist.hf} calculates the geodesic distance (km) 
-between two points specified by radian latitude/longitude 
-using the Haversine formula (hf).
+\code{gcd.hf} calculates the geodesic distance (meters) between two points 
+specified by radian latitude/longitude using the Haversine formula (hf).
+
+\code{gcd.vif} calculates the geodesic distance (meters) between two points 
+specified by radian latitude/longitude using Vincenty inverse formula for ellipsoids (vif).
+
+\code{gcd.slc} calculates the geodesic distance (meters) between two points 
+specified by degrees latitude/longitude using Haversine formula (hf), 
+Spherical Law of Cosines (slc) and Vincenty inverse formula for ellipsoids (vif).
+
+\code{geodesicDist.slc} is a batch processing function to use \code{gcd.slc}.
+
+\code{geodesicDist.hf} is a batch processing function to use \code{gcd.hf}.
 }
 \examples{
 lat1 <- deg2rad(deg)
+
+long1 <- deg2rad(-36.8485)
+lat1 <- deg2rad(174.7633)
+long2 <- deg2rad(-37.7870)
+lat2 <- deg2rad(175.2793)
+# Auckland <=> Hamilton
+dist.slc <- gcd.slc(long1, lat1, long2, lat2)
+
+dist.hf <- gcd.hf(long1, lat1, long2, lat2)
+
+dist.vif <- gcd.vif(long1, lat1, long2, lat2)
+
+dist.vif <- gcd(-36.8485, 174.7633, -37.7870, 175.2793, distance="vif")
 
 dists.btw <- geodesicDist.slc(env.byplot[, c("Latitude","Longitude")])
 
 dists.btw <- geodesicDist.hf(env.byplot[, c("Latitude","Longitude")])
 
+}
+\author{
+Mario Pineda-Krch
 }
 \keyword{spatial}
 
