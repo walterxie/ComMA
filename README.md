@@ -44,6 +44,6 @@ help(package = "ComMA")
 
 It may take time to load the page from GitHub.
 
-1. [One-line plotting] (https://github.com/walterxie/gg1L)
+1. [One-line plotting](https://github.com/walterxie/gg1L)
 
-2. [RDP + Greengenes vs. BLAST + MEGAN] (https://cdn.rawgit.com/walterxie/ComMA/master/tutorials/GreengenesVsBLAST.html)
+2. [RDP + Greengenes vs. BLAST + MEGAN](https://cdn.rawgit.com/walterxie/ComMA/master/tutorials/GreengenesVsBLAST.html)
