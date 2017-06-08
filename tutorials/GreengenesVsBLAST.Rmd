@@ -1,0 +1,263 @@
+---
+title: "RDP + Greengenes vs. BLAST + MEGAN"
+author: "Walter Xie"
+date: "25/05/2016"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+
+There are some [publications](?) recently to highlight the taxonomic classification using Greengenes database is better than BLAST for 16S data set. I make a toy example here using [ComMA](https://github.com/walterxie/ComMA), to show how these two classifier are performed for a particular dataset.
+
+The content of this tutorial includes how to interpret the community matrix of 16S (also known as OTU table) with taxonomic classifications, and create bar charts.
+
+```{r library, warning=FALSE}
+library(gg1L)
+library(ComMA)
+```
+
+# Data set
+
+This 16S data set is from [Miyake et al 2015](http://onlinelibrary.wiley.com/doi/10.1111/mec.13050/abstract), which was sequenced on a Roche 454 GS FLX Titanium and processed before OTU clustering.
+Their QC steps performed were as follows:
+1. use MOTHUR to denoise (320min, 800max flows);
+2. trim barcodes and primers;
+3. remove homopolymers of more than 8bp;
+4. remove sequences < 200bp lengths;
+5. remove chimeric sequences using UCHIME;
+6. taxonomic calling against Greengenes May 2013 release;
+7. subsequent removal of chloroplast, mictochondrial, and non-bacterial sequences.
+
+# OTU clustering and community matrix
+
+[UPARSE](http://www.ncbi.nlm.nih.gov/pubmed/23955772) pipeline is used to create OTUs. The version of USEARCH used is 8.0.1623, and the threshold is set to 97%.
+The community matrix (OTU table) [miyake.454.16s.otus.csv](https://github.com/walterxie/ComMA/blob/master/data-raw/miyake.454.16s.otus.csv) in the result is available.
+
+```{r cm, warning=FALSE}
+#getwd()
+cm <- readCommunityMatrix("../data-raw/miyake.454.16s.otus.csv", "16S", minAbund=1)
+cm[1:3,]
+
+summaryCM(cm)
+```
+
+
+# Taxonomic classifier
+
+The taxonomy of OTUs is first classified by the [RDP classifier](https://rdp.cme.msu.edu/classifier/) using the latest version of [Greengenes](http://greengenes.lbl.gov/) database (May 2013). And then, the second taxonomy of same OTUs is classified by [BLAST](https://blast.ncbi.nlm.nih.gov/) and interpreted by [MEGAN](http://ab.inf.uni-tuebingen.de/software/).
+
+The table of taxonomy from kingdom to genus is uploaded as below, where MEGAN repeats the last classified taxonomy at the higher rank through the lineage for all unclassified taxonomy, but RDP keeps them in blank.
+
+## BLAST + MEGAN
+
+**Note:** Uncultured Bacteria (taxid:77133) is excluded during BLAST in order to give more accurate taxonomic classification.
+
+The classification without excluding Uncultured Bacteria provides much worse result for this 16S dataset.
+
+```{r BLAST}
+#BLAST
+tt.megan <- readTaxaTable("../data-raw/miyake.454.16s.megan.txt", "16S megan taxa table", taxa.group="all")
+# 1st column is taxonomic lineage path
+tt.megan[1:3,-1]
+```
+
+## RDP + Greengenes
+
+```{r RDP}
+# RDP
+tt.rdp <- readTaxaTable("../data-raw/miyake.454.16s.greengenes.txt", "16S rdp taxa table", taxa.group="all")
+# 1st column is taxonomic lineage path
+tt.rdp[1:3,-1]
+```
+
+# Taxonomic assignments
+
+The number of reads of OTUs assigned to different taxonomies is summarised below regarding to classifiers. Because this dataset is preprossed, RDP using 0.5 confidence threshold do not have any unclassified taxonomy.
+
+```{r taxa, warning=FALSE}
+# return a list of taxa assignments, names = c("megan", "rdp.5", "rdp.8")
+getTaxaAssignList <- function(cm, tt.megan, tt.rdp, taxa.group="all", rank="kingdom") {
+    cm.taxa <- mergeCMTaxa(cm, tt.megan)
+    ta.megan <- assignTaxaByRank(cm.taxa)
+    sum(ta.megan[[rank]])
+
+    cm.taxa <- mergeCMTaxa(cm, tt.rdp, classifier="RDP")
+    ta.rdp.8 <- assignTaxaByRank(cm.taxa)
+    sum(ta.rdp.8[[rank]])
+
+    cm.taxa <- mergeCMTaxa(cm, tt.rdp, classifier="RDP", min.conf=0.5)
+    ta.rdp.5 <- assignTaxaByRank(cm.taxa)
+    sum(ta.rdp.5[[rank]])
+
+    list(megan=ta.megan, rdp.5=ta.rdp.5, rdp.8=ta.rdp.8)
+}
+
+getReads <- function(ta.list, rank="kingdom") {
+    reads.megan <- ta.list[["megan"]][[rank]]
+    reads.megan$classifier <- "MEGAN"
+    reads.megan[,rank] <- rownames(reads.megan)
+    reads.rdp.8 <- ta.list[["rdp.8"]][[rank]]
+    reads.rdp.8$classifier <- "RDP 0.8"
+    reads.rdp.8[,rank] <- rownames(reads.rdp.8)
+    reads.rdp.5 <- ta.list[["rdp.5"]][[rank]]
+    reads.rdp.5$classifier <- "RDP 0.5"
+    reads.rdp.5[,rank] <- rownames(reads.rdp.5)
+
+    reads <- rbind(reads.megan, reads.rdp.8, reads.rdp.5)
+}
+```
+
+## Assign taxonomy at different rank level
+
+```{r taxalist, warning=FALSE}
+ta.list <- getTaxaAssignList(cm, tt.megan, tt.rdp)
+
+names(ta.list[["megan"]])
+
+ta.list[["megan"]][["kingdom"]]
+
+ta.list[["rdp.8"]][["phylum"]]
+```
+
+## Abundance percentage bar of RDP using 0.5 and 0.8 confidence threshold
+
+```{r relativeabund, warning=FALSE}
+ta <- merge(ta.list[["rdp.5"]][["phylum"]], ta.list[["rdp.8"]][["phylum"]], 
+            by = "row.names", all = TRUE)
+ta[is.na(ta)] <- 0
+colnames(ta) <- c("phylum", "rdp.5", "rdp.8")
+```
+
+```{r barchart, warning=FALSE, message=FALSE}
+bar.per <- ggPercentageBarChart(ta, melt.id="phylum", verbose=F, title="Abundance Percentage Bar")
+bar.per$gg.plot
+```
+
+## Abundance summary
+
+<code>grid_arrange_shared_legend</code> shares a legend between multiple plots, and returns a *gtable* object:
+
+```{r abundance, warning=FALSE}
+kingdom <- getReads(ta.list)
+kingdom
+```
+
+```{r barchart2, warning=FALSE, message=FALSE}
+bar.kingdom <- ggBarChart(kingdom, x.id="kingdom", y.id="total",  
+                        fill.id="classifier", y.trans="log", y.lab="reads", 
+                        title="Classification Including Singletons", verbose=F)
+bar.kingdom <- bar.kingdom + ggAddNumbers(label.id="total", text.size=3, 
+                                          hjust=0.5, vjust=2)
+bar.kingdom
+```
+
+# Bacteria community without singleton
+
+```{r abundance2, warning=FALSE}
+# no singleton
+cm.min2 <- readCommunityMatrix("../data-raw/miyake.454.16s.otus.csv", "16S")
+
+summaryCM(cm.min2)
+
+# no singleton
+ta.list <- getTaxaAssignList(cm.min2, tt.megan, tt.rdp)
+
+kingdom.min2 <- getReads(ta.list)
+kingdom.min2
+
+merge.kingdom <- merge(kingdom, kingdom.min2, by=c("kingdom", "classifier"))
+# informal code to select Bacteria
+bacteria <- merge.kingdom[merge.kingdom=="Bacteria",]
+bacteria$percentage <- bacteria$total.y / bacteria$total.x
+bacteria$singletons <- 1 - bacteria$percentage
+bacteria
+```
+
+```{r barchart3, warning=FALSE, message=FALSE}
+ggBarChart(bacteria, x.id="classifier", y.id="singletons", y.trans="per", 
+           title="Percentage of Singletons Classified as Bacteria", verbose=F)
+```
+
+# Classification comparison
+
+```{r comparison, warning=FALSE}
+# select Bacteria
+tt.megan <- readTaxaTable("../data-raw/miyake.454.16s.megan.txt", "16S megan taxa table", taxa.group="Bacteria")
+tt.rdp <- readTaxaTable("../data-raw/miyake.454.16s.greengenes.txt", "16S rdp taxa table", taxa.group="Bacteria")
+```
+
+```{r comparison2, warning=FALSE}
+n.taxa.df <- data.frame(row.names=c("MEGAN", "RDP 0.5", "RDP 0.8"))
+reads.df <- data.frame(row.names=c("MEGAN", "RDP 0.5", "RDP 0.8"))
+r <- 1
+for (ta.name in c(c("megan", "rdp.5", "rdp.8"))) {
+    print(paste("Classifier :", ta.name))
+    ta.df <- ta.list[[ta.name]]
+    # start from phylum
+    for (ra in names(ta.df)[-1]) {
+        ta <- ta.df[[ra]]
+        n.uncl <- length(grep("unclassified", rownames(ta), ignore.case = T))    
+        print(paste(ra, ": total taxa =", nrow(ta), ", where", 
+                    n.uncl, "unclassified taxa."))    
+        # not count "unclassified"
+        n.taxa.df[r, ra] <- nrow(ta) - n.uncl
+
+        ta <- subset(ta, !grepl("unclassified", rownames(ta), ignore.case = T))
+        reads.df[r, ra] <- sum(ta[,"total"])
+    }
+    r <- r + 1
+}
+```
+
+## Classified taxonomy under Bacteria (no singletons)
+
+```{r resultdf, warning=FALSE}
+# result
+n.taxa.df
+
+n.taxa.df$id = rownames(n.taxa.df)
+n.taxa.melt <- melt(n.taxa.df)
+```
+
+```{r barchart4, warning=FALSE, message=FALSE}
+ggBarChart(n.taxa.melt, x.id="variable", y.id="value", fill.id="id", 
+           x.lab="rank", y.lab="classified taxonomy",
+           title="The Number Of Classified Taxonomy Under Bacteria (No Singletons)",
+           legend.title="classifier", verbose=F) + 
+ggAddNumbers(label.id="value", text.size=3, hjust=0.5, vjust=2)
+```
+
+## Reads of classified OTUs under Bacteria (no singletons)
+
+```{r resultdf2, warning=FALSE}
+# result
+reads.df
+
+reads.df$id = rownames(reads.df)
+reads.melt <- melt(reads.df)
+```
+
+```{r barchart5, warning=FALSE, message=FALSE}
+ggBarChart(reads.melt, x.id="variable", y.id="value", fill.id="id", 
+           x.lab="rank", y.lab="reads of classified OTUs", 
+           title="Reads Of Classified OTUs Under Bacteria (No Singletons)",
+           legend.title="classifier", verbose=F) + 
+ggAddNumbers(label.id="value", text.size=3, hjust=0.5, vjust=2)
+```
+
+# Conclusion
+
+* Excluding uncultured bacteria (taxid:77133) during BLAST will increase the accuracy of taxonomic classification for 16S dataset.
+* RDP using 0.5 confidence threshold picks up more singletons than RDP 0.8 and MEGAN, if singletone are not removed.
+* RDP + Greengenes can detect more or similar number of taxonomies than MEGAN before down to family level; at the family level the comparison is varied according to RDP confidence threshold; below family RDP suddenly loses its power, which I presume it is caused by the lack of reference below family level.
+* RDP using 0.5 confidence threshold always keeps more reads from classified OTUs than MEGAN, but RDP 0.8 has a big gap to reach their abundance above family level; at the family level the reads classified by MEGAN is significately dropped, this mean many abundant OTUs are unable to assign the classification at family level; the same drops for RDP happen below family level.
+
+# Take-home message
+
+RDP + Greengenes using 0.8 confidence threshold is recommanded to make the taxonomic classification for 16S dataset. But dropping confidence threshold with concerns could increase the abundance of classified taxonomy above genus.
+
