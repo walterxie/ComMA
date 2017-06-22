@@ -8,7 +8,7 @@
 \source{
 \url{https://github.com/walterxie/ComMA}
 
-Install all depdent packages: \code{\link{installAllPackages()}}
+Install all depdent packages: \code{\link{installAllPackages}}
 }
 \description{
 This package is a collection of tools for community matrix analyse, 

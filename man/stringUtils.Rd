@@ -32,7 +32,7 @@ getFirstNInString(vect, n, collapse = ", ", tail = "...")
 
 countCharOccurrences(char, s)
 
-freqUniqueValue(x)
+freqUniqueValue(x, rm.zero = TRUE)
 
 findDuplicates(x)
 
@@ -154,7 +154,7 @@ freqUniqueValue(c("a", "b", "a"))
 #    Var1 Freq
 # 1    a    2
 # 2    b    1
-freqUniqueValue(data.frame(x=c(1, 1, 2), y=c(3, 4, 3)))
+freqUniqueValue(data.frame(x=c(1, 1, 2), y=c(3, 4, 3)), rm.zero=F)
 #   x y Freq
 # 1 1 3    1
 # 2 2 3    1

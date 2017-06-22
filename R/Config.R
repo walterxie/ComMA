@@ -17,4 +17,6 @@ installAllPackages <- function() {
   install.packages(c("VIF", "fmsb", "scales", "corrgram", "pryr"))
   ###lasso
   install.packages(c("glmnet"))
+  ###NCBI
+  install.packages(c("reutils", "xml2"))
 }

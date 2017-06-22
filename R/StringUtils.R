@@ -178,7 +178,7 @@ countCharOccurrences <- function(char, s) {
 #' #    Var1 Freq
 #' # 1    a    2
 #' # 2    b    1
-#' freqUniqueValue(data.frame(x=c(1, 1, 2), y=c(3, 4, 3)))
+#' freqUniqueValue(data.frame(x=c(1, 1, 2), y=c(3, 4, 3)), rm.zero=F)
 #' #   x y Freq
 #' # 1 1 3    1
 #' # 2 2 3    1
@@ -186,8 +186,10 @@ countCharOccurrences <- function(char, s) {
 #' # 4 2 4    0
 #' 
 #' @rdname stringUtils
-freqUniqueValue <- function(x) {
-  data.frame(table(x))
+freqUniqueValue <- function(x, rm.zero=TRUE) {
+  freq.df <- data.frame(table(x))
+  if (rm.zero) freq.df <- freq.df[freq.df$Freq>0,]
+  freq.df
 }
 
 #' @details \code{findDuplicates} uses \code{freqUniqueValue} to 
