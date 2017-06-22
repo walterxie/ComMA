@@ -5,7 +5,8 @@
 #' @title EUtils NCBI
 #'
 #' @description Utils to process data downloaded from NCBI.
-#' @import reutils,xml2
+#' @import reutils
+#' @import xml2
 #' 
 #' @details 
 #' \code{parseTaxaSet} parses the result XML (DOCTYPE is TaxaSet) 
