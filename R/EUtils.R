@@ -76,7 +76,7 @@ parseTaxaSet <- function(xml) {
   if (!all(tags %in% colnames(taxa.df)))
     stop("Cannot find tags : ", paste(tags, collapse = ","), " !")
   taxa.df <- taxa.df[,c(tags, ranks)]
-  as.data.frame(taxa.df)
+  data.frame(taxa.df, stringsAsFactors=FALSE)
 }
 
 #' @details 
@@ -129,8 +129,63 @@ parseTSeqSet <- function(xml) {
     }
   }
   
-  as.data.frame(seq.df)
+  data.frame(seq.df, stringsAsFactors=FALSE)
 }
 
+#' @details 
+#' \code{seqSet2Fasta} downloads reference sequences given their \code{uid} 
+#' using \code{\link{efetch}}. \code{parseTSeqSet} is used to parse the 
+#' \code{\link{efetch}} result. 
+#' 
+#' @param seqset.uid The vector of \code{uid} for \code{\link{efetch}} to download sequence,
+#' where db = "nuccore", rettype = "fasta". 
+#' The \code{uid} will either look like NC_016668.1 ("accver") or KM462867 ("INSDC").
+#' @param by Split \code{seqset.uid} into subgroups by the given number, defaul to 20.
+#' @param folder,file.prefix,file.extension Determine the file name.
+#' @param seq.label The vector of string to determine how to label the sequence. 
+#' If the element is one of the column name data.frame from \code{parseTSeqSet}, 
+#' then the label of that position will be the value of that column. 
+#' The available columns are "seqtype", "gi", "accver", "taxid", "orgname", "defline", "length". 
+#' @param sleep Please set enough sleep time. Default 30 seconds.
+#' @keywords eutils
+#' @export
+#' @examples
+#' seqSet2Fasta(c("NC_031445.1", "NC_026892.1"), seq.label=c("accver", ", ", "orgname", ", chloroplast")) 
+#'  
+#' @rdname EUtils
+seqSet2Fasta <- function(seqset.uid, by=20, folder=".", file.prefix="Refseq", file.extension="fasta", 
+                         seq.label=c("accver", ", ", "orgname", ", chloroplast"), sleep=30) {
+  fq <- c(seq(1, length(seqset.uid), by=20), (length(seqset.uid)+1))
+  cat("break vector seqset.uid into", length(fq)-1, "subgroups, index = ", paste(fq, collapse = ", "), ".\n")
+  
+  require("reutils")
+  f1 <- fq[1]
+  for (f2 in fq[-1]) {
+    uid <- as.character(seqset.uid[f1:(f2-1)])
+    # efetch to get TSeqSet
+    seqset <- efetch(uid, "nuccore", "fasta")
+    seqset.df <- ComMA::parseTSeqSet(seqset$content)
+    # create sequence label
+    seqset.df$seq.name <- ">"
+    for (sl in seq.label) {
+      if (sl %in% colnames(seqset.df)) {
+        seqset.df$seq.name <- paste0(seqset.df$seq.name, seqset.df[,sl])
+      } else {
+        seqset.df$seq.name <- paste0(seqset.df$seq.name, sl)
+      }
+    }
 
+    fileConn <- file( file.path(folder, paste0(file.prefix, "-", f1, "-", (f2-1), ".", file.extension)) )
+    cat("write", length(uid), "sequences", getFirstNInString(uid, 5), "to", fileConn, "\n")
+    
+    # covert 2 columns into a vector by rows
+    seq.vec <- as.character(as.vector( t(as.matrix( seqset.df[,c("seq.name","sequence")] )) ))
+    writeLines(seq.vec, fileConn)
+    close(fileConn)
+    
+    Sys.sleep(sleep) # sleep 30 seconds
+    f1 <- f2
+  }
+}
+  
 

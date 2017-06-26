@@ -4,14 +4,34 @@
 \alias{EUtils}
 \alias{parseTSeqSet}
 \alias{parseTaxaSet}
+\alias{seqSet2Fasta}
 \title{EUtils NCBI}
 \usage{
 parseTaxaSet(xml)
 
 parseTSeqSet(xml)
+
+seqSet2Fasta(seqset.uid, by = 20, folder = ".", file.prefix = "Refseq",
+  file.extension = "fasta", seq.label = c("accver", ", ", "orgname",
+  ", chloroplast"), sleep = 30)
 }
 \arguments{
 \item{xml}{The XML result of \code{\link{efetch}}.}
+
+\item{seqset.uid}{The vector of \code{uid} for \code{\link{efetch}} to download sequence,
+where db = "nuccore", rettype = "fasta". 
+The \code{uid} will either look like NC_016668.1 ("accver") or KM462867 ("INSDC").}
+
+\item{by}{Split \code{seqset.uid} into subgroups by the given number, defaul to 20.}
+
+\item{folder, file.prefix, file.extension}{Determine the file name.}
+
+\item{seq.label}{The vector of string to determine how to label the sequence. 
+If the element is one of the column name data.frame from \code{parseTSeqSet}, 
+then the label of that position will be the value of that column. 
+The available columns are "seqtype", "gi", "accver", "taxid", "orgname", "defline", "length".}
+
+\item{sleep}{Please set enough sleep time. Default 30 seconds.}
 }
 \description{
 Utils to process data downloaded from NCBI.
@@ -59,6 +79,10 @@ which inlcudes "TaxId", "ScientificName", "ACCESSION", "Lineage", "sequence".
     <TSeq_sequence>CATTTTAGTTATGGGC...GCTGT</TSeq_sequence>
   </TSeq>
 </TSeqSet>
+
+\code{seqSet2Fasta} downloads reference sequences given their \code{uid} 
+using \code{\link{efetch}}. \code{parseTSeqSet} is used to parse the 
+\code{\link{efetch}} result.
 }
 \examples{
 library("reutils")
@@ -68,6 +92,8 @@ taxa.df <- parseTaxaSet(taxa$content)
 seqset <- efetch("NC_031445.1", "nuccore", "fasta")
 seqset.df <- parseTSeqSet(seqset$content)
 
+seqSet2Fasta(c("NC_031445.1", "NC_026892.1"), ) 
+ 
 }
 \keyword{eutils}
 
