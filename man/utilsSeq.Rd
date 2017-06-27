@@ -3,26 +3,28 @@
 \name{utilsSeq}
 \alias{getTaxaMap}
 \alias{renameFastaID}
+\alias{rmDuplicateSeq}
 \alias{subsetSequences}
 \alias{utilsSeq}
 \title{Utils to manipulate sequences or OTUs}
 \usage{
-subsetSequences(otus.file, otus.names, otus.out.file,
-  regex1 = "(\\\\|[0-9]+)", regex2 = "", ignore.case = TRUE,
-  max.seq = NA)
+subsetSequences(in.file, otus.names, out.file, regex1 = "(\\\\|[0-9]+)",
+  regex2 = "", ignore.case = TRUE, max.seq = NA)
 
 renameFastaID(fasta, regex1 = NA, regex2 = "", ignore.case = TRUE)
 
-getTaxaMap(otus.file, trait.name = "taxon", trait.value = "Bacteria",
+rmDuplicateSeq(in.file, out.file = "unique-alg.fasta")
+
+getTaxaMap(in.file, trait.name = "taxon", trait.value = "Bacteria",
   regex1 = NA, regex2 = "", ignore.case = TRUE)
 }
 \arguments{
-\item{otus.file}{The fasta file of OTU representive sequences. 
+\item{in.file}{The fasta file of OTU representive sequences. 
 Read by \code{\link{readFasta}}.}
 
-\item{otus.names}{The vector of names to match sequence labels in \code{otus.file}.}
+\item{otus.names}{The vector of names to match sequence labels in \code{in.file}.}
 
-\item{otus.out.file}{The output fasta file containing extrated sequences.}
+\item{out.file}{The output fasta file containing extrated sequences.}
 
 \item{regex1, regex2}{Use for \code{\link{gsub}(regex1, regex2, id(fasta))} 
 to remove or replace annotation from original labels. 
@@ -32,7 +34,8 @@ but NA in \code{renameFastaID}, which does nothing.}
 
 \item{ignore.case}{Refer to \code{\link{gsub}}.}
 
-\item{max.seq}{Give the number (\code{max.seq}) of seleceted sequences randomly in the end. 
+\item{max.seq}{Give the number (\code{max.seq}) of seleceted sequences, 
+if extracted sequences \code{> max.seq}, then choose \code{max.seq} sequences randomly from them. 
 Defaul to NA to ignore it.}
 
 \item{fasta}{The fasta object returned by \code{\link{readFasta}}.}
@@ -54,13 +57,17 @@ It is depended on \code{\link{ShortRead}} package. Follow the instruction
 \code{renameFastaID} renames the sequences id loaded from a fasta file 
 using \code{\link{ShortRead}} package.
 
+\code{rmDuplicateSeq} removes duplicate sequences or alginments.
+
 \code{getTaxaMap} returns a data frame of mapping file to annotate a tree, 
 such as \code{\link{annotateRAXMLTree}}.
 }
 \examples{
-subsetSequences(otus.file, otus.names, otus.out.file)
+subsetSequences(in.file, otus.names, out.file)
 
 fasta <- renameFastaID(fasta)
+
+rmDuplicateSeq("alg.fasta", "unique-alg.fasta")
 
 taxa.map <- getTaxaMap("16s-otus-Bacteria.fasta", trait.name="taxon", trait.value="Bacteria")
 

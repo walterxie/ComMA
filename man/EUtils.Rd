@@ -11,7 +11,7 @@ parseTaxaSet(xml)
 
 parseTSeqSet(xml)
 
-seqSet2Fasta(seqset.uid, by = 20, folder = ".", file.prefix = "Refseq",
+seqSet2Fasta(seqset.uid, by = 5, folder = ".", file.prefix = "Refseq",
   file.extension = "fasta", seq.label = c("accver", ", ", "orgname",
   ", chloroplast"), sleep = 30)
 }
@@ -92,7 +92,7 @@ taxa.df <- parseTaxaSet(taxa$content)
 seqset <- efetch("NC_031445.1", "nuccore", "fasta")
 seqset.df <- parseTSeqSet(seqset$content)
 
-seqSet2Fasta(c("NC_031445.1", "NC_026892.1"), ) 
+seqSet2Fasta(c("NC_031445.1", "NC_026892.1"), seq.label=c("accver", ", ", "orgname", ", chloroplast")) 
  
 }
 \keyword{eutils}

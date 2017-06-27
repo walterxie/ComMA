@@ -21,28 +21,29 @@
 #' It is depended on \code{\link{ShortRead}} package. Follow the instruction 
 #' \url{https://bioconductor.org/packages/release/bioc/html/ShortRead.html} to install.
 #' 
-#' @param otus.file The fasta file of OTU representive sequences. 
+#' @param in.file The fasta file of OTU representive sequences. 
 #' Read by \code{\link{readFasta}}.
-#' @param otus.names The vector of names to match sequence labels in \code{otus.file}.
-#' @param otus.out.file The output fasta file containing extrated sequences.
+#' @param otus.names The vector of names to match sequence labels in \code{in.file}.
+#' @param out.file The output fasta file containing extrated sequences.
 #' @param regex1,regex2 Use for \code{\link{gsub}(regex1, regex2, id(fasta))} 
 #' to remove or replace annotation from original labels. 
 #' Default to \code{regex1="(\\|[0-9]+)", regex2=""} in \code{subsetSequences}, 
 #' which removes size annotation seperated by "|", 
 #' but NA in \code{renameFastaID}, which does nothing.
 #' @param ignore.case Refer to \code{\link{gsub}}.
-#' @param max.seq Give the number (\code{max.seq}) of seleceted sequences randomly in the end. 
+#' @param max.seq Give the number (\code{max.seq}) of seleceted sequences, 
+#' if extracted sequences \code{> max.seq}, then choose \code{max.seq} sequences randomly from them. 
 #' Defaul to NA to ignore it.
 #' @keywords util
 #' @export
 #' @examples 
-#' subsetSequences(otus.file, otus.names, otus.out.file)
+#' subsetSequences(in.file, otus.names, out.file)
 #'
 #' @rdname utilsSeq
-subsetSequences <- function(otus.file, otus.names, otus.out.file, regex1="(\\|[0-9]+)", 
+subsetSequences <- function(in.file, otus.names, out.file, regex1="(\\|[0-9]+)", 
                             regex2="", ignore.case = TRUE, max.seq=NA) {
   require(ShortRead)
-  otus.fasta <- readFasta(otus.file)
+  otus.fasta <- readFasta(in.file)
   # remove/replace annotation
   otus.fasta <- ComMA::renameFastaID(otus.fasta, regex1=regex1, regex2=regex2, ignore.case=ignore.case)
   fasta.id <- as.character(id(otus.fasta))
@@ -56,16 +57,15 @@ subsetSequences <- function(otus.file, otus.names, otus.out.file, regex1="(\\|[0
       "by given", length(otus.names), "sequence names.\n")
   
   if (length(final.fasta) != length(otus.names))
-    stop(cat("The number of extracted sequences", length(final.fasta), 
-             "!=", length(otus.names), "given names !\n"))
+    warning("The extracted sequences ", length(final.fasta), " != ", length(otus.names), " given otus.names !\n")
   
   if (! is.na(max.seq) && max.seq > 1 && length(final.fasta) > max.seq) {
     final.id <- sample(1:length(final.fasta), max.seq, replace=F)
     final.fasta <- final.fasta[final.id]
-    cat("Set max sequences = ", max.seq, ", so as to randomly extract", length(final.fasta), "sequences in the end.\n")
+    cat("Over max limit of sequences ", max.seq, ", so as to randomly extract", length(final.fasta), "sequences from them.\n")
   }
   
-  writeFasta(final.fasta, otus.out.file)
+  writeFasta(final.fasta, out.file)
 }
 
 #' @details 
@@ -95,6 +95,25 @@ renameFastaID <- function(fasta, regex1=NA, regex2="", ignore.case=TRUE) {
 }
 
 #' @details 
+#' \code{rmDuplicateSeq} removes duplicate sequences or alginments. 
+#' 
+#' @keywords util
+#' @export
+#' @examples 
+#' rmDuplicateSeq("alg.fasta", "unique-alg.fasta")
+#'
+#' @rdname utilsSeq
+rmDuplicateSeq <- function(in.file, out.file="unique-alg.fasta") {
+  require(ShortRead)
+  otus.alg <- readFasta(in.file)
+  cat("Find", length(srduplicated(otus.alg)[srduplicated(otus.alg)==TRUE]), "duplicate sequences from", in.file, "\n")
+  #id(otus.alg)[srduplicated(otus.alg)]
+  otus.alg.unique <- otus.alg[srduplicated(otus.alg)==FALSE]
+  writeFasta(otus.alg.unique, out.file)
+}
+
+
+#' @details 
 #' \code{getTaxaMap} returns a data frame of mapping file to annotate a tree, 
 #' such as \code{\link{annotateRAXMLTree}}. 
 #' 
@@ -106,9 +125,9 @@ renameFastaID <- function(fasta, regex1=NA, regex2="", ignore.case=TRUE) {
 #' taxa.map <- getTaxaMap("16s-otus-Bacteria.fasta", trait.name="taxon", trait.value="Bacteria")
 #'
 #' @rdname utilsSeq
-getTaxaMap <- function(otus.file, trait.name="taxon", trait.value="Bacteria", regex1=NA, regex2="", ignore.case=TRUE) {
+getTaxaMap <- function(in.file, trait.name="taxon", trait.value="Bacteria", regex1=NA, regex2="", ignore.case=TRUE) {
   require(ShortRead)
-  otus.fasta <- readFasta(otus.file)
+  otus.fasta <- readFasta(in.file)
   # rename the sequences id if regex1 not NA
   otus.fasta <- ComMA::renameFastaID(otus.fasta, regex1=regex1, regex2=regex2, ignore.case=ignore.case)
   

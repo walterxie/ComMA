@@ -153,9 +153,9 @@ parseTSeqSet <- function(xml) {
 #' seqSet2Fasta(c("NC_031445.1", "NC_026892.1"), seq.label=c("accver", ", ", "orgname", ", chloroplast")) 
 #'  
 #' @rdname EUtils
-seqSet2Fasta <- function(seqset.uid, by=20, folder=".", file.prefix="Refseq", file.extension="fasta", 
+seqSet2Fasta <- function(seqset.uid, by=5, folder=".", file.prefix="Refseq", file.extension="fasta", 
                          seq.label=c("accver", ", ", "orgname", ", chloroplast"), sleep=30) {
-  fq <- c(seq(1, length(seqset.uid), by=20), (length(seqset.uid)+1))
+  fq <- c(seq(1, length(seqset.uid), by=by), (length(seqset.uid)+1))
   cat("break vector seqset.uid into", length(fq)-1, "subgroups, index = ", paste(fq, collapse = ", "), ".\n")
   
   require("reutils")
