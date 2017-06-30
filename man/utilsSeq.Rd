@@ -8,8 +8,9 @@
 \alias{utilsSeq}
 \title{Utils to manipulate sequences or OTUs}
 \usage{
-subsetSequences(in.file, otus.names, out.file, regex1 = "(\\\\|[0-9]+)",
-  regex2 = "", ignore.case = TRUE, max.seq = NA)
+subsetSequences(in.file, out.file, otus.names = c(),
+  regex1 = "(\\\\|[0-9]+)", regex2 = "", ignore.case = TRUE,
+  max.seq = 0)
 
 renameFastaID(fasta, regex1 = NA, regex2 = "", ignore.case = TRUE)
 
@@ -22,9 +23,9 @@ getTaxaMap(in.file, trait.name = "taxon", trait.value = "Bacteria",
 \item{in.file}{The fasta file of OTU representive sequences. 
 Read by \code{\link{readFasta}}.}
 
-\item{otus.names}{The vector of names to match sequence labels in \code{in.file}.}
-
 \item{out.file}{The output fasta file containing extrated sequences.}
+
+\item{otus.names}{The vector of names to match sequence labels in \code{in.file}.}
 
 \item{regex1, regex2}{Use for \code{\link{gsub}(regex1, regex2, id(fasta))} 
 to remove or replace annotation from original labels. 
@@ -36,7 +37,7 @@ but NA in \code{renameFastaID}, which does nothing.}
 
 \item{max.seq}{Give the number (\code{max.seq}) of seleceted sequences, 
 if extracted sequences \code{> max.seq}, then choose \code{max.seq} sequences randomly from them. 
-Defaul to NA to ignore it.}
+Defaul to 0 to ignore it.}
 
 \item{fasta}{The fasta object returned by \code{\link{readFasta}}.}
 

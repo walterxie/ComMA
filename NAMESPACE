@@ -3,6 +3,7 @@
 export(TurnoverDist)
 export(annotateRAXMLTree)
 export(assignTaxaByRank)
+export(batchDownload)
 export(beta1minus1)
 export(combineTaxaAssign)
 export(combineTriMatrix)

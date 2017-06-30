@@ -23,8 +23,8 @@
 #' 
 #' @param in.file The fasta file of OTU representive sequences. 
 #' Read by \code{\link{readFasta}}.
-#' @param otus.names The vector of names to match sequence labels in \code{in.file}.
 #' @param out.file The output fasta file containing extrated sequences.
+#' @param otus.names The vector of names to match sequence labels in \code{in.file}.
 #' @param regex1,regex2 Use for \code{\link{gsub}(regex1, regex2, id(fasta))} 
 #' to remove or replace annotation from original labels. 
 #' Default to \code{regex1="(\\|[0-9]+)", regex2=""} in \code{subsetSequences}, 
@@ -33,33 +33,41 @@
 #' @param ignore.case Refer to \code{\link{gsub}}.
 #' @param max.seq Give the number (\code{max.seq}) of seleceted sequences, 
 #' if extracted sequences \code{> max.seq}, then choose \code{max.seq} sequences randomly from them. 
-#' Defaul to NA to ignore it.
+#' Defaul to 0 to ignore it.
 #' @keywords util
 #' @export
 #' @examples 
 #' subsetSequences(in.file, otus.names, out.file)
 #'
 #' @rdname utilsSeq
-subsetSequences <- function(in.file, otus.names, out.file, regex1="(\\|[0-9]+)", 
-                            regex2="", ignore.case = TRUE, max.seq=NA) {
+subsetSequences <- function(in.file, out.file, otus.names=c(), regex1="(\\|[0-9]+)", 
+                            regex2="", ignore.case = TRUE, max.seq=0) {
   require(ShortRead)
   otus.fasta <- readFasta(in.file)
-  # remove/replace annotation
-  otus.fasta <- ComMA::renameFastaID(otus.fasta, regex1=regex1, regex2=regex2, ignore.case=ignore.case)
+  if (!is.na(regex1)) {
+    # remove/replace annotation
+    otus.fasta <- ComMA::renameFastaID(otus.fasta, regex1=regex1, regex2=regex2, ignore.case=ignore.case)
+  }
   fasta.id <- as.character(id(otus.fasta))
   
-  if (! is(otus.names, "character"))
-    otus.names <- as.character(otus.names)
+  # extract seq by otus.names
+  if (length(otus.names) > 0) {
+    if (! is(otus.names, "character"))
+      otus.names <- as.character(otus.names)
+    
+    final.fasta <- otus.fasta[(fasta.id %in% otus.names),]
+    
+    cat("Extract", length(final.fasta), "sequences from total", length(otus.fasta), 
+        "by given", length(otus.names), "sequence names.\n")
+    
+    if (length(final.fasta) != length(otus.names))
+      warning("The extracted sequences ", length(final.fasta), " != ", length(otus.names), " given otus.names !\n")
+  } else {
+    final.fasta <- otus.fasta
+  }
   
-  final.fasta <- otus.fasta[(fasta.id %in% otus.names),]
-  
-  cat("Extract", length(final.fasta), "sequences from total", length(otus.fasta), 
-      "by given", length(otus.names), "sequence names.\n")
-  
-  if (length(final.fasta) != length(otus.names))
-    warning("The extracted sequences ", length(final.fasta), " != ", length(otus.names), " given otus.names !\n")
-  
-  if (! is.na(max.seq) && max.seq > 1 && length(final.fasta) > max.seq) {
+  # random select max.seq sequences
+  if (max.seq > 1 && length(final.fasta) > max.seq) {
     final.id <- sample(1:length(final.fasta), max.seq, replace=F)
     final.fasta <- final.fasta[final.id]
     cat("Over max limit of sequences ", max.seq, ", so as to randomly extract", length(final.fasta), "sequences from them.\n")

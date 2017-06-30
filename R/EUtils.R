@@ -9,8 +9,8 @@
 #' @import xml2
 #' 
 #' @details 
-#' \code{parseTaxaSet} parses the result XML (DOCTYPE is TaxaSet) 
-#' of \code{\link{efetch}} from taxonomy database into a data.frame, 
+#' \code{parseTaxaSet} parses the taxonomy XML (DOCTYPE is TaxaSet) 
+#' as the result of \code{\link{efetch}} from taxonomy database into a data.frame, 
 #' which inlcudes "TaxId", "ScientificName", "Rank", "Lineage", "Division", 
 #' and the format of taxa.table from "kingdom" to "genus".
 #' 
@@ -80,8 +80,8 @@ parseTaxaSet <- function(xml) {
 }
 
 #' @details 
-#' \code{parseTSeqSet} parses the result XML (DOCTYPE is TSeqSet) 
-#' of \code{\link{efetch}} from nuccore database into a data.frame, 
+#' \code{parseTSeqSet} parses the TinySeq XML (DOCTYPE is TSeqSet) 
+#' as the result of \code{\link{efetch}} from nuccore database into a data.frame, 
 #' which inlcudes "TaxId", "ScientificName", "ACCESSION", "Lineage", "sequence".
 #' 
 #' <TSeqSet>
@@ -98,13 +98,15 @@ parseTaxaSet <- function(xml) {
 #'   </TSeq>
 #' </TSeqSet>
 #' 
+#' @param save.seq If TRUE as default, save sequences 
+#' into data.frame returned by \code{parseTSeqSet}.
 #' @export
 #' @examples 
 #' seqset <- efetch("NC_031445.1", "nuccore", "fasta")
 #' seqset.df <- parseTSeqSet(seqset$content)
 #' 
 #' @rdname EUtils
-parseTSeqSet <- function(xml) {
+parseTSeqSet <- function(xml, save.seq=T) {
   tag1 <- "TSeqSet"
   
   require(xml2)
@@ -127,15 +129,56 @@ parseTSeqSet <- function(xml) {
       seqtype <- xml_child(seqset[t], "TSeq_seqtype")
       seq.df[t,"seqtype"] <- xml_attr(seqtype, "value")
     }
+    if (!save.seq && "sequence" %in% colnames(seq.df))
+      seq.df[t,"sequence"] <- NA
   }
   
   data.frame(seq.df, stringsAsFactors=FALSE)
 }
 
 #' @details 
+#' \code{batchDownload} downloads NCBI data given a vector of \code{uid} 
+#' using \code{\link{efetch}} one at a time for each \code{uid}, 
+#' and writes all results directly to a file without parsing.  
+#' 
+#' @param uid.vec The vector of \code{uid} for \code{\link{efetch}} to NCBI data. 
+#' The \code{uid} will either look like NC_016668.1 ("accver") or KM462867 ("INSDC").
+#' @param db,rettype,retmode,... The arguments of \code{\link{efetch}}.
+#' See \url{https://www.ncbi.nlm.nih.gov/books/NBK25499/table/chapter4.T._valid_values_of__retmode_and/?report=objectonly}
+#' for all supported databases and their available values. 
+#' @param out.file The file to write all results directly without parsing.
+#' Note: if \code{length(uid) > 500}, \code{outfile} of \code{\link{efetch}} is required.
+#' @param sleep Please be nice to give enough time to break. Default 10 seconds.
+#' @keywords eutils
+#' @export
+#' @examples
+#' batchDownload(c("NC_031445.1", "NC_026892.1"), "nuccore", "gb", out.file="res.gbff") 
+#'  
+#' @rdname EUtils
+batchDownload <- function(uid.vec, db = NULL, rettype = NULL, retmode = NULL, out.file="res.txt", sleep=10, ...) {
+  if (length(uid.vec) < 0)
+    stop("Invalid input vector of uid ! length = ", length(uid.vec))
+  
+  require("reutils")
+  res.vec <- c()
+  for (i in 1:length(uid.vec)) {
+    uid <- as.character(uid.vec[i])
+    cat(i, ": downloading ", uid, " from db =", db, ", retrieval type =", rettype, " \n")
+    res <- efetch(uid, db=db, rettype=rettype, retmode=retmode, ...)
+    res.vec <- c(res.vec, res$content)
+    Sys.sleep(10)
+  }
+  cat("Write to file ", out.file, "\n")
+  file.create(out.file)
+  fileConn <- file(out.file)
+  writeLines(gb.vec, fileConn)
+  close(fileConn)
+}
+
+#' @details 
 #' \code{seqSet2Fasta} downloads reference sequences given their \code{uid} 
 #' using \code{\link{efetch}}. \code{parseTSeqSet} is used to parse the 
-#' \code{\link{efetch}} result. 
+#' result of \code{\link{efetch}}. 
 #' 
 #' @param seqset.uid The vector of \code{uid} for \code{\link{efetch}} to download sequence,
 #' where db = "nuccore", rettype = "fasta". 
@@ -146,7 +189,6 @@ parseTSeqSet <- function(xml) {
 #' If the element is one of the column name data.frame from \code{parseTSeqSet}, 
 #' then the label of that position will be the value of that column. 
 #' The available columns are "seqtype", "gi", "accver", "taxid", "orgname", "defline", "length". 
-#' @param sleep Please set enough sleep time. Default 30 seconds.
 #' @keywords eutils
 #' @export
 #' @examples
